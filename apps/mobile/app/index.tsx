@@ -8,8 +8,7 @@ export default function HomeScreen(): ReactElement {
         Mecânica São Jorge
       </Text>
       <Text style={styles.subtitle}>
-        Scaffold do app mobile. As telas de cada funcionalidade chegam a partir da etapa de
-        Login.
+        Scaffold do app mobile. As telas de cada funcionalidade chegam a partir da etapa de Login.
       </Text>
     </View>
   );
