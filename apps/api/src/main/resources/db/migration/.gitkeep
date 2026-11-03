@@ -1,0 +1,5 @@
+# Mantem a pasta versionada.
+#
+# A primeira migration (V1__...) chega com a primeira feature de dominio
+# (Login/Usuarios ou Clientes/Veiculos), conforme ADR-003 (MySQL + Flyway).
+# Nenhuma tabela de negocio foi criada nesta etapa de setup.
