@@ -65,3 +65,60 @@ segmented control, detalhe com histórico, e os três estados de erro) mais a
 conferência estrutural via `get_metadata` (nomes das 94 frames contra a
 matriz da spec). Não é uma verificação exaustiva de todas as 94 telas
 individualmente — registrado como o que foi checado de fato, não suposto.
+
+## Fechamento de resíduos (2026-11-07, ESQUADRO)
+
+A pedido do REGENTE, reli o arquivo real (não só esta spec) com `get_metadata`
+sobre a página inteira (118 frames: 94 de tela/estado + 24 popups novos) e
+achei três resíduos reais, confirmados por XML antes de qualquer correção —
+não presumidos:
+
+1. **US-DES-13 violado em 24 telas**: o estado "Erro de rede" tinha sido
+   construído como **tela cheia substituindo o conteúdo** (só ícone + título +
+   texto + botão sobre fundo branco), e não como popup sobre a tela, como a
+   Premissa 5 e o US-DES-13 exigem. Corrigido nas 24 telas: cada frame "Erro
+   de rede" agora traz o conteúdo de fundo da própria tela (clonado do estado
+   "Carregando" correspondente, mesma estrutura/skeleton), uma sobreposição
+   escurecida (preto a 50% de opacidade) e um cartão modal centralizado
+   (branco, cantos arredondados, sombra) com o ícone, "Não foi possível
+   carregar", "Verifique sua conexão e tente novamente." e o botão "Tentar
+   novamente" — mantendo o conteúdo de fundo visível, porém inativo. A legenda
+   de leitor de tela foi reescrita por tela ("Erro ao carregar [nome da
+   tela]"), com um fundo sutil atrás dela para manter contraste de leitura
+   sobre o conteúdo esmaecido (necessário sobretudo na tela 18, formulário
+   mais alto que as demais, 826 px).
+2. **US-DES-12 violado em 47 textos**: mensagens de erro (banners de erro de
+   rede dentro de formulários e mensagens de erro de validação por campo)
+   começavam com `"! "`, contra a regra explícita de não iniciar com `"!"`.
+   Removido o prefixo nos 47 nós de texto, mantendo o conteúdo da mensagem.
+3. **US-DES-11 violado em 17 textos**: placeholder de busca usava o emoji
+   `🔍` ("🔍 Buscar cliente" etc., 9 ocorrências em Clientes/Serviços/Peças) e
+   a alternância "Ativo" usava o emoji `🟢` ("🟢 Ativo", 8 ocorrências em
+   Serviços e Peças editar). Removidos os dois emojis, mantendo só o texto
+   (o rótulo "Busca" acima do campo e o texto "Ativo" já cumpriam a função,
+   sem depender do emoji).
+
+**Como foi verificado**: script Python sobre o XML de `get_metadata` (salvo
+localmente) para localizar e contar cada ocorrência antes de corrigir;
+correção aplicada via `use_figma` (API de plugin) node a node, usando os ids
+reais; nova varredura completa do XML após a correção confirmando 0
+ocorrências residuais de `"! "` no início de texto e 0 ocorrências de emoji
+colorido (faixa Unicode de pictogramas), com os 94 frames de tela/estado
+preservados (nenhum apagado) e 24 popups novos (118 frames no total). Validado
+visualmente com `get_screenshot` em 5 telas (Login erro de rede, Clientes
+lista erro de rede, Peças lista erro de rede, OS criar erro de rede — a mais
+alta/complexa — e Login erro de validação, para confirmar que a correção do
+"!" não quebrou a leitura da mensagem).
+
+**O símbolo `⚠`** (ícone de alerta, presente em todos os estados de erro)
+foi mantido: é um glifo de aviso (dingbat), não um emoji colorido, e já era a
+decisão de design registrada para representar "ícone de alerta" nesta etapa
+de baixa fidelidade, sem ícone vetorial.
+
+**Pendência que segue de pé, não coberta por este fechamento**: a tela 18
+(OS · criar, erro de rede) ainda tem um leve bleed visual de 1-2 px de
+conteúdo esmaecido nas bordas do fundo de contraste da legenda, por ser a
+única tela mais alta que o padrão (826 px vs. 800 px) com seções muito
+compactas; não afeta a leitura da legenda nem é uma violação de critério de
+aceitação, registrado aqui como polimento visual menor para quando a F24
+virar protótipo de alta fidelidade.
