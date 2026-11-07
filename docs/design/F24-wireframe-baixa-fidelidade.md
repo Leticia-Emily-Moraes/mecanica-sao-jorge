@@ -3,7 +3,11 @@
 - Prioridade: P1 / Área: Frontend / Sprint 01
 - Autora: ESQUADRO (Design system e acessibilidade)
 - Data: 2026-11-07
-- Etapa da rota: BUSSOLA → **ESQUADRO (2/3)** → CRIVO
+- Etapa da rota: BUSSOLA → CARTOGRAFO → **ESQUADRO (3/4)** → CRIVO
+- Revisão 2026-11-07: incorporados os 6 gaps de navegação apontados por
+  CARTOGRAFO em `docs/architecture/diagrams/navegacao-wireframe-f24.md`
+  (seção 5 daquele mapa) — ver seção 4.6 e a linha "Navegação" em cada tela
+  da seção 6.
 
 ## 1. Bloqueio de acesso ao Figma (ler antes do resto)
 
@@ -117,6 +121,26 @@ rótulo, além de cor. Exemplo: badge de status de parcela nunca é só uma boli
 colorida — é "● Paga" / "● Pendente" / "● Atrasada" com texto visível e também
 lido pelo leitor de tela.
 
+### 4.6 Tab bar e sub-navegação pós-login (fecha o Gap 2 do mapa do CARTOGRAFO)
+
+A casa pós-login é `02 Perfil`, acessada pela tab bar inferior — roteador de
+nível 0 que expõe o topo de cada módulo. Na Sprint 01 a tab bar só tem a aba
+Perfil; as demais abas entram sprint a sprint (F33), mas o wireframe já
+especifica a estrutura completa das 24 telas, então a tab bar aqui representa
+o alvo final das 5 abas:
+
+| Aba | Tela(s)-topo | Como as duas telas da aba ficam visíveis |
+|---|---|---|
+| Perfil | `02 Perfil` | única tela da aba |
+| Clientes | `03 Clientes · lista` | única tela da aba |
+| Catálogo | `10 Serviços · lista` e `13 Peças · lista` | segmented control no topo da tela ("Serviços" / "Peças"), ambos os rótulos sempre visíveis, sem depender de cor para indicar qual está ativo — o rótulo ativo leva sublinhado ou fundo preenchido **e** peso de fonte maior |
+| Ordens de Serviço | `17 Ordens de Serviço · lista` | única tela da aba |
+| Financeiro | `22 Financeiro · parcelas` e `24 Financeiro · lançamentos` | mesmo padrão de segmented control ("Parcelas" / "Lançamentos") |
+
+Isso garante que `13 Peças · lista` e `24 Financeiro · lançamentos` — que
+antes só apareciam como destino de outras telas — têm entrada própria e
+visível a partir da raiz, fechando a lacuna 2 do mapa de navegação.
+
 ## 5. Dado fictício padrão (US-DES-04, reaproveitado em todas as telas)
 
 Nenhum dado real da oficina. Mesmo conjunto fictício em todas as telas, para
@@ -151,6 +175,8 @@ estado que não se aplica, conforme checklist da BUSSOLA (seção 7).
 
 ### 01 — Login
 *Sem navegação inferior. Vazio: N/A (tela de ação, não de listagem).*
+- Navegação: entra sem origem (raiz do app); sai para 02 Perfil ao autenticar
+  com sucesso.
 - Hierarquia: nome do app → campo "E-mail" (teclado de e-mail) → campo "Senha"
   (oculta por padrão, com botão "Mostrar senha"/"Ocultar senha", alvo 44×44) →
   botão "Entrar".
@@ -171,6 +197,8 @@ estado que não se aplica, conforme checklist da BUSSOLA (seção 7).
 ### 02 — Perfil
 *Vazio: N/A (sempre há usuário logado). Erro de validação: N/A (sem
 formulário).*
+- Navegação: entra pela tab bar (aba Perfil) ou por 01 ao autenticar com
+  sucesso; sai para 01 ao tocar "Sair" (logout).
 - Hierarquia: nome do usuário → e-mail → perfil (badge "ADMIN" ou
   "FUNCIONARIO", com texto, não só cor) → botão "Sair".
 - Ordem de foco: nome/e-mail/perfil (somente leitura, sem foco interativo) →
@@ -183,6 +211,8 @@ formulário).*
   badge "ADMIN".
 
 ### 03 — Clientes · lista
+- Navegação: entra pela tab bar (aba Clientes); botão "Novo cliente" leva a
+  05, tocar um item leva a 04.
 - Hierarquia: título "Clientes" → campo de busca "Buscar cliente" → lista de
   itens (nome + telefone) → botão fixo "Novo cliente".
 - Ordem de foco: busca → itens da lista (cada um navega para o detalhe) →
@@ -194,15 +224,23 @@ formulário).*
 
 ### 04 — Clientes · detalhe
 *Vazio: N/A (só se acessa com um cliente existente). Erro de validação: N/A.*
+- Navegação: entra de 03 (toca item); botão "Editar cliente" leva a 06, botão
+  "Adicionar veículo" leva a 07 (fecha o Gap 1 apontado por CARTOGRAFO — antes
+  não havia ação declarada para chegar a `07 Veículos · criar`), tocar um
+  veículo da lista leva a 09.
 - Hierarquia: nome do cliente → telefone → e-mail → lista "Veículos" (placa +
-  modelo, cada item navega ao detalhe do veículo) → botão "Editar cliente".
-- Ordem de foco: dados do cliente (leitura) → lista de veículos → editar.
+  modelo, cada item navega ao detalhe do veículo) → botão "Adicionar veículo"
+  → botão "Editar cliente".
+- Ordem de foco: dados do cliente (leitura) → lista de veículos → adicionar
+  veículo → editar cliente.
 - Carregando: skeleton dos dados + skeleton da lista de veículos.
 - Preenchido: "Ana Beatriz Souza", "(11) 90000-0001",
   "ana.souza@exemplo-ficticio.com.br", veículo "FIC0A12 — Fiat Uno".
 
 ### 05 — Clientes · criar
 *Vazio: N/A.*
+- Navegação: entra de 03 ("Novo cliente"); "Salvar" leva a 04 (do cliente
+  criado), "Cancelar" volta a 03.
 - Hierarquia: título "Novo cliente" → campo "Nome completo" → campo
   "Telefone" → campo "E-mail" → botão "Cancelar" (secundário) → botão "Salvar"
   (primário).
@@ -221,9 +259,14 @@ formulário).*
 Mesma estrutura da tela 05, com campos pré-preenchidos com os dados atuais do
 cliente (estado inicial = "preenchido"). Diferença: título "Editar cliente" e
 botão primário "Salvar alterações".
+- Navegação: entra de 04 ("Editar cliente"); "Salvar alterações" e "Cancelar"
+  voltam a 04.
 
 ### 07 — Veículos · criar
 *Vazio: N/A.*
+- Navegação: entra de 04, ao tocar "Adicionar veículo" (Gap 1 fechado — ver
+  nota em 04); "Salvar" leva a 04 (ou a 09, do veículo recém-criado), "Cancelar"
+  volta a 04.
 - Hierarquia: título "Novo veículo" → indicação do cliente dono (somente
   leitura, ex.: "Cliente: Ana Beatriz Souza") → campo "Placa" → campo "Marca"
   → campo "Modelo" → campo "Ano" (numérico) → campo "Cor" (opcional) → campo
@@ -238,11 +281,18 @@ botão primário "Salvar alterações".
 ### 08 — Veículos · editar
 Mesma estrutura da tela 07, campos pré-preenchidos, título "Editar veículo",
 botão "Salvar alterações".
+- Navegação: entra de 09 ("Editar veículo"); "Salvar alterações" e "Cancelar"
+  voltam a 09.
 
 ### 09 — Veículos · detalhe com histórico de OS
+- Navegação: entra de 04 (toca um veículo) ou de 07/08 (após salvar); botão
+  "Editar veículo" leva a 08; tocar um item do histórico de OS leva a 19 OS ·
+  detalhe (fecha o Gap 4 do mapa do CARTOGRAFO — o item do histórico é
+  tocável e navega, não é só leitura).
 - Hierarquia: placa + marca/modelo → dados complementares (ano, cor,
   quilometragem) → dono (nome do cliente) → lista "Histórico de ordens de
-  serviço" (nº da OS, status, valor total, data) → botão "Editar veículo".
+  serviço" (nº da OS, status, valor total, data, cada item tocável) → botão
+  "Editar veículo".
 - Ordem de foco: dados do veículo → histórico de OS → editar.
 - Vazio: aqui "vazio" se refere só ao histórico de OS, não ao veículo —
   "Nenhuma ordem de serviço registrada para este veículo ainda" dentro da
@@ -251,13 +301,18 @@ botão "Salvar alterações".
   R$ 325,00 — 10/11/2026".
 
 ### 10 — Serviços · lista
+- Navegação: entra pela tab bar (aba Catálogo, sub-aba "Serviços" — seção
+  4.6); botão "Novo serviço" leva a 11; tocar um item da lista leva a 12
+  (fecha o Gap 3 do mapa do CARTOGRAFO — Serviços não tem tela de detalhe, o
+  toque no item vai direto para a edição).
 - Hierarquia: título "Serviços" → campo de busca "Buscar serviço" → lista
-  (nome do serviço + valor padrão de mão de obra) → botão fixo "Novo
-  serviço".
+  (nome do serviço + valor padrão de mão de obra, cada item tocável) → botão
+  fixo "Novo serviço".
 - Vazio: "Nenhum serviço cadastrado ainda" + botão "Cadastrar serviço".
 - Preenchido: "Troca de óleo — R$ 80,00".
 
 ### 11 — Serviços · criar
+- Navegação: entra de 10 ("Novo serviço"); "Salvar" e "Cancelar" voltam a 10.
 - Hierarquia: título "Novo serviço" → campo "Nome do serviço" (placeholder de
   schema, ver seção 3) → campo "Valor padrão de mão de obra" (moeda) → campo
   "Tempo estimado (horas)" (opcional) → "Cancelar" → "Salvar".
@@ -269,17 +324,29 @@ botão "Salvar alterações".
 Mesma estrutura da 11, pré-preenchida, título "Editar serviço". Campo extra:
 alternância "Ativo"/"Inativo" (coluna `ativo` já existe no schema), com rótulo
 textual visível nos dois estados, não só a posição do switch.
+- Navegação: entra de 10 (toca item); "Salvar alterações" e "Cancelar" voltam
+  a 10.
 
 ### 13 — Peças · lista
+- Navegação: entra pela tab bar (aba Catálogo, sub-aba "Peças" — seção 4.6);
+  botão "Nova peça" leva a 14; tocar um item da lista leva a 15 (fecha o
+  Gap 3 — Peças também não tem tela de detalhe); cada item tem uma ação
+  secundária "Movimentar estoque" que leva a 16 (fecha o Gap 5 do mapa do
+  CARTOGRAFO — antes `16 Movimentação de estoque` não tinha entrada
+  declarada e ficava órfã).
 - Hierarquia: título "Peças" → busca "Buscar peça" → lista (nome placeholder +
   código + estoque atual, com alerta textual "Estoque baixo" quando
-  `quantidade_estoque <= estoque_minimo`) → botão fixo "Nova peça".
+  `quantidade_estoque <= estoque_minimo`; cada item tocável para editar e com
+  ação secundária "Movimentar estoque") → botão fixo "Nova peça".
+- Ordem de foco: busca → itens da lista, e dentro de cada item: área principal
+  (editar) → botão "Movimentar estoque" → próximo item → nova peça.
 - Vazio: "Nenhuma peça cadastrada ainda" + botão "Cadastrar peça".
 - Preenchido: "Filtro de óleo — FO-1023 — 12 un.", segundo item fictício
   "Pastilha de freio — PF-2045 — 3 un. — Estoque baixo" (texto, não só cor,
   acompanhado de ícone de alerta).
 
 ### 14 — Peças · criar
+- Navegação: entra de 13 ("Nova peça"); "Salvar" e "Cancelar" voltam a 13.
 - Hierarquia: título "Nova peça" → campo "Nome da peça" (placeholder, seção 3)
   → campo "Código" → campo "Custo" (moeda) → campo "Preço de venda" (moeda) →
   campo "Quantidade em estoque" → campo "Estoque mínimo" → "Cancelar" →
@@ -296,9 +363,17 @@ Mesma estrutura da 14, pré-preenchida, título "Editar peça", mais alternânci
 "Código" fica somente leitura na edição (unicidade já validada na criação) —
 sinalizado visualmente como não editável, com explicação textual "O código não
 pode ser alterado depois do cadastro".
+- Navegação: entra de 13 (toca item); "Salvar alterações" e "Cancelar" voltam
+  a 13.
+- Erro de validação: "Informe o nome da peça", "Informe um custo válido",
+  "Informe um preço de venda válido" — **sem** "Informe o código" nem "Código
+  já cadastrado": o campo "Código" é somente leitura nesta tela (ver acima) e
+  por isso não participa da validação de formulário na edição.
 
 ### 16 — Movimentação de estoque
 *Vazio: N/A.*
+- Navegação: entra de 13, pelo botão "Movimentar estoque" do item da peça
+  (fecha o Gap 5 — ver nota em 13); "Confirmar" e "Cancelar" voltam a 13.
 - Hierarquia: título "Movimentar estoque" → indicação da peça (somente
   leitura, "Peça: Filtro de óleo — FO-1023") → campo "Tipo" (seleção:
   "Entrada" / "Saída" / "Ajuste", rótulo textual sempre visível) → campo
@@ -309,6 +384,8 @@ pode ser alterado depois do cadastro".
 - Preenchido: tipo "Saída" / quantidade "2" / motivo "Uso em OS-0001".
 
 ### 17 — Ordens de Serviço · lista
+- Navegação: entra pela tab bar (aba Ordens de Serviço); botão "Nova OS" leva
+  a 18; tocar um item leva a 19.
 - Hierarquia: título "Ordens de serviço" → filtro por status (seleção com
   rótulo textual, não só cor) → lista (nº da OS, cliente, veículo, status,
   valor total) → botão fixo "Nova OS".
@@ -316,6 +393,10 @@ pode ser alterado depois do cadastro".
 - Preenchido: "OS-0001 — Ana Beatriz Souza — FIC0A12 — [Status] — R$ 325,00".
 
 ### 18 — Ordens de Serviço · criar
+- Navegação: entra de 17 ("Nova OS"), consumindo 03/04 (seleção de cliente e
+  veículo) e 10/13 (seleção de serviços e peças) como origem de dados, não
+  como navegação de tela cheia; "Criar OS" leva a 19 (da OS recém-criada),
+  "Cancelar" volta a 17.
 *Formulário mais longo da operação — tratado como um fluxo em seções dentro
 da mesma tela, sem paginação, para manter a ordem de foco linear.*
 - Hierarquia: título "Nova ordem de serviço" → seção "Cliente e veículo"
@@ -337,6 +418,9 @@ da mesma tela, sem paginação, para manter a ordem de foco linear.*
 
 ### 19 — Ordens de Serviço · detalhe
 *Erro de validação: N/A.*
+- Navegação: entra de 17 (toca item), de 09 (toca item do histórico — ver
+  nota em 09) ou de 18 (após criar); botão "Alterar status" leva a 20, link
+  de parcelas leva a 21.
 - Hierarquia: nº da OS + status (texto, não só cor) → cliente e veículo →
   lista de serviços cobrados → lista de peças cobradas → resumo financeiro
   (subtotal de serviços, subtotal de peças, desconto, valor total) → lista de
@@ -350,6 +434,8 @@ da mesma tela, sem paginação, para manter a ordem de foco linear.*
 
 ### 20 — Ordens de Serviço · transição de status
 *Vazio e erro de validação: N/A (seleção fechada de opções, não texto livre).*
+- Navegação: entra de 19 ("Alterar status"); "Confirmar transição" e
+  "Cancelar" (implícito, voltar) retornam a 19.
 - Hierarquia: status atual (somente leitura) → lista de próximos status
   possíveis (seleção única, rótulo textual) → botão "Confirmar transição".
 - Ordem de foco: lista de opções → confirmar.
@@ -361,6 +447,8 @@ da mesma tela, sem paginação, para manter a ordem de foco linear.*
   3).
 
 ### 21 — Ordens de Serviço · parcelas
+- Navegação: entra de 19 (link de parcelas); botão "Registrar pagamento" por
+  parcela leva a 23.
 - Hierarquia: título "Parcelas da OS-0001" → lista de parcelas (nº da
   parcela/total, valor previsto, vencimento, status calculado — texto, não só
   cor) → botão "Configurar parcelamento" (quando ainda não existe) ou
@@ -371,15 +459,24 @@ da mesma tela, sem paginação, para manter a ordem de foco linear.*
   "Parcela 2 de 3 — R$ 108,33 — vence 15/01/2027 — ● Pendente".
 
 ### 22 — Financeiro · parcelas
+- Navegação: entra pela tab bar (aba Financeiro, sub-aba "Parcelas" — seção
+  4.6); cada parcela pendente ou atrasada tem botão "Registrar pagamento" que
+  leva a 23 (fecha o Gap 6 do mapa do CARTOGRAFO — antes o pagamento só era
+  alcançável a partir de 21, dentro do fluxo de uma OS específica; uma
+  parcela paga não mostra essa ação).
 - Hierarquia: título "Parcelas" → filtro por status (textual) → lista de
   parcelas de todas as OS (nº da OS, nº da parcela, cliente, valor, vencimento,
-  status calculado).
+  status calculado, com botão "Registrar pagamento" nas parcelas pendentes ou
+  atrasadas).
 - Vazio: "Nenhuma parcela encontrada para este filtro".
 - Preenchido: mesmo exemplo da tela 21, com a coluna extra "OS-0001" e
   "Ana Beatriz Souza".
 
 ### 23 — Financeiro · pagamento
 *Vazio: N/A.*
+- Navegação: entra de 21 ou de 22 (botão "Registrar pagamento", nos dois
+  casos — Gap 6 fechado); "Confirmar pagamento" e "Cancelar" voltam para a
+  tela de origem (21 ou 22, conforme de onde a pessoa veio).
 - Hierarquia: indicação da parcela (somente leitura: nº, valor previsto,
   vencimento) → campo "Valor pago" (moeda, pré-preenchido com o valor
   previsto, editável) → campo "Forma de pagamento" (seleção: "Dinheiro" /
@@ -393,6 +490,10 @@ da mesma tela, sem paginação, para manter a ordem de foco linear.*
 ### 24 — Financeiro · lançamentos (inclui lançamento manual)
 *Vazio aplica-se à lista; o formulário de lançamento manual é uma ação dentro
 da mesma tela (ex.: botão "Novo lançamento" abre o formulário).*
+- Navegação: entra pela tab bar (aba Financeiro, sub-aba "Lançamentos" —
+  seção 4.6, fecha o Gap 2 junto com 13); botão "Novo lançamento" abre o
+  formulário na própria tela; "Salvar" e "Cancelar" fecham o formulário e
+  voltam para a lista, sem sair da tela 24.
 - Hierarquia (lista): título "Lançamentos financeiros" → filtro por tipo
   ("Entrada"/"Saída") → lista (tipo, valor, origem — nº da OS/pagamento ou
   "Lançamento manual" —, data) → botão fixo "Novo lançamento".
@@ -445,6 +546,28 @@ um está justificado na seção 6 da tela correspondente).
 no Figma. Nenhuma célula representa um frame já criado — ver bloqueio na
 seção 1.
 
+### 7.1 Cobertura de fluxo (gaps do mapa do CARTOGRAFO, fechados)
+
+A matriz acima cobre **estado por tela**; o mapa de navegação de CARTOGRAFO
+(`docs/architecture/diagrams/navegacao-wireframe-f24.md`) cobre **fluxo entre
+telas** e apontou 6 lacunas (2 telas órfãs + 4 arestas implícitas). As seis
+foram fechadas nesta revisão com ação e rótulo explícitos declarados na linha
+"Navegação" de cada tela afetada, na seção 6:
+
+| Gap do CARTOGRAFO | Aresta fechada | Onde foi declarada |
+|---|---|---|
+| 1 — `07 Veículos · criar` órfã | `04 → 07` via botão "Adicionar veículo" | Seção 6, telas 04 e 07 |
+| 2 — Catálogo/Financeiro sem entrada visível para a segunda tela da aba | tab bar com segmented control por aba (Catálogo: Serviços/Peças; Financeiro: Parcelas/Lançamentos) | Seção 4.6; seção 6, telas 10, 13, 22, 24 |
+| 3 — `12 Serviços · editar` / `15 Peças · editar` só alcançáveis por "tocar item" | `10 → 12` e `13 → 15` declaradas | Seção 6, telas 10, 12, 13, 15 |
+| 4 — `09 → 19` não confirmado | item do histórico de OS em 09 é tocável e leva a 19 | Seção 6, telas 09 e 19 |
+| 5 — `16 Movimentação de estoque` órfã | `13 → 16` via ação "Movimentar estoque" no item da peça | Seção 6, telas 13 e 16 |
+| 6 — `22 → 23` não confirmado | `22` também tem "Registrar pagamento" por parcela, levando a 23 | Seção 6, telas 22 e 23 |
+
+Todas as 24 telas agora têm pelo menos uma entrada declarada a partir da raiz
+(`01 Login` → `02 Perfil` → tab bar) e pelo menos uma saída declarada. Nenhuma
+tela ficou sem caminho de volta (convenção 4.4 já previa cancelar/voltar em
+todo formulário e detalhe).
+
 ## 8. Rastreamento dos critérios de aceitação
 
 - **US-DES-01** (cobertura das 24 telas, nome identificável): especificado —
@@ -453,8 +576,11 @@ seção 1.
   11 telas sem "vazio" e nas 11 sem "erro de validação" o "—" está justificado
   por tela, não omitido.
 - **US-DES-03** (acessibilidade estrutural): cada tela na seção 6 lista rótulo
-  de controle, ordem de foco, e nenhum estado depende só de cor (convenção 4.5
-  e exemplos de badge/alerta textual).
+  de controle, ordem de foco, navegação de entrada/saída e nenhum estado
+  depende só de cor (convenção 4.5 e exemplos de badge/alerta textual).
+- **Cobertura de fluxo** (critério técnico adicional recomendado por
+  CARTOGRAFO, não um US formal, mas pré-condição de US-DES-07): os 6 gaps do
+  mapa de navegação foram fechados — ver seção 7.1.
 - **US-DES-04** (dado fictício): glossário único na seção 5; divergência de
   CPF/endereço de Clientes e nome de Serviços/Peças registrada na seção 3.
 - **US-DES-05** (erro de rede com mensagem e nova tentativa): convenção 4.3,
@@ -477,47 +603,72 @@ seção 1.
    decisão de produto/arquitetura, não uma decisão de design.
 3. Confirmar se "Financeiro · lançamentos" continua como uma tela só (lista +
    formulário de lançamento manual) — mesma dúvida já registrada pela
-   BUSSOLA, mantive a interpretação dela para fechar a contagem em 24.
+   BUSSOLA, mantive a interpretação dela para fechar a contagem em 24. Se
+   virar duas telas, as arestas de entrada/saída de 24 na seção 7.1 e no
+   mapa de CARTOGRAFO mudam e precisam ser republicadas.
+4. Confirmar com CARTOGRAFO se o botão "Movimentar estoque" dentro do item de
+   `13 Peças · lista` (seção 6, tela 13) é a affordance definitiva, ou se a
+   decisão correta é criar uma tela de detalhe de peça — o próprio mapa de
+   navegação aponta essa alternativa (seção 7 do mapa). Optei pela ação no
+   item por não exigir tela nova além das 24 já fechadas, mas é uma decisão
+   de design que registro aqui para revisão, não um fato indiscutível.
 
 ## 10. Handoff para CRIVO
 
 **O que foi feito**: especificação textual completa das 24 telas da F24, com
-hierarquia de informação, controles e rótulos, ordem de foco, e os cinco
-estados por tela (vazio, carregando, erro de rede, erro de validação,
-preenchido, cada um só onde se aplica), com dado fictício consistente e sem
-nenhum dado real da oficina. Divergências entre os critérios de aceitação e o
-schema atual (`V2__criar_schema_oficina.sql`) foram checadas e registradas uma
-a uma, em vez de inventar colunas que não existem.
+hierarquia de informação, controles e rótulos, ordem de foco, os cinco estados
+por tela (vazio, carregando, erro de rede, erro de validação, preenchido, cada
+um só onde se aplica) e, nesta revisão, a navegação de entrada e saída de cada
+tela — fechando os 6 gaps de fluxo (2 telas órfãs + 4 arestas implícitas) que
+CARTOGRAFO apontou em `docs/architecture/diagrams/navegacao-wireframe-f24.md`.
+Dado fictício consistente, sem nenhum dado real da oficina. Divergências entre
+os critérios de aceitação e o schema atual (`V2__criar_schema_oficina.sql`)
+seguem checadas e registradas uma a uma, em vez de inventar colunas que não
+existem.
 
 **Arquivos**:
-- Criado: `docs/design/F24-wireframe-baixa-fidelidade.md` (este arquivo).
-- Nenhum outro arquivo do repositório foi alterado.
+- Alterado: `docs/design/F24-wireframe-baixa-fidelidade.md` (este arquivo) —
+  acrescentada a seção 4.6 (tab bar e sub-navegação), a linha "Navegação" em
+  cada uma das 24 telas da seção 6, a seção 7.1 (tabela dos 6 gaps fechados) e
+  esta seção de handoff.
+- Nenhum outro arquivo do repositório foi alterado nesta etapa.
 - Não foi criado nem alterado nenhum arquivo em `apps/mobile` — esta etapa é
   de especificação, não de implementação de tela.
 
 **O que eu verifiquei de verdade** (vs. o que supus):
-- Verifiquei, rodando as ferramentas, que `figma_whoami` falha por token
-  ausente, e que não há `figma.com` nem referência a Figma em nenhum `.md` do
-  repositório (`grep -ril` em todo o projeto).
-- Verifiquei o schema real lendo `V2__criar_schema_oficina.sql` por completo —
-  as divergências da seção 3 são fato, não suposição.
-- Supus (e marquei como tal) os rótulos de `StatusOS`, já que overview.md
-  confirma que esse enum "ainda não fecha" até a Sprint 04 — usei
-  `[Status]` como placeholder em vez de inventar nomes.
+- Li por completo `docs/architecture/diagrams/navegacao-wireframe-f24.md` —
+  os 6 gaps e a tabela de entrada/saída das 24 telas (seções 4 e 5 daquele
+  mapa) são a fonte usada para cada aresta que fechei nesta revisão; não
+  inventei nenhuma navegação fora do que o mapa levantou.
+- Reconferi, tela a tela, que todas as 24 agora têm "Navegação" declarada na
+  seção 6 (entrada e saída), checando contra a tabela da seção 4 do mapa do
+  CARTOGRAFO linha por linha.
+- Não executei nenhuma ferramenta nova desta vez (sem acesso ao Figma, como
+  já registrado na seção 1) — esta revisão foi só do texto da especificação.
 
-**Decisões**: segui os critérios de aceitação da F24 (US-DES-04) para incluir
-CPF/endereço de cliente e nome de serviço/peça como campos do wireframe, mesmo
-sem coluna correspondente hoje, por ser uma decisão de produto registrada em
-AC — e não uma decisão que cabe a mim reverter sozinha. Deixei isso explícito
-para não ser confundido com implementação pronta.
+**Decisões**:
+- Representei "Catálogo" e "Financeiro" como abas com segmented control
+  interno (duas sub-telas visíveis por aba), em vez de criar duas tabs extras
+  na tab bar — motivo: a F24 fixa 5 módulos (Clientes, Catálogo, OS,
+  Financeiro, Perfil) e dividir Catálogo/Financeiro em tabs separadas mudaria
+  a contagem de abas sem pedido de produto para isso; registrei a alternativa
+  como decisão revisável, não como fato.
+- Para `16 Movimentação de estoque`, escolhi uma ação "Movimentar estoque" no
+  item de `13 Peças · lista` em vez de criar uma tela nova de detalhe de
+  peça — mantém as 24 telas fechadas, mas é uma escolha de design, não a
+  única possível (pendência 4 da seção 9).
+- Mantive a leitura já registrada da BUSSOLA/CARTOGRAFO para as demais
+  decisões de produto/schema (seções 3 e 9) — não reabri nenhuma delas.
 
-**Pendências**: as três da seção 9, com destaque para a primeira — sem
-`FIGMA_TOKEN` e sem um arquivo Figma real, a feature não tem como completar
-US-DES-07/08 (aprovação explícita da pessoa dona do produto), que são
-critérios de aceitação formais da F24.
+**Pendências**: as quatro da seção 9. Destaque para a 1 (Figma) e a 4 (decisão
+de design sobre `16`), que CRIVO deveria revisar com atenção redobrada por não
+serem fatos verificáveis, e sim escolhas que fiz para fechar o fluxo sem travar
+a entrega.
 
-**Próximo passo**: CRIVO confere se esta especificação cobre de fato os oito
-critérios de aceitação da F24 enquanto o Figma não existe, e REGENTE decide
-como destravar o acesso ao Figma (token, link do arquivo, ou aceitar este
-Markdown como artefato de aprovação substituto, com registro formal da
-divergência de ferramenta).
+**Próximo passo**: CRIVO confere **estado por tela** (matriz da seção 7) **e**
+**fluxo entre telas** (tabela da seção 7.1, contra o mapa original de
+CARTOGRAFO) como os dois critérios técnicos da aprovação, conforme recomendado
+por CARTOGRAFO na seção 6.1 do mapa de navegação. REGENTE segue decidindo como
+destravar o acesso ao Figma (token, link do arquivo, ou aceitar este Markdown
+como artefato de aprovação substituto, com registro formal da divergência de
+ferramenta).
