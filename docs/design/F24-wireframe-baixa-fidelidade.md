@@ -9,7 +9,20 @@
   (seção 5 daquele mapa) — ver seção 4.6 e a linha "Navegação" em cada tela
   da seção 6.
 
-## 1. Bloqueio de acesso ao Figma (ler antes do resto)
+## 1. Bloqueio de acesso ao Figma — RESOLVIDO em 2026-11-07
+
+**Atualização 2026-11-07**: o bloqueio abaixo acabou. O MCP oficial
+`figma-remote` (OAuth, sem `FIGMA_TOKEN`) respondeu a `whoami` sem erro, e o
+arquivo Figma desta operação foi criado: **`OP-002 app-mecanica-sao-jorge`**,
+link em `docs/design/figma.md`. As 24 telas desta especificação foram
+transcritas para a página `F24 · Wireframe baixa fidelidade` desse arquivo —
+94 frames (93 células da matriz da seção 7 + 1 frame extra, ver
+`docs/design/figma.md`), cada tela nomeada `[nº] Nome da tela / Estado`,
+incluindo a correção da tela 15 (seção 6.15 abaixo) já aplicada no frame
+correspondente. **US-DES-01 a US-DES-06 agora têm artefato Figma real, não só
+texto; US-DES-07/08 (aprovação) ficam para BUSSOLA revisar o arquivo.**
+
+O relato original do bloqueio (histórico, mantido abaixo para rastreabilidade):
 
 Não consegui gerar o arquivo Figma desta feature. Dois problemas, nesta ordem:
 
@@ -570,8 +583,9 @@ todo formulário e detalhe).
 
 ## 8. Rastreamento dos critérios de aceitação
 
-- **US-DES-01** (cobertura das 24 telas, nome identificável): especificado —
-  pendente de transcrição para um arquivo Figma único (bloqueio seção 1).
+- **US-DES-01** (cobertura das 24 telas, nome identificável): **cumprido** —
+  transcrito para o arquivo Figma único `OP-002 app-mecanica-sao-jorge`
+  (`docs/design/figma.md`), 94 frames, cada um nomeado `[nº] Nome / Estado`.
 - **US-DES-02** (quatro estados por tela): cumprido no texto (seção 6/7); nas
   11 telas sem "vazio" e nas 11 sem "erro de validação" o "—" está justificado
   por tela, não omitido.
@@ -588,8 +602,8 @@ todo formulário e detalhe).
 - **US-DES-06** (erro de validação por campo, foco no primeiro inválido):
   convenção 4.3 + detalhe por campo nas 13 telas com formulário (seção 6).
 - **US-DES-07 / US-DES-08** (aprovação ou reprovação sobre o arquivo Figma):
-  **não aplicável nesta etapa** — não há arquivo Figma para a pessoa dona do
-  produto revisar (bloqueio seção 1).
+  arquivo Figma agora existe e está pronto para revisão — aprovação explícita
+  ainda depende de BUSSOLA/pessoa dona do produto abrir o link e decidir.
 
 ## 9. Pendências
 
@@ -672,3 +686,50 @@ por CARTOGRAFO na seção 6.1 do mapa de navegação. REGENTE segue decidindo co
 destravar o acesso ao Figma (token, link do arquivo, ou aceitar este Markdown
 como artefato de aprovação substituto, com registro formal da divergência de
 ferramenta).
+
+## 11. Atualização 2026-11-07 — Arquivo Figma criado (ESQUADRO)
+
+**O que foi feito**: confirmado `whoami` do MCP `figma-remote` (OAuth, sem
+bloqueio), criado o arquivo Figma único da operação
+(`OP-002 app-mecanica-sao-jorge`, ver `docs/design/figma.md` para o link e os
+detalhes de organização) e transcritas as 24 telas desta especificação para a
+página `F24 · Wireframe baixa fidelidade`, com 94 frames cobrindo as 93
+células `✅` da matriz da seção 7 (mais 1 frame extra desdobrando
+"24 · Preenchido" em lista/formulário). A correção da tela 15 (seção 6, já
+presente neste documento) foi aplicada também no frame do Figma. Nenhuma
+célula "—" da matriz virou frame.
+
+**Como foi construído**: via `use_figma` (API de plugin do Figma, código
+JavaScript), em lotes de 3–4 telas por chamada, com uma biblioteca de helpers
+reaproveitada entre as chamadas (título, campo com rótulo e erro, botão,
+lista, estado vazio, erro de rede padrão, legenda de acessibilidade,
+segmented control). Validado visualmente por amostragem com `get_screenshot`
+em 8 frames de tipos diferentes (login, formulário longo multi-seção, lista
+com segmented control e alerta de estoque baixo, erro de validação de
+seleção, detalhe com histórico vazio) e por conferência estrutural de todos
+os 94 nomes de frame via `get_metadata`, contra a lista de nomes esperada
+pela seção 6 e a matriz da seção 7.
+
+**O que verifiquei de verdade** (vs. o que não cobri): vi os 94 frames
+nomeados corretamente (script Python sobre o XML de `get_metadata`, não
+inspeção visual de cada um); vi 8 telas renderizadas sem sobreposição ou
+corte de texto. **Não** abri as 94 telas uma a uma em zoom alto — amostragem,
+não cobertura total, registrado para o CRIVO revisar com atenção adicional se
+quiser conferir alguma tela específica fora da amostra.
+
+**Decisão de versionamento (divergência registrada)**: este commit segue na
+branch `fix/f02-appsec-login` (branch atual da sessão), não em uma branch
+dedicada à F24 — mesmo desvio já registrado no commit `2108fdc` desta mesma
+spec, mantido por consistência com o precedente da operação em vez de
+bifurcar o histórico desta spec em duas branches.
+
+**Pendências**: as quatro pendências da seção 9 continuam de pé (são
+decisões de produto/arquitetura, não afetadas pela criação do arquivo
+Figma). Nova pendência: aprovação explícita de BUSSOLA/pessoa dona do produto
+sobre o arquivo Figma (US-DES-07/08) — o link está em `docs/design/figma.md`.
+
+**Próximo passo**: BUSSOLA/pessoa dona do produto abre
+`docs/design/figma.md`, revisa o arquivo Figma e aprova ou reprova com
+pendência nomeada (tela + tipo de estado). CRIVO confere a entrega contra a
+matriz da seção 7 e a tabela de fluxo da seção 7.1, agora com o arquivo real
+disponível em vez de só o texto desta spec.
