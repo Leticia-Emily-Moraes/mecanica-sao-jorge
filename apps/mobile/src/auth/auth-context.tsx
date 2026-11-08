@@ -8,6 +8,18 @@ import type { Usuario } from './types';
 const CHAVE_TOKEN = 'mecanicaSaoJorge.auth.token';
 const CHAVE_USUARIO = 'mecanicaSaoJorge.auth.usuario';
 
+/**
+ * Credencial de autenticação e PII (token JWT + nome/e-mail/perfil) só são
+ * acessíveis com o aparelho desbloqueado e NUNCA saem do dispositivo: o
+ * sufixo THIS_DEVICE_ONLY exclui o item de backups criptografados (iCloud/
+ * iTunes) e impede restauração em outro aparelho. Minimiza a exposição do
+ * dado pessoal (LGPD art. 46) além do Keychain/Keystore local. Ver
+ * docs/product/F30-appsec-lgpd-login-perfil.md.
+ */
+const OPCOES_ARMAZENAMENTO_SEGURO: SecureStore.SecureStoreOptions = {
+  keychainAccessible: SecureStore.WHEN_UNLOCKED_THIS_DEVICE_ONLY,
+};
+
 export type AuthStatus =
   | { tipo: 'carregando' }
   | { tipo: 'erroInicializacao' }
@@ -75,8 +87,12 @@ export function AuthProvider({ children }: { children: ReactNode }): ReactElemen
     const resposta = await autenticar(email, senha);
 
     await Promise.all([
-      SecureStore.setItemAsync(CHAVE_TOKEN, resposta.token),
-      SecureStore.setItemAsync(CHAVE_USUARIO, JSON.stringify(resposta.usuario)),
+      SecureStore.setItemAsync(CHAVE_TOKEN, resposta.token, OPCOES_ARMAZENAMENTO_SEGURO),
+      SecureStore.setItemAsync(
+        CHAVE_USUARIO,
+        JSON.stringify(resposta.usuario),
+        OPCOES_ARMAZENAMENTO_SEGURO,
+      ),
     ]);
 
     setTokenAtual(resposta.token);

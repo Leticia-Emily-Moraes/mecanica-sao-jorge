@@ -8,7 +8,10 @@ import type { Usuario } from './types';
 jest.mock('./auth-api');
 
 const autenticarMock = autenticar as jest.MockedFunction<typeof autenticar>;
-const secureStoreMock = SecureStore as unknown as { __limparArmazenamentoDeTeste: () => void };
+const secureStoreMock = SecureStore as unknown as {
+  __limparArmazenamentoDeTeste: () => void;
+  __opcoesDaChaveDeTeste: (chave: string) => unknown;
+};
 
 const USUARIO_FICTICIO: Usuario = {
   id: 1,
@@ -71,6 +74,32 @@ describe('AuthProvider / useAuth', () => {
 
     expect(result.current.status).toEqual({ tipo: 'autenticado', usuario: USUARIO_FICTICIO });
     expect(await SecureStore.getItemAsync('mecanicaSaoJorge.auth.token')).toBe('novo-token');
+  });
+
+  it('should store token and user bound to this device only (no encrypted backup)', async () => {
+    autenticarMock.mockResolvedValueOnce({
+      token: 'novo-token',
+      tipo: 'Bearer',
+      expiraEm: '2026-11-14T00:00:00Z',
+      usuario: USUARIO_FICTICIO,
+    });
+
+    const { result } = renderHook(() => useAuth(), { wrapper: AuthProvider });
+    await waitFor(() => expect(result.current.status.tipo).toBe('naoAutenticado'));
+
+    await act(async () => {
+      await result.current.login('ana.souza@exemplo-ficticio.com.br', 'senha-ficticia');
+    });
+
+    const opcoesToken = secureStoreMock.__opcoesDaChaveDeTeste('mecanicaSaoJorge.auth.token');
+    const opcoesUsuario = secureStoreMock.__opcoesDaChaveDeTeste('mecanicaSaoJorge.auth.usuario');
+
+    expect(opcoesToken).toEqual({
+      keychainAccessible: SecureStore.WHEN_UNLOCKED_THIS_DEVICE_ONLY,
+    });
+    expect(opcoesUsuario).toEqual({
+      keychainAccessible: SecureStore.WHEN_UNLOCKED_THIS_DEVICE_ONLY,
+    });
   });
 
   it('should keep status naoAutenticado and rethrow when login fails', async () => {
