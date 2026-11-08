@@ -264,3 +264,141 @@ pode pedir "Confirmar saída" na revisão sem implicar retrabalho estrutural.
 10 contra este arquivo; BUSSOLA decide a aprovação/reprovação formal na
 tabela de registro de execução do PRD F25 (US-PROTO-LGN-05/06), incluindo
 decidir as duas divergências de escopo/copy registradas acima.
+
+### `F34 · Tab bar alta fidelidade` (2026-11-07, ESQUADRO)
+
+Protótipo de alta fidelidade do Menu principal (tab bar inferior), a partir
+dos critérios US-PROTO-MENU-01 a 05 fixados diretamente no briefing da
+operação (sem PRD próprio de BUSSOLA — rota desta feature é ESQUADRO → CRIVO).
+Reaproveita integralmente os tokens e a coleção de variáveis já criados na
+F25 (`VariableCollectionId:28:3`) — nenhum token novo foi criado; onde faltava
+um papel semântico (anel de foco sobre fundo escuro), reaproveitei
+`color/focus/ring-offset` (branco), que já existia com o valor certo para
+esse uso, em vez de criar uma variável nova.
+
+**Página**: `39:2`. **3 frames**, 360×84 cada (grade mobile), offset
+horizontal 420 px (mesma convenção F24/F25), com uma legenda de texto
+(itálico, `color/text/secondary`) abaixo de cada um:
+
+| Frame | id | O que documenta |
+|---|---|---|
+| Menu principal / Selecionado (Perfil) · estado real Sprint 01 | `39:3` | Como a tab bar aparece de fato hoje: Perfil é o único item habilitado e já chega selecionado (é a aba de pouso do app) |
+| Menu principal / Padrão (Perfil não selecionado) | `39:31` | Variante exigida pelo critério de 3 estados (US-PROTO-MENU-01); documentada por completude de especificação, já que na Sprint 01 Perfil praticamente sempre está selecionado |
+| Menu principal / Foco de teclado (Perfil) | `39:58` | Selecionado + anel de foco branco sobreposto (os dois estados coexistem na prática) |
+
+**Ordem fixa dos 5 itens, esquerda → direita, igual nas 3 frames**: Perfil
+(habilitado) → Clientes e Veículos → Catálogo → Ordens de Serviço →
+Financeiro (os 4 últimos desabilitados, com ícone e rótulo de referência,
+sem navegação real — conforme o fora de escopo da feature).
+
+**Layout de cada item**: célula de 72×64 pt/dp (360 ÷ 5), mais 20 pt/dp de
+faixa de área segura (home indicator) abaixo, mesma cor do fundo — barra
+total 360×84. A célula inteira (72×64) é a área de toque de cada item,
+folgada acima do mínimo de 44×44pt (iOS) / 48×48dp (Android) exigido pelo
+critério US-PROTO-MENU-03.
+
+**Ícones**: desenhados com formas geométricas simples (retângulo/elipse com
+cantos arredondados), no mesmo espírito de referência visual do wireframe
+F24 — não são um ícone de produção/SVG importado, são um placeholder
+reconhecível (pessoa, carro, caixa, prancheta, gráfico de barras) suficiente
+para "ícone de referência" (fora de escopo: ícone final). Ícone preenchido
+(fill sólido) nos itens habilitados; ícone em traço (stroke, sem
+preenchimento) nos desabilitados — a diferença de estilo do ícone, não só a
+cor, é um dos dois sinais exigidos por US-PROTO-MENU-02.
+
+**Estado selecionado (Perfil)**: fundo petro da barra inteira
+(`color/surface/brand`) + um "pill" de 56×32 em `color/action/primary/background`
+atrás do ícone + ícone e rótulo em `color/text/onPrimaryAction` (branco) +
+peso de fonte Semi Bold no rótulo. **Não** usei a cor primary diretamente como
+cor de texto/ícone sobre o fundo petro: calculei o contraste de primary
+(`#B5453D`) sobre petro (`#1E3A3F`) pela mesma fórmula de luminância relativa
+da F25 e deu **≈2,24:1** — não passa AA nem para elemento de UI (mínimo 3:1).
+Por isso a cor primary aparece como fundo do pill (com branco em cima, razão
+≈5,41:1, já validada na F25), não como cor de texto/ícone isolada — é assim
+que o token "primary no ativo" do briefing fica com contraste correto
+(US-PROTO-MENU-05).
+
+**Estado padrão/habilitado sem seleção (Perfil)**: ícone preenchido e rótulo
+em `color/text/onBrand` (branco) direto sobre petro, sem pill, peso regular —
+razão ≈12,1:1 (mesma da F25), passa AA com folga.
+
+**Estado desabilitado (4 itens futuros)**: ícone em traço + rótulo em
+`color/text/onBrand`, com opacidade do nó em 60%. Calculei antes de montar
+(fórmula de luminância relativa, branco a 60% de opacidade composto sobre o
+petro de fundo): resultado **≈5,46:1**, passa AA (mínimo 4,5:1 para texto
+normal) com margem — não usei um valor arredondado "de olho"; testei 50%
+primeiro (≈4,30:1, não passa) antes de fechar em 60%. Isso cumpre
+US-PROTO-MENU-05 também para os itens desabilitados, que o critério exige
+explicitamente (diferente do padrão comum de não cobrar contraste de
+controle desabilitado).
+
+**Anel de foco**: branco (`color/focus/ring-offset`), 2 px, 2 px de margem
+interna da célula — contraste ≈12,1:1 sobre o fundo petro, visível em
+qualquer item ao navegar por Tab. Ilustrado no item Perfil no frame "Foco de
+teclado"; a legenda do frame descreve que o mesmo anel se aplica a qualquer
+item que receba foco.
+
+**Ordem de foco (teclado e leitor de tela)**, anotada na legenda do frame 1,
+igual à ordem visual: Perfil → Clientes e Veículos → Catálogo → Ordens de
+Serviço → Financeiro (US-PROTO-MENU-04).
+
+**Rótulo acessível (accessibilityLabel/aria-label) e estado anunciado, por
+item** (anotado na legenda do frame 1, US-PROTO-MENU-03):
+- Perfil — "Perfil, aba selecionada" · role tab, `selected=true`,
+  `disabled=false`.
+- Clientes e Veículos — "Clientes e Veículos, indisponível nesta versão" ·
+  role tab, `disabled=true`, `selected=false`.
+- Catálogo — "Catálogo, indisponível nesta versão" · role tab,
+  `disabled=true`.
+- Ordens de Serviço — "Ordens de Serviço, indisponível nesta versão" · role
+  tab, `disabled=true`.
+- Financeiro — "Financeiro, indisponível nesta versão" · role tab,
+  `disabled=true`.
+
+**Decisão registrada para CRIVO/BUSSOLA confirmarem**: os itens desabilitados
+ficam alcançáveis por foco de teclado/leitor de tela (anunciando
+"indisponível nesta versão"), em vez de ficarem fora da ordem de tabulação
+como é mais comum para controle desabilitado. Optei por isso porque o
+próprio critério US-PROTO-MENU-04 pede "ordem de foco" cobrindo os 5 itens
+"com indicador de foco visível em cada item", o que só faz sentido se os
+desabilitados também puderem receber foco. Não é uma violação de WCAG (um
+controle desabilitado-mas-focável que anuncia seu estado é um padrão aceito
+para pré-visualizar funcionalidade futura), mas diverge do padrão mais comum
+de excluir `disabled` da ordem de tabulação — se CRIVO ou BUSSOLA preferirem
+excluir os 4 itens futuros da ordem de foco (deixando só Perfil navegável),
+é ajuste pequeno de anotação, não de estrutura visual.
+
+**O que eu verifiquei de fato**:
+- Chamei `get_variable_defs` nos frames `39:3` e `39:58` depois de montar e
+  confirmei que as cores vieram de variável vinculada (não hex solto): fundo
+  petro, pill primary, texto/ícone onBrand e onPrimaryAction, e o anel de
+  foco em `color/focus/ring-offset` — os 5 tokens certos, reaproveitados da
+  F25.
+- Chamei `get_screenshot` dos 3 frames individualmente e do canvas inteiro
+  (os 3 lado a lado) em resolução alta; conferi visualmente que os 5 itens
+  aparecem na ordem certa nas 3 variantes, que os 4 desabilitados têm o
+  mesmo tratamento (traço + opacidade) nas 3, que o pill e o anel de foco
+  aparecem só onde esperado, e que não há sobreposição/vazamento de conteúdo
+  entre os frames (o `get_metadata` reportou coordenadas relativas estranhas
+  para os grupos de ícone — valores negativos grandes — mas conferi por
+  captura visual real que a renderização está correta nos 3 frames; registro
+  essa discrepância aqui como uma particularidade da ferramenta de leitura de
+  metadados com nós agrupados via `figma.group`, não como defeito no arquivo,
+  já que o screenshot é a fonte de verdade sobre o que está desenhado).
+- Calculei as duas razões de contraste novas desta feature (primary sobre
+  petro ≈2,24:1 — descartado; branco a 60% de opacidade sobre petro
+  ≈5,46:1 — usado no desabilitado) pela mesma fórmula de luminância relativa
+  do WCAG já usada na F25, testando 50% antes de fechar em 60%.
+
+**O que não verifiquei**: não há interação real por teclado/leitor de tela
+testada (VoiceOver/TalkBack) — esta é uma especificação visual em Figma, sem
+semântica executável; os rótulos acessíveis acima são a anotação de como o
+item deve se comportar quando a F33 implementar a tab bar real, não uma
+gravação de teste real. Também não configurei reações de navegação
+(`ON_CLICK`) neste protótipo — está fora de escopo (critério explícito:
+"conteúdo real ou navegação funcional dos itens de módulos futuros" e
+"lógica de habilitação dinâmica" ficam para F33); os 3 frames são estados
+estáticos lado a lado, não uma sequência clicável.
+
+**Próximo passo**: handoff para CRIVO conferir US-PROTO-MENU-01 a 05 contra
+este arquivo (frames `39:3`, `39:31`, `39:58`, página `39:2`).
