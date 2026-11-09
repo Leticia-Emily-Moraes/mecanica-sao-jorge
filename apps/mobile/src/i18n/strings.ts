@@ -34,6 +34,17 @@ const strings = {
   'sessao.erroInicializacao.mensagem': 'Verifique sua conexão e tente novamente.',
   'sessao.erroInicializacao.botaoTentarNovamente': 'Tentar novamente',
   'sessao.erroInicializacao.botaoEntrarNovamente': 'Entrar novamente',
+
+  'menu.tabbar.perfil.rotulo': 'Perfil',
+  'menu.tabbar.perfil.selecionado': 'Perfil, aba selecionada',
+  'menu.tabbar.clientesVeiculos.rotulo': 'Clientes e Veículos',
+  'menu.tabbar.clientesVeiculos.indisponivel': 'Clientes e Veículos, indisponível nesta versão',
+  'menu.tabbar.catalogo.rotulo': 'Catálogo',
+  'menu.tabbar.catalogo.indisponivel': 'Catálogo, indisponível nesta versão',
+  'menu.tabbar.ordensServico.rotulo': 'Ordens de Serviço',
+  'menu.tabbar.ordensServico.indisponivel': 'Ordens de Serviço, indisponível nesta versão',
+  'menu.tabbar.financeiro.rotulo': 'Financeiro',
+  'menu.tabbar.financeiro.indisponivel': 'Financeiro, indisponível nesta versão',
 } as const;
 
 export type ChaveTexto = keyof typeof strings;

@@ -15,7 +15,7 @@ const config: ExpoConfig = {
   web: {
     bundler: 'metro',
   },
-  plugins: ['expo-router', 'expo-secure-store'],
+  plugins: ['expo-router', 'expo-secure-store', 'expo-font'],
   extra: {
     apiBaseUrl: process.env.EXPO_PUBLIC_API_BASE_URL ?? '',
   },
