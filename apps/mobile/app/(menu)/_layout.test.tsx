@@ -1,9 +1,10 @@
-import { render, screen, waitFor } from '@testing-library/react-native';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react-native';
 import * as SecureStore from 'expo-secure-store';
-import type { ReactNode } from 'react';
+import type { ReactElement, ReactNode } from 'react';
+import { Pressable } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
-import { AuthProvider } from '@/auth/auth-context';
+import { AuthProvider, useAuth } from '@/auth/auth-context';
 
 import MenuLayout from './_layout';
 
@@ -32,6 +33,18 @@ jest.mock('expo-router', () => ({
 
 const secureStoreMock = SecureStore as unknown as { __limparArmazenamentoDeTeste: () => void };
 
+/** Simula, de dentro do mesmo AuthContext real, a sessão virando inválida (US-MENU-07). */
+function GatilhoDeExpiracao(): ReactElement {
+  const { tratarSessaoExpirada } = useAuth();
+  return (
+    <Pressable
+      accessibilityRole="button"
+      accessibilityLabel="forcar-expiracao-de-teste"
+      onPress={() => void tratarSessaoExpirada()}
+    />
+  );
+}
+
 describe('MenuLayout', () => {
   beforeEach(() => {
     secureStoreMock.__limparArmazenamentoDeTeste();
@@ -58,5 +71,28 @@ describe('MenuLayout', () => {
     await waitFor(() => expect(mockSlotRenderizado).toHaveBeenCalled());
     expect(screen.getAllByRole('tab')).toHaveLength(5);
     expect(mockReplace).not.toHaveBeenCalled();
+  });
+
+  it('should redirect to /login and hide every menu item when the session expires while the menu is on screen (US-MENU-07)', async () => {
+    await SecureStore.setItemAsync('mecanicaSaoJorge.auth.token', 'token-existente');
+    await SecureStore.setItemAsync(
+      'mecanicaSaoJorge.auth.usuario',
+      JSON.stringify({ id: 1, nome: 'Ana Beatriz Souza', email: 'a@a.com', perfil: 'ADMIN' }),
+    );
+
+    renderComProvedores(
+      <>
+        <GatilhoDeExpiracao />
+        <MenuLayout />
+      </>,
+    );
+
+    await waitFor(() => expect(screen.getAllByRole('tab')).toHaveLength(5));
+
+    fireEvent.press(screen.getByLabelText('forcar-expiracao-de-teste'));
+
+    await waitFor(() => expect(mockReplace).toHaveBeenCalledWith('/login'));
+    expect(screen.queryAllByRole('tab')).toHaveLength(0);
+    expect(await SecureStore.getItemAsync('mecanicaSaoJorge.auth.token')).toBeNull();
   });
 });
