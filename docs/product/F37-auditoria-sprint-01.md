@@ -226,9 +226,9 @@ recebi; **não vou completar esse enunciado por suposição** — ver dúvida 9.
 
 | Critério | Enunciado | Checar PR | Checar teste | Checar doc | Resultado (CRIVO) |
 |---|---|---|---|---|---|
-| C1 | O projeto instala e roda localmente seguindo o README | `git log --all --oneline -- apps/api/README.md apps/mobile/README.md README.md`; confirmar se o commit que fecha F00 está em `main` via PR ou direto (já respondido em §1.1: direto, `e88e482`) | Rodar `docker compose up -d` (ou documentar por que não dá) + `mvn spring-boot:run`; `cd apps/mobile && npm install` seguindo o README literal e `npx expo start` | Ler `README.md`/`apps/api/README.md`/`apps/mobile/README.md` e confirmar que cada passo documentado corresponde ao comando que de fato funciona hoje | — |
-| C2 | Lint e testes rodam com sucesso, com ao menos um teste de exemplo | mesmo commit de C1 | Backend: `mvn -B test checkstyle:check spotless:check verify` (rodar de novo nesta sessão); Mobile: `npm run lint` / `npm test`, que CRIVO ainda não rodou verde nesta feature ("mobile: FALHOU" no `npm install`) | Mesmo README | — |
-| C3 | "A estrutura de pastas segue..." (texto cortado — **não tenho o enunciado completo**) | — | — | — | **Bloqueado**: pedir a REGENTE/PRUMO o texto íntegro antes de auditar |
+| C1 | O projeto instala e roda localmente seguindo o README | Confirmado em §1.1: direto em `main`, sem PR (`e88e482`) | **Passou (achado da F00 corrigido, reverificado nesta sessão).** `cd apps/mobile && rm -rf node_modules && npm install` (sem `--legacy-peer-deps`, cópia isolada em `/tmp/crivo-npm-check`): `added 1082 packages... found 0 vulnerabilities` nos peer deps — `ERESOLVE` que o CRIVO original reportou não ocorre mais (`react@19.1.0` já satisfaz `react-native@0.81.5`). Backend: `mvn -B spring-boot:run` real contra MySQL 8.4 real (container `crivo-f37-mysql`), subiu em 2,07s, Flyway aplicou V1+V2, `Tomcat started on port 8080`. Não testei `docker compose up -d` literal (CLI `docker compose` não verificado nesta sessão, só `docker run` direto) — **não verificado** esse sub-passo específico. | Não lido linha a linha nesta rodada; a lacuna de `npm install` que o README não mencionava fica resolvida de fato pela correção do `package.json`, então o passo documentado hoje bate com o comando real. | **Passou**, com uma ressalva "não verificado" (`docker compose` literal) |
+| C2 | Lint e testes rodam com sucesso, com ao menos um teste de exemplo | mesmo commit de C1 | **Passou.** Backend: `mvn -B clean install` → `BUILD SUCCESS`, 19 testes (16 unitários/controller + 3 `FlywayMigrationIT` via Testcontainers real), 0 falha. `mvn checkstyle:check spotless:check` → 0 violação. Mobile: `npm run lint` → sem erro; `npx tsc --noEmit` → sem erro; `npx jest` → 9 suites / 37 testes, 0 falha. O "mobile: FALHOU" original (bloqueio no `npm install`) está **corrigido e reverificado agora**, não é mais reprodutível. | Mesmo README | **Passou** |
+| C3 | "A estrutura de pastas segue..." (texto cortado — **não tenho o enunciado completo**) | — | — | — | **Não verificado**: enunciado incompleto no repositório; não inventei o texto. Permanece bloqueado — ver seção 9 (dúvida 1 de BUSSOLA, ainda sem resposta de REGENTE/PRUMO nesta sessão). |
 
 ### 7.2 F01 — Correção da fundação mobile
 
@@ -237,7 +237,12 @@ em §1.2). Critérios `US-MOBILE-00` a `US-MOBILE-05` (6 IDs).
 
 | Critério | Checar PR | Checar teste | Checar doc | Resultado (CRIVO) |
 |---|---|---|---|---|
-| US-MOBILE-00 a 05 (cada um individualmente) | Já respondido em §1.2: direto em `main`, sem PR — não precisa reauditar, só confirmar que os 4 achados (A-D) do PRD mapeiam para os commits citados (`git show <hash> --stat`) | Para cada ID: localizar o achado A/B/C/D correspondente e o teste automatizado em `apps/mobile`; rodar isolado (`npx jest <arquivo> --verbose`) e registrar passou/falhou | Reler o critério contra o estado atual do código citado (versão de dependência, lockfile) — confirmar que o que o PRD descreve como corrigido continua corrigido hoje | — (uma linha por ID) |
+| US-MOBILE-01 (peer dep do React) | §1.2: direto em `main` | **Passou.** `npm install` limpo em cópia isolada, sem flag: `added 1082 packages`, sem `ERESOLVE`. `package.json`: `"react": "19.1.0"` satisfaz `^19.1.0` exigido por `react-native@0.81.5`. | Confere com o Gherkin do cenário 1 | **Passou** |
+| US-MOBILE-02 (testing-library x RN 0.81) | idem | **Passou (parcial).** `@testing-library/react-native` em `^13.3.3`; `npx jest` roda 9 suites/37 testes sem erro de incompatibilidade de API de renderização. Não confirmei contra a matriz oficial publicada da lib (fonte externa) nesta sessão — fico com a evidência indireta de que os testes passam, não com a comparação direta à matriz. | — | **Passou**, matriz oficial **não verificada** diretamente |
+| US-MOBILE-03 (expo-constants em vez de process.env) | idem | **Passou.** `src/config/env.ts` lê só `Constants.expoConfig?.extra`, sem tocar `process.env` em runtime; existe `src/config/env.test.ts` dedicado; `npx jest src/config` roda sem falha (incluído na rodada de 37 testes). | Código lido bate com o Gherkin (padrão default, string vazia cai no padrão) | **Passou** |
+| US-MOBILE-04 (formatar app/index.tsx) | idem | **Passou.** `app/index.tsx` usa `accessibilityRole="header"` no título (grep confirmado) e tem teste dedicado (`app/index.test.tsx`, 4/4 verde nesta sessão). | — | **Passou** |
+| US-MOBILE-05 (CHANGELOG com versão do Spring Boot) | idem | N/A (critério de documentação, não de código) | `grep -n "Spring Boot" CHANGELOG.md` → linhas 29, 171, 227 citam `Spring Boot 4.1.0` de forma explícita | **Passou** |
+| US-MOBILE-00 (gate sequencial entre fatias) | idem | Critério de processo (ordem de commit), não de comportamento de runtime — não há "teste" único para isso | Os commits `d81a4a0`/`25c0290`/`d66e0ff`/`d51fa8f`/`112897e` seguem ordem crescente de data/hash conforme `git log`, consistente com "fatia A antes de B antes de C" | **Passou (verificação indireta por ordem de commit)**, não é um critério testável por automação |
 
 ### 7.3 F02 — Fundação backend + Login
 
@@ -249,10 +254,10 @@ explicitamente fora desta feature ("ficam para depois", linha 14).
 
 | Critério | Checar PR | Checar teste | Checar doc | Resultado (CRIVO) |
 |---|---|---|---|---|
-| US-FUND-01 (sem classe de template, compila) | `git status --porcelain apps/api` + `gh pr list --state all` — já respondido em §1.3: nada commitado em lugar nenhum, só `??` | `mvn -B clean install` rodado agora; `grep -rliE "class (Category\|Product\|User\|Itens)\b" apps/api/src/main/java` deve voltar vazio | doc linhas 185-213 contra `entity/`, `controller/`, `service/`, `repository/` reais | — |
-| US-FUND-02 (migration V2 aditiva, subtotal GENERATED, enum STRING) | idem | `FlywayMigrationIT` do zero via Testcontainers; inspecionar `V2__criar_schema_oficina.sql` por `GENERATED ALWAYS ... STORED` e `VARCHAR` nas colunas de enum | doc linhas 214-256 contra o SQL real | — |
-| US-FUND-03 (12 entidades JPA + 5 enums) | idem | confirmar se existe teste unitário dedicado ou se a cobertura é só indireta via `FlywayMigrationIT`/`AuthServiceTest` | doc linhas 257-300 contra `entity/*.java` | — |
-| US-AUTH-01 (login por email/senha emitindo JWT) | commit `ae05822` (PR `#1`) cobre só a correção de timing-attack; `AuthController`/`AuthService` principal está `??` | `AuthServiceTest.java` (commitado) + `AuthControllerTest.java` (`??`) — rodar os dois via `mvn -B test`, registrar separadamente se cada um está rastreado | doc linhas 301+ contra `POST /api/v1/auth/login` real (`curl`) | — |
+| US-FUND-01 (sem classe de template, compila) | **Atualizado nesta sessão**: tudo já commitado por ESPRESSO (`eb5830d`…`79ed815`) + ANCORA/PERGAMINHO, direto na branch `feat/f30-mobile-login-perfil`, sem PR aberto (mesmo gap de processo da §1.3, agora sobre código rastreado) | **Passou.** `grep -rliE "class (Category\|Product\|User\|Itens)\b" apps/api/src/main/java` → vazio (`EXIT=1`, nenhum match). `mvn -B clean install` → `BUILD SUCCESS`. | `entity/`, `controller/`, `service/`, `repository/` reais têm nomes de domínio (`Usuario`, `AuthController`, `AuthService`, `UsuarioRepository`), não os do template — bate com o doc | **Passou** |
+| US-FUND-02 (migration V2 aditiva, subtotal GENERATED, enum STRING) | idem | **Passou.** `FlywayMigrationIT` rodado do zero via Testcontainers real (MySQL 8.4 container `36fb9634d7e1`): `Successfully applied 2 migrations... now at version v2`, 3/3 verde. `grep "GENERATED ALWAYS"` em `V2__criar_schema_oficina.sql`: 2 ocorrências (`ordens_servico_servicos.subtotal`, `ordens_servico_pecas.subtotal`), ambas `STORED`. `grep "@Enumerated"`: 5 ocorrências, todas `EnumType.STRING`. | SQL real confere com o doc | **Passou** |
+| US-FUND-03 (12 entidades JPA + 5 enums) | idem | **Passou.** Classifiquei os 17 arquivos de `entity/` por anotação real: 12 com `@Entity` (`Cliente`, `Financeiro`, `MovimentacaoEstoque`, `OrdemServico`, `OrdemServicoPeca`, `OrdemServicoServico`, `Pagamento`, `Parcela`, `Peca`, `Servico`, `Usuario`, `Veiculo`) + 5 com `public enum` (`FormaPagamento`, `Perfil`, `StatusOS`, `TipoLancamento`, `TipoMovimentacao`) = exatamente 12+5. Cobertura de teste é **indireta**: não há teste unitário dedicado por entidade; a validação real é via `FlywayMigrationIT` (schema) e `AuthServiceTest`/`AuthControllerTest` (só a entidade `Usuario`). As outras 11 entidades são dormentes (sem repository/service/controller próprio ainda) — confirma o achado de VIGIA. | Contagem bate com o doc | **Passou** (contagem), cobertura de teste das 11 entidades dormentes **não existe** (esperado — sem endpoint ainda) |
+| US-AUTH-01 (login por email/senha emitindo JWT) | Commit `ae05822` (PR `#1`) + os commits de ESPRESSO, todos sem PR próprio aberto | **Passou, de ponta a ponta real.** Subi MySQL 8.4 real (`crivo-f37-mysql`) + `mvn spring-boot:run` real + usuário com hash BCrypt real inserido via `INSERT`. `curl POST /api/v1/auth/login`: sucesso → `200` com `token` JWT real + `tipo":"Bearer"` + `expiraEm` + dados do usuário; senha errada → `401 {"mensagem":"Credenciais inválidas"}`; email inexistente → **mesma** mensagem/status (sem enumeração); validação (email/senha vazios) → `400`; rota protegida sem token → `401 {"mensagem":"Nao autenticado"}`. `mvn -B test`: `AuthServiceTest` 7/7, `AuthControllerTest` 7/7, `GlobalExceptionHandlerTest` 2/2. Log da API inspecionado (`grep` no stdout) sem o email/senha/hash do usuário de teste — sem vazamento de PII em log. Ambiente derrubado ao final (`pkill`, `docker stop/rm`), `git status` limpo. | `POST /api/v1/auth/login` real confere com `docs/product/F02-fundacao-backend-login.md` | **Passou** |
 
 ### 7.4 F24 — Wireframe de baixa fidelidade
 
@@ -261,7 +266,7 @@ confirmado em §1.4). Critérios `US-DES-01` a `US-DES-08` (8 IDs).
 
 | Critério | Checar PR | Checar teste | Checar doc | Resultado (CRIVO) |
 |---|---|---|---|---|
-| US-DES-01 a 08 (cada um individualmente) | PR `#3` cobre só `docs/design/F24-wireframe-baixa-fidelidade.md` — confirmar se cobre também o PRD de produto (provável: não, ver §1.4) | Sem automação (artefato Figma) — chamar `mcp__figma-remote__whoami`/`get_metadata` de novo nesta sessão (não reaproveitar bloqueio anterior sem tentar) e, se liberado, contar telas/estados contra o critério | Comparar `docs/design/F24-wireframe-baixa-fidelidade.md` × `docs/product/F24-wireframe-baixa-fidelidade.md` × o Figma real, se acesso liberado | — |
+| US-DES-01 a 08 (cada um individualmente) | PR `#3` cobre só `docs/design/F24-wireframe-baixa-fidelidade.md`; o PRD de produto continua fora de qualquer PR, confirmado em §1.4 | **Não verificado.** Chamei `mcp__figma-remote__whoami` de novo nesta sessão (não reaproveitei o bloqueio anterior sem tentar): `"Claude requested permissions to use mcp__figma-remote__whoami, but you haven't granted it yet."` — mesmo resultado de BUSSOLA/ESPRESSO/CRIVO em sessões anteriores. Não insisti uma segunda vez (regra de não repetir chamada negada). | Não comparado contra o Figma real por falta de acesso; a consistência interna dos documentos já foi conferida por CRIVO em rodada anterior (ver "Entrega aprovada" no painel) | **Não verificado** (bloqueio de ferramenta, idêntico ao já registrado) |
 
 ### 7.5 F25 — Protótipo de alta fidelidade de Login e Perfil
 
@@ -272,7 +277,7 @@ critério próprio.
 
 | Critério | Checar PR | Checar teste | Checar doc | Resultado (CRIVO) |
 |---|---|---|---|---|
-| US-PROTO-LGN-01 a 10 (cada um individualmente) | commit `195490c` dentro do PR `#1` (de outro assunto, AppSec da F02) — confirmar se conta como PR da feature ou gap de processo (já flagado em §1.5 e §2.2) | Sem automação, inspeção manual no Figma (tentar acesso de novo) | `docs/design/figma.md` (seção "F25 · Protótipo alta fidelidade") × `docs/product/F25-prototipo-login-perfil.md` (não commitado) | — |
+| US-PROTO-LGN-01 a 10 (cada um individualmente) | Confirmado em §1.5: commit `195490c` "pegou carona" no PR `#1` de outro assunto — gap de processo persiste | **Não verificado.** Mesmo bloqueio de `mcp__figma-remote__whoami` desta sessão (ver F24 acima) — não tentei uma segunda ferramenta Figma para não repetir chamada já negada no mesmo escopo de permissão. | Não comparado contra o Figma real | **Não verificado** (bloqueio de ferramenta) |
 
 ### 7.6 F30 — Front mobile de Login e Perfil
 
@@ -286,11 +291,11 @@ conversa — não é arquivo do repositório, não trato como fonte rastreável.
 
 | Critério | Checar PR | Checar teste | Checar doc | Resultado (CRIVO) |
 |---|---|---|---|---|
-| US-LGN-FRONT-01 (login com sucesso → JWT, SecureStore, navega) | Sem PR — só na branch `feat/f30-mobile-login-perfil` (§1.6) | Localizar teste que exercita login contra API real (não mock de fetch); rodar com a API de pé e de novo com a API fora do ar, igual método do CRIVO — atenção ao achado "`renderRouter` força fake timers" | Não há PRD de produto; doc a checar é só o parcial de VIGIA | — |
-| US-LGN-FRONT-02 (credenciais inválidas → erro genérico) | idem | idem (senha errada / email inexistente, mesmo texto de erro) | `src/i18n/strings.ts:17` citado pelo doc de VIGIA — confirmar texto real | — |
-| US-LGN-FRONT-06 (guard de sessão decide Login ou Perfil) | idem | Testar `app/index.tsx` com e sem sessão armazenada | Nenhum doc de produto cobre isso explicitamente — gap a registrar | — |
-| US-LGN-FRONT-07 (sessão expirada → aviso e redirect) | idem | Achado de memória: "sem gatilho real no app hoje" — rodar de novo para confirmar se ainda é verdade | idem | — |
-| US-LGN-FRONT-03, -04, -05 e outros do briefing original | — | — | — | **Bloqueado**: pedir a REGENTE/PRUMO a lista completa e a fonte oficial antes de auditar (dúvida 9.2) |
+| US-LGN-FRONT-01 (login com sucesso → JWT, SecureStore, navega) | Confirmado em §1.6: sem PR | **Passou.** A unidade `app/login.test.tsx` mocka só `autenticar()` (a borda de rede) — correto pela pirâmide, não é "mock do que está sendo testado". Para a prova de ponta a ponta real: subi a API real (mesmo ambiente do US-AUTH-01) e confirmei por `curl` que o contrato HTTP (`POST /api/v1/auth/login` em `http://localhost:8080/api/v1`, igual a `DEFAULT_API_BASE_URL` em `src/config/env.ts`) devolve exatamente o formato que `isRespostaLogin()` em `auth-api.ts` exige (`token`, `usuario` objeto) — o teste unitário mockado e o contrato real batem. **Não corrigi nem reexecutei** o achado "`renderRouter` força fake timers": esse código pertence a `src/integration/menu-routing.test.tsx` (F33), não ao teste de login em si — confirmei isso por `grep`, o teste de login não usa `renderRouter`. | Nenhum PRD de produto, só o parcial de VIGIA | **Passou** |
+| US-LGN-FRONT-02 (credenciais inválidas → erro genérico) | idem | **Passou.** `curl` real: senha errada e email inexistente devolvem o **mesmo** `401 {"mensagem":"Credenciais inválidas"}` — sem indicar qual campo errou. Teste de UI (`app/login.test.tsx`) confirma a mensagem fixa `"E-mail ou senha incorretos."` independente da causa. | `src/i18n/strings.ts` — texto confirmado presente e genérico | **Passou** |
+| US-LGN-FRONT-06 (guard de sessão decide Login ou Perfil) | idem | **Passou.** `npx jest app/index.test.tsx` → 4/4 verde: sem sessão → `/login`; sessão válida → `/perfil`; falha ao restaurar → modal de retry; retry recupera. | Gap de doc confirmado (nenhum PRD próprio cobre isso) | **Passou** (código/teste), doc **não existe** |
+| US-LGN-FRONT-07 (sessão expirada → aviso e redirect) | idem | **Falhou parcialmente — achado de memória confirmado, mas com uma correção importante nesta sessão.** `src/api/http.ts` define `SessaoExpiradaError` (lançado em qualquer 401 de chamada autenticada), mas o próprio comentário do código admite: *"Nenhuma tela de domínio desta fatia... chama isto ainda"* — não existe `http.test.ts`/`fetchAutenticado` testado, e nenhuma tela de domínio faz chamada autenticada hoje (Perfil não tem endpoint próprio). **Porém**: a metade "tratar a expiração depois de detectada" **tem**, sim, teste real agora — `tratarSessaoExpirada()` em `auth-context.tsx` já tinha teste no nível do hook (`auth-context.test.tsx`) e eu **commitei nesta sessão** (`47c38f3`) um teste de integração em `app/(menu)/_layout.test.tsx` que aciona `useAuth().tratarSessaoExpirada()` de dentro do `AuthProvider` real (sem mock da função sob teste) e confirma: redireciona a `/login`, esconde as 5 abas do menu, limpa o token do SecureStore. Rodei esse teste de novo agora: `PASS`, 3/3. A tela `login.tsx` também renderiza a mensagem `"Sua sessão expirou..."` quando `sessaoExpirada: true` (confirmado por leitura do código), mas **não há teste automatizado que renderize `login.tsx` nesse estado** — só o estado no hook é testado, não a tela. | idem | **Passou** (estado de sessão expirada, reação do menu) · **Não existe** (disparo real por 401 de API, mensagem na tela de login sem teste próprio) |
+| US-LGN-FRONT-03, -04, -05 e outros do briefing original | — | — | — | **Bloqueado**: sem fonte rastreável no repositório nesta sessão também — mesma lacuna que BUSSOLA registrou (dúvida 9.2), não resolvida por REGENTE/PRUMO até agora |
 
 ### 7.7 F34 — Protótipo de alta fidelidade do Menu principal
 
@@ -300,7 +305,7 @@ e `docs/design/figma.md` — não existe `docs/product/F34-*.md` nem
 
 | Critério | Checar PR | Checar teste | Checar doc | Resultado (CRIVO) |
 |---|---|---|---|---|
-| US-PROTO-MENU-01 a 05 (cada um individualmente) | PR `#2` (`feat/f34-prototipo-tab-bar`), mergeado (§1.7) | Sem automação (artefato Figma); inspeção manual se acesso liberado | `docs/design/F33-especificacao-menu-tabbar.md` (linhas 271-403) é onde o critério é tratado por extenso, mesmo sendo doc da F33 — registrar F34 sem doc próprio como gap (já flagado em §1.7) | — |
+| US-PROTO-MENU-01 a 05 (cada um individualmente) | Confirmado em §1.7: PR `#2` mergeado | **Não verificado.** Mesmo bloqueio de Figma desta sessão (ver F24/F25) — não repeti chamada já negada. | Gap de doc próprio confirmado (nenhum `docs/product/F34-*.md` ou `docs/design/F34-*.md`) | **Não verificado** (bloqueio de ferramenta) · doc próprio **não existe** |
 
 ### 7.8 F33 — fora do escopo formal (não entra neste checklist)
 
@@ -343,6 +348,42 @@ grep -n "US-PROTO-MENU" docs/design/F33-especificacao-menu-tabbar.md
    F37. Toda pendência vira reabertura da feature original, nunca uma
    mudança dentro da F37.
 
+### 8.1 Pendências novas, encontradas por CRIVO na execução real (rodada 2026-11-11)
+
+Aplicando a mesma regra 4 da seção 7.0: nenhum dos gaps abaixo foi corrigido
+aqui, só registrado, com indicação de qual feature deveria ser reaberta.
+
+1. **US-LGN-FRONT-07 (F30) permanece com o gatilho real não conectado.**
+   `src/api/http.ts` define `SessaoExpiradaError` para quando uma chamada
+   autenticada recebe 401, mas nenhuma tela de domínio faz chamada
+   autenticada ainda (o próprio comentário do arquivo admite isso) — então
+   o 401 real nunca dispara `tratarSessaoExpirada()` em produção hoje. A
+   metade "reagir à expiração já detectada" **passou a ter teste real**
+   nesta rodada (commit `47c38f3`, ver §único abaixo), mas a metade
+   "detectar a expiração de uma chamada real" continua sem uso nem teste.
+   **Reabrir F30** quando a primeira tela com chamada autenticada
+   (provavelmente Perfil, quando ganhar endpoint próprio) for implementada.
+2. **Mensagem de sessão expirada em `login.tsx` não tem teste automatizado
+   próprio.** O código renderiza `"Sua sessão expirou. Faça login
+   novamente."` quando `status.sessaoExpirada === true` (confirmado por
+   leitura), mas nenhum teste de `app/login.test.tsx` cobre esse estado —
+   só o estado no hook (`auth-context.test.tsx`) é testado. **Reabrir F30**
+   para adicionar esse teste de componente.
+3. **`npm audit` reporta 31 vulnerabilidades** (8 low, 18 moderate, 5 high)
+   na árvore de dependências do mobile, achado novo desta sessão (não
+   investigado por nenhum agente anterior na F37). Não investiguei cada
+   CVE individualmente — é um achado de superfície, não uma análise de
+   explorabilidade. **Reabrir como item de AppSec (VIGIA) para triagem**,
+   fora do escopo de "só commitar o que já existe" da F37.
+4. **`docs/script.sql` resolvido nesta rodada**: decisão de CARTOGRAFO foi
+   ignorá-lo via `.gitignore` (commit `a1d2ddb`), não comitar nem remover
+   do disco — ver §10 para o detalhe. Isso fecha a pendência que ESPRESSO,
+   PERGAMINHO e VIGIA registraram sem decidir.
+5. **`apps/mobile/app/(menu)/_layout.test.tsx` commitado nesta rodada**
+   (commit `47c38f3`) — era o único arquivo `M` pendente do `git status` da
+   F37; fechava, de fato, o gap "US-MENU-07 sem gatilho real" registrado em
+   memória de sessão anterior, com teste real executado e verde.
+
 ## 9. Dúvidas em aberto (numeradas, novas desta rodada)
 
 1. Qual é o enunciado completo do terceiro critério de F00 ("A estrutura de
@@ -356,3 +397,34 @@ grep -n "US-PROTO-MENU" docs/design/F33-especificacao-menu-tabbar.md
 3. Para F33 (seção 7.8): confirmo que fica fora deste checklist até o
    status do painel virar "Concluída" de fato, ou REGENTE quer a tabela
    montada de qualquer forma, em paralelo, fora do contador oficial da F37?
+
+## 10. Fechamento US-REPO-01 a 07 — rodada CRIVO, 2026-11-11
+
+- **US-REPO-01 (árvore limpa)**: `git status --short` → saída vazia,
+  `exit=0`, confirmado após os dois commits abaixo.
+- **US-REPO-02 (commit rastreável)**: dois commits novos nesta rodada,
+  Conventional Commits, cada um referenciando a origem:
+  - `a1d2ddb` `chore(repo): ignorar script.sql manual divergente do schema
+    Flyway da F37`
+  - `47c38f3` `test(mobile): cobrir expiracao de sessao com o menu em tela
+    da F33`
+- **US-REPO-03 (sem segredo)**: `gitleaks git -c .gitleaks.toml --redact -v`
+  → `45 commits scanned... no leaks found`; `gitleaks dir` sobre o working
+  tree → `no leaks found`. Rodado depois dos dois commits novos.
+- **US-REPO-04 (build verde)**: `mvn -B clean install` → `BUILD SUCCESS`,
+  19 testes (16 unidade/controller + 3 integração Testcontainers), 0 falha,
+  rodado depois do commit de `.gitignore` (que não toca `apps/api`, build
+  não deveria mudar — confirmado que não mudou). `npx jest` (mobile) → 9
+  suites / 37 testes, 0 falha, rodado depois do commit do teste novo.
+- **US-REPO-05 (sem binário/gerado)**: nenhum candidato a commit era
+  binário ou gerado; `docs/script.sql` foi para o `.gitignore` em vez de
+  comitado, por não ser gerado mas ser divergente/perigoso (decisão de
+  CARTOGRAFO, não um caso literal de "gerado", registrada por honestidade).
+- **US-REPO-06 (erro de commit parcial)**: não ocorreu — build e testes
+  continuaram verdes depois de cada um dos dois commits desta rodada, sem
+  necessidade de correção ou revert.
+- **US-REPO-07 (CHANGELOG/README refletidos)**: não toquei CHANGELOG/README
+  nesta rodada — os dois commits são de higiene de repositório (gitignore)
+  e teste (mobile), sem mudança de comportamento documentável em nível de
+  release. PERGAMINHO já havia fechado a divergência anterior; não há nova
+  divergência introduzida por mim.
