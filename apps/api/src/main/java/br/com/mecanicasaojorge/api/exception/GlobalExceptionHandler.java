@@ -12,9 +12,20 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 /**
  * Handler global de erros (ADR-011). Converte excecoes internas no formato publico padronizado;
  * detalhes de stack trace nunca chegam ao cliente.
+ *
+ * <p>Mapeamento de status: 400 validacao de entrada, 401 credencial de login invalida, 422 regra de
+ * negocio ({@link AppError} generico), 500 erro inesperado. O 401 de bearer token
+ * ausente/invalido/expirado e tratado fora daqui, pelo {@code RestAuthenticationEntryPoint} do
+ * resource server (mesmo formato de corpo).
  */
 @RestControllerAdvice
 public class GlobalExceptionHandler {
+
+  @ExceptionHandler(CredenciaisInvalidasException.class)
+  public ResponseEntity<ErrorResponse> handleCredenciaisInvalidas(
+      CredenciaisInvalidasException ex, HttpServletRequest request) {
+    return buildResponse(HttpStatus.UNAUTHORIZED, ex.getMessage(), request);
+  }
 
   @ExceptionHandler(AppError.class)
   public ResponseEntity<ErrorResponse> handleAppError(AppError ex, HttpServletRequest request) {
@@ -29,7 +40,7 @@ public class GlobalExceptionHandler {
             .map(FieldError::getDefaultMessage)
             .reduce((primeira, segunda) -> primeira + "; " + segunda)
             .orElse("Dados invalidos");
-    return buildResponse(HttpStatus.UNPROCESSABLE_ENTITY, mensagem, request);
+    return buildResponse(HttpStatus.BAD_REQUEST, mensagem, request);
   }
 
   @ExceptionHandler(Exception.class)
