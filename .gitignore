@@ -35,3 +35,7 @@ Thumbs.db
 
 # Logs
 *.log
+
+# Rascunho de schema SQL manual, obsoleto e divergente do schema oficial Flyway
+# (apps/api/src/main/resources/db/migration). Nao versionar; nao executar.
+docs/script.sql
