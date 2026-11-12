@@ -1,4 +1,4 @@
-import type { ReactElement } from 'react';
+import type { ReactElement, Ref } from 'react';
 import { ActivityIndicator, Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { color, minTouchTarget, radius, spacing, typography } from '@/theme/tokens';
@@ -14,6 +14,8 @@ export interface ButtonProps {
   readonly loadingLabel?: string;
   readonly disabled?: boolean;
   readonly accessibilityLabel?: string;
+  /** Ref do controle, usado para devolver o foco ao fechar um popup aberto por ele. */
+  readonly triggerRef?: Ref<View>;
 }
 
 export function Button({
@@ -24,6 +26,7 @@ export function Button({
   loadingLabel,
   disabled = false,
   accessibilityLabel,
+  triggerRef,
 }: ButtonProps): ReactElement {
   const { focusRingStyle, onFocus, onBlur } = useFocusRing();
   const isDisabled = disabled || loading;
@@ -31,6 +34,7 @@ export function Button({
   return (
     <View style={[styles.ringWrapper, focusRingStyle]}>
       <Pressable
+        ref={triggerRef}
         accessibilityRole="button"
         accessibilityLabel={accessibilityLabel ?? label}
         accessibilityState={{ disabled: isDisabled, busy: loading }}

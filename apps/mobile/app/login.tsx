@@ -3,6 +3,7 @@ import type { ReactElement } from 'react';
 import { useEffect, useRef, useState } from 'react';
 import { StyleSheet, Text, TextInput, View } from 'react-native';
 
+import { useRestoreFocusOnClose } from '@/accessibility/use-restore-focus-on-close';
 import { CredenciaisInvalidasError } from '@/auth/auth-api';
 import { useAuth } from '@/auth/auth-context';
 import { Button } from '@/components/button';
@@ -27,6 +28,7 @@ export default function LoginScreen(): ReactElement {
 
   const emailRef = useRef<TextInput>(null);
   const senhaRef = useRef<TextInput>(null);
+  const botaoEntrarRef = useRestoreFocusOnClose(estadoEnvio === 'erroRede');
 
   useEffect(() => {
     if (status.tipo === 'autenticado') {
@@ -143,6 +145,7 @@ export default function LoginScreen(): ReactElement {
         loadingLabel={t('login.botaoEntrar.carregando')}
         loading={enviando}
         onPress={() => void handleSubmit()}
+        triggerRef={botaoEntrarRef}
       />
 
       <ErrorRetryModal

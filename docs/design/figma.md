@@ -415,8 +415,11 @@ que não seja "Erro de rede"; F25 com X em 3 popups (`29:48`, `33:23`, `33:62`).
 estrutural, não em captura. Não rodei o protótipo em modo Present nem
 leitor de tela real (VoiceOver/TalkBack): as legendas dizem o que *deve* ser
 anunciado. O "foco volta ao elemento anterior" e o "foco preso no popup"
-(US-POP-02/03) são comportamento do app, não do Figma, e o código ainda não
-os implementa (ver handoff). A F39 redesenha as mesmas 24 telas: ela precisa
+(US-POP-02/03) são comportamento do app, não do Figma. Atualização ORLA
+(2026-11-12): o retorno de foco ao botão que abriu o popup foi implementado
+(`useRestoreFocusOnClose`, testado em jest); o foco preso fica por conta do
+`Modal` nativo (`accessibilityViewIsModal` no iOS, janela própria no Android)
+e **não foi verificado em dispositivo**. A F39 redesenha as mesmas 24 telas: ela precisa
 herdar o X e o olho, senão o redesenho os perde.
 
 **Próximo passo**: ORLA confere o app contra estes frames; CRIVO revalida

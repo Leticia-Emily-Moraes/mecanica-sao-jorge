@@ -3,6 +3,7 @@ import type { ReactElement } from 'react';
 import { useEffect, useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 
+import { useRestoreFocusOnClose } from '@/accessibility/use-restore-focus-on-close';
 import { useAuth } from '@/auth/auth-context';
 import { Button } from '@/components/button';
 import { ConfirmDialog } from '@/components/confirm-dialog';
@@ -13,6 +14,7 @@ export default function PerfilScreen(): ReactElement | null {
   const { status, logout } = useAuth();
   const router = useRouter();
   const [dialogoVisivel, setDialogoVisivel] = useState(false);
+  const botaoSairRef = useRestoreFocusOnClose(dialogoVisivel);
 
   useEffect(() => {
     if (status.tipo !== 'autenticado' && status.tipo !== 'carregando') {
@@ -58,6 +60,7 @@ export default function PerfilScreen(): ReactElement | null {
         label={t('perfil.botaoSair.rotulo')}
         onPress={() => setDialogoVisivel(true)}
         variant="primary"
+        triggerRef={botaoSairRef}
       />
 
       <ConfirmDialog
