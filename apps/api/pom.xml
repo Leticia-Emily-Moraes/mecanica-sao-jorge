@@ -21,9 +21,9 @@
     <java.version>21</java.version>
     <mapstruct.version>1.6.3</mapstruct.version>
     <lombok-mapstruct-binding.version>0.2.0</lombok-mapstruct-binding.version>
-    <jjwt.version>0.12.6</jjwt.version>
     <springdoc.version>2.8.5</springdoc.version>
     <testcontainers.version>1.21.4</testcontainers.version>
+    <owasp-dependency-check.version>12.1.3</owasp-dependency-check.version>
   </properties>
 
   <dependencies>
@@ -38,6 +38,10 @@
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-security</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-oauth2-resource-server</artifactId>
     </dependency>
     <dependency>
       <groupId>org.springframework.boot</groupId>
@@ -84,26 +88,15 @@
     </dependency>
 
     <dependency>
-      <groupId>io.jsonwebtoken</groupId>
-      <artifactId>jjwt-api</artifactId>
-      <version>${jjwt.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>io.jsonwebtoken</groupId>
-      <artifactId>jjwt-impl</artifactId>
-      <version>${jjwt.version}</version>
-      <scope>runtime</scope>
-    </dependency>
-    <dependency>
-      <groupId>io.jsonwebtoken</groupId>
-      <artifactId>jjwt-jackson</artifactId>
-      <version>${jjwt.version}</version>
-      <scope>runtime</scope>
-    </dependency>
-
-    <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-test</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <!-- No Spring Boot 4, @WebMvcTest saiu de spring-boot-test-autoconfigure e virou
+         modulo proprio (mesma reestruturacao do Flyway, ver application.yml). -->
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-webmvc-test</artifactId>
       <scope>test</scope>
     </dependency>
     <dependency>
@@ -218,6 +211,24 @@
             <removeUnusedImports/>
             <importOrder/>
           </java>
+        </configuration>
+      </plugin>
+
+      <!-- Auditoria de dependencia (OWASP A06): nao atrelada ao ciclo de vida padrao.
+           Rodar com `mvn org.owasp:dependency-check-maven:check`. CVSS >= 7 (alta/critica)
+           quebra o build, conforme convencao da casa. NVD_API_KEY e opcional localmente,
+           mas recomendado no CI para evitar rate limit no download da base do NVD. -->
+      <plugin>
+        <groupId>org.owasp</groupId>
+        <artifactId>dependency-check-maven</artifactId>
+        <version>${owasp-dependency-check.version}</version>
+        <configuration>
+          <nvdApiKey>${env.NVD_API_KEY}</nvdApiKey>
+          <failBuildOnCVSS>7</failBuildOnCVSS>
+          <formats>
+            <format>HTML</format>
+            <format>JSON</format>
+          </formats>
         </configuration>
       </plugin>
     </plugins>

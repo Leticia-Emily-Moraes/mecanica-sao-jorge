@@ -1,0 +1,24 @@
+title = "gitleaks-config-mecanica-sao-jorge"
+
+[extend]
+useDefault = true
+
+# Artefatos gerados/baixados, nunca segredo versionado de verdade: escanea-los so
+# deixa o scan lento (node_modules chega a centenas de MB) e gera falso positivo
+# em hash de pacote.
+[allowlist]
+paths = [
+  '''(^|/)node_modules/''',
+  '''(^|/)target/''',
+  '''(^|/)\.expo/''',
+  '''(^|/)dist/''',
+  '''(^|/)build/''',
+]
+
+# Falso positivo confirmado (VIGIA, gitleaks real): JWT de exemplo truncado no
+# README, usado so para ilustrar o formato da resposta de login. Nunca foi um
+# token valido - termina em "..." de proposito. Regex casa so esse valor
+# exato de documentacao, nao qualquer JWT real (que nao tem "..." no final).
+regexes = [
+  '''eyJhbGciOiJIUzI1NiJ9\.\.\.''',
+]

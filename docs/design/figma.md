@@ -402,3 +402,32 @@ estáticos lado a lado, não uma sequência clicável.
 
 **Próximo passo**: handoff para CRIVO conferir US-PROTO-MENU-01 a 05 contra
 este arquivo (frames `39:3`, `39:31`, `39:58`, página `39:2`).
+
+### F33 · Menu principal de navegação (2026-11-07, ESQUADRO)
+
+Reli a página `39:2` nesta sessão (`get_metadata` + `get_screenshot`) para
+confirmar que os 3 frames ainda batem com a descrição acima antes de
+especificar a implementação — bateram, sem divergência.
+
+**Nenhuma página/frame novo foi criado nesta feature.** A F33 reaproveita
+integralmente os frames `39:3`/`39:31`/`39:58` já aprovados (CRIVO, F34); o
+trabalho desta etapa foi de especificação de comportamento (navegação, guard
+de sessão, i18n, adaptação responsiva), não de artefato visual novo —
+detalhado em `docs/design/F33-especificacao-menu-tabbar.md`.
+
+Decisão registrada: a dúvida §10 do PRD de BUSSOLA (`docs/product/F33-menu-principal-navegacao.md`)
+— se falta um frame para o "instante de redirect" de US-MENU-08 — foi
+respondida como **não falta**: esse instante é o guard de sessão que já
+existe em código (`apps/mobile/app/index.tsx`, implementado na F30), que
+nunca chega a montar a tab bar enquanto decide o destino; não é um estado
+visual da tab bar em si. Ver seção 2 do documento de especificação para o
+raciocínio completo.
+
+**Confirmação pós-implementação (2026-11-09, ESQUADRO)**: reli a página
+`39:2` de novo nesta sessão (`whoami` sem bloqueio, `get_metadata`) — os 3
+frames (`39:3`, `39:31`, `39:58`) continuam idênticos ao que está descrito
+acima, nenhuma mudança desde a F34. Confrontei a spec
+(`docs/design/F33-especificacao-menu-tabbar.md`) contra o código real já
+implementado por ORLA (`menu-tab-bar.tsx`, `(menu)/_layout.tsx`): bate ponto
+a ponto. Detalhe completo, incluindo o gap de verificação de foco em item
+desabilitado que fica para CRIVO, na seção 13 do documento de especificação.

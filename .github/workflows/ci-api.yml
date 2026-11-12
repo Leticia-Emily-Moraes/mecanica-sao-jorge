@@ -1,0 +1,180 @@
+name: ci-api
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "apps/api/**"
+      - ".github/workflows/ci-api.yml"
+  pull_request:
+    paths:
+      - "apps/api/**"
+      - ".github/workflows/ci-api.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-api-${{ github.ref }}
+  cancel-in-progress: true
+
+defaults:
+  run:
+    working-directory: apps/api
+
+jobs:
+  # 1) lint: feedback mais rapido, nao precisa compilar.
+  lint:
+    name: lint
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+      - uses: actions/setup-java@77dd5b2ce225ea11469928ac317850245a74ae78  # v6.2.0
+        with:
+          distribution: temurin
+          java-version: "21"
+          cache: maven
+      - name: Checkstyle
+        run: mvn -B -ntp checkstyle:check
+      - name: Spotless (formatacao)
+        run: mvn -B -ntp spotless:check
+
+  # 2) teste unitario. Em Java a compilacao (javac) ja e a verificacao de tipo:
+  # nao existe um comando de type-check dissociado do build como em TypeScript.
+  test:
+    name: teste-unitario
+    needs: lint
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+      - uses: actions/setup-java@77dd5b2ce225ea11469928ac317850245a74ae78  # v6.2.0
+        with:
+          distribution: temurin
+          java-version: "21"
+          cache: maven
+      - name: mvn test (unitarios, sem Docker/banco)
+        run: mvn -B -ntp test
+      - name: Publicar relatorios de teste
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9  # v7.0.2
+        with:
+          name: surefire-reports
+          path: apps/api/target/surefire-reports/
+          retention-days: 14
+
+  # 3) build + teste de integracao: mvn verify empacota o jar e roda o failsafe,
+  # que sobe um MySQL 8.4 real via Testcontainers e aplica TODAS as migrations do
+  # Flyway do zero (FlywayMigrationIT / ADR-010). Runners ubuntu-latest ja trazem
+  # Docker Engine, sem setup adicional.
+  build-integration:
+    name: build-e-integracao
+    needs: test
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+      - uses: actions/setup-java@77dd5b2ce225ea11469928ac317850245a74ae78  # v6.2.0
+        with:
+          distribution: temurin
+          java-version: "21"
+          cache: maven
+      - name: mvn clean verify (build + Testcontainers)
+        run: mvn -B -ntp clean verify
+      - name: Publicar relatorios de integracao
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9  # v7.0.2
+        with:
+          name: failsafe-reports
+          path: apps/api/target/failsafe-reports/
+          retention-days: 14
+      - name: Publicar artefato (jar)
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9  # v7.0.2
+        with:
+          name: api-jar
+          path: apps/api/target/api.jar
+          retention-days: 14
+
+  # 4) auditoria de dependencia (OWASP A06). CVSS >= 7 (alta/critica) quebra o
+  # build (convencao da casa). NVD_API_KEY e um secret opcional do repositorio:
+  # sem ele o download da base do NVD sofre rate limit e fica bem mais lento no
+  # primeiro uso. Gerar gratis em https://nvd.nist.gov/developers/request-an-api-key.
+  dependency-audit:
+    name: auditoria-dependencia
+    needs: build-integration
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+      - uses: actions/setup-java@77dd5b2ce225ea11469928ac317850245a74ae78  # v6.2.0
+        with:
+          distribution: temurin
+          java-version: "21"
+          cache: maven
+      - id: week
+        run: echo "value=$(date +%Y-%U)" >> "$GITHUB_OUTPUT"
+      - name: Cache da base local do NVD
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9  # v6.1.0
+        with:
+          path: ~/.m2/repository/org/owasp/dependency-check-data
+          key: owasp-nvd-${{ steps.week.outputs.value }}
+          restore-keys: owasp-nvd-
+      - name: OWASP dependency-check
+        env:
+          NVD_API_KEY: ${{ secrets.NVD_API_KEY }}
+        run: mvn -B -ntp org.owasp:dependency-check-maven:12.1.3:check
+      - name: Publicar relatorio
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9  # v7.0.2
+        with:
+          name: dependency-check-report
+          path: apps/api/target/dependency-check-report.html
+          retention-days: 30
+
+  # 5) verificacao de segredo vazado, no repositorio inteiro (nao so apps/api) e
+  # no historico de commits, nao so no diff. Container oficial do gitleaks,
+  # fixado por digest para build reprodutivel.
+  secret-scan:
+    name: segredo-vazado
+    needs: dependency-audit
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    defaults:
+      run:
+        working-directory: .
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+        with:
+          fetch-depth: 0
+      - name: gitleaks
+        run: |
+          docker run --rm -v "$PWD":/repo -w /repo \
+            zricethezav/gitleaks@sha256:c00b6bd0aeb3071cbcb79009cb16a60dd9e0a7c60e2be9ab65d25e6bc8abbb7f \
+            detect --source=/repo --redact --exit-code 1 --config /repo/.gitleaks.toml -v
+
+  # 6) imagem Docker: multi-stage, usuario nao-root, sem push (nenhum registro de
+  # container foi decidido para este projeto ainda - ver pendencia no handoff).
+  docker-image:
+    name: imagem-docker
+    needs: secret-scan
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+      - uses: docker/setup-buildx-action@f87e5991a6d7451dcb8d9637bfbc97413f497069  # v4.4.1
+      - uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc  # v7.4.0
+        with:
+          context: apps/api
+          push: false
+          load: true
+          tags: mecanica-sao-jorge-api:ci-${{ github.sha }}
+      - name: Confirmar que o conteiner nao roda como root
+        run: |
+          user_id=$(docker run --rm --entrypoint id mecanica-sao-jorge-api:ci-${{ github.sha }} -u)
+          echo "uid do processo: $user_id"
+          if [ "$user_id" = "0" ]; then
+            echo "Imagem roda como root - bloqueando pipeline." >&2
+            exit 1
+          fi

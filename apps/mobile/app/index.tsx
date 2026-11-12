@@ -1,15 +1,52 @@
+import { useRouter } from 'expo-router';
 import type { ReactElement } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { useEffect } from 'react';
+import { ActivityIndicator, StyleSheet, View } from 'react-native';
 
-export default function HomeScreen(): ReactElement {
+import { useAuth } from '@/auth/auth-context';
+import { ErrorRetryModal } from '@/components/error-retry-modal';
+import { t } from '@/i18n/strings';
+import { color } from '@/theme/tokens';
+
+/**
+ * Tela de reidratação de sessão: decide, sem interação do usuário, se o
+ * destino é Login ou Perfil (US-LGN-FRONT-06). É também onde os estados de
+ * carregando/erro da "entrada" em Perfil aparecem — decisão registrada no
+ * handoff da F30 (F25 PRD, Dúvida 1, opção a): sem endpoint de perfil
+ * dedicado, Perfil não tem carregamento de rede próprio, só a reidratação do
+ * SecureStore ao abrir o app.
+ */
+export default function IndexScreen(): ReactElement {
+  const { status, tentarNovamenteInicializacao, logout } = useAuth();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (status.tipo === 'autenticado') {
+      router.replace('/perfil');
+    } else if (status.tipo === 'naoAutenticado') {
+      router.replace('/login');
+    }
+  }, [status, router]);
+
   return (
     <View style={styles.container}>
-      <Text accessibilityRole="header" style={styles.title}>
-        Mecânica São Jorge
-      </Text>
-      <Text style={styles.subtitle}>
-        Scaffold do app mobile. As telas de cada funcionalidade chegam a partir da etapa de Login.
-      </Text>
+      {status.tipo === 'carregando' ? (
+        <ActivityIndicator
+          size="large"
+          color={color.text.primary}
+          accessibilityLabel={t('sessao.inicializando.anuncio')}
+        />
+      ) : null}
+
+      <ErrorRetryModal
+        visible={status.tipo === 'erroInicializacao'}
+        title={t('sessao.erroInicializacao.titulo')}
+        message={t('sessao.erroInicializacao.mensagem')}
+        retryLabel={t('sessao.erroInicializacao.botaoTentarNovamente')}
+        onRetry={tentarNovamenteInicializacao}
+        secondaryLabel={t('sessao.erroInicializacao.botaoEntrarNovamente')}
+        onSecondaryPress={() => void logout()}
+      />
     </View>
   );
 }
@@ -19,17 +56,6 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    padding: 24,
-  },
-  title: {
-    fontSize: 20,
-    fontWeight: '600',
-    marginBottom: 8,
-    textAlign: 'center',
-  },
-  subtitle: {
-    fontSize: 14,
-    textAlign: 'center',
-    color: '#4b5563',
+    backgroundColor: color.surface.default,
   },
 });

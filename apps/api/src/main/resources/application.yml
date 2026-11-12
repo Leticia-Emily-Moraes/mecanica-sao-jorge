@@ -26,8 +26,10 @@ springdoc:
     path: /swagger-ui.html
 
 jwt:
-  secret: ${JWT_SECRET:}
-  expiration-minutes: ${JWT_EXPIRATION_MINUTES:120}
+  # ADR-004/ADR-009: sem default utilizavel - a aplicacao falha ao subir sem
+  # JWT_SECRET valido (minimo 32 bytes), nunca comitado nem logado.
+  secret: ${JWT_SECRET}
+  expiration-minutes: ${JWT_EXPIRATION_MINUTES:10080}
 
 management:
   endpoints:
