@@ -265,6 +265,84 @@ pode pedir "Confirmar saída" na revisão sem implicar retrabalho estrutural.
 tabela de registro de execução do PRD F25 (US-PROTO-LGN-05/06), incluindo
 decidir as duas divergências de escopo/copy registradas acima.
 
+#### Correção F38 — X de fechar e ícone de olho (2026-11-12, ESQUADRO)
+
+A pedido direto do comandante, reaplicados no protótipo F25 os dois padrões
+novos de UI da F38 (botão X em popup, ícone de olho em campo de senha),
+restritos ao recorte que a instrução pediu: popup de erro de login e
+confirmação de logout. `whoami` confirmado sem bloqueio antes de qualquer
+leitura ou edição (handle "Leticia Moraes", plano `team::1274094162661077353`).
+
+**US-POP-06 — Popup de erro de login (`29:35` → `29:48`)**: adicionado
+`Alvo de toque · Fechar (44×44)` (`79:2`, retângulo invisível, mesmo padrão
+do alvo de toque do olho) com um ícone X de dois traços (`79:3`/`79:4`,
+`color/text/secondary`, 1,5 px, mesmo estilo do contorno do olho) no canto
+superior direito. Para abrir espaço sem sobrepor o ícone de alerta, todo o
+conteúdo do popup (`29:49` a `29:53`) foi deslocado 44 px para baixo e a
+altura do popup cresceu de 206 para 250 px; o frame do popup subiu 44 px
+(`y` 297→253) para manter a borda inferior exatamente onde estava (503 px),
+sem mexer na legenda de leitor de tela abaixo. Nenhum texto, botão ou cor
+existente foi alterado — só reposicionado. Legenda (`29:55`) reescrita para
+descrever o novo controle e a ordem de foco (Fechar → Tentar novamente).
+
+**US-POP-07 — Confirmação de logout (`33:49` → `33:62`)**: mesmo padrão,
+ids `79:5`/`79:6`/`79:7`. Conteúdo do diálogo (`33:63` a `33:68`) deslocado
+44 px para baixo, altura 192→236 px, frame subiu 44 px (`y` 304→260,
+borda inferior mantida em 496 px). Cancelar (`33:65`/`33:66`) e Sair/confirmar
+(`33:67`/`33:68`) preservados sem nenhuma alteração de posição relativa,
+texto ou cor — o X é ação adicional, não substitui nenhum botão. Legenda
+(`33:70`) reescrita: ordem de foco passa a ser Fechar (X) → título →
+mensagem → Cancelar → Sair, com o X documentado como equivalente a
+"Cancelar" (fecha sem encerrar sessão).
+
+**US-PWD-06 — Ícone de olho**: reli a página inteira (`28:2`) antes de
+mexer e confirmei que o ícone de olho **já existia** nos três frames de
+Login com campo de senha (`29:2`, `29:56`, `29:79` — "Olho · contorno" +
+"Olho · pupila" + "Olho · barra (ocultar)", construídos desde a criação
+original da F25 em 2026-11-07, antes mesmo da F38 existir). Ou seja, o
+código mobile usava texto "mostrar senha" até a F38 corrigir, mas o Figma
+já estava correto nesse ponto — não precisei adicionar o ícone fechado,
+só o estado aberto que faltava.
+
+Criei o frame `80:2` ("Anotação · olho aberto (variante US-PWD-06)"),
+360×256, posicionado em `x=1680, y=900` (coluna de Login, na faixa vazia
+entre a linha de Login e a linha de Perfil, sem sobrepor nenhum frame
+existente). Contém o ícone de olho aberto (sem a barra — `olhoContorno`/
+`olhoPupila` sem o traço "ocultar"), o alvo de toque 44×44 e o texto do
+nome acessível no estado ativo ("Ocultar senha").
+
+**Conflito que encontrei e não resolvi sozinho**: o PRD do F25
+(`docs/product/F25-prototipo-login-perfil.md`, §8) já fixa, como decisão
+aprovada, que a senha "nunca" aparece como string literal visível no frame,
+"mesmo no estado Preenchido" — só mascarada/pontos. A US-PWD-06 da F38 pede
+literalmente uma variante "mostrando o olho aberto **com a senha em texto
+claro**". As duas instruções se contradizem. Não escolhi uma por conta
+própria: implementei a troca de ícone e de nome acessível (que não conflita
+com nada) e documentei o impasse na própria nota do frame `80:2`, pedindo
+que BUSSOLA decida qual decisão prevalece antes de eu desenhar a senha em
+texto legível de fato.
+
+**O que verifiquei**: `get_metadata` antes e depois de cada edição (nenhum
+nó existente apagado, ids antigos preservados); `get_screenshot` dos três
+frames (`29:35`, `33:49`, `80:2`) depois de cada etapa, conferindo que não
+há sobreposição de texto, que os botões Cancelar/Sair/Tentar novamente
+continuam legíveis e sem alteração visual além da nova posição, e que o
+X não é cortado pelo canto arredondado do popup. Cores do X e do olho
+aberto lidas com `boundVariables` antes de criar (herdadas de
+`color/text/secondary`, `VariableID:28:18`), não digitadas de cabeça —
+mesmo token já usado no ícone de olho fechado.
+
+**Fora desta rodada** (fora do escopo que o comandante pediu para mim
+agora, registrado para quando alguém retomar o Bloco D completo): o X não
+foi retroagido aos 24 frames de "Erro de rede" do F24, nem o olho foi
+retroagido ao frame de Login do F24 — a instrução recebida foi
+especificamente sobre o F25.
+
+**Próximo passo**: BUSSOLA decide o conflito do §8 do PRD F25 registrado
+acima (olho aberto com senha em texto claro vs. senha sempre mascarada).
+Depois disso, CRIVO revalida US-POP-06/07 e US-PWD-06 contra este arquivo
+(frames `29:35`, `33:49`, `80:2`, página `28:2`).
+
 ### `F34 · Tab bar alta fidelidade` (2026-11-07, ESQUADRO)
 
 Protótipo de alta fidelidade do Menu principal (tab bar inferior), a partir
