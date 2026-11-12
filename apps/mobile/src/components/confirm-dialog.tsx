@@ -2,6 +2,7 @@ import type { ReactElement } from 'react';
 import { Modal, StyleSheet, Text, View } from 'react-native';
 
 import { Button } from '@/components/button';
+import { CloseButton } from '@/components/close-button';
 import { color, radius, spacing, typography } from '@/theme/tokens';
 
 export interface ConfirmDialogProps {
@@ -13,7 +14,11 @@ export interface ConfirmDialogProps {
   readonly onConfirm: () => void;
 }
 
-/** Diálogo de confirmação (US-PRF-FRONT-02/03) — nenhuma ação é destrutiva de dado. */
+/**
+ * Diálogo de confirmação (US-PRF-FRONT-02/03) — nenhuma ação é destrutiva de
+ * dado. O X de fechar (padrão F38) é fechamento adicional equivalente ao
+ * Cancelar; Cancelar/Confirmar permanecem intactos.
+ */
 export function ConfirmDialog({
   visible,
   title,
@@ -31,6 +36,7 @@ export function ConfirmDialog({
           accessibilityRole="alert"
           accessibilityLiveRegion="assertive"
         >
+          <CloseButton onPress={onCancel} />
           <Text style={styles.title}>{title}</Text>
           <View style={styles.actions}>
             <View style={styles.actionSpacing}>
@@ -58,6 +64,7 @@ const styles = StyleSheet.create({
     backgroundColor: color.surface.default,
     borderRadius: radius.lg,
     padding: spacing.lg,
+    paddingTop: spacing.xl,
   },
   title: {
     fontSize: typography.label.fontSize,

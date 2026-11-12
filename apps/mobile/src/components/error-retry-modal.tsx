@@ -2,6 +2,7 @@ import type { ReactElement } from 'react';
 import { Modal, StyleSheet, Text, View } from 'react-native';
 
 import { Button } from '@/components/button';
+import { CloseButton } from '@/components/close-button';
 import { color, radius, spacing, typography } from '@/theme/tokens';
 
 export interface ErrorRetryModalProps {
@@ -10,6 +11,7 @@ export interface ErrorRetryModalProps {
   readonly message: string;
   readonly retryLabel: string;
   readonly onRetry: () => void;
+  readonly onClose?: () => void;
   readonly secondaryLabel?: string;
   readonly onSecondaryPress?: () => void;
 }
@@ -17,7 +19,11 @@ export interface ErrorRetryModalProps {
 /**
  * Popup sobre o conteúdo de fundo (não substitui a tela), mesmo padrão
  * corrigido no wireframe F24 e reaproveitado no protótipo F25 — ícone de
- * alerta ⚠ (dingbat, não emoji colorido), título, mensagem e ação de retry.
+ * alerta ⚠ (dingbat, não emoji colorido), título, mensagem, ação de retry e,
+ * quando `onClose` é informado, o X de fechar (padrão F38) como fechamento
+ * adicional sem tentar de novo. `onClose` é opcional porque o popup de erro
+ * de inicialização de sessão (app/index.tsx) não tem uma ação de "fechar"
+ * válida sem decisão de produto própria — fora do escopo desta feature.
  */
 export function ErrorRetryModal({
   visible,
@@ -25,11 +31,12 @@ export function ErrorRetryModal({
   message,
   retryLabel,
   onRetry,
+  onClose,
   secondaryLabel,
   onSecondaryPress,
 }: ErrorRetryModalProps): ReactElement {
   return (
-    <Modal visible={visible} transparent animationType="fade" onRequestClose={onRetry}>
+    <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose ?? onRetry}>
       <View style={styles.overlay}>
         <View
           style={styles.card}
@@ -37,6 +44,7 @@ export function ErrorRetryModal({
           accessibilityRole="alert"
           accessibilityLiveRegion="assertive"
         >
+          {onClose ? <CloseButton onPress={onClose} /> : null}
           <Text accessibilityElementsHidden importantForAccessibility="no" style={styles.icon}>
             ⚠
           </Text>
@@ -70,6 +78,7 @@ const styles = StyleSheet.create({
     backgroundColor: color.surface.default,
     borderRadius: radius.lg,
     padding: spacing.lg,
+    paddingTop: spacing.xl,
     alignItems: 'center',
   },
   icon: {

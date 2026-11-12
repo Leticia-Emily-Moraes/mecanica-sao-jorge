@@ -61,6 +61,19 @@ describe('PerfilScreen', () => {
     expect(mockReplace).not.toHaveBeenCalledWith('/login');
   });
 
+  it('should close the logout confirmation dialog with the X button and keep the session (US-POP-05)', async () => {
+    await renderPerfilScreen();
+
+    fireEvent.press(screen.getByRole('button', { name: 'Sair' }));
+    expect(screen.getByText('Deseja realmente sair?')).toBeTruthy();
+
+    fireEvent.press(screen.getByRole('button', { name: 'Fechar' }));
+
+    expect(screen.queryByText('Deseja realmente sair?')).toBeNull();
+    expect(await SecureStore.getItemAsync('mecanicaSaoJorge.auth.token')).toBe('token-existente');
+    expect(mockReplace).not.toHaveBeenCalledWith('/login');
+  });
+
   it('should clear the token and navigate to /login when logout is confirmed', async () => {
     await renderPerfilScreen();
 
