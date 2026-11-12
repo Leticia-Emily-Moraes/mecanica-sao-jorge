@@ -1,16 +1,16 @@
 import { useRouter } from 'expo-router';
 import type { ReactElement } from 'react';
 import { useEffect, useRef, useState } from 'react';
-import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
+import { StyleSheet, Text, TextInput, View } from 'react-native';
 
 import { CredenciaisInvalidasError } from '@/auth/auth-api';
 import { useAuth } from '@/auth/auth-context';
 import { Button } from '@/components/button';
 import { ErrorRetryModal } from '@/components/error-retry-modal';
+import { PasswordVisibilityToggle } from '@/components/password-visibility-toggle';
 import { TextField } from '@/components/text-field';
 import { t } from '@/i18n/strings';
-import { color, minTouchTarget, spacing, typography } from '@/theme/tokens';
-import { useFocusRing } from '@/theme/use-focus-ring';
+import { color, spacing, typography } from '@/theme/tokens';
 
 type EstadoEnvio = 'idle' | 'enviando' | 'erroRede' | 'erroCredencial';
 
@@ -27,7 +27,6 @@ export default function LoginScreen(): ReactElement {
 
   const emailRef = useRef<TextInput>(null);
   const senhaRef = useRef<TextInput>(null);
-  const toggleFocusRing = useFocusRing();
 
   useEffect(() => {
     if (status.tipo === 'autenticado') {
@@ -131,23 +130,11 @@ export default function LoginScreen(): ReactElement {
         secureTextEntry={!mostrarSenha}
         textContentType="password"
         rightAccessory={
-          <View style={[styles.toggleRing, toggleFocusRing.focusRingStyle]}>
-            <Pressable
-              accessibilityRole="button"
-              accessibilityLabel={
-                mostrarSenha ? t('login.campoSenha.ocultar') : t('login.campoSenha.mostrar')
-              }
-              disabled={enviando}
-              onFocus={toggleFocusRing.onFocus}
-              onBlur={toggleFocusRing.onBlur}
-              onPress={() => setMostrarSenha((valor) => !valor)}
-              style={styles.toggleButton}
-            >
-              <Text style={styles.toggleLabel}>
-                {mostrarSenha ? t('login.campoSenha.ocultar') : t('login.campoSenha.mostrar')}
-              </Text>
-            </Pressable>
-          </View>
+          <PasswordVisibilityToggle
+            visible={mostrarSenha}
+            onToggle={() => setMostrarSenha((valor) => !valor)}
+            disabled={enviando}
+          />
         }
       />
 
@@ -164,6 +151,7 @@ export default function LoginScreen(): ReactElement {
         message={t('login.erroRede.mensagem')}
         retryLabel={t('login.erroRede.botaoTentarNovamente')}
         onRetry={() => void handleSubmit()}
+        onClose={() => setEstadoEnvio('idle')}
       />
     </View>
   );
@@ -192,19 +180,5 @@ const styles = StyleSheet.create({
     color: color.text.error,
     textAlign: 'center',
     marginBottom: spacing.md,
-  },
-  toggleRing: {
-    borderRadius: spacing.sm,
-  },
-  toggleButton: {
-    minHeight: minTouchTarget,
-    minWidth: minTouchTarget,
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingHorizontal: spacing.sm,
-  },
-  toggleLabel: {
-    fontSize: typography.caption.fontSize,
-    color: color.text.secondary,
   },
 });

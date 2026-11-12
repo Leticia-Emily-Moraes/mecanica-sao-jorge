@@ -68,6 +68,22 @@ describe('LoginScreen', () => {
     expect(screen.getByRole('button', { name: 'Tentar novamente' })).toBeTruthy();
   });
 
+  it('should close the network error modal with the X button without retrying (US-POP-04)', async () => {
+    autenticarMock.mockRejectedValueOnce(new ErroDeRedeError());
+    await renderLoginScreen();
+
+    fireEvent.changeText(screen.getByLabelText('E-mail'), 'ana.souza@exemplo-ficticio.com.br');
+    fireEvent.changeText(screen.getByLabelText('Senha'), 'senha-ficticia');
+    fireEvent.press(screen.getByRole('button', { name: 'Entrar' }));
+
+    expect(await screen.findByText('Não foi possível conectar.')).toBeTruthy();
+
+    fireEvent.press(screen.getByRole('button', { name: 'Fechar' }));
+
+    expect(screen.queryByText('Não foi possível conectar.')).toBeNull();
+    expect(autenticarMock).toHaveBeenCalledTimes(1);
+  });
+
   it('should log in and navigate to /perfil when credentials are valid', async () => {
     autenticarMock.mockResolvedValueOnce({
       token: 'token-jwt-fake',
@@ -99,5 +115,10 @@ describe('LoginScreen', () => {
 
     expect(screen.getByLabelText('Senha').props.secureTextEntry).toBe(false);
     expect(screen.getByRole('button', { name: 'Ocultar senha' })).toBeTruthy();
+
+    fireEvent.press(screen.getByRole('button', { name: 'Ocultar senha' }));
+
+    expect(screen.getByLabelText('Senha').props.secureTextEntry).toBe(true);
+    expect(screen.getByRole('button', { name: 'Mostrar senha' })).toBeTruthy();
   });
 });
