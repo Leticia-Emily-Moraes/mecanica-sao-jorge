@@ -27,7 +27,7 @@ Instruções de instalação, execução e testes: `README.md` da raiz e de cada
 ## Documentação complementar
 
 - `docs/architecture/arquitetura-backend.md` — responsabilidade de cada pacote, classes por módulo, rotas REST.
-- `docs/architecture/schema-referencia.sql` — modelo de dados alvo (referência, não executar).
+- `docs/architecture/adr/` e `docs/architecture/overview.md` — ADRs e visão geral (chegam com as PRs da F37/F38; prevalecem sobre este arquivo em caso de divergência).
 - `docs/product/ux-ui-mapeamento.md` — telas e fluxos do app.
 - `docs/design/identidade-visual.md` — paleta, tipografia, componentes.
 - `docs/design/figma.md` e `docs/design/F24-wireframe-baixa-fidelidade.md` — wireframe e protótipos no Figma.
@@ -38,23 +38,19 @@ Instruções de instalação, execução e testes: `README.md` da raiz e de cada
 
 Por camada (não por domínio/feature):
 
+Estrutura canônica (ADR-001):
+
 ```
 br.com.mecanicasaojorge.api
-├── config
-├── controller
-├── dto
-│   ├── request
-│   └── response
-├── entity / model
-├── repository
-├── service
-│   ├── impl
-│   └── interfaces
-├── mapper
-├── exception
-├── security
-├── util
-└── enums
+├── entity        # entidades JPA, uma por tabela, no singular (+ enums de domínio)
+├── repository    # interfaces Spring Data JPA
+├── service       # regra de negócio (única camada que a contém)
+├── dto           # *Request (entrada, Bean Validation) e *Response (saída)
+├── mapper        # MapStruct entity <-> dto
+├── controller    # endpoints REST, finos, sem regra de negócio
+├── config        # configuração transversal (OpenAPI, propriedades)
+├── security      # autenticação JWT
+└── exception     # handler global e tipos de erro
 ```
 
 Por quê por camada e não por domínio: organização por domínio escala melhor com vários times trabalhando em paralelo, mas este é um projeto de uma pessoa só, com módulos que se referenciam muito entre si (Ordem de Serviço usa Cliente, Veículo, Serviço e Peça ao mesmo tempo) — separar por domínio criaria import cruzado entre pastas sem ganho real nesse porte.
@@ -63,7 +59,7 @@ Por quê por camada e não por domínio: organização por domínio escala melho
 
 ## Modelo de dados
 
-Modelo alvo em `docs/architecture/schema-referencia.sql` (referência de modelagem). O schema real é criado só por migrations Flyway em `apps/api/src/main/resources/db/migration` — toda mudança de schema exige migration nova; Hibernate roda com `ddl-auto: validate`. Principais decisões e o porquê:
+Fonte única de verdade do schema: as migrations Flyway em `apps/api/src/main/resources/db/migration` (ADR-013) — toda mudança de schema exige migration nova e aditiva; Hibernate roda com `ddl-auto: validate`. O antigo `script.sql` manual (com `DROP DATABASE`) fica fora do git; o que ele previa e a V2 ainda não tem está na matriz "Reconciliação do schema com o script de referência" de `docs/architecture/overview.md`. Principais decisões e o porquê:
 
 - **`Servico`** (catálogo de serviços oferecidos) e **`Peca`** (catálogo + estoque) são reaproveitáveis entre várias ordens, em vez de texto livre repetido em cada ordem.
 - **`OrdemServico`** se relaciona com N serviços e N peças via tabelas de junção (`OrdensServicoServicos`, `OrdensServicoPecas`) que **congelam o valor cobrado no momento da venda** — se o preço do catálogo mudar depois, ordens já fechadas não são afetadas. Isso é necessário para relatório histórico de faturamento ficar correto.
@@ -87,7 +83,7 @@ ABERTA → EM_ANALISE → AGUARDANDO_PECA ⇄ EM_ANDAMENTO → FINALIZADA → EN
 - `EM_ANALISE` (diagnóstico) é separado de `EM_ANDAMENTO` (execução) para dar visibilidade de prazo por fase.
 - `AGUARDANDO_PECA` é um estado reversível (pode voltar para `EM_ANDAMENTO` quando a peça chega).
 - "PAGO" **não** é status da Ordem de Serviço — pagamento é rastreado via `Parcela`/`Pagamento`, desacoplado do ciclo de execução do serviço.
-- Implementação: enum Java `StatusOrdemServico`, mapeado com `@Enumerated(EnumType.STRING)` — nunca `EnumType.ORDINAL` (reordenar o enum no futuro não pode corromper dados já gravados, pois `ORDINAL` grava só a posição numérica).
+- Implementação: enum Java `StatusOS` (pacote `entity`; hoje só `ABERTA` e `EM_ANALISE`, lista completa fecha na Sprint 04), mapeado com `@Enumerated(EnumType.STRING)` — nunca `EnumType.ORDINAL` (reordenar o enum no futuro não pode corromper dados já gravados, pois `ORDINAL` grava só a posição numérica).
 - Transições de status válidas são validadas na camada Service, nunca no Controller.
 
 ---
@@ -152,6 +148,6 @@ Estilo das respostas: técnico e objetivo, sem genérico. Quando houver alternat
 
 ## Pendências conhecidas
 
-- Só existe a migration `V1__criar_tabela_usuarios.sql` no `main`. A F24 cita `V2__criar_schema_oficina.sql` e `docs/architecture/overview.md`, que não estão versionados.
-- Divergências registradas na F24 entre telas e schema (clientes sem CPF/endereço, serviços e peças sem nome, movimentação de estoque sem quantidade) — `docs/architecture/schema-referencia.sql` já prevê nome em serviços/peças e quantidade na movimentação; usar como base nas próximas migrations.
-- ADRs de arquitetura, CI (`.github/workflows/ci.yml`) e Maven Wrapper ainda não commitados (ver `README.md`).
+- `V2__criar_schema_oficina.sql`, entidades JPA, login (F02), CI, ADRs e `overview.md` ainda não estão no `main`: chegam pelas PRs abertas da F30 (#4) e da F39 (#5, que contém a #4).
+- Colunas que as telas pedem e a V2 não tem (`servicos.nome`, `pecas.nome`, `movimentacoes_estoque.quantidade`, `financeiro.valor`, CPF/endereço de cliente, entre outras) — cada feature fecha a sua linha na matriz de reconciliação do `overview.md` com migration nova.
+- Maven Wrapper (`apps/api/mvnw`) ainda não gerado.

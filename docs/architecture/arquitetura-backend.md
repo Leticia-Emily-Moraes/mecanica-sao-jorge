@@ -4,7 +4,7 @@ Complementa o `CLAUDE.md`. Não repete decisões já fechadas lá (stack, modelo
 
 > Nota sobre o pedido original: organização por feature e arquitetura pronta para microsserviços/multi-tenant/filas/cache foram avaliados e **não adotados**, por contrariarem decisões já justificadas no `CLAUDE.md` (pacotes por camada para projeto de uma pessoa só, complexidade proporcional ao porte do negócio). Este documento segue as decisões existentes.
 >
-> Nota de versão: este documento foi escrito antes da fundação F00 (`apps/api`). A stack real hoje é Java 21 + Spring Boot 4.1.0 e o schema evolui por migrations Flyway em `apps/api/src/main/resources/db/migration` — onde o texto abaixo divergir do código, o código vale.
+> Nota de versão: este documento foi escrito antes da fundação F00 (`apps/api`). A stack real hoje é Java 21 + Spring Boot 4.1.0 e o schema evolui por migrations Flyway em `apps/api/src/main/resources/db/migration` — onde o texto abaixo divergir do código ou dos ADRs em `docs/architecture/adr/`, o código e os ADRs valem. Em especial: a estrutura canônica de pacotes é a do ADR-001 (sem `service/interfaces` + `service/impl`, sem `util`; enums de domínio no pacote `entity`) e a fonte única do schema é o Flyway (ADR-013).
 
 ---
 
@@ -64,7 +64,7 @@ Não pode depender de: `entity`, `repository`, `service`.
 
 ### entity
 
-Responsabilidade: mapeamento JPA. Reflete o schema em `docs/architecture/schema-referencia.sql`.
+Responsabilidade: mapeamento JPA. Reflete o schema criado pelas migrations Flyway (`apps/api/src/main/resources/db/migration`), fonte única de verdade (ADR-013).
 
 Exemplos: `Cliente`, `Veiculo`, `OrdemServico`, `Servico`, `Peca`, `MovimentacaoEstoque`, `Parcela`, `Pagamento`, `Financeiro`, `Usuario`.
 

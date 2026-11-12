@@ -2,6 +2,8 @@
 
 Baseado no `docs/product/ux-ui-mapeamento.md` e no `CLAUDE.md`. Define paleta de cores, tipografia, diretrizes de componentes e direção de logo/ícone para o app. Estilo escolhido: **industrial/robusto** — transmite força mecânica, oficina e confiança, evitando visual "fofo" ou genérico de app consumer.
 
+> Nota de versão: documento de direção visual anterior aos protótipos F25/F34 no Figma. Os valores efetivamente implementados vivem em `apps/mobile/src/theme/tokens.ts` (única fonte de cor do app). As cores de marca (`#B5453D`, `#1E3A3F`) coincidem; neutros e escala tipográfica do app seguiram outra linha (neutros slate, escala 24/16/14/12) — em divergência, valem os tokens e o Figma.
+
 ---
 
 ## 1. Conceito

@@ -36,7 +36,7 @@ Sem tela de "esqueci a senha" no MVP — funcionário só, sem self-service de c
 |---|---|---|---|
 | Lista de Clientes | Buscar/listar clientes cadastrados | Busca por nome/telefone/documento, botão "novo cliente" | Tab Clientes |
 | Detalhe do Cliente | Ver dados do cliente e seus veículos | Dados de contato, lista de veículos do cliente, botão "novo veículo", botão "nova OS" (pré-preenchendo cliente), editar/excluir cliente | Lista de Clientes |
-| Criar/Editar Cliente | Cadastrar ou alterar dados | Nome, telefone, documento, endereço (campos conforme `docs/architecture/schema-referencia.sql`) | Lista de Clientes ou Detalhe do Cliente |
+| Criar/Editar Cliente | Cadastrar ou alterar dados | Nome, telefone, documento, endereço (campos conforme as migrations Flyway em `apps/api/src/main/resources/db/migration`) | Lista de Clientes ou Detalhe do Cliente |
 
 ---
 
