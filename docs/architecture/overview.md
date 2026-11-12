@@ -41,6 +41,8 @@ evitar fluxo órfão) em [`diagrams/navegacao-wireframe-f24.md`](diagrams/navega
 | [ADR-009](adr/ADR-009-configuracao-por-variavel-de-ambiente-e-segredos-fora-do-codigo.md) | Configuração por variável de ambiente e segredos fora do código | Aceito | 2026-11-07 |
 | [ADR-010](adr/ADR-010-testes-de-integracao-com-testcontainers.md) | Testes de integração com Testcontainers rodando as migrations do zero | Aceito | 2026-11-07 |
 | [ADR-011](adr/ADR-011-handler-global-de-erro-e-mapeamento-de-status.md) | Handler global de erro: formato único e mapeamento de status HTTP | Aceito | 2026-11-07 |
+| [ADR-012](adr/ADR-012-remover-template-generico-do-backend.md) | Remover o template genérico do backend em vez de adaptá-lo | Aceito | 2026-11-12 |
+| [ADR-013](adr/ADR-013-adotar-migrations-flyway-como-fonte-unica-de-verdade-do-schema.md) | Adotar as migrations Flyway como fonte única de verdade do schema | Aceito | 2026-11-12 |
 
 > Nota de materialização: a F00 referenciou ADR-004/006/010/011 em código mas
 > não gravou os arquivos (ver `README.md`). Esta entrega da F02 materializa todo
@@ -53,8 +55,10 @@ Convenção ([[adr/ADR-007-nao-expor-entidade-na-api-dto-e-convencao-de-nomes]])
 tabela plural snake_case, PK `id` (`BIGINT UNSIGNED AUTO_INCREMENT`), FK
 `<singular>_id`, entidade no singular em `entity`.
 
-**Divergência registrada**: o schema de referência (cópia versionada neste repo
-em `docs/script.sql`, originada do `BD/script.sql` do repo irmão) usa PascalCase e
+**Fonte de verdade**: o schema é o que as migrations Flyway criam
+([[adr/ADR-013-adotar-migrations-flyway-como-fonte-unica-de-verdade-do-schema]]).
+**Divergência registrada**: o script de referência (`docs/script.sql`, local e
+fora do git desde `a1d2ddb`, originado do `BD/script.sql` do repo irmão) usa PascalCase e
 PK `<tabela>_id` (ex.: `Clientes.cliente_id`). A casa segue o padrão já aplicado
 pela F00 (`usuarios`, PK `id`, snake_case). O script é referência de **estrutura**
 (colunas, FKs, geradas, enums), não de nomenclatura.
@@ -84,35 +88,85 @@ Colunas geradas ([[adr/ADR-005-subtotais-da-os-como-coluna-gerada-no-banco]]):
 e `ordens_servico_pecas.subtotal = GENERATED ALWAYS AS (valor_unitario_cobrado * quantidade) STORED`.
 Mapear com `@Column(insertable=false, updatable=false)`.
 
-## Schema V2 incremental: colunas pendentes por feature
+## Reconciliação do schema com o script de referência
 
-A `V2__criar_schema_oficina.sql` é **deliberadamente mínima** (comentário no
-próprio arquivo): cria as 11 tabelas restantes só com o que a F02 precisa para
-`ddl-auto: validate` passar e cumprir US-FUND-02 (cada entidade mapeia uma tabela
-real). Colunas de negócio presentes no schema de referência (`docs/script.sql`)
-foram **adiadas** — cada feature dona adiciona as suas via migration aditiva
-(`V3+`), conforme [[adr/ADR-003-versionar-schema-com-flyway-migrations-aditivas]]
-(forward-only). Isto **não é esquecimento**: é a aplicação da estratégia aditiva,
-registrada aqui para que ESPRESSO e CORRENTE saibam o que cada feature ainda deve
-trazer, e para que a entidade JPA só mapeie a coluna quando a migration que a cria
-entrar (senão `validate` quebra).
+Regra ([[adr/ADR-013-adotar-migrations-flyway-como-fonte-unica-de-verdade-do-schema]]):
+o schema do sistema é **o que as migrations criam**. `docs/script.sql` é
+insumo histórico de requisito: fica local, fora do git desde `a1d2ddb`, e a
+versão lida tem `sha256 d75746d0…afd235aa7`. Esta matriz congela o que o
+script tem e a V1/V2 não têm. A V2 é **deliberadamente mínima**: cria as 11
+tabelas só com o que a F02 precisa para `ddl-auto: validate`. Cada feature
+dona fecha a sua linha **no mesmo PR** da migration aditiva (`V3+`,
+[[adr/ADR-003-versionar-schema-com-flyway-migrations-aditivas]]). A entidade
+JPA só mapeia a coluna depois que a migration que a cria entrar. Conferido
+coluna a coluna por CARTOGRAFO em 2026-11-12, lendo os três arquivos SQL.
 
-| Tabela | Colunas no `docs/script.sql` ausentes na V2 | Feature dona (migration futura) |
+### Colunas do script ausentes nas migrations
+
+| Tabela | Colunas no script que faltam em V1/V2 | Feature dona |
 |---|---|---|
-| `clientes` | `cpf`, `endereco` (pedidos por US-DES-04 da F24; ausentes na V2) | F09 / F03 |
-| `servicos` | `nome` (NOT NULL no ref), `descricao` | F05 / F11 / F12 |
-| `pecas` | `nome` (NOT NULL no ref), `categoria`, `fabricante`, `unidade` | F17 / F14 / F15 |
-| `ordens_servico` | `descricao_problema`, `diagnostico`, `data_abertura`, `data_previsao_entrega`, `data_fechamento` | F18 / F19 / F20 |
-| `movimentacoes_estoque` | `quantidade` (NOT NULL no ref), `data_movimento` | F16 |
+| `clientes` | nenhuma (só nomes divergem, ver abaixo) | n/a |
+| `veiculos` | `data_cadastro` | F04 |
+| `servicos` | `nome VARCHAR(150) NOT NULL`, `descricao VARCHAR(255)` | F05 / F11 / F12 |
+| `pecas` | `nome VARCHAR(150) NOT NULL`, `categoria VARCHAR(80)`, `fabricante VARCHAR(100)`, `unidade VARCHAR(20) NOT NULL DEFAULT 'UN'` | F17 / F14 / F15 |
+| `ordens_servico` | `descricao_problema TEXT`, `diagnostico TEXT`, `data_abertura`, `data_previsao_entrega DATE`, `data_fechamento` | F18 / F19 / F20 |
+| `ordens_servico_servicos` | nenhuma | n/a |
+| `ordens_servico_pecas` | nenhuma | n/a |
+| `movimentacoes_estoque` | `quantidade INT NOT NULL`, `data_movimento` | F16 |
+| `parcelas` | nenhuma (`numero` corresponde a `numero_parcela`) | n/a |
 | `pagamentos` | `data_pagamento` | F22 |
-| `financeiro` | `valor` (NOT NULL no ref), `descricao`, `forma_pagamento`, `data_movimento` | F31 / F32 / F22 |
+| `financeiro` | `valor DECIMAL(10,2) NOT NULL`, `descricao VARCHAR(200)`, `forma_pagamento VARCHAR(30)`, `data_movimento` | F22 / F23 / F31 / F32 |
+| `usuarios` | nenhuma | n/a |
 
-Tabelas com naming divergente aceito (ADR-007), sem perda de coluna de negócio:
-`clientes.created_at` ↔ ref `data_cadastro`; `parcelas.numero` ↔ ref
-`numero_parcela`; `veiculos` sem `data_cadastro` (adicionável por F04 se a tela
-exigir). **Risco residual**: se uma feature esquecer de criar sua coluna, a tela
-correspondente não tem onde gravar o dado; mitigado por este mapa + revisão de PR
-da feature contra esta tabela (CARTOGRAFO/CORRENTE).
+### Regras de FK, nulidade, default e índice
+
+Estas regras são decididas pela feature dona, com justificativa no PR. Não são
+copiadas do script às cegas: `CASCADE` apaga histórico.
+
+| Onde | Script | Migrations hoje | Feature dona |
+|---|---|---|---|
+| `veiculos.cliente_id` | `ON DELETE CASCADE` | sem ação (bloqueia o delete) | F04 |
+| `veiculos.modelo`, `veiculos.marca` | `NULL` | `NOT NULL` (mais restrito) | F04 |
+| `pecas.codigo` | `NULL`, `UNIQUE` | `NOT NULL`, `UNIQUE` | F14 |
+| `ordens_servico.status` | `VARCHAR(30) DEFAULT 'ABERTA'` | `VARCHAR(20)`, sem default | F18 / F20 |
+| `ordens_servico_servicos.ordem_id`, `ordens_servico_pecas.ordem_id` | `ON DELETE CASCADE` | sem ação | F19 |
+| `movimentacoes_estoque.ordem_id` | `ON DELETE SET NULL` | sem ação | F16 |
+| `parcelas.ordem_id` | `ON DELETE CASCADE` | sem ação | F21 |
+| `parcelas.numero`, `parcelas.total_parcelas` | `DEFAULT 1` | sem default | F21 |
+| `pagamentos.parcela_id` | `ON DELETE CASCADE` | sem ação | F22 |
+| `financeiro.ordem_id`, `financeiro.pagamento_id` | `ON DELETE SET NULL` | sem ação | F22 / F23 |
+| Índices fora de FK: `idx_ordem_status`, `idx_parcela_vencimento`, `idx_financeiro_tipo`, `idx_financeiro_data` | presentes | ausentes | F06 / F07 / F31 |
+
+Os 8 índices do script que ficam sobre colunas de FK são cobertos pelo índice
+que o InnoDB cria sozinho para cada FK. Isso é o comportamento documentado do
+MySQL, **não verificado** contra `information_schema` neste banco.
+
+### Divergências aceitas (sem perda de dado)
+
+* Nomes ([[adr/ADR-007-nao-expor-entidade-na-api-dto-e-convencao-de-nomes]]):
+  PascalCase vira snake_case; PK `<tabela>_id` vira `id` `BIGINT UNSIGNED`;
+  `data_cadastro` vira `created_at` (`clientes`, `usuarios`);
+  `numero_parcela` vira `numero`.
+* Enum STRING com `CHECK` a mais
+  ([[adr/ADR-006-persistir-enum-de-dominio-como-string]]):
+  `usuarios.perfil` (sem o default `'FUNCIONARIO'`),
+  `movimentacoes_estoque.tipo`, `pagamentos.forma_pagamento` (`VARCHAR(20)`
+  em vez de 30) e `financeiro.tipo`.
+* Larguras maiores: `clientes.nome`/`email`, `usuarios.nome`/`email` e
+  `movimentacoes_estoque.motivo` (255 em vez de 200). `usuarios.updated_at`
+  existe só nas migrations.
+
+### Fora do script
+
+`clientes.cpf` e `clientes.endereco` **não estão no script**. Vêm da
+US-DES-04 do wireframe F24. Isso é coleta nova de dado pessoal: a F09 precisa
+registrar finalidade, base legal e retenção, com revisão do VIGIA, antes da
+migration.
+
+**Risco residual**: a matriz é documento, e nenhum teste a compara com o
+banco. Se uma feature esquecer a coluna ou não fechar a linha, só a revisão de
+PR (CARTOGRAFO/CORRENTE) pega. O `FlywayMigrationIT` garante só o conjunto
+exato de tabelas.
 
 ## Contrato de API — Login (F02)
 
@@ -186,8 +240,9 @@ dele.
    não técnica difícil de reverter).
 6. **Schema V2 mínimo/incremental vs schema de referência completo**: a V2 não
    reproduz todas as colunas de `docs/script.sql` de uma vez; cria o esqueleto e
-   deixa cada feature adicionar suas colunas por migration aditiva (mapa na seção
-   "Schema V2 incremental"). Aplicação direta de [[adr/ADR-003-versionar-schema-com-flyway-migrations-aditivas]];
+   deixa cada feature adicionar suas colunas por migration aditiva (matriz na seção
+   "Reconciliação do schema com o script de referência"; fonte de verdade no
+   [[adr/ADR-013-adotar-migrations-flyway-como-fonte-unica-de-verdade-do-schema]]). Aplicação direta de [[adr/ADR-003-versionar-schema-com-flyway-migrations-aditivas]];
    não abre ADR novo, mas fica registrado por afetar todas as features de negócio.
 7. **Guia da casa (hexagonal) vs pacotes por camada**: o guia de convenções
    descreve arquitetura hexagonal (`domain`/`application`/`adapters`) como
