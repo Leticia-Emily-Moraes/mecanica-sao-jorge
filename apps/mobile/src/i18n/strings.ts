@@ -10,8 +10,6 @@ const strings = {
   'login.campoEmail.erroVazio': 'Informe seu e-mail',
   'login.campoSenha.rotulo': 'Senha',
   'login.campoSenha.erroVazio': 'Informe sua senha',
-  'login.campoSenha.mostrar': 'Mostrar senha',
-  'login.campoSenha.ocultar': 'Ocultar senha',
   'login.botaoEntrar.rotulo': 'Entrar',
   'login.botaoEntrar.carregando': 'Entrando...',
   'login.erroCredencial.mensagem': 'E-mail ou senha incorretos.',
@@ -45,6 +43,10 @@ const strings = {
   'menu.tabbar.ordensServico.indisponivel': 'Ordens de Serviço, indisponível nesta versão',
   'menu.tabbar.financeiro.rotulo': 'Financeiro',
   'menu.tabbar.financeiro.indisponivel': 'Financeiro, indisponível nesta versão',
+
+  'comum.botaoFechar.rotulo': 'Fechar',
+  'comum.campoSenha.mostrarSenha': 'Mostrar senha',
+  'comum.campoSenha.ocultarSenha': 'Ocultar senha',
 } as const;
 
 export type ChaveTexto = keyof typeof strings;
