@@ -311,6 +311,11 @@ existente). Contém o ícone de olho aberto (sem a barra — `olhoContorno`/
 `olhoPupila` sem o traço "ocultar"), o alvo de toque 44×44 e o texto do
 nome acessível no estado ativo ("Ocultar senha").
 
+> **Atualização 2026-11-12 (rodada 2, abaixo):** o conflito descrito neste
+> parágrafo foi decidido por BUSSOLA (US-PWD-06 prevalece, só no frame `80:2`,
+> com senha fictícia) e o frame `80:2` foi refeito. O texto original fica como
+> histórico.
+
 **Conflito que encontrei e não resolvi sozinho**: o PRD do F25
 (`docs/product/F25-prototipo-login-perfil.md`, §8) já fixa, como decisão
 aprovada, que a senha "nunca" aparece como string literal visível no frame,
@@ -332,16 +337,90 @@ aberto lidas com `boundVariables` antes de criar (herdadas de
 `color/text/secondary`, `VariableID:28:18`), não digitadas de cabeça —
 mesmo token já usado no ícone de olho fechado.
 
-**Fora desta rodada** (fora do escopo que o comandante pediu para mim
-agora, registrado para quando alguém retomar o Bloco D completo): o X não
-foi retroagido aos 24 frames de "Erro de rede" do F24, nem o olho foi
-retroagido ao frame de Login do F24 — a instrução recebida foi
-especificamente sobre o F25.
+**Fora desta rodada** (resolvido na rodada 2, abaixo): o retrofit do X nos
+24 frames de "Erro de rede" do F24 e do olho no Login do F24.
 
-**Próximo passo**: BUSSOLA decide o conflito do §8 do PRD F25 registrado
-acima (olho aberto com senha em texto claro vs. senha sempre mascarada).
-Depois disso, CRIVO revalida US-POP-06/07 e US-PWD-06 contra este arquivo
-(frames `29:35`, `33:49`, `80:2`, página `28:2`).
+#### Correção F38 — rodada 2 (2026-11-12, ESQUADRO)
+
+`whoami` sem bloqueio; sessão Figma aberta. Reli a página `28:2` e a página
+F24 (`3:2`) com `get_metadata`/`use_figma` somente leitura antes de editar, e
+conferi `29:35`, `33:49` e `80:2` com `get_screenshot` (não aceitei o relato
+da rodada 1 sem ver).
+
+**O que a leitura real mostrou (defeitos da rodada 1, corrigidos)**
+- O ícone de olho dos 3 frames de Login do F25 (`29:2`, `29:56`, `29:79`)
+  estava na borda direita do campo, com a barra de "ocultar" torta, e o alvo
+  de toque de 44×44 (x 320–364) **passava da largura do quadro (360)**.
+  Reposicionado dentro do campo: alvo em x=300 (borda direita em 344), olho
+  centralizado no alvo, barra diagonal centralizada no olho. Mesmos nós,
+  mesmos ids (`29:12–29:15`, `29:70–29:73`, `29:89–29:92`).
+- O popup de erro de rede do Perfil no F25 (`33:23`) **não tinha X**, embora
+  o app use o mesmo componente de popup, com X, na tela de Perfil. Aplicado o
+  mesmo tratamento do `29:48`: conteúdo deslocado 44 px, popup 206→250 px de
+  altura, frame subiu 44 px (borda inferior mantida em 503). Novo X: alvo
+  `85:2`, traços `85:3`/`85:4`. Legenda `33:32` reescrita (foco abre em
+  "Fechar"; "Sair" continua visível e tocável).
+
+**US-PWD-06 — frame `80:2` refeito.** BUSSOLA decidiu o conflito do §8: a
+senha em texto claro aparece **só neste frame**, com a string fictícia
+`senha-exemplo` (não é a senha do seed nem credencial real); nos demais
+frames continua mascarada. O frame agora mostra o campo "Senha" completo
+(`83:2`–`83:4`), o olho aberto dentro do campo (`83:5`–`83:7`, alvo 44×44) e
+o texto do nome acessível ("Ocultar senha" / padrão "Mostrar senha"). Frame
+360×315, mesma posição (x=1680, y=900). Nota `80:9` reescrita com a decisão.
+
+**US-POP-08 — X nos popups do F24.** Os 24 frames "Erro de rede" são popups
+de fato (um por tela, 01 a 24). Em cada um adicionei, dentro do frame
+`Popup · Erro de rede ou carregamento`, um alvo `Alvo de toque · Fechar
+(44×44)` (invisível, x=240, y=6) e um vetor `Botão Fechar · X` (14×14, traço
+1,5 px, cor `#1C1C1C` da própria tela). Sem deslocar nenhum conteúdo: o X fica
+ao lado do ícone de alerta, que é centralizado. Legenda de cada frame
+reescrita: "Foco inicial no X "Fechar" (canto superior direito do popup); Tab
+segue para "Tentar novamente"." e, onde o texto cresceu, o fundo da legenda
+foi redimensionado junto. Frames de erro como mensagem inline (Erro de
+validação) **não foram tocados**, exceto o Login (item seguinte, que é sobre
+o olho, não sobre o X).
+
+**US-PWD-07 — olho no Login do F24.** Dois frames do Login têm campo de
+senha interativo: `3:45` (Preenchido) e `3:29` (Erro de validação). Em ambos
+o olho fechado (alvo 44×44 em x=300, olho + barra de ocultar) está dentro do
+campo. Em `3:45` removi a legenda solta `Botão "Mostrar senha" / "Ocultar
+senha" ao lado` (o texto que a US manda trocar por ícone) e passei a regra
+para a legenda de foco (`3:57`). `3:3` (Carregando) e `3:15` (Erro de rede)
+ficam sem o controle porque o campo está desabilitado, igual ao F25.
+Divergência de forma: no F24 o olho é preto/cinza do wireframe, não o token
+`color/text/secondary` (o F24 não usa variáveis).
+
+**Verificado por varredura (script `use_figma`, saída lida):** 94 frames no
+F24 (nenhum criado nem apagado); 24 popups com X; 24 alvos de 44×44; 0 X fora
+de popup; 0 alvos fora do popup; 0 frame "Erro de rede" sem X; 0 frame com X
+que não seja "Erro de rede"; F25 com X em 3 popups (`29:48`, `33:23`, `33:62`).
+
+**Screenshots** (lidos um a um, em `docs/design/screenshots/F38/`):
+
+| Arquivo | Nó | O que mostra |
+|---|---|---|
+| `f25-29-35-login-erro-de-rede.png` | `29:35` | X no popup de erro de login (US-POP-06) |
+| `f25-33-49-confirmar-saida.png` | `33:49` | X + Cancelar + Sair (US-POP-07) |
+| `f25-33-14-perfil-erro-de-rede.png` | `33:14` | X no popup de erro do Perfil |
+| `f25-29-79-login-preenchido.png` | `29:79` | olho fechado dentro do campo, anel de foco no botão |
+| `f25-80-2-olho-aberto.png` | `80:2` | olho aberto, senha fictícia, "Ocultar senha" (US-PWD-06) |
+| `f24-3-15-login-erro-de-rede.png` | `3:15` | X no popup do F24 (US-POP-08) |
+| `f24-8-278-os-criar-erro-de-rede.png` | `8:278` | X na tela mais alta (826 px) |
+| `f24-3-45-login-preenchido.png` | `3:45` | olho no Login F24 (US-PWD-07) |
+| `f24-3-29-login-erro-validacao.png` | `3:29` | olho com erro de validação |
+
+**O que não verifiquei**: só olhei por screenshot os 4 frames do F24 acima
+(Login ×3 e OS · criar); nos outros 21 popups confio na varredura
+estrutural, não em captura. Não rodei o protótipo em modo Present nem
+leitor de tela real (VoiceOver/TalkBack): as legendas dizem o que *deve* ser
+anunciado. O "foco volta ao elemento anterior" e o "foco preso no popup"
+(US-POP-02/03) são comportamento do app, não do Figma, e o código ainda não
+os implementa (ver handoff). A F39 redesenha as mesmas 24 telas: ela precisa
+herdar o X e o olho, senão o redesenho os perde.
+
+**Próximo passo**: ORLA confere o app contra estes frames; CRIVO revalida
+US-POP-06/07/08 e US-PWD-06/07.
 
 ### `F34 · Tab bar alta fidelidade` (2026-11-07, ESQUADRO)
 
