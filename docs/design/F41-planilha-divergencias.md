@@ -55,8 +55,8 @@ Classificação: **R** = real; **P** = só de plataforma (não conta). "Caminho"
 | ID | Tela / estado | Figma | App (captura) | Classe | Caminho | Origem |
 |---|---|---|---|---|---|---|
 | R-01 | Login vazio e erro | Placeholders "seu@email.com" e "Sua senha" em slate-700, tão escuros quanto o valor | Placeholders mais claros (slate-500) | Real | **Decisão 8** (recomendo manter o código e levar `color/text/placeholder` ao Figma: placeholder igual ao valor confunde quem tem baixa visão) | L-12 |
-| R-02 | Login erro, popup de conexão | Ícone de alerta **triângulo cheio** (`29:60` e popups) | Ícone de alerta em **contorno** | Real (ver nota 1) | Código: trocar para o glifo cheio, junto da decisão 3 (Ionicons) | novo |
-| R-03 | Login credencial inválida | Faixa de erro com 44 de altura | 40 de altura | Real | Código: `minHeight` 44 em `inline-alert.tsx` | L-17 |
+| R-02 | Login erro, popup de conexão | Ícone de alerta **triângulo cheio** (`29:60` e popups) | Ícone de alerta em **contorno** | Real (ver nota 1) | **Corrigido no código** (ORLA, `6b3c082`): `AlertIcon` com Ionicons `warning` (cheio) na faixa e no popup; visto em `app-login-erro-validacao.png` e `app-login-erro-rede.png` | novo |
+| R-03 | Login credencial inválida | Faixa de erro com 44 de altura | 40 de altura | Real | **Corrigido no código** (ORLA, `6b3c082`): `layout.inlineAlertMinHeight` 44 em `inline-alert.tsx`; teste confere o `minHeight`. Medida em pixel da captura nova não feita (ver seção 9) | L-17 |
 | R-04 | Login falha de conexão; Perfil erro; diálogo | Botão **Fechar (X)** 44×44 no canto do popup e do diálogo | Sem X | Real | **Decisão 1** (recomendo incluir, com chave i18n e foco voltando ao controle de origem) | L-10, P-08, D-02 |
 | R-05 | Login carregando | Em `29:20`, "Senha", campo e botão ficam 14 px abaixo de `29:79` | O app segue `29:79` | Real, **defeito do Figma** | **Decisão 12** (recomendo corrigir o Figma) | L-16 |
 | R-06 | Login falha de conexão | Atrás do popup: campos desabilitados e botão "Entrando..." | Atrás do popup: formulário editável | Real | Mudar isso altera comportamento (US-PAR-10): **decisão da pessoa**, sem default | L-10 (resto) |
@@ -69,7 +69,7 @@ Classificação: **R** = real; **P** = só de plataforma (não conta). "Caminho"
 | R-13 | Tab bar padrão | Frame `39:31` existe | Estado não renderizado no app | Real, ou N/A | **Decisão 4** | T-06 |
 | R-14 | Tab bar com foco | Anel branco 2 px, 68×60 (`39:64`) | Sem captura; só teste de componente | Lacuna de captura | Precisa de aparelho (US-MENU-06 fica onde está) | T-02 |
 | R-15 | Tab bar `39:8` × `39:35` | Rótulo "Perfil" muda de altura entre selecionado (y=44) e padrão (y=38) | Todos alinhados | Real, **defeito do Figma** | **Decisão 13** (recomendo corrigir o Figma) | T-08 |
-| A-01 | Todas as telas com faixa petro | O frame não tem barra de status | A barra de status aparece com **texto escuro sobre a faixa petro** nas capturas; o app não define `StatusBar` e `userInterfaceStyle` é `automatic` (`app.config.ts:9`) | **Achado de acessibilidade, fora da tabela do Figma** | Código: forçar estilo claro nas telas com cabeçalho petro. Razão com preto puro (limite inferior, a cor exata do texto da barra eu não medi): **1,73:1**; com branco, 12,12:1. **Confirmar em aparelho**: o simulador usou `status_bar override` | novo |
+| A-01 | Todas as telas com faixa petro | O frame não tem barra de status | A barra de status aparece com **texto escuro sobre a faixa petro** nas capturas; o app não define `StatusBar` e `userInterfaceStyle` é `automatic` (`app.config.ts:9`) | **Achado de acessibilidade, fora da tabela do Figma** | **Corrigido no código** (ORLA, `ad22425`): `ScreenHeader` monta `<StatusBar style="light" />`. Nas 8 capturas novas a hora e os ícones aparecem brancos sobre o petro (razão 12,12:1). Razão antiga com preto puro (limite inferior): 1,73:1. **Confirmar em aparelho**: o simulador usou `status_bar override` e tema claro; o caso do tema escuro do sistema não foi fotografado | novo |
 
 Nota 1 (R-02): o ORLA classificou o ⚠ como só de plataforma, por ser glifo de fonte. Discordo: o ícone é parte do desenho do frame e a forma (cheio × contorno) é visível nos dois pares. Se a pessoa preferir manter como plataforma, vira P e sai da lista.
 
@@ -119,3 +119,12 @@ O lado código ganhou, depois da rodada de 12.5, `spacing.formTop` (30), `layout
 ## 8. README
 
 README sem mudança: só documentação.
+
+## 9. Atualização do ORLA (2026-11-13): R-02, R-03 e A-01 fechadas no código
+
+Ramo `feat/f41-paridade-correcoes`, commits `6b3c082` (R-02 e R-03) e `ad22425` (A-01). As 8 capturas do app em `f41-capturas/app-*.png` foram refeitas depois deles; tabela de md5 na seção 14 de `F41-conferencia-paridade.md`.
+
+- Fechadas no código: R-02, R-03, A-01. Nenhuma depende de decisão, exceto R-02 pela nota 1 (apliquei o glifo cheio porque o frame o desenha assim).
+- **Seguem abertas** (decisão da pessoa ou Figma): R-01, R-04, R-05, R-06, R-08 a R-13, R-15; lacunas de captura R-07 e R-14. Não toquei nelas.
+- **Tokens:** `layout.inlineAlertMinHeight` (44) é token novo só no código. Entra na lista pendente da seção 6 para o Figma (`size/inlineAlert/minHeight`). O token `glyph.alert` foi removido de `tokens.ts` (sem uso).
+- A medida em pixel da faixa de erro nova não foi feita (não há leitor de PNG no ambiente); a evidência é o teste de `minHeight` e a leitura visual da captura. US-PAR-08 **não fecha**.
