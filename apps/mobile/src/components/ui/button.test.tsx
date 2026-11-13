@@ -2,7 +2,7 @@ import { fireEvent, render, screen } from '@testing-library/react-native';
 import { StyleSheet } from 'react-native';
 
 import { hasFocusRing } from '@/test-utils/has-focus-ring';
-import { opacity } from '@/theme/tokens';
+import { layout, minTouchTarget, opacity } from '@/theme/tokens';
 
 import { Button } from './button';
 
@@ -69,6 +69,22 @@ describe('Button', () => {
     render(<Button label="Entrar" loading onPress={jest.fn()} />);
 
     expect(screen.getByText('Entrar')).toBeTruthy();
+  });
+
+  it('should be as tall as the touch target by default', () => {
+    render(<Button label="Entrar" onPress={jest.fn()} />);
+
+    const style = StyleSheet.flatten(screen.getByRole('button', { name: 'Entrar' }).props.style);
+
+    expect(style.minHeight).toBe(minTouchTarget);
+  });
+
+  it('should use the page button height when size is page', () => {
+    render(<Button label="Entrar" size="page" onPress={jest.fn()} />);
+
+    const style = StyleSheet.flatten(screen.getByRole('button', { name: 'Entrar' }).props.style);
+
+    expect(style.minHeight).toBe(layout.pageButtonHeight);
   });
 
   it('should draw the focus ring only while focused', () => {

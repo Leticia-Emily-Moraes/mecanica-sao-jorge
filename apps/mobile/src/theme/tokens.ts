@@ -105,9 +105,11 @@ export const minTouchTarget = 48;
  * focáveis aplicam isto como `borderWidth: focusRingWidth, borderColor:
  * color.focus.ring, padding: focusRingOffset, backgroundColor:
  * color.focus.ringOffset` no wrapper, só quando focados.
+ * Medidas do frame aprovado (Figma 29:95, 29:96): petro de 2 a 4 pt do
+ * respiro, respiro de 4 pt, raio externo 14 (8 do controle + 6).
  */
 export const focusRingWidth = 2;
-export const focusRingOffset = 2;
+export const focusRingOffset = 4;
 
 /** Espaço que o anel ocupa ao redor do controle; o wrapper compensa com margem negativa. */
 export const focusRingInset = focusRingWidth + focusRingOffset;
@@ -139,7 +141,10 @@ export const iconSize = {
 } as const;
 
 export const layout = {
-  dialogMaxWidth: 320,
+  /** Largura do diálogo e do popup (Figma 33:62: 296, margem lateral 32). */
+  dialogMaxWidth: 296,
+  /** Altura do botão de página: Entrar e Sair (Figma 29:16, 33:43). */
+  pageButtonHeight: 52,
   tabBarMaxWidth: 480,
   /** Altura da célula da tab bar (Figma 39:3). */
   tabItemHeight: 64,

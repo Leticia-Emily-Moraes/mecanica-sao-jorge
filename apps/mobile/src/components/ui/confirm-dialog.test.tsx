@@ -1,4 +1,7 @@
 import { fireEvent, render, screen } from '@testing-library/react-native';
+import { StyleSheet } from 'react-native';
+
+import { layout } from '@/theme/tokens';
 
 import { ConfirmDialog } from './confirm-dialog';
 
@@ -64,6 +67,15 @@ describe('ConfirmDialog', () => {
 
     expect(card.props.accessibilityLiveRegion).toBe('assertive');
     expect(card.props.accessibilityViewIsModal).toBe(true);
+  });
+
+  it('should limit the card to the frame width of 296', () => {
+    renderDialog();
+
+    const [card] = screen.UNSAFE_getAllByProps({ accessibilityRole: 'alert' });
+
+    expect(StyleSheet.flatten(card.props.style).maxWidth).toBe(layout.dialogMaxWidth);
+    expect(layout.dialogMaxWidth).toBe(296);
   });
 
   it('should show the title with both actions when visible', () => {
