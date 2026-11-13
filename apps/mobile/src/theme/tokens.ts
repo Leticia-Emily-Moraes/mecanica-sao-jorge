@@ -80,3 +80,33 @@ export const minTouchTarget = 48;
  */
 export const focusRingWidth = 2;
 export const focusRingOffset = 2;
+
+/** Raio do wrapper do anel de foco: contorna um controle de `radius.md` (12) mais borda e respiro. */
+export const focusRingRadius = radius.md + focusRingWidth + focusRingOffset;
+
+export const borderWidth = {
+  hairline: 1,
+} as const;
+
+export const opacity = {
+  pressed: 0.85,
+  disabled: 0.5,
+  unavailable: 0.6,
+} as const;
+
+export const iconSize = {
+  tab: 22,
+  alert: 32,
+  /** Ícone ilustrativo do estado vazio — valor novo (a F40 cria o estado; ver spec §4.4). */
+  empty: 48,
+} as const;
+
+export const layout = {
+  dialogMaxWidth: 320,
+  tabBarMaxWidth: 480,
+} as const;
+
+/** Glifos decorativos (escondidos do leitor de tela), não são texto de interface. */
+export const glyph = {
+  alert: '⚠',
+} as const;
