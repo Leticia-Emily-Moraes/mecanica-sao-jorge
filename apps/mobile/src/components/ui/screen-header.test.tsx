@@ -1,4 +1,5 @@
 import { render, screen } from '@testing-library/react-native';
+import { StatusBar } from 'expo-status-bar';
 import { StyleSheet } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
@@ -28,6 +29,12 @@ describe('ScreenHeader', () => {
       fontSize: typography.header.fontSize,
     });
     expect(bandStyle().backgroundColor).toBe(color.surface.brand);
+  });
+
+  it('should force light status bar content over the petro band', () => {
+    render(<ScreenHeader title="Perfil" />);
+
+    expect(screen.UNSAFE_getByType(StatusBar).props.style).toBe('light');
   });
 
   it('should show the subtitle when given', () => {
