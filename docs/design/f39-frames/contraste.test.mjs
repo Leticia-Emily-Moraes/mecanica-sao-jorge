@@ -1,4 +1,4 @@
-// Teste do verificador de contraste. Rodar: node --test docs/design/f39-frames/
+// Teste do verificador de contraste. Rodar: node --test docs/design/f39-frames/contraste.test.mjs
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
