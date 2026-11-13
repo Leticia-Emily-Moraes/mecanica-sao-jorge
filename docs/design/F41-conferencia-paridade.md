@@ -160,3 +160,83 @@ Corrigir L-05, L-06, T-04 e P-03 exige tamanhos de fonte que não existem em `ty
 ## 10. README principal
 
 README sem mudança: esta etapa só registra documentação e capturas, sem alterar instalação, execução, teste, configuração nem funcionalidade.
+
+## 11. Rodada do ORLA (2026-11-13): correções de código e capturas do app
+
+Autor: ORLA. Estado: **correções feitas e capturadas; feature NÃO fechada** (Figma bloqueado, decisões da pessoa em aberto, estados sem captura).
+
+### 11.1 Figma nesta sessão (US-PAR-11)
+
+`mcp__figma-remote__create_session` e `mcp__figma-remote__whoami` voltaram, ambos: `Claude requested permissions to use … but you haven't granted it yet.` Nenhum nó e nenhuma variável do Figma foi lido ou alterado nesta rodada. O lado Figma é o das 12 capturas e da leitura do ESQUADRO (seção 2). Por isso a feature fica aguardando.
+
+### 11.2 Protocolo de captura realmente usado (desvio da premissa 9)
+
+| Item | Valor |
+|---|---|
+| Aparelho | **Simulador** iPhone 17, iOS 27.0, 1206×2622 (3x, 402×874 pt); **não** o aparelho físico da premissa 9 (dúvida 2 sem resposta) |
+| Mac | macOS 27.0.1 |
+| Modo de execução | Expo Go 54, Metro em modo dev na porta 8082 (CI=1, sem recarga), `EXPO_PUBLIC_API_BASE_URL=http://localhost:8080` |
+| Tema / escala de fonte / orientação | Claro (padrão) / padrão / retrato |
+| Barra de status | `simctl status_bar override` 9:41, bateria cheia, sinal cheio (sem notificação, sem dado pessoal) |
+| Dados | Usuário fictício `ana.souza@exemplo-ficticio.com.br`, senha fictícia, MySQL descartável em contêiner local; contêiner removido ao fim |
+| Redução | 402 px de largura (1x), 35 a 59 KB por arquivo |
+
+### 11.3 O que as capturas do app provam e o que não provam
+
+Arquivos `docs/design/f41-capturas/app-*.png` (7). **Só `app-login-vazio.png` é a rota real `app/login.tsx`** (API real no ar, Login sem sessão). As outras 6 vêm de uma rota temporária de captura, **apagada e não versionada**, que compõe os mesmos componentes reais (`ScreenContainer`, `ScreenHeader`, `TextField`, `IconButton`, `Button`, `InlineAlert`, `StateView`, `ProfileSummary`, `ConfirmDialog`, `MenuShell`) com props fixas, aberta por deep link. Elas provam a **aparência** dos componentes, não o fluxo contra a API real: não foi digitado nem tocado nada.
+
+- Toque e digitação seguem impossíveis: `cliclick c:` + `t:` não mudou o app (conferido visualmente, não só por hash); `osascript` não enxerga a janela do Simulator (`Não é possível obter window 1`) e `screencapture` falha (`could not create image from display`).
+- Lição: a primeira leva tinha 7 hashes diferentes e todas eram a tela "Unmatched Route" (Expo Go com bundle antigo). Hash distinto não prova estado distinto; cada foto foi aberta e conferida a olho.
+- **Sem captura do app:** Perfil carregando e Perfil erro (não existem no código, ver 11.5), foco real de teclado/leitor (US-MENU-06), tab bar com foco (o foco não pode ser forçado de fora do componente) e estado "Padrão" da tab bar.
+- A conferência lado a lado foi feita por mim olhando os pares; **não há diff automático nem montagem lado a lado em um arquivo**.
+
+### 11.4 Divergências corrigidas no código (o código se ajusta ao Figma, premissa 1)
+
+Commits `a2b809f`, `e01f9bb`, `ef14ede`, `6a09001`, `bc7e4ce`, `892b35c`. Suíte: 152 testes verdes (eram 119), `tsc` e `eslint` limpos.
+
+| ID | Resultado | Evidência |
+|---|---|---|
+| L-01, L-02 | Faixa petro com título à esquerda e subtítulo "Entre com sua conta" (chave `login.subtitulo`) | `app-login-vazio.png` |
+| L-03 | Placeholders "seu@email.com" e "Sua senha" (chaves i18n) | `app-login-vazio.png` |
+| L-04 | Olho em alvo 48×48 (Ionicons), nome acessível "Mostrar/Ocultar senha" mantido; olho cortado quando oculta, como no frame | `app-login-*.png` |
+| L-05, L-06 | Rótulo 13/500, valor 15, raio 8, borda 1,25 | idem |
+| L-07 | Faixa de erro com fundo, borda, ⚠ e texto à esquerda | `app-login-erro-validacao.png` |
+| L-08 | Borda 1,5 de erro no campo | idem |
+| L-09 | "Entrando..." em cor cheia (era 2,18:1), campo desabilitado com borda `border/skeleton` | `app-login-carregando.png` |
+| L-11 (parcial) | Conteúdo sob a faixa, 24 do campo ao botão, 6 entre campos | pares de Login |
+| P-01 | Faixa petro no Perfil | `app-perfil-preenchido.png` |
+| P-02 | Avatar com iniciais das duas primeiras palavras ("AB"), oculto do leitor | idem |
+| P-03 | Rótulos "Nome", "E-mail", "Perfil de acesso" saem da vista (**por recomendação do ESQUADRO, decisão 2 ainda não confirmada**); o bloco tem um nome acessível único "Nome: …. E-mail: …. Perfil de acesso: …" | idem + `profile-summary.test.tsx` |
+| P-04, P-05, P-06 | Selo petro com texto branco 11, divisor, botão Sair fixo no rodapé | idem |
+| D-01, D-03 | Mensagem de apoio (chave `perfil.dialogoLogout.mensagem`), título 17, raio 12, contorno 1,5, 4 px entre botões | `app-perfil-confirmar-saida.png` |
+| L-10 (parcial) | Raio 12, padding 20, mensagem 13 | `app-login-erro-rede.png` |
+| T-01, T-04, T-05 | Pílula 56×32 só atrás do ícone, rótulo 10 (600 só no selecionado), célula 64 | `app-perfil-preenchido.png` |
+| T-02 | Foco da tab bar: anel branco 2 px sem preenchimento (antes: fundo branco com ícone/rótulo brancos, 1:1). **Só por teste de componente; sem captura em aparelho** | `tab-bar-item.test.tsx` |
+| **T-07 (nova)** | Achada só na captura: rótulos "Clientes e Veículos" e "Ordens de Serviço" eram cortados com reticências; o frame quebra em duas linhas. Corrigido (`numberOfLines={2}`) e ícones alinhados pelo topo | `app-perfil-preenchido.png` |
+
+Também: `InlineActionButton` (texto) foi substituído por `IconButton` e removido; `ScreenContainer` perdeu `centered` e ganhou `header` e `footer`; o anel de foco passou a ter margem negativa para a borda visível do controle alinhar com o resto (os componentes deixam de ficar 4 px para dentro).
+
+### 11.5 O que NÃO foi corrigido, e por quê
+
+- **Decisões da pessoa pendentes** (seção 7): botão Fechar (X) em L-10, P-08 e D-02; carregando e erro do Perfil (P-07, P-08, incluindo o "Entrar novamente" que o Figma não tem); T-03 (Ionicons como ícone final); T-06 (estado "Padrão" como "não se aplica"); F39. Seguem como **divergência real em aberto**: US-PAR-08 não fecha.
+- **L-10 resto:** o fundo do popup de rede no Figma mostra campos desabilitados e "Entrando..."; no código o estado `erroRede` deixa o formulário editável. Mudar isso é mudança de comportamento (US-PAR-10).
+- **Quebra de linha do diálogo** ("e-/mail" no app, "com / seu e-mail" no Figma): diferença de fonte (Inter × fonte do sistema), classificada como só de plataforma (P-1).
+- **Divisor do Perfil:** o Figma não permitiu ler a cor (MCP bloqueado); usei `border.divider = petro` a partir da captura. **Confirmar o nó `33:42`.**
+- **Frames do Figma inconsistentes entre si:** em `29:20` (carregando) o segundo campo está 14 px mais abaixo que em `29:79`. Segui `29:79` para todos os estados. Para o ESQUADRO decidir qual é o certo.
+- **Placeholder:** usei `slate-500` (4,76:1); no Figma o texto de "seu@email.com" parece mais escuro. Não confirmado.
+
+### 11.6 Tokens (US-PAR-07): lado código feito, **lado Figma pendente**
+
+Entraram em `tokens.ts`: tipografia `header` 20/700, `subtitle` 13/400, `labelSmall` 13/500, `field` 15/400, `heading` 17/600, `micro` 11/600, `tab` 10/400, `tabSelected` 10/600; borda `field` 1,25 e `emphasis` 1,5; espaço `field` 6 e `card` 20; cor `surface.errorTint` (rgba 181,69,61,0,08), `text.placeholder` (slate-500), `border.divider` (petro), `focus.ringOnBrand` (branco); `layout.tabItemHeight/tabPill*/avatarSize`; `iconSize.action`. Os valores vêm dos frames, mas **não existem como variáveis na coleção `28:3`**: a premissa 3 (nos dois lados ao mesmo tempo) está descumprida até o ESQUADRO criá-las com Figma acessível.
+
+### 11.7 Contraste dos pares novos
+
+Mesma fórmula da seção 5, sobre os hex dos tokens: pílula do selo (branco/petro) 12,12:1; ⚠ e texto de erro sobre a faixa 4,83:1; "Entrando..." em cor cheia 5,41:1 (era 2,18:1); anel branco da tab bar sobre petro 12,12:1; placeholder slate-500 sobre branco 4,76:1. Não recalculei com script nesta rodada: reaproveitei as razões do ESQUADRO para os mesmos pares.
+
+### 11.8 Verificação executada
+
+`npm test` 152 passed / 28 suites; `npm run typecheck` e `npm run lint` sem saída de erro. API real: login `200` com a senha fictícia e `401` "Credenciais inválidas" com a errada (curl), Flyway V1+V2 aplicadas num MySQL 8.4 novo. Backend não foi alterado.
+
+### 11.9 README
+
+README sem mudança: nenhuma instalação, comando, variável, porta ou funcionalidade mudou; só aparência de tela, testes e documentação.
