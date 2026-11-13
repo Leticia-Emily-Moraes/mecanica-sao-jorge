@@ -1,8 +1,19 @@
 import { fireEvent, render, screen } from '@testing-library/react-native';
+import { StyleSheet, type ViewStyle } from 'react-native';
 
-import { hasFocusRing } from '@/test-utils/has-focus-ring';
+import type { TreeNode } from '@/test-utils/render-tree';
+import { color, layout } from '@/theme/tokens';
 
 import { TabBarItem } from './tab-bar-item';
+
+/** Estilo da célula (View que envolve o Pressable), onde o anel é desenhado. */
+function cellStyle(): ViewStyle {
+  let cell: TreeNode | null = screen.getByRole('tab').parent;
+  while (cell && StyleSheet.flatten(cell.props.style as ViewStyle)?.borderWidth === undefined) {
+    cell = cell.parent;
+  }
+  return StyleSheet.flatten(cell?.props.style as ViewStyle);
+}
 
 describe('TabBarItem', () => {
   it('should expose the tab role with the accessible label and the selected state', () => {
@@ -58,15 +69,54 @@ describe('TabBarItem', () => {
     expect(onPress).toHaveBeenCalledTimes(1);
   });
 
-  it('should draw the focus ring only while focused', () => {
+  it('should draw a white ring only while focused (visible over the petro bar, 12,12:1)', () => {
     render(<TabBarItem icon="person" label="Perfil" accessibilityLabel="Perfil" selected />);
 
-    expect(hasFocusRing(screen.getByRole('tab', { name: 'Perfil' }))).toBe(false);
+    expect(cellStyle().borderColor).toBe('transparent');
 
     fireEvent(screen.getByRole('tab', { name: 'Perfil' }), 'focus');
-    expect(hasFocusRing(screen.getByRole('tab', { name: 'Perfil' }))).toBe(true);
+    expect(cellStyle().borderColor).toBe(color.focus.ringOnBrand);
 
     fireEvent(screen.getByRole('tab', { name: 'Perfil' }), 'blur');
-    expect(hasFocusRing(screen.getByRole('tab', { name: 'Perfil' }))).toBe(false);
+    expect(cellStyle().borderColor).toBe('transparent');
+  });
+
+  it('should not fill the cell with white when focused, which would hide the white icon and label', () => {
+    render(<TabBarItem icon="person" label="Perfil" accessibilityLabel="Perfil" selected />);
+
+    fireEvent(screen.getByRole('tab', { name: 'Perfil' }), 'focus');
+
+    expect(cellStyle().backgroundColor).toBeUndefined();
+  });
+
+  it('should draw the pill only behind the icon, not around the label', () => {
+    render(<TabBarItem icon="person" label="Perfil" accessibilityLabel="Perfil" selected />);
+
+    const pillHost = screen.getByTestId('tab-pill');
+    const pill = StyleSheet.flatten(pillHost.props.style as ViewStyle);
+
+    expect(pill).toMatchObject({
+      width: layout.tabPillWidth,
+      height: layout.tabPillHeight,
+      backgroundColor: color.action.primaryBackground,
+    });
+  });
+
+  it('should show the label in 10 pt, semi bold only when selected', () => {
+    const { rerender } = render(
+      <TabBarItem icon="person" label="Perfil" accessibilityLabel="Perfil" selected />,
+    );
+    expect(StyleSheet.flatten(screen.getByText('Perfil').props.style)).toMatchObject({
+      fontSize: 10,
+      fontWeight: '600',
+    });
+
+    rerender(
+      <TabBarItem icon="person" label="Perfil" accessibilityLabel="Perfil" selected={false} />,
+    );
+    expect(StyleSheet.flatten(screen.getByText('Perfil').props.style)).toMatchObject({
+      fontSize: 10,
+      fontWeight: '400',
+    });
   });
 });

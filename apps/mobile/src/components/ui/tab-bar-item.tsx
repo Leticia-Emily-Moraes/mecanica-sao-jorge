@@ -1,17 +1,18 @@
 import { Ionicons } from '@expo/vector-icons';
+import { useCallback, useState } from 'react';
 import type { ComponentProps, ReactElement } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import {
   color,
+  focusRingWidth,
   iconSize,
-  minTouchTarget,
+  layout,
   opacity,
   radius,
   spacing,
   typography,
 } from '@/theme/tokens';
-import { useFocusRing } from '@/theme/use-focus-ring';
 
 export type TabBarIconName = ComponentProps<typeof Ionicons>['name'];
 
@@ -28,8 +29,11 @@ export interface TabBarItemProps {
 }
 
 /**
- * Item de aba da barra de navegação inferior: ícone, rótulo, pílula quando
- * selecionado, esmaecido quando indisponível e anel de foco duplo.
+ * Item de aba da barra de navegação inferior (Figma 39:3): pílula só atrás do
+ * ícone quando selecionado, rótulo de 10 abaixo, esmaecido quando indisponível.
+ * O foco é um anel branco de 2 de borda, sem preenchimento: a barra é petro e
+ * o anel petro/branco dos demais controles sumiria ou deixaria ícone e rótulo
+ * brancos sobre branco.
  */
 export function TabBarItem({
   icon,
@@ -39,10 +43,12 @@ export function TabBarItem({
   unavailable = false,
   onPress,
 }: TabBarItemProps): ReactElement {
-  const { focusRingStyle, onFocus, onBlur } = useFocusRing();
+  const [focused, setFocused] = useState(false);
+  const onFocus = useCallback(() => setFocused(true), []);
+  const onBlur = useCallback(() => setFocused(false), []);
 
   return (
-    <View style={[styles.cell, focusRingStyle]}>
+    <View style={[styles.cell, focused && styles.cellFocused]}>
       <Pressable
         accessibilityRole="tab"
         accessibilityLabel={accessibilityLabel}
@@ -53,24 +59,24 @@ export function TabBarItem({
         onPress={onPress}
         style={styles.pressable}
       >
-        <View style={[styles.content, selected && styles.pill]}>
+        <View testID="tab-pill" style={[styles.iconSlot, selected && styles.pill]}>
           <Ionicons
             name={icon}
             size={iconSize.tab}
-            color={selected ? color.text.onPrimaryAction : color.text.onBrand}
+            color={color.text.onBrand}
             style={unavailable && styles.unavailable}
           />
-          <Text
-            style={[
-              styles.label,
-              selected ? styles.labelSelected : styles.labelIdle,
-              unavailable && styles.unavailable,
-            ]}
-            numberOfLines={1}
-          >
-            {label}
-          </Text>
         </View>
+        <Text
+          style={[
+            styles.label,
+            selected && styles.labelSelected,
+            unavailable && styles.unavailable,
+          ]}
+          numberOfLines={1}
+        >
+          {label}
+        </Text>
       </Pressable>
     </View>
   );
@@ -79,21 +85,25 @@ export function TabBarItem({
 const styles = StyleSheet.create({
   cell: {
     flex: 1,
+    minHeight: layout.tabItemHeight,
     borderRadius: radius.md,
+    borderWidth: focusRingWidth,
+    borderColor: 'transparent',
+  },
+  cellFocused: {
+    borderColor: color.focus.ringOnBrand,
   },
   pressable: {
     flex: 1,
-    minHeight: minTouchTarget,
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: spacing.xs,
+    gap: spacing.xs,
   },
-  content: {
+  iconSlot: {
+    width: layout.tabPillWidth,
+    height: layout.tabPillHeight,
     alignItems: 'center',
     justifyContent: 'center',
-    gap: spacing.xs / 2,
-    paddingHorizontal: spacing.sm,
-    paddingVertical: spacing.xs,
     borderRadius: radius.pill,
   },
   pill: {
@@ -103,13 +113,13 @@ const styles = StyleSheet.create({
     opacity: opacity.unavailable,
   },
   label: {
-    fontSize: typography.caption.fontSize,
-    fontWeight: typography.label.fontWeight,
+    fontSize: typography.tab.fontSize,
+    fontWeight: typography.tab.fontWeight,
+    color: color.text.onBrand,
+    textAlign: 'center',
   },
   labelSelected: {
-    color: color.text.onPrimaryAction,
-  },
-  labelIdle: {
-    color: color.text.onBrand,
+    fontSize: typography.tabSelected.fontSize,
+    fontWeight: typography.tabSelected.fontWeight,
   },
 });
