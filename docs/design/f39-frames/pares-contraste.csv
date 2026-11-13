@@ -1,0 +1,54 @@
+id;conjunto;uso;frente;fundo;minimo;esperado;origem
+R01;referencia;texto principal sobre fundo de tela;#1E3A3F;#F7F5F2;4.5;passa;spec F39 secao 5
+R02;referencia;texto principal sobre card;#1E3A3F;#FFFFFF;4.5;passa;spec F39 secao 5
+R03;referencia;texto secundario Flint sobre fundo;#6E6A66;#F7F5F2;4.5;passa;spec F39 secao 5
+R04;referencia;texto secundario Flint sobre card;#6E6A66;#FFFFFF;4.5;passa;spec F39 secao 5
+R05;referencia;texto do botao primario;#FFFFFF;#B5453D;4.5;passa;spec F39 secao 5
+R06;referencia;mensagem de erro de campo Crail sobre card;#B5453D;#FFFFFF;4.5;passa;spec F39 4.2.1 (10:1861 10:1872)
+R07;referencia;mensagem de erro de campo Crail sobre fundo;#B5453D;#F7F5F2;4.5;passa;spec F39 secao 5
+R08;referencia;texto do banner de erro El Salva sobre Pot Pourri;#923631;#F6E7E5;4.5;passa;spec F39 4.2.1 (10:976)
+R09;referencia;Crail sobre Pot Pourri (sem folga - nao usar);#B5453D;#F6E7E5;4.5;passa;spec F39 secao 5
+R10;referencia;titulo do cabecalho branco sobre petro;#FFFFFF;#1E3A3F;4.5;passa;spec F39 6.3 (20:1174)
+R11;referencia;aba inativa Tide sobre petro;#B7B2AC;#1E3A3F;4.5;passa;spec F39 6.4 (20:1103)
+R12;referencia;badge EM_ANALISE;#FFFFFF;#33575D;4.5;passa;spec F39 secao 5
+R13;referencia;badge EM_ANDAMENTO;#FFFFFF;#2C5258;4.5;passa;spec F39 6.3 (20:1726)
+R14;referencia;badge ENTREGUE;#FFFFFF;#3E6E4A;4.5;passa;spec F39 secao 5
+R15;referencia;banner de aviso Kumera sobre Albescent;#7A5620;#F7EEDD;4.5;passa;spec F39 secao 5
+R16;referencia;anel de foco petro sobre card;#1E3A3F;#FFFFFF;3;passa;spec F39 secao 5
+R17;referencia;placeholder Dawn sobre card;#A8A39D;#FFFFFF;4.5;falha;spec F39 secao 5
+R18;referencia;placeholder Dawn sobre fundo;#A8A39D;#F7F5F2;4.5;falha;spec F39 secao 5
+R19;referencia;badge ABERTA/PENDENTE Natural Gray;#FFFFFF;#8C8780;4.5;falha;spec F39 secao 5
+R20;referencia;badge AGUARDANDO_PECA/PARCIAL Tussock;#FFFFFF;#BF8B3D;4.5;falha;spec F39 secao 5
+R21;referencia;badge FINALIZADA/PAGO Spring Leaves;#FFFFFF;#5C8C68;4.5;falha;spec F39 secao 5
+R22;referencia;borda de campo Westar sobre card;#E2DEDA;#FFFFFF;3;falha;spec F39 secao 5
+R23;referencia;borda de campo Westar sobre fundo;#E2DEDA;#F7F5F2;3;falha;spec F39 secao 5
+R24;referencia;aba ativa Crail direto sobre petro;#B5453D;#1E3A3F;3;falha;spec F39 6.4 (20:1103)
+R25;referencia;anel de foco petro sobre botao Crail;#1E3A3F;#B5453D;3;falha;spec F39 secao 5
+V01;v2;color.text.primary sobre color.surface.background;#1E3A3F;#F7F5F2;4.5;passa;ADR-014
+V02;v2;color.text.secondary sobre color.surface.default;#6E6A66;#FFFFFF;4.5;passa;ADR-014
+V03;v2;color.text.secondary sobre color.surface.background;#6E6A66;#F7F5F2;4.5;passa;ADR-014
+V04;v2;color.text.placeholder sobre color.surface.default;#6E6A66;#FFFFFF;4.5;passa;ADR-014 ajuste de R17
+V05;v2;color.border.default sobre color.surface.default;#8C8780;#FFFFFF;3;passa;ADR-014 ajuste de R22
+V06;v2;color.border.default sobre color.surface.background;#8C8780;#F7F5F2;3;passa;ADR-014 ajuste de R23
+V07;v2;color.text.error sobre color.surface.default;#B5453D;#FFFFFF;4.5;passa;ADR-014 regra 9
+V08;v2;color.text.error sobre color.surface.background;#B5453D;#F7F5F2;4.5;passa;ADR-014 regra 9
+V09;v2;color.text.errorOnBanner sobre color.surface.errorBanner;#923631;#F6E7E5;4.5;passa;ADR-014 regra 9
+V10;v2;color.border.error sobre color.surface.default;#B5453D;#FFFFFF;3;passa;ADR-014
+V11;v2;color.text.onPrimaryAction sobre color.action.primaryBackground;#FFFFFF;#B5453D;4.5;passa;ADR-014
+V12;v2;color.text.onBrand sobre color.surface.brand (titulo do cabecalho);#FFFFFF;#1E3A3F;4.5;passa;ADR-014 (20:1174)
+V13;v2;color.text.onBrandMuted sobre color.surface.brand (aba inativa);#B7B2AC;#1E3A3F;4.5;passa;ADR-014 (20:1103)
+V14;v2;aba ativa texto branco sobre pill Crail;#FFFFFF;#B5453D;4.5;passa;ADR-014 (pill do F34)
+V15;v2;badge ABERTA/PENDENTE ajustado;#FFFFFF;#6E6A66;4.5;passa;ADR-014 ajuste de R19
+V16;v2;badge AGUARDANDO_PECA/PARCIAL ajustado;#FFFFFF;#7A5620;4.5;passa;ADR-014 ajuste de R20
+V17;v2;badge FINALIZADA/PAGO ajustado;#FFFFFF;#477654;4.5;passa;ADR-014 ajuste de R21
+V18;v2;badge EM_ANALISE;#FFFFFF;#33575D;4.5;passa;ADR-014
+V19;v2;badge EM_ANDAMENTO;#FFFFFF;#2C5258;4.5;passa;ADR-014
+V20;v2;badge ENTREGUE;#FFFFFF;#3E6E4A;4.5;passa;ADR-014
+V21;v2;badge CANCELADA/ATRASADO;#FFFFFF;#B5453D;4.5;passa;ADR-014
+V22;v2;banner de aviso;#7A5620;#F7EEDD;4.5;passa;ADR-014
+V23;v2;sucesso Killarney sobre Gin;#3E6E4A;#E4EEE6;4.5;passa;ADR-014 (par antes nao medido)
+V24;v2;anel de foco petro sobre card;#1E3A3F;#FFFFFF;3;passa;ADR-014 regra 5
+V25;v2;anel de foco petro sobre fundo;#1E3A3F;#F7F5F2;3;passa;ADR-014 regra 5
+V26;v2;halo branco do anel contra o botao Crail;#FFFFFF;#B5453D;3;passa;ADR-014 regra 5 (use-focus-ring)
+P01;proibido;color.text.secondary sobre color.surface.skeleton (texto nunca sobre skeleton);#6E6A66;#EDE9E4;4.5;falha;ADR-014 regra 11 (medido 2026-11-13)
+P02;proibido;pill Crail da aba ativa contra a barra petro (forma sozinha);#B5453D;#1E3A3F;3;falha;ADR-014 regra 12: rotulo branco e peso acompanham o pill
