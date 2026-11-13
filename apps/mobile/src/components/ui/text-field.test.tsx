@@ -189,6 +189,12 @@ describe('TextField', () => {
     expect(screen.queryByTestId('text-field-accessory')).toBeNull();
   });
 
+  it('should keep the label above the focus ring halo so it is never cut', () => {
+    render(<TextField label="E-mail" value="" onChangeText={jest.fn()} />);
+
+    expect(StyleSheet.flatten(screen.getByText('E-mail').props.style).zIndex).toBe(1);
+  });
+
   it('should draw the focus ring only while the input is focused', () => {
     render(<TextField label="E-mail" value="" onChangeText={jest.fn()} />);
     const input = screen.getByLabelText('E-mail');

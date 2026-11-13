@@ -62,6 +62,8 @@ export const spacing = {
   /** Respiro interno do cartão de popup e diálogo (Figma 33:49). */
   card: 20,
   lg: 24,
+  /** Faixa até o primeiro rótulo do formulário sem banner de erro (Figma 29:2, 29:79: 30). */
+  formTop: 30,
   xl: 32,
 } as const;
 
