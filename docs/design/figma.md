@@ -432,6 +432,10 @@ implementado por ORLA (`menu-tab-bar.tsx`, `(menu)/_layout.tsx`): bate ponto
 a ponto. Detalhe completo, incluindo o gap de verificação de foco em item
 desabilitado que fica para CRIVO, na seção 13 do documento de especificação.
 
+### F41 · Conferência de paridade (2026-11-13, ESQUADRO)
+
+**Nenhum nó deste arquivo foi alterado na F41.** `whoami` respondeu sem bloqueio. Leitura (somente) das páginas `28:2` e `39:2` e dos frames `29:2`, `29:20`, `29:35`, `29:56`, `29:79`, `33:2`, `33:14`, `33:33`, `33:49`, `39:3`, `39:31`, `39:58`, com 12 capturas em `docs/design/f41-capturas/`. Lista de divergências (28 reais, 3 de plataforma), contraste e decisões pendentes da pessoa: `docs/design/F41-conferencia-paridade.md`. As capturas do app no aparelho não foram feitas (aparelho e ferramenta de toque indisponíveis). O Figma só será editado nas divergências que a pessoa decidir a favor do código (ex.: ícones da tab bar).
+
 ### F40 · Componentes base do app (2026-11-13, ESQUADRO)
 
 **Nenhum nó deste arquivo foi alterado na F40.** Leitura (somente) da página `28:2` (`get_metadata`, `get_screenshot` de `29:79` e `33:33`, `get_variable_defs` de `29:79`). Achado: o código de Login e Perfil não tem a faixa petro, o subtítulo, o avatar nem o ícone de olho que os frames aprovados têm; a correção é da F41. Especificação dos componentes, tokens a acrescentar (sem alterar valor) e matriz de anúncio ao leitor de tela: `docs/design/F40-componentes-base-especificacao.md`. Variáveis numéricas no Figma para os tokens novos ficam pendentes até ORLA commitar os valores e a F41 liberar a linha de base.
