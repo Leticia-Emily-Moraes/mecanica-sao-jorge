@@ -68,8 +68,8 @@ const styles = StyleSheet.create({
     width: '100%',
     maxWidth: layout.dialogMaxWidth,
     backgroundColor: color.surface.default,
-    borderRadius: radius.lg,
-    padding: spacing.lg,
+    borderRadius: radius.md,
+    padding: spacing.card,
     alignItems: 'center',
   },
   icon: {
@@ -85,7 +85,7 @@ const styles = StyleSheet.create({
     marginBottom: spacing.xs,
   },
   message: {
-    fontSize: typography.body.fontSize,
+    fontSize: typography.subtitle.fontSize,
     color: color.text.secondary,
     textAlign: 'center',
     marginBottom: spacing.md,
