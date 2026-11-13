@@ -1,16 +1,16 @@
 import { render, screen } from '@testing-library/react-native';
-import { StyleSheet, Text } from 'react-native';
+import { StyleSheet, Text, type ViewStyle } from 'react-native';
 
 import { color, spacing } from '@/theme/tokens';
 
 import { ScreenContainer } from './screen-container';
 
-function rootStyle(): ReturnType<typeof StyleSheet.flatten> {
+function rootStyle(): ViewStyle {
   const root = screen.toJSON();
   if (!root || Array.isArray(root)) {
     throw new Error('Esperava um único nó raiz');
   }
-  return StyleSheet.flatten(root.props.style);
+  return StyleSheet.flatten(root.props.style as ViewStyle);
 }
 
 describe('ScreenContainer', () => {
