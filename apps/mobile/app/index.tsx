@@ -1,12 +1,11 @@
 import { useRouter } from 'expo-router';
 import type { ReactElement } from 'react';
 import { useEffect } from 'react';
-import { ActivityIndicator, StyleSheet, View } from 'react-native';
 
-import { useAuth } from '@/auth/auth-context';
-import { ErrorRetryModal } from '@/components/error-retry-modal';
+import { ScreenContainer } from '@/components/ui/screen-container';
+import { StateView } from '@/components/ui/state-view';
+import { useAuth } from '@/hooks/use-auth';
 import { t } from '@/i18n/strings';
-import { color } from '@/theme/tokens';
 
 /**
  * Tela de reidratação de sessão: decide, sem interação do usuário, se o
@@ -29,16 +28,13 @@ export default function IndexScreen(): ReactElement {
   }, [status, router]);
 
   return (
-    <View style={styles.container}>
+    <ScreenContainer>
       {status.tipo === 'carregando' ? (
-        <ActivityIndicator
-          size="large"
-          color={color.text.primary}
-          accessibilityLabel={t('sessao.inicializando.anuncio')}
-        />
+        <StateView state="loading" loadingLabel={t('sessao.inicializando.anuncio')} />
       ) : null}
 
-      <ErrorRetryModal
+      <StateView
+        state="error"
         visible={status.tipo === 'erroInicializacao'}
         title={t('sessao.erroInicializacao.titulo')}
         message={t('sessao.erroInicializacao.mensagem')}
@@ -47,15 +43,6 @@ export default function IndexScreen(): ReactElement {
         secondaryLabel={t('sessao.erroInicializacao.botaoEntrarNovamente')}
         onSecondaryPress={() => void logout()}
       />
-    </View>
+    </ScreenContainer>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: color.surface.default,
-  },
-});

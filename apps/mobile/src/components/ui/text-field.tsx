@@ -2,7 +2,15 @@ import { forwardRef, type ReactElement, type ReactNode } from 'react';
 import type { KeyboardTypeOptions, TextInputProps } from 'react-native';
 import { StyleSheet, Text, TextInput, View } from 'react-native';
 
-import { color, radius, spacing, typography } from '@/theme/tokens';
+import {
+  borderWidth,
+  color,
+  focusRingRadius,
+  minTouchTarget,
+  radius,
+  spacing,
+  typography,
+} from '@/theme/tokens';
 import { useFocusRing } from '@/theme/use-focus-ring';
 
 export interface TextFieldProps {
@@ -82,12 +90,12 @@ const styles = StyleSheet.create({
     marginBottom: spacing.xs,
   },
   ringWrapper: {
-    borderRadius: radius.md + 4,
+    borderRadius: focusRingRadius,
   },
   inputRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    borderWidth: 1,
+    borderWidth: borderWidth.hairline,
     borderColor: color.border.default,
     borderRadius: radius.md,
     paddingHorizontal: spacing.md,
@@ -98,7 +106,7 @@ const styles = StyleSheet.create({
   },
   input: {
     flex: 1,
-    minHeight: 48,
+    minHeight: minTouchTarget,
     fontSize: typography.body.fontSize,
     color: color.text.primary,
   },

@@ -1,8 +1,8 @@
 import type { ReactElement } from 'react';
 import { Modal, StyleSheet, Text, View } from 'react-native';
 
-import { Button } from '@/components/button';
-import { color, radius, spacing, typography } from '@/theme/tokens';
+import { Button } from '@/components/ui/button';
+import { color, glyph, iconSize, layout, radius, spacing, typography } from '@/theme/tokens';
 
 export interface ErrorRetryModalProps {
   readonly visible: boolean;
@@ -38,7 +38,7 @@ export function ErrorRetryModal({
           accessibilityLiveRegion="assertive"
         >
           <Text accessibilityElementsHidden importantForAccessibility="no" style={styles.icon}>
-            ⚠
+            {glyph.alert}
           </Text>
           <Text style={styles.title}>{title}</Text>
           <Text style={styles.message}>{message}</Text>
@@ -66,14 +66,14 @@ const styles = StyleSheet.create({
   },
   card: {
     width: '100%',
-    maxWidth: 320,
+    maxWidth: layout.dialogMaxWidth,
     backgroundColor: color.surface.default,
     borderRadius: radius.lg,
     padding: spacing.lg,
     alignItems: 'center',
   },
   icon: {
-    fontSize: 32,
+    fontSize: iconSize.alert,
     color: color.text.error,
     marginBottom: spacing.sm,
   },

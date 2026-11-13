@@ -1,11 +1,12 @@
 import { act, renderHook, waitFor } from '@testing-library/react-native';
 import * as SecureStore from 'expo-secure-store';
 
-import { autenticar, CredenciaisInvalidasError } from './auth-api';
-import { AuthProvider, useAuth } from './auth-context';
-import type { Usuario } from './types';
+import { autenticar, CredenciaisInvalidasError } from '@/services/auth-service';
+import type { Usuario } from '@/services/auth-types';
 
-jest.mock('./auth-api');
+import { AuthProvider, useAuth } from './use-auth';
+
+jest.mock('@/services/auth-service');
 
 const autenticarMock = autenticar as jest.MockedFunction<typeof autenticar>;
 const secureStoreMock = SecureStore as unknown as {
