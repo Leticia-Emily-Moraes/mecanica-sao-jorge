@@ -431,3 +431,9 @@ acima, nenhuma mudança desde a F34. Confrontei a spec
 implementado por ORLA (`menu-tab-bar.tsx`, `(menu)/_layout.tsx`): bate ponto
 a ponto. Detalhe completo, incluindo o gap de verificação de foco em item
 desabilitado que fica para CRIVO, na seção 13 do documento de especificação.
+
+### F39 · Redesenho dos wireframes (2026-11-13, ESQUADRO)
+
+**Nenhum nó deste arquivo foi alterado na F39.** A versão nomeada da F24 aprovada, exigida antes de qualquer edição (US-WFR-15), não pôde ser criada: `figma.saveVersionHistoryAsync` respondeu `"saveVersionHistoryAsync" is not a supported API`. Pelo US-WFR-15b, as páginas `3:2`, `28:2` e `39:2` ficaram intactas (a página `3:2` continua com 94 filhos).
+
+Leitura (somente) feita: referência `FPdB8RymAnN81pbKfizdzE` (páginas `20:2131`, `20:2132`, `1:66`), variáveis da coleção `28:3` e amostra da página `3:2`. Resultado, quadro comparativo de tokens, contraste, débito com o F33 e lista de impacto: `docs/design/F39-redesenho-wireframes-navegacao.md`. Achado principal: a paleta de marca da referência (`#1E3A3F`, `#B5453D`) é igual à vigente; mudam neutros, estados, tipografia e forma.
