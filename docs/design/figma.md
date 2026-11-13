@@ -431,3 +431,7 @@ acima, nenhuma mudança desde a F34. Confrontei a spec
 implementado por ORLA (`menu-tab-bar.tsx`, `(menu)/_layout.tsx`): bate ponto
 a ponto. Detalhe completo, incluindo o gap de verificação de foco em item
 desabilitado que fica para CRIVO, na seção 13 do documento de especificação.
+
+### F40 · Componentes base do app (2026-11-13, ESQUADRO)
+
+**Nenhum nó deste arquivo foi alterado na F40.** Leitura (somente) da página `28:2` (`get_metadata`, `get_screenshot` de `29:79` e `33:33`, `get_variable_defs` de `29:79`). Achado: o código de Login e Perfil não tem a faixa petro, o subtítulo, o avatar nem o ícone de olho que os frames aprovados têm; a correção é da F41. Especificação dos componentes, tokens a acrescentar (sem alterar valor) e matriz de anúncio ao leitor de tela: `docs/design/F40-componentes-base-especificacao.md`. Variáveis numéricas no Figma para os tokens novos ficam pendentes até ORLA commitar os valores e a F41 liberar a linha de base.
