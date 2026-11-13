@@ -26,6 +26,10 @@ Diagramas C4 em `diagrams/` (contexto, contêineres, fluxo de login).
 Mapa de navegação entre telas (wireframe F24, todas as telas do app, para
 evitar fluxo órfão) em [`diagrams/navegacao-wireframe-f24.md`](diagrams/navegacao-wireframe-f24.md).
 
+A seção 8 do mapa de navegação traz o grafo alvo da F39 (navegação inferior de 4
+abas, Perfil pelo cabeçalho, órfãs 07 e 16 fechadas). Ele continua como proposta
+até a edição do Figma ser conferida.
+
 ## Decisões
 
 | ADR | Título | Status | Data |
