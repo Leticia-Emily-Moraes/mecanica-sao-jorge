@@ -35,11 +35,12 @@ O que existe hoje:
   `area.componente.texto`, nenhuma string fixa em componente;
 - `src/components/ui/`: componentes base sem texto próprio (o texto chega por
   prop) — `Button`, `TextField`, `ScreenHeader`, `ScreenContainer`,
-  `StateView` (carregando, vazio e erro), `InlineAlert`, `InlineActionButton`,
-  `ReadOnlyField`, `ConfirmDialog`; rótulo, papel e anel de foco duplo
-  (petro + halo branco) já vêm embutidos, a tela herda;
+  `StateView` (carregando, vazio e erro), `InlineAlert`, `IconButton`,
+  `FormActions`, `ReadOnlyField`, `ConfirmDialog`, `TabBarItem`; rótulo, papel
+  e anel de foco duplo (petro + halo branco; branco na tab bar) já vêm
+  embutidos, a tela herda;
 - `src/components/menu/` (`MenuTabBar`) e `src/components/perfil/`
-  (`AccessProfileBadge`): componentes de uma área;
+  (`Avatar`, `AccessProfileBadge`, `ProfileSummary`): componentes de uma área;
 - leitor de variável de ambiente (`src/config/env.ts`) para a URL base da API,
   com teste unitário cobrindo valor configurado e valor padrão;
 - `.env.example` sem segredo.
@@ -182,9 +183,10 @@ src/
 ├── components/
 │   ├── ui/                # base, sem texto próprio: button, text-field, screen-header,
 │   │                      #   screen-container, state-view, inline-alert,
-│   │                      #   inline-action-button, read-only-field, confirm-dialog
-│   ├── menu/              # menu-tab-bar
-│   └── perfil/            # access-profile-badge
+│   │                      #   icon-button, form-actions, tab-bar-item, read-only-field,
+│   │                      #   confirm-dialog
+│   ├── menu/              # menu-tab-bar, menu-shell
+│   └── perfil/            # avatar, access-profile-badge, profile-summary
 ├── hooks/                 # use-auth (AuthProvider + useAuth), use-login
 ├── services/              # TS puro: auth-service, http-client, session-storage, auth-types
 ├── theme/                 # tokens.ts (única fonte de valor visual), use-focus-ring.ts
