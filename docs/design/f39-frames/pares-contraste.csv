@@ -52,3 +52,7 @@ V25;v2;anel de foco petro sobre fundo;#1E3A3F;#F7F5F2;3;passa;ADR-014 regra 5
 V26;v2;halo branco do anel contra o botao Crail;#FFFFFF;#B5453D;3;passa;ADR-014 regra 5 (use-focus-ring)
 P01;proibido;color.text.secondary sobre color.surface.skeleton (texto nunca sobre skeleton);#6E6A66;#EDE9E4;4.5;falha;ADR-014 regra 11 (medido 2026-11-13)
 P02;proibido;pill Crail da aba ativa contra a barra petro (forma sozinha);#B5453D;#1E3A3F;3;falha;ADR-014 regra 12: rotulo branco e peso acompanham o pill
+V27;v2;texto de erro Crail sobre errorTint da F41 composto sobre card (Crail 8% sobre #FFFFFF = #F9F0EF);#B5453D;#F9F0EF;4.5;passa;ADR-014 regra 14 (F41 tokens.ts errorTint - medido 2026-11-13)
+V28;v2;texto de erro El Salva sobre errorTint composto sobre Pampas (Crail 8% sobre #F7F5F2 = #F2E7E4);#923631;#F2E7E4;4.5;passa;ADR-014 regra 14 (medido 2026-11-13)
+P03;proibido;texto de erro Crail sobre errorTint translucido composto sobre Pampas (#F2E7E4);#B5453D;#F2E7E4;4.5;falha;ADR-014 regra 14: faixa de erro opaca ou texto El Salva
+P04;proibido;placeholder slate500 da F41 direto sobre Pampas (campo sem fundo branco);#64748B;#F7F5F2;4.5;falha;ADR-014 regra 14: placeholder so sobre color.surface.default
