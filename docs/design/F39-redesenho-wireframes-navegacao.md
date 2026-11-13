@@ -2,7 +2,7 @@
 
 - Autor: ESQUADRO (etapa 3 de 4: BUSSOLA → CARTOGRAFO → ESQUADRO → CRIVO)
 - Data: 2026-11-13
-- PRD: `docs/product/F39-redesenho-wireframes-navegacao-figma.md` (v2, commit `1fe418e`; as seções 8 a 11 abaixo foram escritas contra a v1 e valem como leitura, não como decisão)
+- PRD: `docs/product/F39-redesenho-wireframes-navegacao-figma.md` (v3, commit `3956ba1`; as seções 8 a 11 abaixo foram escritas contra a v1 e valem como leitura, não como decisão)
 - ADR: `docs/architecture/adr/ADR-014-adotar-referencia-figma-como-nova-identidade-visual.md` (Proposto, rastreado desde `a9a364c`)
 - Grafo alvo: `docs/architecture/diagrams/navegacao-wireframe-f24.md`, seção 8 (CARTOGRAFO, `fed86b3`); a linha "mapa não reescrito" da tabela abaixo refere-se ao Figma, que continua intacto
 - Referência: `https://www.figma.com/design/FPdB8RymAnN81pbKfizdzE/Untitled` (file_key `FPdB8RymAnN81pbKfizdzE`, node `1:66`)
@@ -12,7 +12,8 @@
 
 | Parte | Situação |
 |---|---|
-| Acesso ao Figma | OK nesta sessão (`whoami`, `get_metadata`, `get_design_context`, `get_screenshot`, `get_variable_defs`) |
+| Acesso ao Figma | OK nas sessões anteriores. **Na sessão de 2026-11-13 (quarta, após o PRD v3): sem autenticação**, nenhuma ferramenta do Figma utilizável (seção 1.3) |
+| Captura do "antes" de F24, F25 e F34 (US-WFR-21) | **Não feita**: exige Figma, que está sem login. Pré-requisito de qualquer edição (seção 1.3) |
 | Versão nomeada da F24 aprovada (pré-requisito de qualquer edição) | **BLOQUEADA**. Nenhum nó do arquivo foi alterado |
 | Reconfirmação do bloqueio (2026-11-13, segunda sessão) | Repetida a mesma chamada: mesma saída, `not a supported API`; páginas continuam com 94, 10 e 6 filhos (seção 1.1) |
 | Terceira conferência (etapa 3 de 4, somente leitura) | G1 ainda vazio no PRD v2; páginas com 94, 10 e 6 filhos, 1 coleção, 0 estilos; nada editado (seção 1.2) |
@@ -85,6 +86,22 @@ primeiros filhos de 3:2: "01 Login / Carregando", "01 Login / Erro de rede", "01
 Leitura: os nomes ainda são os da F24 aprovada (sem `Vazio`, sem `Erro · validação`), a coleção v2 não existe e não há estilo de pintura nem de texto. Ou seja, o arquivo está intacto e o gate G1 não foi cumprido. **Decisão: nenhuma edição, incluindo a coleção v2**, porque criar variável também é editar o arquivo antes da versão nomeada (lista de liberação, itens 1 e 3 do PRD). Também não usei `saveVersionHistoryAsync` de novo: já está comprovado que a API não existe nesta ferramenta.
 
 O que faltou para seguir: nome e `version-id` da versão salva pela pessoa (com captura do histórico), ou autorização escrita para duplicar a página como `F24 · aprovada (arquivo morto)`.
+
+### 1.3 Quarta sessão em 2026-11-13: Figma sem autenticação (após o PRD v3)
+
+Contexto: o PRD v3 (`3956ba1`) mantém o G1 fechado (seção 13 dele): sem versão nomeada e sem resposta da D12, o ESQUADRO não está liberado para editar. A instrução recebida era redesenhar os 96 frames; ela depende desse gate.
+
+Fato desta sessão: o ambiente informou que o servidor `figma-remote` exige autenticação e que a sessão é não interativa. As ferramentas do Figma (`create_session`, `get_metadata`, `get_screenshot`, `use_figma` e as demais) **não estavam disponíveis para mim**, e eu não tinha como chamar `whoami`; por isso **não existe saída de `whoami` nesta sessão para citar**, só o aviso do ambiente. Não tentei contornar (sem API REST, sem token, sem cópia por outro caminho).
+
+Consequências, sem inferir nada:
+- Nenhum nó, variável, estilo ou coleção do arquivo `DLqbSzzKRxiN2eyvXG73Lr` foi lido ou alterado nesta sessão. A contagem de 94, 10 e 6 filhos das páginas `3:2`, `28:2` e `39:2` é a da conferência anterior (seção 1.2), **não** conferida de novo.
+- A captura do antes (US-WFR-21, premissa 21 do PRD v3) não foi feita; a tabela de node-ids capturados na seção 13 do PRD segue vazia.
+- D9 (papel de `20:968` e `20:2131`): não abri esses frames. A seção 2 abaixo, escrita em sessão anterior com Figma aberto, **leu `20:2131` como página** "01 — Wireframes" da referência. Isso é fato lido naquela sessão; o briefing da regra "Inspiração visual" atribui `20:968` ao baixa e `20:2131` ao alta. Os dois textos não cabem juntos e eu não escolho. Quem destrava é a pessoa, com a D9.
+
+Para destravar (nesta ordem):
+1. Pessoa ou operador roda o login do Figma: `claude mcp login figma-remote`.
+2. Pessoa responde a D12 (versão nomeada continua exigida ou a dispensa de 2026-11-13 vale) e informa nome e id da versão, se houver.
+3. ESQUADRO captura o antes de F24, F25 e F34 e registra os node-ids na seção 13 do PRD, só então edita.
 
 ## 2. Acesso e leitura da referência
 
@@ -378,7 +395,7 @@ Estados carregando e erro com saída: na referência, `2b` oferece "Tentar novam
 
 ## 9. Pendências para BUSSOLA e decisões que não são minhas
 
-1. **PRD ainda na v1** (`docs/product/F39-…md`, de 2026-11-11): continua dizendo "visual excluído", "página nova" e "link não recebido". As decisões D1 e D4 e o link já existem. BUSSOLA precisa gravar a v2 e registrar nela o bloqueio da seção 1.
+1. **PRD na v3** (`3956ba1`, ramo `docs/f39-wireframe-redesenho`): já incorpora D1, D4, o link, as premissas 19 a 24 e os critérios US-WFR-19 a 22. Pendem na v3: D9 (papel de `20:968` e `20:2131`), D10 e D11 (frase de F25 a F29 e local da marcação), D12 (versão nomeada), D13 (frames de alta) e D14 (o que foi editado). Esta seção 9 foi escrita contra a v1; o que ela diz do PRD está superado por este item.
 2. **A premissa de "troca de identidade" precisa ser reescrita** (ADR-014 e PRD v2): petro e primary **não mudam** (seção 4.1). O que muda é neutros, estados, tipografia e forma. Isso afeta a leitura da D1 e o tamanho da lista de impacto. Registrado aqui; a decisão de manter, reduzir ou refazer a D1 é da pessoa, com a REGENTE.
 3. **D2** segue em aberto (seção 3).
 4. **96 frames contra 93 células** (D7 de BUSSOLA): o inventário aplicável da F24 tem 93 células e a página tem 94 frames de tela. US-WFR-01 pede 96 (24 × 4). A conta fecha em 96 só se cada tela tiver exatamente os quatro estados, e hoje 16 telas não têm "Vazio" aplicável (formulários e detalhes). Preciso de decisão: (a) criar o "Vazio" dessas telas como formulário em branco ou detalhe sem dados, ou (b) corrigir o critério para a matriz de aplicabilidade. Fica registrado aqui porque a decisão de BUSSOLA muda o número de frames a editar.
@@ -419,7 +436,10 @@ Verificado nesta sessão (saída real): `whoami`; leitura das três páginas da 
 
 Verificado na segunda sessão (2026-11-13), saída real: `whoami` OK; `saveVersionHistoryAsync` de novo "not a supported API" (seção 1.1); contagem de filhos das 3 páginas inalterada; `get_variable_defs` e captura de `1:106`; `get_metadata` de `20:1066`; `use_figma` somente leitura na referência (mensagens de erro de campo, 755 textos por tamanho, 49 telas com cabeçalho e navegação, estrutura de `20:1103`, `20:1080`, `20:1435`, `20:1726`, `20:2084`); capturas de `10:1373` e `10:1052`.
 
+Quarta sessão (2026-11-13): nada verificado no Figma, porque o `figma-remote` estava sem autenticação (seção 1.3). Só li o repositório (`git log`, `git diff` entre ramos, PRD v3 e este documento).
+
 Não verificado ou não feito:
+- Captura do antes de F24, F25 e F34 (US-WFR-21): não feita.
 - Versão nomeada: bloqueada (seção 1). Nenhuma edição no Figma, nem coleção de variáveis.
 - Contraste dos novos pares da seção 4.2.1 além dos já medidos na seção 5: não medi o par "Crail sobre Pampas em 13 px" separadamente; vale o 4,97:1 da seção 5.
 - Os 96 frames, estilos/variáveis v2, anotações de acessibilidade por estado (US-WFR-06) e grafo reescrito (US-WFR-03): não feitos.
