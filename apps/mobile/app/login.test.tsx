@@ -34,6 +34,15 @@ describe('LoginScreen', () => {
     jest.clearAllMocks();
   });
 
+  it('should show the header band title and subtitle and the field placeholders', async () => {
+    await renderLoginScreen();
+
+    expect(screen.getByRole('header', { name: 'Mecânica São Jorge' })).toBeTruthy();
+    expect(screen.getByText('Entre com sua conta')).toBeTruthy();
+    expect(screen.getByLabelText('E-mail').props.placeholder).toBe('seu@email.com');
+    expect(screen.getByLabelText('Senha').props.placeholder).toBe('Sua senha');
+  });
+
   it('should show field validation errors and never call the API when email and senha are empty', async () => {
     await renderLoginScreen();
 

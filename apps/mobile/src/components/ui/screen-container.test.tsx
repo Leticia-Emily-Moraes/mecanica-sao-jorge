@@ -1,16 +1,13 @@
 import { render, screen } from '@testing-library/react-native';
-import { StyleSheet, Text, type ViewStyle } from 'react-native';
+import { Text, View } from 'react-native';
 
+import { jsonChildren, jsonStyle, type JsonNode } from '@/test-utils/render-tree';
 import { color, spacing } from '@/theme/tokens';
 
 import { ScreenContainer } from './screen-container';
 
-function rootStyle(): ViewStyle {
-  const root = screen.toJSON();
-  if (!root || Array.isArray(root)) {
-    throw new Error('Esperava um único nó raiz');
-  }
-  return StyleSheet.flatten(root.props.style as ViewStyle);
+function root(): JsonNode {
+  return screen.toJSON() as JsonNode;
 }
 
 describe('ScreenContainer', () => {
@@ -24,37 +21,68 @@ describe('ScreenContainer', () => {
     expect(screen.getByText('conteúdo')).toBeTruthy();
   });
 
-  it('should fill the area with the standard padding and surface color', () => {
+  it('should fill the area with the surface color', () => {
     render(
       <ScreenContainer>
         <Text>conteúdo</Text>
       </ScreenContainer>,
     );
 
-    expect(rootStyle()).toMatchObject({
+    expect(jsonStyle(root())).toMatchObject({
       flex: 1,
-      padding: spacing.lg,
       backgroundColor: color.surface.default,
     });
   });
 
-  it('should not center vertically by default', () => {
+  it('should pad the content body with the standard spacing', () => {
     render(
       <ScreenContainer>
         <Text>conteúdo</Text>
       </ScreenContainer>,
     );
 
-    expect(rootStyle().justifyContent).toBeUndefined();
+    expect(jsonStyle(jsonChildren(root())[0])).toMatchObject({
+      flex: 1,
+      paddingHorizontal: spacing.md,
+      paddingVertical: spacing.lg,
+    });
   });
 
-  it('should center vertically when centered is set', () => {
+  it('should pin the footer after the body, with the side padding', () => {
     render(
-      <ScreenContainer centered>
+      <ScreenContainer footer={<View testID="rodape" />}>
         <Text>conteúdo</Text>
       </ScreenContainer>,
     );
 
-    expect(rootStyle().justifyContent).toBe('center');
+    const [body, footer] = jsonChildren(root());
+
+    expect(jsonStyle(body).flex).toBe(1);
+    expect(jsonStyle(footer).paddingHorizontal).toBe(spacing.md);
+    expect(screen.getByTestId('rodape')).toBeTruthy();
+  });
+
+  it('should not render a footer wrapper when none is given', () => {
+    render(
+      <ScreenContainer>
+        <Text>conteúdo</Text>
+      </ScreenContainer>,
+    );
+
+    expect(jsonChildren(root())).toHaveLength(1);
+  });
+
+  it('should draw the header before the padded body, outside its padding', () => {
+    render(
+      <ScreenContainer header={<View testID="faixa" />}>
+        <Text>conteúdo</Text>
+      </ScreenContainer>,
+    );
+
+    const [first, second] = jsonChildren(root());
+
+    expect(first.props.testID).toBe('faixa');
+    expect(jsonStyle(first).paddingHorizontal).toBeUndefined();
+    expect(jsonStyle(second).paddingHorizontal).toBe(spacing.md);
   });
 });
