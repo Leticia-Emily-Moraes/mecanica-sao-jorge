@@ -48,6 +48,19 @@ describe('ScreenContainer', () => {
     });
   });
 
+  it('should use topSpacing as the space under the header when given', () => {
+    render(
+      <ScreenContainer topSpacing={spacing.formTop}>
+        <Text>conteúdo</Text>
+      </ScreenContainer>,
+    );
+
+    expect(jsonStyle(jsonChildren(root())[0])).toMatchObject({
+      paddingTop: spacing.formTop,
+      paddingVertical: spacing.lg,
+    });
+  });
+
   it('should pin the footer after the body, with the side padding', () => {
     render(
       <ScreenContainer footer={<View testID="rodape" />}>

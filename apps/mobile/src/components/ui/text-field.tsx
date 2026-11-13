@@ -103,6 +103,8 @@ const styles = StyleSheet.create({
     fontWeight: typography.labelSmall.fontWeight,
     color: color.text.secondary,
     marginBottom: spacing.xs,
+    // O halo do anel de foco (4 pt) passa de 4 pt do campo: o rótulo fica por cima, sem corte.
+    zIndex: 1,
   },
   ringWrapper: {
     borderRadius: focusRingRadius,
