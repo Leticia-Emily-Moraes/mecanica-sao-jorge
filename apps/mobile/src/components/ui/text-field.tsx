@@ -78,7 +78,11 @@ export const TextField = forwardRef<TextInput, TextFieldProps>(function TextFiel
             accessibilityState={{ disabled: !editable }}
             style={styles.input}
           />
-          {rightAccessory}
+          {rightAccessory ? (
+            <View testID="text-field-accessory" style={styles.accessory}>
+              {rightAccessory}
+            </View>
+          ) : null}
         </View>
       </View>
       {errorMessage ? (
@@ -103,7 +107,9 @@ const styles = StyleSheet.create({
   ringWrapper: {
     borderRadius: focusRingRadius,
   },
+  // Altura externa de 48 com a borda dentro (Figma 29:7); o Yoga conta a borda na altura.
   inputRow: {
+    minHeight: minTouchTarget,
     flexDirection: 'row',
     alignItems: 'center',
     borderWidth: borderWidth.field,
@@ -123,9 +129,14 @@ const styles = StyleSheet.create({
   },
   input: {
     flex: 1,
-    minHeight: minTouchTarget,
+    alignSelf: 'stretch',
     fontSize: typography.field.fontSize,
-    color: color.text.primary,
+    color: color.text.secondary,
+  },
+  // Ação de 48 dentro do campo de 48: a margem negativa tira as duas bordas da conta
+  // e o alvo de toque continua inteiro (a borda é transparente ao toque).
+  accessory: {
+    marginVertical: -borderWidth.emphasis,
   },
   error: {
     marginTop: spacing.xs,
