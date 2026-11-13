@@ -1,6 +1,8 @@
 import { fireEvent, render, screen } from '@testing-library/react-native';
+import { StyleSheet } from 'react-native';
 
 import { hasFocusRing } from '@/test-utils/has-focus-ring';
+import { opacity } from '@/theme/tokens';
 
 import { Button } from './button';
 
@@ -45,6 +47,22 @@ describe('Button', () => {
 
     expect(onPress).not.toHaveBeenCalled();
     expect(screen.getByRole('button', { name: 'Entrar', busy: true })).toBeTruthy();
+  });
+
+  it('should keep the full color while loading, so the label stays readable (AA)', () => {
+    render(<Button label="Entrar" loadingLabel="Entrando..." loading onPress={jest.fn()} />);
+
+    const style = StyleSheet.flatten(screen.getByRole('button', { name: 'Entrar' }).props.style);
+
+    expect(style.opacity).toBeUndefined();
+  });
+
+  it('should dim the button when explicitly disabled', () => {
+    render(<Button label="Entrar" onPress={jest.fn()} disabled />);
+
+    const style = StyleSheet.flatten(screen.getByRole('button', { name: 'Entrar' }).props.style);
+
+    expect(style.opacity).toBe(opacity.disabled);
   });
 
   it('should fall back to the label while loading when no loadingLabel is given', () => {

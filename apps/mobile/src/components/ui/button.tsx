@@ -50,7 +50,8 @@ export function Button({
         style={({ pressed }) => [
           styles.button,
           variant === 'primary' ? styles.primary : styles.secondary,
-          isDisabled && styles.disabled,
+          // Carregando mantém a cor cheia (Figma 29:20): a 50 % o rótulo cairia a 2,18:1.
+          disabled && !loading && styles.disabled,
           pressed && !isDisabled && styles.pressed,
         ]}
       >
@@ -89,7 +90,7 @@ const styles = StyleSheet.create({
   },
   button: {
     minHeight: minTouchTarget,
-    borderRadius: radius.md,
+    borderRadius: radius.sm,
     alignItems: 'center',
     justifyContent: 'center',
     paddingHorizontal: spacing.lg,
@@ -99,7 +100,7 @@ const styles = StyleSheet.create({
   },
   secondary: {
     backgroundColor: 'transparent',
-    borderWidth: borderWidth.hairline,
+    borderWidth: borderWidth.emphasis,
     borderColor: color.border.default,
   },
   pressed: {

@@ -1,10 +1,15 @@
 import { fireEvent, render, screen } from '@testing-library/react-native';
 import { createRef } from 'react';
-import { Text, type TextInput } from 'react-native';
+import { StyleSheet, Text, type TextInput, type ViewStyle } from 'react-native';
 
 import { hasFocusRing } from '@/test-utils/has-focus-ring';
+import { borderWidth, color } from '@/theme/tokens';
 
 import { TextField } from './text-field';
+
+function rowStyle(): ViewStyle {
+  return StyleSheet.flatten(screen.getByTestId('text-field-row').props.style as ViewStyle);
+}
 
 describe('TextField', () => {
   it('should show the visible label and use it as the accessible name when there is no error', () => {
@@ -104,6 +109,44 @@ describe('TextField', () => {
     render(<TextField label="Senha" value="" onChangeText={jest.fn()} secureTextEntry />);
 
     expect(screen.getByLabelText('Senha').props.secureTextEntry).toBe(true);
+  });
+
+  it('should show the placeholder in the placeholder color token', () => {
+    render(
+      <TextField label="E-mail" value="" onChangeText={jest.fn()} placeholder="seu@email.com" />,
+    );
+
+    const input = screen.getByLabelText('E-mail');
+
+    expect(input.props.placeholder).toBe('seu@email.com');
+    expect(input.props.placeholderTextColor).toBe(color.text.placeholder);
+  });
+
+  it('should draw the field border in the error color when there is an error', () => {
+    render(<TextField label="E-mail" value="" onChangeText={jest.fn()} errorMessage="Informe" />);
+
+    expect(rowStyle()).toMatchObject({
+      borderColor: color.text.error,
+      borderWidth: borderWidth.emphasis,
+    });
+  });
+
+  it('should keep the default border when there is no error', () => {
+    render(<TextField label="E-mail" value="" onChangeText={jest.fn()} />);
+
+    expect(rowStyle()).toMatchObject({
+      borderColor: color.border.default,
+      borderWidth: borderWidth.field,
+    });
+  });
+
+  it('should use the skeleton border and fill when the field is disabled', () => {
+    render(<TextField label="E-mail" value="" onChangeText={jest.fn()} editable={false} />);
+
+    expect(rowStyle()).toMatchObject({
+      borderColor: color.border.skeleton,
+      backgroundColor: color.surface.skeleton,
+    });
   });
 
   it('should draw the focus ring only while the input is focused', () => {

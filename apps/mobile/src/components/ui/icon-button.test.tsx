@@ -2,18 +2,22 @@ import { fireEvent, render, screen } from '@testing-library/react-native';
 
 import { hasFocusRing } from '@/test-utils/has-focus-ring';
 
-import { InlineActionButton } from './inline-action-button';
+import { IconButton } from './icon-button';
 
-describe('InlineActionButton', () => {
-  it('should expose the button role with the label as accessible name', () => {
-    render(<InlineActionButton label="Mostrar senha" onPress={jest.fn()} />);
+describe('IconButton', () => {
+  it('should expose the button role with the accessibility label as name', () => {
+    render(
+      <IconButton icon="eye-off-outline" accessibilityLabel="Mostrar senha" onPress={jest.fn()} />,
+    );
 
     expect(screen.getByRole('button', { name: 'Mostrar senha' })).toBeTruthy();
   });
 
   it('should call onPress when pressed', () => {
     const onPress = jest.fn();
-    render(<InlineActionButton label="Mostrar senha" onPress={onPress} />);
+    render(
+      <IconButton icon="eye-off-outline" accessibilityLabel="Mostrar senha" onPress={onPress} />,
+    );
 
     fireEvent.press(screen.getByRole('button', { name: 'Mostrar senha' }));
 
@@ -22,7 +26,14 @@ describe('InlineActionButton', () => {
 
   it('should not call onPress and report disabled when disabled', () => {
     const onPress = jest.fn();
-    render(<InlineActionButton label="Mostrar senha" onPress={onPress} disabled />);
+    render(
+      <IconButton
+        icon="eye-off-outline"
+        accessibilityLabel="Mostrar senha"
+        onPress={onPress}
+        disabled
+      />,
+    );
 
     fireEvent.press(screen.getByRole('button', { name: 'Mostrar senha', disabled: true }));
 
@@ -30,12 +41,17 @@ describe('InlineActionButton', () => {
   });
 
   it('should draw the focus ring only while focused', () => {
-    render(<InlineActionButton label="Mostrar senha" onPress={jest.fn()} />);
+    render(
+      <IconButton icon="eye-off-outline" accessibilityLabel="Mostrar senha" onPress={jest.fn()} />,
+    );
     const button = screen.getByRole('button', { name: 'Mostrar senha' });
 
     expect(hasFocusRing(button)).toBe(false);
 
     fireEvent(button, 'focus');
     expect(hasFocusRing(screen.getByRole('button', { name: 'Mostrar senha' }))).toBe(true);
+
+    fireEvent(button, 'blur');
+    expect(hasFocusRing(screen.getByRole('button', { name: 'Mostrar senha' }))).toBe(false);
   });
 });
