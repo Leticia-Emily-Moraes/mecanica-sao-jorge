@@ -102,6 +102,20 @@ describe('TabBarItem', () => {
     });
   });
 
+  it('should let a long label wrap to two lines instead of truncating it (Figma 39:3)', () => {
+    render(
+      <TabBarItem
+        icon="car-outline"
+        label="Clientes e Veículos"
+        accessibilityLabel="Clientes e Veículos, indisponível nesta versão"
+        selected={false}
+        unavailable
+      />,
+    );
+
+    expect(screen.getByText('Clientes e Veículos').props.numberOfLines).toBe(2);
+  });
+
   it('should show the label in 10 pt, semi bold only when selected', () => {
     const { rerender } = render(
       <TabBarItem icon="person" label="Perfil" accessibilityLabel="Perfil" selected />,
