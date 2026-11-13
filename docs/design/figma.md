@@ -437,3 +437,7 @@ desabilitado que fica para CRIVO, na seção 13 do documento de especificação.
 **Nenhum nó deste arquivo foi alterado na F39.** A versão nomeada da F24 aprovada, exigida antes de qualquer edição (US-WFR-15), não pôde ser criada: `figma.saveVersionHistoryAsync` respondeu `"saveVersionHistoryAsync" is not a supported API`. Pelo US-WFR-15b, as páginas `3:2`, `28:2` e `39:2` ficaram intactas (a página `3:2` continua com 94 filhos).
 
 Leitura (somente) feita: referência `FPdB8RymAnN81pbKfizdzE` (páginas `20:2131`, `20:2132`, `1:66`), variáveis da coleção `28:3` e amostra da página `3:2`. Resultado, quadro comparativo de tokens, contraste, débito com o F33 e lista de impacto: `docs/design/F39-redesenho-wireframes-navegacao.md`. Achado principal: a paleta de marca da referência (`#1E3A3F`, `#B5453D`) é igual à vigente; mudam neutros, estados, tipografia e forma.
+
+### F40 · Componentes base do app (2026-11-13, ESQUADRO)
+
+**Nenhum nó deste arquivo foi alterado na F40.** Leitura (somente) da página `28:2` (`get_metadata`, `get_screenshot` de `29:79` e `33:33`, `get_variable_defs` de `29:79`). Achado: o código de Login e Perfil não tem a faixa petro, o subtítulo, o avatar nem o ícone de olho que os frames aprovados têm; a correção é da F41. Especificação dos componentes, tokens a acrescentar (sem alterar valor) e matriz de anúncio ao leitor de tela: `docs/design/F40-componentes-base-especificacao.md`. Variáveis numéricas no Figma para os tokens novos ficam pendentes até ORLA commitar os valores e a F41 liberar a linha de base.
