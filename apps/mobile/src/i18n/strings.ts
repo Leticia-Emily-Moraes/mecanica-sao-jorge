@@ -6,9 +6,12 @@
  */
 const strings = {
   'login.titulo': 'Mecânica São Jorge',
+  'login.subtitulo': 'Entre com sua conta',
   'login.campoEmail.rotulo': 'E-mail',
+  'login.campoEmail.placeholder': 'seu@email.com',
   'login.campoEmail.erroVazio': 'Informe seu e-mail',
   'login.campoSenha.rotulo': 'Senha',
+  'login.campoSenha.placeholder': 'Sua senha',
   'login.campoSenha.erroVazio': 'Informe sua senha',
   'login.campoSenha.mostrar': 'Mostrar senha',
   'login.campoSenha.ocultar': 'Ocultar senha',
@@ -26,6 +29,7 @@ const strings = {
   'perfil.rotuloPerfil': 'Perfil de acesso',
   'perfil.botaoSair.rotulo': 'Sair',
   'perfil.dialogoLogout.titulo': 'Deseja realmente sair?',
+  'perfil.dialogoLogout.mensagem': 'Você precisará entrar novamente com seu e-mail e senha.',
   'perfil.dialogoLogout.botaoCancelar': 'Cancelar',
   'perfil.dialogoLogout.botaoConfirmar': 'Sair',
 

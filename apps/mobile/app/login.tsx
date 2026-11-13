@@ -3,7 +3,8 @@ import type { ReactElement } from 'react';
 import { useEffect } from 'react';
 
 import { Button } from '@/components/ui/button';
-import { InlineActionButton } from '@/components/ui/inline-action-button';
+import { FormActions } from '@/components/ui/form-actions';
+import { IconButton } from '@/components/ui/icon-button';
 import { InlineAlert } from '@/components/ui/inline-alert';
 import { ScreenContainer } from '@/components/ui/screen-container';
 import { ScreenHeader } from '@/components/ui/screen-header';
@@ -27,9 +28,9 @@ export default function LoginScreen(): ReactElement {
   const enviando = form.estadoEnvio === 'enviando';
 
   return (
-    <ScreenContainer centered>
-      <ScreenHeader title={t('login.titulo')} align="center" />
-
+    <ScreenContainer
+      header={<ScreenHeader title={t('login.titulo')} subtitle={t('login.subtitulo')} />}
+    >
       {form.sessaoExpirada ? <InlineAlert message={t('login.sessaoExpirada.mensagem')} /> : null}
 
       {form.estadoEnvio === 'erroCredencial' ? (
@@ -39,6 +40,7 @@ export default function LoginScreen(): ReactElement {
       <TextField
         ref={form.emailRef}
         label={t('login.campoEmail.rotulo')}
+        placeholder={t('login.campoEmail.placeholder')}
         value={form.email}
         onChangeText={form.atualizarEmail}
         errorMessage={form.erroEmail ? t('login.campoEmail.erroVazio') : undefined}
@@ -51,6 +53,7 @@ export default function LoginScreen(): ReactElement {
       <TextField
         ref={form.senhaRef}
         label={t('login.campoSenha.rotulo')}
+        placeholder={t('login.campoSenha.placeholder')}
         value={form.senha}
         onChangeText={form.atualizarSenha}
         errorMessage={form.erroSenha ? t('login.campoSenha.erroVazio') : undefined}
@@ -58,8 +61,9 @@ export default function LoginScreen(): ReactElement {
         secureTextEntry={!form.mostrarSenha}
         textContentType="password"
         rightAccessory={
-          <InlineActionButton
-            label={
+          <IconButton
+            icon={form.mostrarSenha ? 'eye-outline' : 'eye-off-outline'}
+            accessibilityLabel={
               form.mostrarSenha ? t('login.campoSenha.ocultar') : t('login.campoSenha.mostrar')
             }
             disabled={enviando}
@@ -68,12 +72,14 @@ export default function LoginScreen(): ReactElement {
         }
       />
 
-      <Button
-        label={t('login.botaoEntrar.rotulo')}
-        loadingLabel={t('login.botaoEntrar.carregando')}
-        loading={enviando}
-        onPress={() => void form.enviar()}
-      />
+      <FormActions>
+        <Button
+          label={t('login.botaoEntrar.rotulo')}
+          loadingLabel={t('login.botaoEntrar.carregando')}
+          loading={enviando}
+          onPress={() => void form.enviar()}
+        />
+      </FormActions>
 
       <StateView
         state="error"
