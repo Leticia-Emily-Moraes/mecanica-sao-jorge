@@ -2,8 +2,9 @@
 
 - Autor: ESQUADRO (etapa 3 de 4: BUSSOLA → CARTOGRAFO → ESQUADRO → CRIVO)
 - Data: 2026-11-13
-- PRD: `docs/product/F39-redesenho-wireframes-navegacao-figma.md` (ainda na v1; ver seção 9)
-- ADR: `docs/architecture/adr/ADR-014-adotar-referencia-figma-como-nova-identidade-visual.md` (não rastreado no git)
+- PRD: `docs/product/F39-redesenho-wireframes-navegacao-figma.md` (v2, commit `1fe418e`; as seções 8 a 11 abaixo foram escritas contra a v1 e valem como leitura, não como decisão)
+- ADR: `docs/architecture/adr/ADR-014-adotar-referencia-figma-como-nova-identidade-visual.md` (Proposto, rastreado desde `a9a364c`)
+- Grafo alvo: `docs/architecture/diagrams/navegacao-wireframe-f24.md`, seção 8 (CARTOGRAFO, `fed86b3`); a linha "mapa não reescrito" da tabela abaixo refere-se ao Figma, que continua intacto
 - Referência: `https://www.figma.com/design/FPdB8RymAnN81pbKfizdzE/Untitled` (file_key `FPdB8RymAnN81pbKfizdzE`, node `1:66`)
 - Arquivo do wireframe: `DLqbSzzKRxiN2eyvXG73Lr` (página `3:2` "F24 · Wireframe baixa fidelidade")
 
@@ -14,6 +15,7 @@
 | Acesso ao Figma | OK nesta sessão (`whoami`, `get_metadata`, `get_design_context`, `get_screenshot`, `get_variable_defs`) |
 | Versão nomeada da F24 aprovada (pré-requisito de qualquer edição) | **BLOQUEADA**. Nenhum nó do arquivo foi alterado |
 | Reconfirmação do bloqueio (2026-11-13, segunda sessão) | Repetida a mesma chamada: mesma saída, `not a supported API`; páginas continuam com 94, 10 e 6 filhos (seção 1.1) |
+| Terceira conferência (etapa 3 de 4, somente leitura) | G1 ainda vazio no PRD v2; páginas com 94, 10 e 6 filhos, 1 coleção, 0 estilos; nada editado (seção 1.2) |
 | Redesenho dos 96 frames | **Não feito**, consequência do item acima |
 | Cabeçalho e navegação inferior da referência (US-WFR-16 e 17) | Lidos com node-ids, medidas e regra de exibição (seção 6.3 e 6.4); não aplicados |
 | Escala tipográfica fechada | Proposta com base em 755 textos medidos (seção 4.2.1) |
@@ -64,6 +66,25 @@ O PRD (`docs/product/F39-…md`) continua sem nome nem id de versão, e o briefi
 Não usei a API REST de versões do Figma: não há token no ambiente (o acesso é só por OAuth do MCP) e contornar a ferramenta não é o caminho previsto.
 
 O que está pronto aqui é a leitura (tokens, cabeçalho, navegação inferior, escala tipográfica). Para o redesenho começar falta só a pessoa salvar a versão nomeada e informar o id, ou autorizar por escrito a cópia da página (seção 1, opção 2).
+
+### 1.2 Terceira conferência em 2026-11-13 (etapa 3 de 4, após PRD v2 e ADR-014)
+
+Antes de tocar em qualquer coisa, procurei o nome e o id da versão no repositório (`grep` por `version-id` e pelo nome sugerido em `docs/`): só aparecem como instrução, nunca preenchidos. A tabela G1 da seção 13 do PRD v2 continua com "Pendente: ESQUADRO não liberado". O briefing desta etapa também não traz versão nem autorização escrita para a opção 2.
+
+Leitura de verificação (somente leitura, nenhum nó criado ou alterado). `whoami` respondeu normalmente (plano `team::1274094162661077353`). Saída real do `use_figma` de leitura, sessão `67452991-47b8-4c4a-a3bf-927a1b7e09cf`:
+
+```
+pages: 3:2 "F24 · Wireframe baixa fidelidade" = 94 filhos
+       28:2 "F25 · Protótipo alta fidelidade" = 10
+       39:2 "F34 · Tab bar alta fidelidade"    = 6
+collections: VariableCollectionId:28:3 "OP-002 Tokens de cor" (22 variáveis)   ← única coleção
+paintStyles: 0   textStyles: 0
+primeiros filhos de 3:2: "01 Login / Carregando", "01 Login / Erro de rede", "01 Login / Erro de validação"
+```
+
+Leitura: os nomes ainda são os da F24 aprovada (sem `Vazio`, sem `Erro · validação`), a coleção v2 não existe e não há estilo de pintura nem de texto. Ou seja, o arquivo está intacto e o gate G1 não foi cumprido. **Decisão: nenhuma edição, incluindo a coleção v2**, porque criar variável também é editar o arquivo antes da versão nomeada (lista de liberação, itens 1 e 3 do PRD). Também não usei `saveVersionHistoryAsync` de novo: já está comprovado que a API não existe nesta ferramenta.
+
+O que faltou para seguir: nome e `version-id` da versão salva pela pessoa (com captura do histórico), ou autorização escrita para duplicar a página como `F24 · aprovada (arquivo morto)`.
 
 ## 2. Acesso e leitura da referência
 
