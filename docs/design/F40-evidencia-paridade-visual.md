@@ -37,3 +37,18 @@ Alguém com um aparelho ou simulador operável à mão (ou uma ferramenta de aut
 ## README principal
 
 README sem mudança: a F40 não muda como instalar, rodar, testar ou configurar. O README de `apps/mobile` já foi atualizado em `a153494`.
+
+## Rodada 2 (ORLA, 2026-11-13, após a revisão humana das 14:41)
+
+Resultado do US-COMP-11: **continua bloqueado, 0 de 13 linhas provadas.** Nada foi capturado nesta rodada.
+
+Verificado nesta sessão:
+- Simulador iPhone 17 (iOS 27.0) está ligado, na tela inicial, sem o app aberto. `command -v maestro idb adb` não encontrou nenhuma das três ferramentas; só `cliclick` (`/opt/homebrew/bin/cliclick`), que a rodada 1 mostrou não entregar toque nem digitação de forma confiável. `docker` existe e o daemon responde.
+- Sem uma ferramenta que toque e digite, não há como chegar a foco, validação, preenchido, senha visível, carregando, erro, Perfil, diálogo e tab bar. Subir API real (MySQL + Spring) e Metro seria possível, mas não resolve a entrada.
+- Instalar Maestro ou `idb` é a dúvida 7 do PRD, que a pessoa decide (muda o README principal). Não instalei.
+
+Mudou no código nesta rodada (por isso as capturas "depois" devem ser tiradas no commit final, premissa 9 do PRD): `TabBarItem` (tab bar) e `MenuShell` (layout do menu). Ambos mantêm os mesmos tokens e a mesma estrutura de nós; a equivalência visual é **não provada por captura**, só coberta por teste de componente e pela suíte de F33.
+
+## README principal
+
+README sem mudança: a F40 não muda como instalar, rodar, testar ou configurar. Mudaria se a dúvida 7 trouxer Maestro ou `idb` ao repositório.
