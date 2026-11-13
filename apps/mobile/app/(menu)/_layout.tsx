@@ -1,11 +1,9 @@
 import { Slot, useRouter } from 'expo-router';
 import type { ReactElement } from 'react';
 import { useEffect } from 'react';
-import { StyleSheet, View } from 'react-native';
 
-import { MenuTabBar } from '@/components/menu/menu-tab-bar';
+import { MenuShell } from '@/components/menu/menu-shell';
 import { useAuth } from '@/hooks/use-auth';
-import { color } from '@/theme/tokens';
 
 /**
  * Casa pós-login (F33, US-MENU-01/08): guarda a sessão de novo aqui, no nível
@@ -29,21 +27,8 @@ export default function MenuLayout(): ReactElement | null {
   }
 
   return (
-    <View style={styles.container}>
-      <View style={styles.conteudo}>
-        <Slot />
-      </View>
-      <MenuTabBar />
-    </View>
+    <MenuShell>
+      <Slot />
+    </MenuShell>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: color.surface.default,
-  },
-  conteudo: {
-    flex: 1,
-  },
-});
