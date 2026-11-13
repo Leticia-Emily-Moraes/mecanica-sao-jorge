@@ -60,15 +60,17 @@ export default function LoginScreen(): ReactElement {
         editable={!enviando}
         secureTextEntry={!form.mostrarSenha}
         textContentType="password"
+        // Em "Entrando..." o frame tira o olho do campo desabilitado (Figma 29:20).
         rightAccessory={
-          <IconButton
-            icon={form.mostrarSenha ? 'eye-outline' : 'eye-off-outline'}
-            accessibilityLabel={
-              form.mostrarSenha ? t('login.campoSenha.ocultar') : t('login.campoSenha.mostrar')
-            }
-            disabled={enviando}
-            onPress={form.alternarMostrarSenha}
-          />
+          enviando ? undefined : (
+            <IconButton
+              icon={form.mostrarSenha ? 'eye-outline' : 'eye-off-outline'}
+              accessibilityLabel={
+                form.mostrarSenha ? t('login.campoSenha.ocultar') : t('login.campoSenha.mostrar')
+              }
+              onPress={form.alternarMostrarSenha}
+            />
+          )
         }
       />
 
@@ -77,6 +79,7 @@ export default function LoginScreen(): ReactElement {
           label={t('login.botaoEntrar.rotulo')}
           loadingLabel={t('login.botaoEntrar.carregando')}
           loading={enviando}
+          size="page"
           onPress={() => void form.enviar()}
         />
       </FormActions>
