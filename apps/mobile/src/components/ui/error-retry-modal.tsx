@@ -1,8 +1,9 @@
 import type { ReactElement } from 'react';
 import { Modal, StyleSheet, Text, View } from 'react-native';
 
+import { AlertIcon } from '@/components/ui/alert-icon';
 import { Button } from '@/components/ui/button';
-import { color, glyph, iconSize, layout, radius, spacing, typography } from '@/theme/tokens';
+import { color, iconSize, layout, radius, spacing, typography } from '@/theme/tokens';
 
 export interface ErrorRetryModalProps {
   readonly visible: boolean;
@@ -17,7 +18,7 @@ export interface ErrorRetryModalProps {
 /**
  * Popup sobre o conteúdo de fundo (não substitui a tela), mesmo padrão
  * corrigido no wireframe F24 e reaproveitado no protótipo F25 — ícone de
- * alerta ⚠ (dingbat, não emoji colorido), título, mensagem e ação de retry.
+ * alerta (triângulo cheio), título, mensagem e ação de retry.
  */
 export function ErrorRetryModal({
   visible,
@@ -37,9 +38,9 @@ export function ErrorRetryModal({
           accessibilityRole="alert"
           accessibilityLiveRegion="assertive"
         >
-          <Text accessibilityElementsHidden importantForAccessibility="no" style={styles.icon}>
-            {glyph.alert}
-          </Text>
+          <View style={styles.icon}>
+            <AlertIcon size={iconSize.alert} />
+          </View>
           <Text style={styles.title}>{title}</Text>
           <Text style={styles.message}>{message}</Text>
           <View style={styles.actions}>
@@ -73,8 +74,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   icon: {
-    fontSize: iconSize.alert,
-    color: color.text.error,
     marginBottom: spacing.sm,
   },
   title: {

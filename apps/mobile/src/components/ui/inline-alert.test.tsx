@@ -1,8 +1,9 @@
 import { render, screen } from '@testing-library/react-native';
 import { StyleSheet } from 'react-native';
 
-import { borderWidth, color } from '@/theme/tokens';
+import { borderWidth, color, layout, typography } from '@/theme/tokens';
 
+import { AlertIcon } from './alert-icon';
 import { InlineAlert } from './inline-alert';
 
 describe('InlineAlert', () => {
@@ -30,11 +31,18 @@ describe('InlineAlert', () => {
     });
   });
 
-  it('should hide the decorative warning icon from the screen reader', () => {
+  it('should draw the filled warning triangle as the decorative icon', () => {
     render(<InlineAlert message="E-mail ou senha incorretos." />);
 
-    expect(
-      screen.getByText('⚠', { includeHiddenElements: true }).props.accessibilityElementsHidden,
-    ).toBe(true);
+    expect(screen.UNSAFE_getByType(AlertIcon).props.size).toBe(typography.labelSmall.fontSize);
+  });
+
+  it('should be at least 44 tall, as in the approved frame', () => {
+    render(<InlineAlert message="E-mail ou senha incorretos." />);
+
+    const style = StyleSheet.flatten(screen.getByRole('alert').props.style);
+
+    expect(style.minHeight).toBe(layout.inlineAlertMinHeight);
+    expect(layout.inlineAlertMinHeight).toBe(44);
   });
 });

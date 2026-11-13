@@ -1,7 +1,8 @@
 import type { ReactElement } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 
-import { borderWidth, color, glyph, radius, spacing, typography } from '@/theme/tokens';
+import { AlertIcon } from '@/components/ui/alert-icon';
+import { borderWidth, color, layout, radius, spacing, typography } from '@/theme/tokens';
 
 export interface InlineAlertProps {
   readonly message: string;
@@ -20,9 +21,7 @@ export function InlineAlert({ message }: InlineAlertProps): ReactElement {
       accessible
       style={styles.banner}
     >
-      <Text accessibilityElementsHidden importantForAccessibility="no" style={styles.icon}>
-        {glyph.alert}
-      </Text>
+      <AlertIcon size={typography.labelSmall.fontSize} />
       <Text style={styles.message}>{message}</Text>
     </View>
   );
@@ -37,13 +36,10 @@ const styles = StyleSheet.create({
     borderWidth: borderWidth.field,
     borderColor: color.text.error,
     borderRadius: radius.sm,
+    minHeight: layout.inlineAlertMinHeight,
     paddingVertical: spacing.sm + spacing.xs,
     paddingHorizontal: spacing.md - spacing.xs,
     marginBottom: spacing.md,
-  },
-  icon: {
-    fontSize: typography.labelSmall.fontSize,
-    color: color.text.error,
   },
   message: {
     flex: 1,

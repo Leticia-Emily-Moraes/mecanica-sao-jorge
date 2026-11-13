@@ -154,9 +154,6 @@ export const layout = {
   tabPillWidth: 56,
   tabPillHeight: 32,
   avatarSize: 64,
-} as const;
-
-/** Glifos decorativos (escondidos do leitor de tela), não são texto de interface. */
-export const glyph = {
-  alert: '⚠',
+  /** Altura mínima da faixa de erro do formulário (Figma 29:60). */
+  inlineAlertMinHeight: 44,
 } as const;
