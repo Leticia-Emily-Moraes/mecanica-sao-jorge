@@ -3,7 +3,7 @@ import { createRef } from 'react';
 import { StyleSheet, Text, type TextInput, type ViewStyle } from 'react-native';
 
 import { hasFocusRing } from '@/test-utils/has-focus-ring';
-import { borderWidth, color } from '@/theme/tokens';
+import { borderWidth, color, minTouchTarget } from '@/theme/tokens';
 
 import { TextField } from './text-field';
 
@@ -147,6 +147,46 @@ describe('TextField', () => {
       borderColor: color.border.skeleton,
       backgroundColor: color.surface.skeleton,
     });
+  });
+
+  it('should be 48 high including the border, not 48 plus the border', () => {
+    render(<TextField label="E-mail" value="" onChangeText={jest.fn()} />);
+
+    expect(rowStyle().minHeight).toBe(minTouchTarget);
+    expect(StyleSheet.flatten(screen.getByLabelText('E-mail').props.style).minHeight).toBe(
+      undefined,
+    );
+  });
+
+  it('should type the value in slate-700, not in petro', () => {
+    render(<TextField label="E-mail" value="ana" onChangeText={jest.fn()} />);
+
+    const input = StyleSheet.flatten(screen.getByLabelText('E-mail').props.style);
+
+    expect(input.color).toBe(color.text.secondary);
+  });
+
+  it('should pull the accessory into the border so it does not make the field taller', () => {
+    render(
+      <TextField
+        label="Senha"
+        value=""
+        onChangeText={jest.fn()}
+        rightAccessory={<Text>acessório</Text>}
+      />,
+    );
+
+    const accessory = StyleSheet.flatten(
+      screen.getByTestId('text-field-accessory').props.style as ViewStyle,
+    );
+
+    expect(accessory.marginVertical).toBe(-borderWidth.emphasis);
+  });
+
+  it('should not render an accessory wrapper when there is no accessory', () => {
+    render(<TextField label="E-mail" value="" onChangeText={jest.fn()} />);
+
+    expect(screen.queryByTestId('text-field-accessory')).toBeNull();
   });
 
   it('should draw the focus ring only while the input is focused', () => {
