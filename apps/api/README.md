@@ -48,7 +48,15 @@ cadastro de usuário, recuperação de senha e refresh token (ver
 ## Pré-requisitos
 
 - JDK 21
-- Maven 3.9+ (`mvn -v`)
+- Maven 3.9+ (`mvn -v`) **rodando com o JDK 21**: confira a linha
+  `Java version` do `mvn -v`, não só o `java -version`. O Maven do Homebrew
+  instala e usa o OpenJDK mais recente (ex.: 27), e o Lombok falha nele com
+  `ExceptionInInitializerError: com.sun.tools.javac.tree.EndPosTable`. No
+  macOS, fixe o JDK 21 no shell:
+
+  ```bash
+  export JAVA_HOME=$(/usr/libexec/java_home -v 21)
+  ```
 - Docker (para o MySQL local e para os testes de integração com
   Testcontainers)
 
@@ -67,10 +75,11 @@ Isso sobe um MySQL 8.4 em `localhost:3306` com o banco/usuário já definidos
 em `docker-compose.yml` (iguais aos valores de exemplo do `.env.example`).
 
 > Se a porta `3306` já estiver em uso por outro processo no seu ambiente,
-> `docker compose up -d` falha com `address already in use` — não é um
-> problema do projeto. Pare o processo que já usa a porta ou suba o MySQL
-> numa porta alternativa só para teste local (não comitar essa mudança em
-> `docker-compose.yml`).
+> `docker compose up -d` falha com `address already in use`. Não precisa
+> mexer no `docker-compose.yml`: crie o `.env` (seção abaixo) antes e defina
+> nele `MYSQL_HOST_PORT=3307` e a mesma porta no `DB_URL`
+> (`jdbc:mysql://localhost:3307/mecanica_sao_jorge`). O Docker Compose lê o
+> `.env` da mesma pasta automaticamente.
 
 ## Configurar variáveis de ambiente
 
