@@ -5,6 +5,7 @@ import {
   borderWidth,
   color,
   focusRingRadius,
+  layout,
   minTouchTarget,
   opacity,
   radius,
@@ -15,10 +16,14 @@ import { useFocusRing } from '@/theme/use-focus-ring';
 
 export type ButtonVariant = 'primary' | 'secondary';
 
+/** `page`: ação principal da tela (52, Figma 29:16); `default`: demais usos (48). */
+export type ButtonSize = 'default' | 'page';
+
 export interface ButtonProps {
   readonly label: string;
   readonly onPress: () => void;
   readonly variant?: ButtonVariant;
+  readonly size?: ButtonSize;
   readonly loading?: boolean;
   readonly loadingLabel?: string;
   readonly disabled?: boolean;
@@ -29,6 +34,7 @@ export function Button({
   label,
   onPress,
   variant = 'primary',
+  size = 'default',
   loading = false,
   loadingLabel,
   disabled = false,
@@ -49,6 +55,7 @@ export function Button({
         onPress={onPress}
         style={({ pressed }) => [
           styles.button,
+          size === 'page' && styles.page,
           variant === 'primary' ? styles.primary : styles.secondary,
           // Carregando mantém a cor cheia (Figma 29:20): a 50 % o rótulo cairia a 2,18:1.
           disabled && !loading && styles.disabled,
@@ -94,6 +101,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     paddingHorizontal: spacing.lg,
+  },
+  page: {
+    minHeight: layout.pageButtonHeight,
   },
   primary: {
     backgroundColor: color.action.primaryBackground,
