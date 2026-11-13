@@ -52,3 +52,15 @@ Mudou no código nesta rodada (por isso as capturas "depois" devem ser tiradas n
 ## README principal
 
 README sem mudança: a F40 não muda como instalar, rodar, testar ou configurar. Mudaria se a dúvida 7 trouxer Maestro ou `idb` ao repositório.
+
+## Rodada 3 (ORLA, 2026-11-13, após a revisão humana das 20:01)
+
+Resultado do US-COMP-11: **continua parcial, 1 de 13 linhas provadas** (login vazio). Nada novo foi capturado.
+
+Separação das branches: a `feat/f40-componentizacao-mobile` local trazia commits da F41 empilhados (de `03bcb51` a `88c586c`) e um commit da F39 (`c815235`) por baixo. Foi recriada a partir de `main` (3067954) só com os 12 commits da F40 (`7a8fd2c` a `6fe21cc`). O estado antigo continua em `feat/f41-paridade-correcoes`.
+
+Verificado nesta sessão, na branch limpa: 25 suítes e 119 testes passam, `tsc --noEmit` e `eslint .` sem erro. Simulador iPhone 17 (iOS 27.0) ligado; `maestro` e `idb` seguem ausentes, só `cliclick`, que a rodada 1 mostrou não ser confiável. Nenhuma captura tentada.
+
+Linha de base da F41: as capturas de `docs/design/f41-capturas/` (branch da F41) já incluem as correções de paridade da F41, então não provam que a F40 não mudou nada. Comparação válida: `c815235` (antes da F40) contra o tip desta branch, nos 13 estados, com ferramenta de toque.
+
+Decisão proposta: o US-COMP-11 não é aceito como completo. O PR #10 fica em rascunho até a captura dos demais estados; a pessoa decide se aceita o parcial para mesclar.
