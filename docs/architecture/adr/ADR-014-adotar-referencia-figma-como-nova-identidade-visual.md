@@ -40,9 +40,12 @@ Fatos que mudam o tamanho desta decisão:
    documento) de um lado e `tokens.ts` (e a coleção `28:3`) do outro: neutros
    slate, ausência de família tipográfica, escala 24/16/14/12, raio de card 12.
 3. **Sete pares da referência falham em AA** (placeholder, borda de campo, três
-   badges de status, item ativo da tab bar sem pill). Recalculei por script
-   todos os pares citados neste ADR com a fórmula de luminância do WCAG 2.2, a
-   partir dos hexadecimais da spec; todos batem com a tabela do ESQUADRO.
+   badges de status, item ativo da tab bar sem pill). Os pares citados neste
+   ADR estão versionados em `docs/design/f39-frames/pares-contraste.csv` e são
+   conferidos por `node docs/design/f39-frames/contraste.mjs` (fórmula de
+   luminância do WCAG 2.2, sem dependência externa). Todos batem com a tabela
+   do ESQUADRO, e o script achou dois pares que falham e que a v2 precisa vedar
+   (achados 7 e 8).
 
 Os valores da v2 citados abaixo vêm dessa leitura do ESQUADRO. **CARTOGRAFO
 não abriu o Figma nesta revisão**: a origem dos valores é a spec, e os
@@ -84,8 +87,11 @@ transição controlada"**. A justificativa, fator a fator:
 6. **Fonte, ícone e imagem**: Barlow Condensed e Inter **não dependem da D2**, porque já estavam em `identidade-visual.md` §3 desde 2026-11-07 e são OFL-1.1, com pacote `@expo-google-fonts/*` (versões e licença verificadas pelo ESQUADRO com `npm view`, spec §3; não reverificado por mim). A fonte é embutida no bundle por `expo-font`, nunca carregada de CDN em tempo de execução. **Ícones e imagens da referência** (175 símbolos na página `1:66`) só entram com a D2 respondida. Até lá, a v2 reproduz só estilo.
 7. **Portão:** nenhum protótipo de alta fidelidade novo (F26 a F29) e nenhuma revisão de F25 ou F34 começa sobre a v2 antes de três condições: (a) a aprovação da F39 registrada por BUSSOLA (US-WFR-07), (b) a D2 respondida e (c) este ADR em `Aceito`. O portão "protótipo aprovado antes do front" é regra do briefing, e não do ADR-007 (ver "ADRs existentes afetados").
 8. **Nenhuma chave semântica exportada de `tokens.ts` é renomeada ou removida na migração.** As chaves de `color.*`, `spacing`, `radius`, `typography` e as demais exportadas são o contrato que os componentes consomem; a migração troca valor e acrescenta chave. Os primitivos (`primitiveColor`, não exportado) podem ser renomeados, porque nenhum arquivo fora de `tokens.ts` os importa (conferido por `grep` em `apps/mobile` em 2026-11-13). Motivo: a troca de identidade não pode exigir edição em cada componente, senão deixa de ser atômica (regra 3).
-9. **Cor de erro com primitivo próprio** (achado 1): `color.text.error` aponta hoje para `primitiveColor.primary600`, o mesmo valor da ação primária. Na migração, erro ganha primitivo próprio, para que uma mudança futura de marca não altere o erro e vice-versa.
+9. **Cor de erro com primitivo próprio e dois papéis de texto** (achado 1): `color.text.error` aponta hoje para `primitiveColor.primary600`, o mesmo primitivo da ação primária. Na migração, erro ganha primitivo próprio (`error600`, hoje com o mesmo valor `#B5453D`), para que uma mudança futura de marca não altere o erro e vice-versa. O texto de erro tem dois papéis: `color.text.error` (mensagem sob o campo, Crail, lida em `10:1861` e `10:1872`) e `color.text.errorOnBanner` (texto do banner, El Salva, lido em `10:976`). `color.text.error` nunca vai sobre `color.surface.errorBanner` (Crail sobre Pot Pourri dá 4,50:1, sem folga). Revisado em 2026-11-13 a partir da leitura do ESQUADRO (spec F39 §4.2.1): a versão anterior deste ADR propunha El Salva para os dois papéis.
 10. **Token só entra em `tokens.ts` quando um componente o consome.** Cores de status de OS e de parcela, aviso e sucesso entram na feature que programa o primeiro componente que as usa, sempre com o valor da coleção v2 nos dois lados. Motivo: o briefing proíbe código morto; um token sem consumidor não tem teste de componente que o confira.
+11. **Texto nunca sobre skeleton** (achado 8): `color.text.secondary` sobre `color.surface.skeleton` dá 4,44:1 (par P01 do verificador). No estado Carregando, a mensagem de carregamento fica sobre `color.surface.background` ou `color.surface.default`, e o bloco de skeleton não leva texto.
+12. **Item ativo da navegação inferior com três sinais** (achado 7): o pill Crail contra a barra petro dá 2,24:1 (par P02), abaixo do 3:1 do WCAG 1.4.11. O pill nunca é o único sinal: o item ativo também tem rótulo branco SemiBold (5,41:1 sobre o pill), contra Tide Medium nos inativos, e nome acessível com "selecionada". A cor Crail direto sobre petro da referência (`20:1103`, 2,24:1) não é adotada.
+13. **Forma da coleção v2 no Figma e dos componentes de cabeçalho e navegação inferior**: contrato na seção "Coleção v2 e componentes estruturais no Figma".
 
 ```mermaid
 stateDiagram-v2
@@ -99,6 +105,67 @@ stateDiagram-v2
     V2Vigente: v2 vigente nos dois lados; v1 vira histórico
     V2Vigente --> [*]
 ```
+
+## Coleção v2 e componentes estruturais no Figma
+
+A regra 2 manda a v2 para uma coleção separada. Esta seção fixa a forma dessa
+coleção e dos dois componentes que a pessoa pediu para seguir a referência de
+perto (cabeçalho e navegação inferior). O ESQUADRO pinta 110 frames sobre ela,
+e a migração depois copia a mesma estrutura para `tokens.ts`. Nada aqui é
+executado antes do gate G1 do PRD da F39 (versão nomeada da F24).
+
+### Estrutura da coleção
+
+| Opção | Custo estimado | Resultado |
+|---|---|---|
+| (a) Só semânticos, com hex direto | cerca de 35 variáveis | Descartada: o mesmo hex se repete em vários papéis (Crail em 6), e trocar um valor exige editar todos, o contrário do que a US-WFR-09 busca |
+| **(b) Primitivo → semântico** | cerca de 30 primitivos e 35 semânticos | **Escolhida**: é a forma de `tokens.ts` (`primitiveColor` → `color.*`) e da coleção `28:3`, e a migração vira cópia 1:1 de nomes |
+| (c) Primitivo → semântico → componente (`header/background` etc.) | (b) mais cerca de 40 variáveis | Descartada: `tokens.ts` não tem camada de componente, então o Figma teria nomes sem par no código e a migração quebraria a regra 8 |
+
+Contrato:
+
+1. Coleção `OP-002 Identidade v2`, com um modo `v2`. A coleção `28:3` não é tocada (regra 2).
+2. Primitivos em `primitive/<nome>` (ex.: `primitive/petro-900`, `primitive/crail-600`, `primitive/error-600`, `primitive/pampas-50`), com a lista de escopos (`scopes`) vazia, para não aparecerem no seletor e para nenhum nó se ligar a eles direto.
+3. Semânticos com o caminho da chave de `tokens.ts`, trocando ponto por barra (`color/text/error` ↔ `color.text.error`), sempre como alias de um primitivo. A descrição da variável diz `tokens.ts: color.text.error` quando a chave já existe, ou `tokens.ts: entra com o primeiro consumidor (regra 10)` quando ainda não existe.
+4. Medidas em variáveis numéricas: `spacing/*`, `radius/*`, `size/minTouchTarget` (48), `size/header` (56) e `size/tabBar` (62).
+5. Tipografia em estilos de texto `typography/<papel>`. Os papéis são os de `tokens.ts` (`title`, `body`, `label`, `button`, `caption`) mais os da escala proposta pelo ESQUADRO que ainda não têm chave (`input`, `detail`, `cardTitle`, `brand`; spec F39 §4.2.1). Sombra no estilo de efeito `shadow/card`.
+6. Todo fill, stroke, raio e texto dos 110 frames se liga a um semântico ou estilo da v2. Ficam em zero as ligações a `primitive/*` e à coleção `28:3`.
+
+Estar na coleção v2 não obriga o token a entrar em `tokens.ts`: a regra 10 continua
+valendo para o código. A diferença entre os dois lados fica visível na descrição
+de cada variável, e quem a resolve é a feature de migração. A regra de paridade
+do briefing ("token novo entra nos dois lados ao mesmo tempo") vale para telas
+programadas, e nenhuma tela programada se liga à v2 antes da migração (regra 1).
+
+### Rastreabilidade à referência
+
+Cada decisão de cabeçalho, de navegação inferior e de token aponta para o nó do
+arquivo de referência `FPdB8RymAnN81pbKfizdzE` de onde saiu. Os node-ids vêm da
+leitura do ESQUADRO (spec F39 §4, §6.3 e §6.4). CARTOGRAFO não os reabriu, porque
+o Figma foi negado nesta sessão (ver "Mais informações").
+
+| Decisão | Valor adotado | Nó de origem | Desvio da referência e motivo |
+|---|---|---|---|
+| Paleta, tipografia e medidas da v2 | Tabelas da seção "O que muda" | `20:1065` (`get_variable_defs`), `20:1066` (`get_design_context`), 49 frames `Tela / …` da página `20:2132` (escala tipográfica) | Sete pares ajustados para AA (regra 5) |
+| Mensagem de erro de campo | `color/text/error` (Crail), Inter Regular 13, borda `color/border/error` de 2 px | `10:1861`, `10:1872` | Nenhum |
+| Banner de erro | `color/text/errorOnBanner` (El Salva) sobre `color/surface/errorBanner` (Pot Pourri), borda Rose Fog, Inter 14 | `10:976` | Nenhum |
+| Cabeçalho: fundo, altura e título | `color/surface/brand`, `size/header` 56, `typography/title` (Barlow Condensed SemiBold 21) em `color/text/onBrand` | `10:1052`, `10:1373` | Nenhum |
+| Cabeçalho, variante lista (tela raiz) | Sem voltar; ação Perfil (ícone de pessoa) | `20:1174`, `20:1080` | O acesso ao Perfil por aqui depende do débito 1 do PRD da F39 (REGENTE) |
+| Cabeçalho, variante detalhe | Voltar, título e ação editar | `20:1435` | Nenhum |
+| Cabeçalho, variante formulário | Voltar e título, sem ação | `20:1455`, `20:2084` | Nenhum |
+| Cabeçalho, variante detalhe de OS ou de parcela | Voltar, título e badge de status | `20:1726`, `20:1922` | Badge com as cores de status ajustadas (regra 5) |
+| Cabeçalho, botão de ícone | Fundo visível de 36, área de toque de 48 | `10:992` | Área de 36 → 48 (`minTouchTarget`, achado 5) |
+| Cabeçalho como componente único | Propriedades `titulo` (texto), `voltar` (booleano) e `acao` (variante: nenhuma, perfil, editar, badge) | — | A referência tem uma instância por título, resultado da importação de HTML; o wireframe usa um componente só (US-WFR-16) |
+| Cabeçalho no Login (D8 do PRD) | Mesmo componente, com `voltar` falso e `acao` nenhuma | `1:885` (Login da referência) | O ESQUADRO confirma se a referência tem cabeçalho no Login e registra o desvio, se houver |
+| Navegação inferior: barra | `color/surface/brand`, `size/tabBar` 62, 4 itens de 90 × 62, ícone de 22 acima do rótulo | `20:1103` | Número de itens e presença do Perfil são os débitos 1 e 2 do PRD (REGENTE) |
+| Navegação inferior: item inativo | `color/text/onBrandMuted` (Tide), Inter Medium 11 | `20:1103` | Nenhum |
+| Navegação inferior: item ativo | Pill `color/action/primaryBackground` com rótulo `color/text/onPrimaryAction`, Inter SemiBold 11 | Variantes por aba: `20:1103` (Ordens), `20:1341` (Clientes), `20:1545` (Catálogo), `20:1851` (Financeiro) | Crail direto sobre petro sai (2,24:1); entra o pill do F34 com três sinais (regra 12) |
+| Onde a navegação inferior aparece | Só nas 6 telas raiz | `10:1052`, `10:1889`, `10:2092`, `10:2480`, `10:3277`, `10:3647` | Nenhum |
+
+Com cabeçalho e navegação inferior aplicados por instância nos 110 frames, a
+decisão da REGENTE sobre os débitos 1 e 2 vira a edição de um componente, e não
+de 110 frames. Por isso "nenhuma cópia desanexada" (US-WFR-16) é também requisito
+de arquitetura, e não só de aceite.
 
 ## O que muda, artefato por artefato
 
@@ -114,7 +181,7 @@ Cor (chave semântica → valor hoje → valor v2):
 |---|---|---|---|
 | `color.surface.brand`, `color.text.primary`, `color.action.primaryBackground`, `color.text.onBrand`, `color.text.onPrimaryAction` | petro `#1E3A3F`, primary `#B5453D`, branco | **sem mudança** | Referência idêntica |
 | `color.surface.default` | `#FFFFFF` (tela, card, campo, diálogo) | `#FFFFFF` (card, campo, diálogo) | Sem mudança de valor; deixa de ser fundo de tela |
-| `color.surface.background` (**nova**) | — | Pampas `#F7F5F2` | Fundo de tela; consumida por `screen-container.tsx` e `app/(menu)/_layout.tsx`, que hoje usam `surface.default` |
+| `color.surface.background` (**nova**) | — | Pampas `#F7F5F2` | Fundo de tela; consumidores: `app/(menu)/_layout.tsx` (existe nesta branch) e `src/components/ui/screen-container.tsx` (só na branch da F40), que hoje usam `surface.default` |
 | `color.text.secondary` | slate700 `#334155` (10,35:1) | Flint `#6E6A66` (5,36:1 branco; 4,93:1 Pampas) | Da referência; continua AA, com menos folga |
 | `color.text.placeholder` (**nova**, se o campo usar placeholder) | — | Flint `#6E6A66` | Ajuste AA: Dawn `#A8A39D` da referência dá 2,50:1 |
 | `color.border.default` | slate500 `#64748B` (4,76:1) | Natural Gray `#8C8780` (3,56:1) | Ajuste AA para borda de controle: Westar `#E2DEDA` da referência dá 1,34:1 |
@@ -122,9 +189,10 @@ Cor (chave semântica → valor hoje → valor v2):
 | `color.border.skeleton` | slate200 `#E2E8F0` | **sem mudança** | Regra 4: sem equivalente lido |
 | `color.surface.skeleton` | slate100 `#F1F5F9` | `#EDE9E4` | Da referência |
 | `color.surface.overlay` | `rgba(0,0,0,0.5)` | `rgba(30,58,63,0.55)` (petro a 55%) | Da referência |
-| `color.text.error` | primary600 `#B5453D` | El Salva `#923631` (7,52:1 branco; 6,26:1 Pot Pourri) | Regra 9; valor proposto a partir do banner de erro da referência; a cor da mensagem sob o campo não foi lida separadamente e é confirmada na migração |
+| `color.text.error` | primary600 `#B5453D` | Crail `#B5453D` em primitivo próprio `error600` (5,41:1 branco; 4,97:1 Pampas) | Regra 9; mensagem sob o campo lida em `10:1861` e `10:1872` (Inter Regular 13). Corrige a versão anterior, que propunha El Salva a partir do banner |
+| `color.text.errorOnBanner` (**nova**) | — | El Salva `#923631` (6,26:1 Pot Pourri) | Regra 9; texto do banner `10:976`; mesmo consumidor previsto da linha anterior (F40) |
 | `color.border.error` (**nova**) | — (campo usa primary600) | Crail `#B5453D`, 2 px | Da referência; mesmo valor da marca, primitivo próprio (regra 9) |
-| `color.surface.errorBanner` / `color.border.errorBanner` (**novas**) | — | Pot Pourri `#F6E7E5` / Rose Fog `#E2B5B0` | Da referência; consumidas por `inline-alert.tsx` |
+| `color.surface.errorBanner` / `color.border.errorBanner` (**novas**) | — | Pot Pourri `#F6E7E5` / Rose Fog `#E2B5B0` | Da referência; consumidor previsto: `src/components/ui/inline-alert.tsx`, que existe só na branch `feat/f40-componentizacao-mobile` (conferido por `git ls-tree` em 2026-11-13) |
 | `color.action.primaryPressed` (**nova**, opcional) | — (F40 usa `opacity.pressed` 0,85) | El Salva `#923631` | Da referência; trocar opacidade por cor é decisão da migração |
 | `color.text.onBrandMuted` (**nova**) | — (aba inativa usa `onBrand` branco) | Tide `#B7B2AC` (5,76:1 sobre petro) | Da referência; ver achado 4 antes de adotar |
 | `color.focus.ring`, `color.focus.ringOffset` | petro + branco | **sem mudança** | Regras 4 e 5 |
@@ -144,7 +212,7 @@ Cores de status (texto branco sobre o fundo; valores de `identidade-visual.md`
 | `CANCELADA`, `ATRASADO` | `#B5453D` | 5,41:1 | sem mudança | — |
 
 Aviso: Kumera `#7A5620` sobre Albescent `#F7EEDD` (5,73:1). Sucesso:
-Killarney `#3E6E4A`, fundo Gin `#E4EEE6` (par não medido; medir antes de usar).
+Killarney `#3E6E4A` sobre Gin `#E4EEE6` (5,00:1, par V23 do verificador).
 
 Tipografia, forma e medidas:
 
@@ -183,7 +251,7 @@ migração, não na F39:
 | §2.2 Neutros | `text-disabled #A8A39D` sai como cor de texto (2,50:1); `border` vira dois papéis: controle `#8C8780` e divisor `#E2DEDA`; entram skeleton `#EDE9E4` e scrim petro 55% |
 | §2.3 / §2.4 Status | Três fundos trocados pelos valores da tabela de status acima |
 | §2.5 Acessibilidade | Hoje afirma AA em todos os pares, o que é falso em 7 pares. Passa a trazer a tabela de pares medidos, com razão e resultado |
-| Nova seção de feedback | Erro (El Salva / Pot Pourri / Rose Fog), aviso e sucesso |
+| Nova seção de feedback | Erro (Crail na mensagem de campo; El Salva sobre Pot Pourri, borda Rose Fog, no banner), aviso e sucesso, com as razões do verificador de contraste |
 | §3 Tipografia | Escala 28/20/15/13/12 trocada pela escala fechada na migração |
 | §4 Componentes | Tab bar: hoje diz "ativo em primary sobre petro tem bom contraste", o que é falso (2,24:1); passa a descrever o pill do F34. Card: raio 8 → 10 e sombra. Campo: altura e borda de controle. Header: título Barlow SemiBold 21 e botão de ícone com área 48 |
 | §5 Logo | Sem mudança; a referência não foi lida como fonte de logo |
@@ -217,6 +285,8 @@ vem do wireframe da F39, não deste ADR.
 4. **Tide com a opacidade de indisponível da F40** (`opacity.unavailable` 0,6) dá `#7A8280` sobre petro, 3,08:1. O WCAG isenta componente inativo do critério 1.4.3, mas a F33 hoje promete 4,5:1 nos desabilitados. A migração escolhe entre manter o rótulo inativo branco ou aceitar a isenção, e registra.
 5. **Alvo de toque menor que 48 na referência**: campo de 46 e botão de ícone do header de 36×36. O projeto mantém `minTouchTarget` 48.
 6. **Corpo de texto cai de 16 para 14**. O conceito de `identidade-visual.md` §1 prioriza leitura rápida no meio do serviço. Mitigação: manter `allowFontScaling` (padrão do React Native) e incluir texto em 200% no teste de acessibilidade da migração.
+7. **Pill do item ativo contra a barra: 2,24:1** (par P02, medido em 2026-11-13). O F34 aprovado e o código atual usam o pill como indicador de forma, mas a fronteira Crail/petro fica abaixo do 3:1 do WCAG 1.4.11. Com rótulo branco SemiBold e nome acessível "selecionada", o estado não depende só desse contraste (regra 12), mas o risco residual existe. Recomendação ao ESQUADRO: avaliar no wireframe um sinal de 3:1 contra a barra (contorno branco de 1 px no pill ou barra indicadora branca). Se for adotado, chega ao código pela feature de migração, com revisão da F34, e nunca pela F39.
+8. **Texto secundário sobre skeleton: 4,44:1** (par P01, medido em 2026-11-13). Tratado pela regra 11.
 
 ### Condição para passar a `Aceito`
 
@@ -225,7 +295,7 @@ com data, no PRD da F39:
 
 1. A D2 foi respondida com titularidade ou licença compatível (US-WFR-12). **Aberta em 2026-11-13** (spec F39 §3: indícios de que a referência foi gerada do HTML do próprio projeto, sem prova de titularidade).
 2. O ESQUADRO abriu a referência e extraiu os tokens com a saída real registrada (sem disparar a US-WFR-14). **Cumprida em 2026-11-13** na spec F39 §2 e §4 (commit `c815235`), não reverificada no Figma por CARTOGRAFO.
-3. O quadro comparativo token a token está anexado ao PRD (US-WFR-11). **Parcial**: está na spec; o PRD ainda está na v1 e depende da gravação da v2 por BUSSOLA.
+3. O quadro comparativo token a token está anexado ao PRD (US-WFR-11). **Cumprida em 2026-11-13 por referência**: o PRD v2 (commit `1fe418e`) aponta o quadro da spec F39 §4 na US-WFR-09 e resume a lista de impacto na §10.1.
 4. A pessoa dona do produto aprovou este ADR, com as regras de transição e a seção "O que muda, artefato por artefato".
 
 Se a D2 voltar como "terceiros sem licença", o ADR não é rejeitado só por
@@ -254,7 +324,9 @@ editado: mudança vira ADR novo que o substitui.
 * **Código na v1 até a migração**: `grep -nE "petro900: '#1E3A3F'|slate700: '#334155'" apps/mobile/src/theme/tokens.ts` retorna as duas linhas até o PR da feature de migração; depois dele, `slate700` some e `petro900` continua.
 * **Regra 8**: no PR de migração, o `git diff` de `tokens.ts` não remove nenhuma chave exportada, e nenhum arquivo de `apps/mobile/src/components` muda só para acompanhar renome de token.
 * **Regras 5 e 9**: a feature de migração inclui um teste unitário de tokens que calcula a razão WCAG dos pares semânticos (texto sobre fundo, borda de controle sobre fundo, branco sobre cada status) e falha abaixo de 4,5:1 ou 3:1, e que garante que `color.text.error` não usa o mesmo primitivo de `color.action.primaryBackground`.
+* **Contraste (US-WFR-10)**: `node docs/design/f39-frames/contraste.mjs` termina com `RESULTADO: confere` e código 0, e `node --test docs/design/f39-frames/` passa. Todo par novo usado num frame entra no CSV antes de ser pintado.
 * **Figma, regra 2**: `get_variable_defs` em `29:79` (Login Preenchido, F25) e `39:3` (tab bar, F34) devolve variáveis da coleção `28:3` até a migração. Nos frames da F39, devolve só variáveis da coleção v2, sem valor solto (US-WFR-09).
+* **Figma, regra 13**: uma listagem somente leitura (`use_figma`) dos filhos da página `3:2` conta 0 nós ligados a `primitive/*`, 0 ligados à coleção `28:3`, 0 textos sem estilo `typography/*` e 0 cabeçalhos ou navegações inferiores que não sejam instância dos componentes únicos.
 * **Revisão de PR**: todo PR que toque `tokens.ts`, `identidade-visual.md` ou a coleção `28:3` passa por CARTOGRAFO e ESQUADRO e só é aprovado com os dois lados alterados no mesmo PR e a captura lado a lado anexada.
 
 ## Prós e contras das opções
@@ -302,11 +374,11 @@ editado: mudança vira ADR novo que o substitui.
 
 ## Mais informações
 
-* PRD: `docs/product/F39-redesenho-wireframes-navegacao-figma.md`. A versão no repositório é a v1, de 2026-11-11, anterior à D1. A v2 do BUSSOLA aguarda gravação.
+* PRD: `docs/product/F39-redesenho-wireframes-navegacao-figma.md`, v2 de 2026-11-13 (commit `1fe418e`).
 * Spec de design: `docs/design/F39-redesenho-wireframes-navegacao.md` (2026-11-13, commit `c815235`), fonte dos valores da v2 (§4), dos contrastes (§5) e da lista de impacto (§11). A spec cita "regra 8" e "achado 1" deste ADR, que passam a existir nesta revisão.
-* Contraste: recalculado por CARTOGRAFO em 2026-11-13 com script local (fórmula de luminância relativa do WCAG 2.2) para todos os pares citados aqui. Pares sem folga: Crail/Pot Pourri 4,5013:1 e branco/`#7A7670` 4,5134:1.
-* Acesso ao Figma: na versão de 2026-11-12, `whoami` na sessão do CARTOGRAFO devolveu `Claude requested permissions to use mcp__figma-remote__whoami, but you haven't granted it yet.`. Na revisão de 2026-11-13, CARTOGRAFO não abriu o Figma; os valores vêm da leitura do ESQUADRO.
+* Contraste: versionado em `docs/design/f39-frames/contraste.mjs`, com os pares em `pares-contraste.csv` (conjuntos `referencia`, `v2` e `proibido`) e o teste em `contraste.test.mjs`. Saída real em 2026-11-13: `pares: 53; v2 que passam: 26 de 26; divergentes: 0` e `RESULTADO: confere`; `node --test` com 7 testes e 0 falhas. Pares sem folga: Crail/Pot Pourri 4,5013:1 e branco/`#7A7670` 4,5134:1.
+* Acesso ao Figma: na versão de 2026-11-12, `whoami` na sessão do CARTOGRAFO devolveu `Claude requested permissions to use mcp__figma-remote__whoami, but you haven't granted it yet.`. Na revisão de 2026-11-13, CARTOGRAFO não abriu o Figma; os valores vêm da leitura do ESQUADRO. Na etapa 2 (2026-11-13), `whoami` devolveu de novo `Claude requested permissions to use mcp__figma-remote__whoami, but you haven't granted it yet.`, e a chamada não foi repetida; os node-ids da seção de rastreabilidade não foram reabertos por CARTOGRAFO.
 * **Pendência para a REGENTE**: o portão de protótipo é citado como "ADR-007" sem existir como ADR. Saídas: (a) ADR próprio do portão, com o próximo número livre, e correção das citações; ou (b) corrigir as citações para apontar para o briefing. Recomendação: (b), mais barata, porque a regra já é do briefing e não tem alternativa técnica a comparar.
-* Histórico: 2026-11-12, `Proposto` (primeira versão, sem acesso à referência). 2026-11-13, `Proposto`, revisado com a leitura do ESQUADRO (marca sem mudança, regras 8 a 10, seção "O que muda, artefato por artefato", achados).
+* Histórico: 2026-11-12, `Proposto` (primeira versão, sem acesso à referência). 2026-11-13, `Proposto`, revisado com a leitura do ESQUADRO (marca sem mudança, regras 8 a 10, seção "O que muda, artefato por artefato", achados). 2026-11-13, `Proposto`, etapa 2 da rota da F39: erro em dois papéis (regra 9), regras 11 a 13, contrato da coleção v2, rastreabilidade por node-id do cabeçalho, da navegação inferior e dos tokens, contraste versionado e achados 7 e 8. Continua `Proposto` até a aprovação humana (instrução do comandante).
 * Revisitar quando: a D2 for respondida; a pessoa aprovar ou rever a D1; um ajuste de contraste descaracterizar a referência; a primeira feature de migração abrir (este ADR já deve estar `Aceito`).
 * Complementa: nenhum ADR. Substitui: nenhum ADR (substitui direção visual não registrada em ADR).
