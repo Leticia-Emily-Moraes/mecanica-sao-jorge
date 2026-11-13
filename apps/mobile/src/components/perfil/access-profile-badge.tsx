@@ -1,16 +1,16 @@
 import type { ReactElement } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 
-import { borderWidth, color, radius, spacing, typography } from '@/theme/tokens';
+import { color, radius, spacing, typography } from '@/theme/tokens';
 
 export interface AccessProfileBadgeProps {
   readonly label: string;
 }
 
 /**
- * Selo do perfil de acesso (ADMIN, FUNCIONARIO). Não é o badge de status que
- * chega com a primeira lista (F35): se aquele nascer genérico, este deve ser
- * trocado por ele.
+ * Selo do perfil de acesso (ADMIN, FUNCIONARIO): pílula petro com texto
+ * branco (Figma 33:40). Não é o badge de status que chega com a primeira
+ * lista (F35): se aquele nascer genérico, este deve ser trocado por ele.
  */
 export function AccessProfileBadge({ label }: AccessProfileBadgeProps): ReactElement {
   return (
@@ -23,16 +23,14 @@ export function AccessProfileBadge({ label }: AccessProfileBadgeProps): ReactEle
 const styles = StyleSheet.create({
   badge: {
     alignSelf: 'flex-start',
-    backgroundColor: color.surface.skeleton,
-    borderWidth: borderWidth.hairline,
-    borderColor: color.border.default,
+    backgroundColor: color.surface.brand,
     borderRadius: radius.pill,
     paddingHorizontal: spacing.md,
     paddingVertical: spacing.xs,
   },
   label: {
-    fontSize: typography.label.fontSize,
-    fontWeight: typography.label.fontWeight,
-    color: color.text.primary,
+    fontSize: typography.micro.fontSize,
+    fontWeight: typography.micro.fontWeight,
+    color: color.text.onBrand,
   },
 });

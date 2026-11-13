@@ -21,6 +21,41 @@ function renderDialog(overrides: { visible?: boolean } = {}): {
   return { onCancel, onConfirm };
 }
 
+describe('ConfirmDialog message', () => {
+  it('should show the supporting message under the title when given', () => {
+    render(
+      <ConfirmDialog
+        visible
+        title="Deseja realmente sair?"
+        message="Você precisará entrar novamente com seu e-mail e senha."
+        cancelLabel="Cancelar"
+        confirmLabel="Sair"
+        onCancel={jest.fn()}
+        onConfirm={jest.fn()}
+      />,
+    );
+
+    expect(
+      screen.getByText('Você precisará entrar novamente com seu e-mail e senha.'),
+    ).toBeTruthy();
+  });
+
+  it('should not render a message when none is given', () => {
+    render(
+      <ConfirmDialog
+        visible
+        title="Deseja realmente sair?"
+        cancelLabel="Cancelar"
+        confirmLabel="Sair"
+        onCancel={jest.fn()}
+        onConfirm={jest.fn()}
+      />,
+    );
+
+    expect(screen.queryByText(/entrar novamente/u)).toBeNull();
+  });
+});
+
 describe('ConfirmDialog', () => {
   it('should expose the card as a modal assertive alert, as approved in F30', () => {
     renderDialog();
