@@ -344,3 +344,82 @@ Não recalculei por script nesta rodada: reaproveitei a razão da seção 5 para
 ### 12.10 README
 
 README sem mudança: só documentação, capturas e edição de dois frames do Figma.
+
+## 13. Rodada do ORLA (2026-11-13, 2ª): correções da tabela do ESQUADRO e recaptura do app
+
+Autor: ORLA. Ramo: **`feat/f41-paridade-correcoes`**, criado a partir de `88c586c`. As rodadas anteriores (seções 11 e 12) ficaram no ramo `feat/f40-componentizacao-mobile`; este ramo só tem os commits abaixo. Estado: **correções do código feitas e capturadas; feature NÃO fechada** (decisões 1 a 13 da pessoa, estados sem captura e lado Figma dos tokens).
+
+### 13.1 Figma nesta sessão (US-PAR-11)
+
+`mcp__figma-remote__create_session` (arquivo `DLqbSzzKRxiN2eyvXG73Lr`) voltou: `Claude requested permissions to use mcp__figma-remote__create_session, but you haven't granted it yet.` Não repeti a chamada. Pedi ao ESQUADRO medidas do olho e do campo; ele respondeu que **não tem nenhuma ferramenta `mcp__figma-remote__*` nesta sessão** e não mediu nada. **Nenhum nó nem variável do Figma foi lido ou alterado nesta rodada.** O lado Figma aqui são as 12 capturas versionadas, medidas em pixel por mim (leitor de PNG fora do repositório, margem ±1 pt) e a tabela da seção 12.
+
+### 13.2 Protocolo de captura realmente usado (desvio da premissa 9, igual à seção 11.2)
+
+| Item | Valor |
+|---|---|
+| Aparelho | **Simulador** iPhone 17, iOS 27.0, 1206×2622 (3x, 402×874 pt). **Não** é o aparelho físico da premissa 9 (dúvida 2 sem resposta) |
+| Modo | Expo Go 54, Metro em modo dev na 8082 (`CI=1`, sem recarga: reiniciado a cada mudança de código), `EXPO_PUBLIC_API_BASE_URL=http://localhost:8080` |
+| Tema / fonte / orientação | Claro / padrão / retrato |
+| Barra de status | `simctl status_bar override` 9:41, bateria cheia, sinal cheio; limpa ao fim |
+| Dados | `ana.souza@exemplo-ficticio.com.br` e senha fictícia mascarada (`secureTextEntry`); nenhuma API, nenhum token, nenhum dado real |
+| Arquivos | reduzidos a 402 px com `sips`; 16 a 59 KB cada |
+
+**O que prova:** só `app-login-vazio.png` é a rota real `/login`. As demais vêm de uma rota temporária (`app/capture.tsx`, **apagada, nunca commitada**) que compõe os componentes reais com props fixas, aberta por deep link. Provam **aparência**, não o fluxo contra a API. Nada foi tocado nem digitado no simulador; o foco do campo (`app-login-foco-campo.png`) vem de `TextInput.focus()` por ref, que dispara o `onFocus` real. Não há diff automático nem montagem lado a lado.
+
+**Lição repetida:** a 1ª leva desta rodada tinha 3 fotos do Expo Go carregando ("Opening project…", splash, "Downloading 100%") e um diálogo no meio do fade. Todas distintas por md5. Refeitas com 30 s de espera e abertas uma a uma.
+
+### 13.3 md5 de cada foto (captura original 1206×2622 / arquivo versionado 402 px)
+
+| Arquivo | md5 original | md5 versionado | Bytes |
+|---|---|---|---|
+| `app-login-vazio.png` (rota real) | `cdfbeff8c7ca25b2ea08a410973f609b` | `dd0c4a0eea675d208860a560019febbd` | 34831 |
+| `app-login-carregando.png` | `dac525753189526d37b2a76097b1063f` | `526d8c7b86e5ace7a07991c8fb946d8e` | 42021 |
+| `app-login-erro-validacao.png` | `3466c6c7ab2e0ae61976fcc2ca4b35a5` | `942eeb8a31c56dca5ed3ada2ef7efd2e` | 44820 |
+| `app-login-erro-rede.png` | `1f0dbf3f4df9c927af16f20e25f8dda8` | `03a3e28598be158c4f8ec08293ed4f2f` | 52593 |
+| `app-login-preenchido.png` | `26904229e2a14c03fd9768d86a4e2eab` | `d9da64298685e055404d28987bc2eb9d` | 38651 |
+| `app-login-foco-campo.png` (novo; sem par no Figma) | `fd7d3aa00cf4514a703b8d791ce53d9f` | `05442122ae10e6ff5b3c19216fe70755` | 40033 |
+| `app-perfil-preenchido.png` | `8650c275366be803e097971867d1789b` | `329fef9b3bc5d9d904c4a5830a9d729d` | 44945 |
+| `app-perfil-confirmar-saida.png` | `3b44a23f4465e5b25310b25465020651` | `dfce4563ac6547a7f2dac5c935d35e63` | 58988 |
+
+Os 8 originais têm hash distinto entre si e cada um foi aberto e visto. `erro-validacao` e `confirmar-saida` têm o mesmo md5 de uma captura anterior da mesma rodada, feita antes do ajuste de espaçamento que não os afeta: coerente, o render é determinístico.
+
+### 13.4 Divergências da tabela do ESQUADRO: resultado
+
+Commits: `e80ffce` (anel, largura do diálogo, botão de página), `f83c536` (teste do anel), `17f9cc7` (campo), `ccf17e6` (olho e Entrar/Sair 52), `a4bbbc9` (respiro do Login e rótulo). Medido no app (pt, margem ±1) contra o Figma (capturas `figma-*`).
+
+| ID | Correção (commit) | Antes → depois, app | Figma | Teste |
+|---|---|---|---|---|
+| L-13 | Valor digitado em slate-700 (`17f9cc7`) | petro → `text.secondary` | slate-700 | `text-field.test.tsx` |
+| L-14 | `minHeight` 48 passa para a linha do campo (o Yoga conta a borda); acessório com `marginVertical` -1,5 para o olho de 48 caber | 50,0 → **47,7** (e-mail e senha 48 medidos) | 48 | `text-field.test.tsx` |
+| B-01 (página) | `Button size="page"` (52) em Entrar e Sair; padrão segue 48 | 48 → **52,0** | 52 | `button.test.tsx` |
+| L-15 | Olho sai do campo em "Entrando..." (campos já ficavam travados) | olho presente → ausente | ausente | `login.test.tsx` |
+| D-04 | `layout.dialogMaxWidth` 320 → 296 | 320 → **295** (diálogo e popup) | 296 | `confirm-dialog.test.tsx` |
+| F-01 | Anel: respiro 2 → **4**, petro 2, raio externo 12 → **14** | petro a 2–4 → 4–6 do controle | petro 2 pt a 4 pt (confirmado em `29:79`: 310–312 petro, 312–316 branco, botão 316–368) | `use-focus-ring.test.ts` |
+| L-11 (resto) | `ScreenContainer topSpacing`; Login usa 30 sem banner e 24 com banner | faixa→campo **43,7 → 49,6** | 50 (4 frames sem banner); com banner já batia (24) | `screen-container.test.tsx` |
+
+Efeitos colaterais que eu achei e tratei: (1) o halo de 4 pt do anel cobria a base do rótulo "E-mail"; o rótulo ganhou `zIndex: 1` (visto em `app-login-foco-campo.png`, texto inteiro). (2) `IconButton` passou a usar o mesmo raio de anel dos demais. (3) o botão de ação do estado vazio (`StateView`, sem frame) herdou a largura 296 por usar `dialogMaxWidth`.
+
+**F-01 só foi visto no campo de e-mail** (`TextInput.focus()`), onde o anel de 6 pt encosta no rótulo; no botão e no olho o anel não foi fotografado (o foco não pode ser forçado de fora) e continua conferido só por teste de componente. Em aparelho físico não foi visto.
+
+### 13.5 Divergência nova achada nesta rodada (não corrigida: fora da tabela)
+
+| ID | Figma | App | Evidência |
+|---|---|---|---|
+| **L-17** | Faixa de erro (`29:60`) com **44** de altura (144→188 em `29:56`) | **40** (162,7→203) | medida nas duas capturas; `inline-alert.tsx` tem `paddingVertical` 12 e sem altura mínima |
+
+Corrigir é trivial (`minHeight` 44), mas a instrução desta rodada foi corrigir só a tabela do ESQUADRO. **Aguarda o comandante.** O ⚠ da faixa no Figma é triângulo cheio e no app é o glifo do sistema, vazado: classifico como só de plataforma (fonte), mas a decisão é do ESQUADRO.
+
+### 13.6 O que continua em aberto
+
+- **Decisões da pessoa 1 a 13** (seções 7 e 12.8): botão Fechar, rótulos do Perfil, Ionicons, estado "Padrão", Perfil carregando e erro, F39, aparelho físico, local das capturas, placeholder (L-12), divisor, botões de 44, frame "Perfil com tab bar", salto do frame `29:20`, rótulo da tab bar. Não toquei no código dessas.
+- **Tokens no Figma (US-PAR-07):** o lado código ganhou `spacing.formTop` (30), `layout.pageButtonHeight` (52), `focusRingOffset` 4 (era 2) e `dialogMaxWidth` 296 (era 320). **Nenhum entrou no Figma** (MCP negado); o `figma.md` e a coleção `28:3` precisam de `space/formTop`, `size/button/page`, o respiro do anel e a largura do diálogo. Descumprido até o ESQUADRO criar.
+- **Sem captura do app:** Perfil carregando e erro, foco no botão/olho/tab bar, tab bar "Padrão". US-MENU-06 (foco de teclado e leitor de tela em aparelho) segue onde estava.
+- **US-PAR-08 não fecha.**
+
+### 13.7 Verificação executada
+
+`npm test` 166 passed / 29 suítes (eram 152); `npm run typecheck` e `npm run lint` sem saída de erro, com a rota temporária já apagada. API e backend não foram subidos nem alterados nesta rodada: comportamento e endpoints iguais (US-PAR-10 só por testes de componente e de tela, que seguem verdes).
+
+### 13.8 README
+
+README sem mudança: nenhuma instalação, comando, variável, porta ou funcionalidade mudou; só aparência de tela, testes e documentação.
