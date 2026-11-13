@@ -4,7 +4,16 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { t } from '@/i18n/strings';
-import { color, minTouchTarget, radius, spacing, typography } from '@/theme/tokens';
+import {
+  color,
+  iconSize,
+  layout,
+  minTouchTarget,
+  opacity,
+  radius,
+  spacing,
+  typography,
+} from '@/theme/tokens';
 import { useFocusRing } from '@/theme/use-focus-ring';
 
 type NomeIcone = ComponentProps<typeof Ionicons>['name'];
@@ -59,9 +68,6 @@ const ITENS: readonly ItemTabBar[] = [
   },
 ];
 
-/** Largura máxima da barra em telas largas (tablet/web), ver F33 spec §8. */
-const LARGURA_MAXIMA = 480;
-
 export function MenuTabBar(): ReactElement {
   const insets = useSafeAreaInsets();
 
@@ -93,7 +99,7 @@ function MenuTabItem({ item }: { item: ItemTabBar }): ReactElement {
         <View style={[styles.conteudo, item.selecionado && styles.pill]}>
           <Ionicons
             name={item.icone}
-            size={22}
+            size={iconSize.tab}
             color={item.selecionado ? color.text.onPrimaryAction : color.text.onBrand}
             style={!item.selecionado && styles.opacidadeIndisponivel}
           />
@@ -120,7 +126,7 @@ const styles = StyleSheet.create({
   barra: {
     flexDirection: 'row',
     width: '100%',
-    maxWidth: LARGURA_MAXIMA,
+    maxWidth: layout.tabBarMaxWidth,
   },
   celula: {
     flex: 1,
@@ -145,7 +151,7 @@ const styles = StyleSheet.create({
     backgroundColor: color.action.primaryBackground,
   },
   opacidadeIndisponivel: {
-    opacity: 0.6,
+    opacity: opacity.unavailable,
   },
   rotulo: {
     fontSize: typography.caption.fontSize,
@@ -156,6 +162,6 @@ const styles = StyleSheet.create({
   },
   rotuloIndisponivel: {
     color: color.text.onBrand,
-    opacity: 0.6,
+    opacity: opacity.unavailable,
   },
 });

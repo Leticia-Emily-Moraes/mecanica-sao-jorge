@@ -1,8 +1,8 @@
 import type { ReactElement } from 'react';
 import { Modal, StyleSheet, Text, View } from 'react-native';
 
-import { Button } from '@/components/button';
-import { color, radius, spacing, typography } from '@/theme/tokens';
+import { Button } from '@/components/ui/button';
+import { color, layout, radius, spacing, typography } from '@/theme/tokens';
 
 export interface ConfirmDialogProps {
   readonly visible: boolean;
@@ -54,7 +54,7 @@ const styles = StyleSheet.create({
   },
   card: {
     width: '100%',
-    maxWidth: 320,
+    maxWidth: layout.dialogMaxWidth,
     backgroundColor: color.surface.default,
     borderRadius: radius.lg,
     padding: spacing.lg,

@@ -1,6 +1,6 @@
 import { getApiBaseUrl } from '@/config/env';
 
-import type { RespostaLogin } from './types';
+import type { RespostaLogin } from './auth-types';
 
 /** E-mail ou senha incorretos (401) — nunca indica qual campo errou. */
 export class CredenciaisInvalidasError extends Error {

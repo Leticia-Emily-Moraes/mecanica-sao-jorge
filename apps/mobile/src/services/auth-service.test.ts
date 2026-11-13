@@ -1,4 +1,4 @@
-import { autenticar, CredenciaisInvalidasError, ErroDeRedeError } from './auth-api';
+import { autenticar, CredenciaisInvalidasError, ErroDeRedeError } from './auth-service';
 
 function mockFetchOnce(resposta: Partial<Response> & { json?: () => Promise<unknown> }): void {
   global.fetch = jest.fn().mockResolvedValue(resposta) as unknown as typeof fetch;
