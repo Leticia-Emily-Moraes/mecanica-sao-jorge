@@ -1,6 +1,6 @@
 # F41 · Conferência de paridade Figma × código — Login, Perfil, diálogo de saída e tab bar
 
-Autor: ESQUADRO · Data: 2026-11-13 · Branch: `feat/f40-componentizacao-mobile` · Estado: **etapa 1 de 3 concluída; conferência incompleta (lado app sem capturas)**
+Autor: ESQUADRO · Data: 2026-11-13 · Branch: `feat/f40-componentizacao-mobile` · Estado: **etapa 2 de 4 concluída (seção 12); feature não fechada: decisões da pessoa e divergências reais de código em aberto. Atenção: a seção 12.5 corrige afirmações das seções 8 e 11.6 sobre variáveis do Figma.**
 
 ## 1. O que foi lido e o que não foi
 
@@ -240,3 +240,107 @@ Mesma fórmula da seção 5, sobre os hex dos tokens: pílula do selo (branco/pe
 ### 11.9 README
 
 README sem mudança: nenhuma instalação, comando, variável, porta ou funcionalidade mudou; só aparência de tela, testes e documentação.
+
+## 12. Rodada do ESQUADRO (2026-11-13): recaptura no Figma e tabela de pares contra as capturas de `fbfca93`
+
+Autor: ESQUADRO. Estado: **conferência feita nos estados que existem; feature NÃO fechada** (decisões da pessoa, estados sem captura e divergências reais de código em aberto).
+
+### 12.1 Acesso ao Figma (US-PAR-11)
+
+`mcp__figma-remote__whoami` respondeu: handle "Leticia Moraes", plano "Time Pessoal" (`team::1274094162661077353`). `create_session` no arquivo `DLqbSzzKRxiN2eyvXG73Lr` devolveu sessão. Sem bloqueio nesta sessão (a rodada do ORLA tinha sido negada; não é mais o caso).
+
+Recapturei os 12 frames por `get_screenshot` e comparei com `docs/design/f41-capturas/figma-*.png`: **os 12 têm o mesmo tamanho em bytes** e o hash do primeiro é idêntico, ou seja, os frames não mudaram desde a leitura anterior. Depois disso troquei só duas capturas, `figma-tabbar-padrao-39-31.png` e `figma-tabbar-foco-39-58.png`, porque corrigi os frames (12.4).
+
+### 12.2 Como medi (e o limite da medição)
+
+Não há Pillow nem ImageMagick no ambiente. Escrevi um leitor de PNG mínimo (`zlib`, sem biblioteca externa) em Python, **fora do repositório** (scratchpad), que lista as transições de cor ao longo de uma coluna ou linha. Medi o Figma a 360 de largura e o app a 402 pt de largura (1x). Margem: ±1 pt. As medidas de altura do app **incluem a área da barra de status** (plataforma), então só comparo distâncias entre elementos de dentro da tela. Não há diff automático nem montagem lado a lado em um arquivo: a comparação de cada par foi feita abrindo as duas imagens.
+
+### 12.3 Pares e estados (US-PAR-01, 02, 03)
+
+| Tela / estado | Frame | Captura do app | Situação |
+|---|---|---|---|
+| Login vazio | `29:2` | `app-login-vazio.png` (rota real) | Par feito |
+| Login carregando | `29:20` | `app-login-carregando.png` (rota temporária, só aparência) | Par feito; frame inconsistente (L-16) |
+| Login credencial inválida + campos vazios | `29:56` | `app-login-erro-validacao.png` (temporária) | Par feito. Não existe frame só de credencial inválida |
+| Login falha de conexão | `29:35` | `app-login-erro-rede.png` (temporária) | Par feito |
+| Login preenchido (foco no Entrar) | `29:79` | `app-login-preenchido.png` (temporária) | Par feito **sem o anel de foco** (não dá para forçar foco de fora) |
+| Perfil carregando | `33:2` | nenhuma | **Real**: estado não existe no código (P-07) |
+| Perfil erro | `33:14` | nenhuma | **Real**: estado não existe no código (P-08) |
+| Perfil preenchido (foco no Sair) | `33:33` | `app-perfil-preenchido.png` (temporária) | Par feito **sem foco**; o app mostra a tab bar, o frame não (P-10) |
+| Diálogo de saída | `33:49` | `app-perfil-confirmar-saida.png` (temporária) | Par feito |
+| Tab bar selecionado | `39:3` | faixa inferior de `app-perfil-preenchido.png` | Par feito |
+| Tab bar padrão | `39:31` | nenhuma | "Não se aplica na Sprint 01" **se a decisão 4 for aceita**; senão, real (T-06) |
+| Tab bar foco | `39:58` | nenhuma | **Sem captura**: foco só testado em componente |
+
+Tab bar: nos dois lados a ordem é Perfil, Clientes e Veículos, Catálogo, Ordens de Serviço, Financeiro, e os quatro últimos aparecem esmaecidos, com ícone e rótulo. Verificado nas imagens.
+
+### 12.4 Defeitos do próprio Figma achados nesta rodada
+
+| ID | Defeito | Ação |
+|---|---|---|
+| **T-09** | Em `39:31` e `39:58` os ícones dos cinco itens estavam com `x` negativo (`-392`, `-812` etc.): coordenada absoluta da página em vez da relativa ao frame. A captura mostrava a tab bar **sem nenhum ícone**. | **Corrigido por mim, só no Figma** (`use_figma`): somei o `x` do frame aos 10 nós (`39:34`, `39:40`, `39:44`, `39:51`, `39:56`, `39:62`, `39:69`, `39:73`, `39:80`, `39:85`). Agora ficam em x = 28, 98, 171, 244, 316, iguais a `39:3`. Conferido por `get_screenshot` e capturas trocadas. |
+| L-16 | `29:20` (carregando) tem "Senha", campo e botão **14 px mais abaixo** que `29:79` (rótulo y=238 contra 224; botão y=330 contra 316; confirmei no pixel). O formulário "pularia" ao entrar em carregando. | **Não alterei** (frame aprovado). Decisão 12. O código já segue `29:79`. |
+| P-09 | O divisor `33:42` é `#000000` (medi o pixel), reaproveita o mesmo SVG das linhas de legenda (`5d1a6.svg`) e **não está ligado a nenhuma variável**. O código usa petro. | Decisão 9. |
+| T-08 | Rótulo "Perfil" fica em y=44 no selecionado (`39:8`) e em y=38 no padrão (`39:35`); os outros quatro ficam em y=38. O código mantém todos alinhados. | Decisão 13. |
+
+### 12.5 Correção de afirmações anteriores (verificado hoje)
+
+1. **A coleção `28:3` não tem só cores.** `use_figma` (leitura) listou, além das 24 cores, as variáveis: cores `color/surface/errorTint` e `color/focus/ring-on-brand`; `font/size/{header,subtitle,labelSmall,field,heading,micro,tab}`; `font/weight/{header,subtitle,labelSmall,field,heading,micro,tab,tabSelected}`; `border/width/{field,emphasis}`; `space/{field,card}`; `size/tab/{itemHeight,pillWidth,pillHeight}`; `size/avatar`; `size/icon/action`. Os valores batem com `tokens.ts` (20, 13, 13, 15, 17, 11, 10; 1,25 e 1,5; 6 e 20; 64, 56, 32, 64, 22). **Não sei quem as criou nem quando**: os documentos da F40, da F41 (§8, §11.6) e do BUSSOLA diziam que não existiam. A premissa 3 está cumprida para esses tokens.
+2. **Faltam no Figma duas variáveis de cor que existem em `tokens.ts`:** `color/text/placeholder` e `color/border/divider`. Não as criei: o próprio Figma usa `text/secondary` no placeholder e `#000000` sem variável no divisor (decisões 8 e 9). Criar agora fixaria um valor que a decisão pode inverter.
+3. **Divisor do Perfil (`33:42`)**: a cor que o ORLA pediu para confirmar é `#000000`. O código usa petro (`border.divider`).
+4. **Avatar**: preenchimento `#1E3A3F` (petro), iniciais brancas. Igual ao código.
+5. **Botão Fechar (X)**: traço `#334155` (slate-700), 10,35:1 sobre branco.
+
+### 12.6 Divergências novas (somam-se às da seção 4)
+
+Padrão da premissa 1: **o código se ajusta ao Figma**. As marcadas "default" não precisam de decisão; o ORLA corrige.
+
+| ID | Real? | Figma | Código (medido ou lido) | Caminho |
+|---|---|---|---|---|
+| L-12 | Real | Placeholder em `text/secondary` slate-700, 15 (`29:8`, `29:11`): fica tão escuro quanto o valor | `text.placeholder` slate-500 (`tokens.ts:37`, `text-field.tsx:72`) | **Decisão 8** |
+| L-13 | Real | Valor digitado em `text/secondary` slate-700 (`29:85`, `29:88`) | `color.text.primary` petro (`text-field.tsx:128`) | default |
+| L-14 | Real | Campo com 48 de altura externa (`29:7`, `29:84`) | `minHeight` 48 + borda 1,25 dos dois lados = ~50 (medi 50 no app) | default |
+| B-01 | Real | Botão de página (Entrar, Sair) **52** de altura (`29:16`, `33:43`); botão de diálogo e popup **44** (`33:65`, `33:67`) | `minHeight` 48 em todos (`button.tsx:92`; medi 48 no app) | página: default. Diálogo 44: **decisão 10** |
+| L-15 | Real | Em carregando, o campo desabilitado **não tem olho** (`29:20`) | O olho continua (`app-login-carregando.png`) | default |
+| D-04 | Real | Diálogo e popup com 296 de largura (`33:62`; margem 32) | `dialogMaxWidth` 320 (`tokens.ts:142`; medi 320 no app) | default |
+| F-01 | Real, **sem captura** | Anel de foco: petro a 4–6 pt do controle, halo branco a 1–3, raio externo 14 (`29:95`, `29:96`) | Petro a 2–4 pt, halo a 0–2, raio 12 (`tokens.ts:109-116`) | default; confirmar em aparelho |
+| P-10 | Real (lacuna do Figma) | Nenhum frame mostra o Perfil **com** a tab bar | O app mostra o Perfil sobre a tab bar (F33) | **Decisão 11** |
+| L-11 (resto) | A confirmar | Do fim da faixa ao topo do primeiro campo: 50 (120→170) | 45 (137→182); a faixa do app inclui a área da barra de status | ORLA mede sem a área de status |
+
+Posições que **batem** (medidas): entre campo de e-mail e rótulo de senha (26 nos dois lados), campo de senha ao botão (24 nos dois lados), margens laterais de 16, cores de fundo da faixa, do botão e da borda do campo.
+
+### 12.7 Contraste dos pares novos (cálculo: mesma fórmula da seção 5, sobre os hex lidos)
+
+| Par | Razão | Mínimo | Resultado |
+|---|---|---|---|
+| slate-700 sobre branco (placeholder do Figma, valor do Figma, traço do X) | 10,35:1 | 4,5 / 3 | passa |
+| slate-500 sobre branco (placeholder do código) | 4,76:1 | 4,5 | passa, folga pequena |
+| petro sobre branco (valor no código) | 12,12:1 | 4,5 | passa |
+| iniciais brancas sobre avatar petro | 12,12:1 | 4,5 | passa |
+| `#000000` sobre branco (divisor do Figma) | 21:1 | 3 (não exigido, é decorativo) | passa |
+
+Não recalculei por script nesta rodada: reaproveitei a razão da seção 5 para os pares de mesmas cores. Nenhum par novo ficou abaixo de AA.
+
+### 12.8 Decisões que dependem da pessoa (somam-se às 1 a 7 da seção 7)
+
+| # | Pergunta | Minha recomendação |
+|---|---|---|
+| 8 | Placeholder: seguir o Figma (slate-700, igual ao valor) ou manter o código (slate-500)? | Manter o código e atualizar o Figma com a variável `color/text/placeholder`. Placeholder idêntico ao valor digitado confunde quem tem baixa visão ou dificuldade de leitura. |
+| 9 | Divisor do Perfil: ligar o Figma a uma variável (`color/border/divider` = petro) ou trocar o código para preto? | Ligar o Figma à variável petro. Preto puro está fora da paleta. |
+| 10 | Botões do diálogo e do popup com 44 de altura (Figma) ficam abaixo do `minTouchTarget` de 48 do projeto. Seguir o Figma? | Seguir o Figma: 44 passa o WCAG 2.2 AA (2.5.8, mínimo 24) e o mínimo do iOS (44). Só o Android recomenda 48. Registrar a exceção em `tokens.ts`. |
+| 11 | Criar no Figma um frame "Perfil com tab bar" (composição de `33:33` e `39:3`)? | Sim: adiciona frame, não altera os aprovados. |
+| 12 | `29:20` com 14 px de salto: corrigir o Figma para o mesmo layout de `29:79`? | Sim. |
+| 13 | Rótulo "Perfil" da tab bar: ajustar o Figma para o rótulo não mudar de altura entre selecionado e padrão (como no código)? | Sim. |
+
+### 12.9 O que esta rodada não fez
+
+- **Capturas do app no aparelho físico, protocolo de aparelho, tarefas 3 e 5**: continuam bloqueados pela dúvida 2 (da pessoa). Não toquei no simulador.
+- **Capturas do app de Perfil carregando, Perfil erro, foco e estado "Padrão"**: não existem no código ou não são forçáveis. Ver 12.3.
+- **Divergências do lado código (L-13, L-14, B-01 página, L-15, D-04, F-01)**: são do ORLA, não alterei código.
+- **Variáveis `color/text/placeholder` e `color/border/divider` e frame de composição do Perfil**: aguardam as decisões 8, 9 e 11.
+- **Instrução `get_figma_skill` não lida**: a ferramenta não está disponível nesta sessão (não consta na minha lista), então **não li as skills `figma-use` e `figma-design-to-code` exigidas antes de `use_figma` e `get_design_context`**. Para limitar o risco, fiz uma leitura somente antes de escrever e uma única escrita pequena, conferida por captura.
+- **US-PAR-08 não fecha**: há divergência real em aberto (esta seção e as seções 4 e 11.5).
+
+### 12.10 README
+
+README sem mudança: só documentação, capturas e edição de dois frames do Figma.
