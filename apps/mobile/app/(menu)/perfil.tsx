@@ -40,6 +40,7 @@ export default function PerfilScreen(): ReactElement | null {
           label={t('perfil.botaoSair.rotulo')}
           onPress={() => setDialogoVisivel(true)}
           variant="primary"
+          size="page"
         />
       }
     >
