@@ -227,6 +227,12 @@
                resolvida pode aparecer no log de debug do Maven
                (GHSA-qqhq-8r2c-c3f5). Forma recomendada pelo plugin para CI. -->
           <nvdApiKeyEnvironmentVariable>NVD_API_KEY</nvdApiKeyEnvironmentVariable>
+          <!-- Paginas de 500 em vez de 2000 (maximo da API): com 2000, a NVD
+               sobrecarregada leva mais de 100 s para montar algumas paginas e a
+               Cloudflare corta com HTTP 524, abortando a carga inicial. Medido em
+               2026-11-13: pagina de 2000 em startIndex=10000 sem resposta em 120 s;
+               paginas de 500 em ~11 s. Retry ja e 30 por padrao. -->
+          <nvdApiResultsPerPage>500</nvdApiResultsPerPage>
           <failBuildOnCVSS>7</failBuildOnCVSS>
           <formats>
             <format>HTML</format>
