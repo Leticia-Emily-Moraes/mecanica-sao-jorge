@@ -423,3 +423,52 @@ Corrigir é trivial (`minHeight` 44), mas a instrução desta rodada foi corrigi
 ### 13.8 README
 
 README sem mudança: nenhuma instalação, comando, variável, porta ou funcionalidade mudou; só aparência de tela, testes e documentação.
+
+## 14. Rodada do ORLA (2026-11-13, 3ª): R-02, R-03 e A-01 e recaptura
+
+Ramo `feat/f41-paridade-correcoes`. Origem das correções: `docs/design/F41-planilha-divergencias.md` (ESQUADRO, `2e7be60`).
+
+### 14.1 Correções
+
+| ID | Commit | O que mudou | Teste |
+|---|---|---|---|
+| R-02 | `6b3c082` | Novo `AlertIcon` (Ionicons `warning`, triângulo cheio, decorativo) na faixa de erro e no popup de erro; `glyph.alert` removido | `alert-icon.test.tsx`, `inline-alert.test.tsx` |
+| R-03 | `6b3c082` | `layout.inlineAlertMinHeight` 44 aplicado como `minHeight` da faixa | `inline-alert.test.tsx` |
+| A-01 | `ad22425` | `ScreenHeader` monta `<StatusBar style="light" />` (texto da barra branco sobre o petro) | `screen-header.test.tsx` |
+
+Figma: nenhuma escrita nesta rodada. O lado Figma da conferência segue sendo as 12 capturas versionadas (a planilha traz o motivo). O token novo `layout.inlineAlertMinHeight` está só no código: pendente no Figma (US-PAR-07).
+
+### 14.2 Protocolo desta recaptura
+
+Igual ao da seção 13.2 (simulador iPhone 17, iOS 27.0, Expo Go 54, claro, retrato, `status_bar override` 9:41, dados fictícios, senha mascarada, nenhum token). Metro na 8082 com `CI=1`, reiniciado antes de cada leva; rota temporária `app/capture.tsx` recriada e **apagada** antes do commit (nunca versionada). Só `app-login-vazio.png` é a rota real `/login`; as demais compõem os componentes reais com props fixas e provam **aparência**, não fluxo contra a API. Nada foi tocado nem digitado no simulador.
+
+**Lição repetida:** na 1ª leva, `erro-rede` e `foco-campo` saíram com o mesmo md5 (`508f6158…`) e eram a splash do Expo Go. Foram refeitas com 45 s de espera e distintas entre si. Todas as 8 fotos foram abertas e vistas uma a uma.
+
+### 14.3 md5 de cada foto (original 1206×2622 / versionado 402 px)
+
+| Arquivo | md5 original | md5 versionado | Bytes |
+|---|---|---|---|
+| `app-login-vazio.png` | `b1e02b4ea7a09d89f881076d1379689e` | `2d9941f83bf73e3c3d675d0dfda536e2` | 36813 |
+| `app-login-carregando.png` | `c1238de877d80dafede0606d1c39686b` | `68843303eb253d600a717bb223269720` | 42621 |
+| `app-login-erro-validacao.png` | `43a216898eaa3833536f9491cadce847` | `adf1236cc861c03a56a7fc5d3d770e2e` | 46901 |
+| `app-login-erro-rede.png` | `2d83d8b8bd05c77321346aad9c362e20` | `9933012733eaac0de75e74ccd46399a1` | 54749 |
+| `app-login-preenchido.png` | `37dcb19447d95c175757fb23c821135a` | `cac5f5ae776ee4455ac7c65b49ef2902` | 40397 |
+| `app-login-foco-campo.png` | `85cf959241125033dd3531c7e04b4944` | `c8d0a38c0057209b1e16fd0187396706` | 41797 |
+| `app-perfil-preenchido.png` | `e9e2f3e4372ff413c0c3d0ec141d52f0` | `8ce7d22782fb1bc38476671cef4c86af` | 44250 |
+| `app-perfil-confirmar-saida.png` | `97a6ec401d23246cf33e0a57a99e3af0` | `cd69d845abcc74ec79a6a63635313c0b` | 59537 |
+
+### 14.4 O que as fotos mostram
+
+Triângulo cheio na faixa e no popup; hora e ícones brancos sobre a faixa petro em todas as telas. A altura em pixel da faixa de erro não foi medida de novo. Nada mais mudou de lugar nas telas.
+
+### 14.5 Verificação executada
+
+Em `apps/mobile`, com a rota temporária já apagada: `./node_modules/.bin/tsc --noEmit` sem saída; `./node_modules/.bin/eslint src app` sem saída; `./node_modules/.bin/prettier --check src app` "All matched files use Prettier code style!"; `./node_modules/.bin/jest`: **30 suítes, 170 testes passaram** (eram 29 e 166). O jest mostra aviso de `act` do `Icon` do Ionicons nos testes que o renderizam de verdade (já existia em `tab-bar-item.test.tsx`). API e backend não foram subidos: comportamento e endpoints iguais (US-PAR-10 só por testes).
+
+### 14.6 Continua em aberto
+
+Decisões 1 a 13, dúvidas 2, 4 e 5, lado Figma dos tokens, capturas dos estados ausentes (Perfil carregando e erro, tab bar "Padrão", foco em botão, olho e tab bar) e US-MENU-06. **US-PAR-08 não fecha.**
+
+### 14.7 README
+
+README sem mudança: só aparência de tela, testes e documentação.
