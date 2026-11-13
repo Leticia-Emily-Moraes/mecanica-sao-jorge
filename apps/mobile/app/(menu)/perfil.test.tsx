@@ -1,7 +1,7 @@
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react-native';
 import * as SecureStore from 'expo-secure-store';
 
-import { AuthProvider } from '@/auth/auth-context';
+import { AuthProvider } from '@/hooks/use-auth';
 
 import PerfilScreen from './perfil';
 

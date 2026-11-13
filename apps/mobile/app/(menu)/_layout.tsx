@@ -3,8 +3,8 @@ import type { ReactElement } from 'react';
 import { useEffect } from 'react';
 import { StyleSheet, View } from 'react-native';
 
-import { useAuth } from '@/auth/auth-context';
-import { MenuTabBar } from '@/components/menu-tab-bar';
+import { MenuTabBar } from '@/components/menu/menu-tab-bar';
+import { useAuth } from '@/hooks/use-auth';
 import { color } from '@/theme/tokens';
 
 /**

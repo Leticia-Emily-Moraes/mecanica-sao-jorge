@@ -1,14 +1,14 @@
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react-native';
 
-import { autenticar, CredenciaisInvalidasError, ErroDeRedeError } from '@/auth/auth-api';
-import { AuthProvider } from '@/auth/auth-context';
+import { AuthProvider } from '@/hooks/use-auth';
+import { autenticar, CredenciaisInvalidasError, ErroDeRedeError } from '@/services/auth-service';
 
 import LoginScreen from './login';
 
 // Só a função é mockada — as classes de erro reais ficam, senão o
 // `instanceof` da tela compararia contra uma classe automockada diferente.
-jest.mock('@/auth/auth-api', () => ({
-  ...jest.requireActual('@/auth/auth-api'),
+jest.mock('@/services/auth-service', () => ({
+  ...jest.requireActual('@/services/auth-service'),
   autenticar: jest.fn(),
 }));
 

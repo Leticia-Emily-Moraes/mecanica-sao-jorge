@@ -4,7 +4,7 @@ import type { ReactElement, ReactNode } from 'react';
 import { Pressable } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
-import { AuthProvider, useAuth } from '@/auth/auth-context';
+import { AuthProvider, useAuth } from '@/hooks/use-auth';
 
 import MenuLayout from './_layout';
 
