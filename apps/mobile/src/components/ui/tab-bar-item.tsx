@@ -73,7 +73,7 @@ export function TabBarItem({
             selected && styles.labelSelected,
             unavailable && styles.unavailable,
           ]}
-          numberOfLines={1}
+          numberOfLines={2}
         >
           {label}
         </Text>
@@ -96,7 +96,9 @@ const styles = StyleSheet.create({
   pressable: {
     flex: 1,
     alignItems: 'center',
-    justifyContent: 'center',
+    // Do topo: rótulos de uma e de duas linhas mantêm o ícone na mesma altura.
+    justifyContent: 'flex-start',
+    paddingTop: spacing.xs,
     gap: spacing.xs,
   },
   iconSlot: {
