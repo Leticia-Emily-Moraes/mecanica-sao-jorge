@@ -131,6 +131,31 @@
   <build>
     <finalName>api</finalName>
     <plugins>
+      <!-- Trava de JDK (F44): o Lombok quebra no javac 27 (ExceptionInInitializerError em
+           EndPosTable). Falha cedo, com mensagem clara, fora da faixa 21. -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-enforcer-plugin</artifactId>
+        <version>3.5.0</version>
+        <executions>
+          <execution>
+            <id>exigir-jdk-21</id>
+            <phase>validate</phase>
+            <goals>
+              <goal>enforce</goal>
+            </goals>
+            <configuration>
+              <rules>
+                <requireJavaVersion>
+                  <version>[21,22)</version>
+                  <message>JDK 21 e obrigatorio (encontrado: ${java.runtime.version}). Exporte JAVA_HOME apontando para o Temurin 21 ou use ./mvnw com JAVA_HOME do JDK 21.</message>
+                </requireJavaVersion>
+              </rules>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+
       <plugin>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-maven-plugin</artifactId>
