@@ -44,9 +44,13 @@ op-002-app-mecanica-sao-jorge/
 
 Para rodar o backend e o mobile localmente:
 
-- **JDK 21**
-- **Maven 3.9+** (`mvn -v`) — o Maven Wrapper (`mvnw`) ainda não foi gerado
-  nesta etapa (ver "Pendências")
+- **JDK 21** (Temurin). Outro JDK é barrado no `validate` pelo
+  `maven-enforcer-plugin` com mensagem em português: o Lombok quebra no javac
+  27 (`ExceptionInInitializerError`). Se o `mvn` do host resolver para outro
+  JDK, exporte `JAVA_HOME` do 21 antes de rodar.
+- **Maven**: use o Maven Wrapper em `apps/api` (`./mvnw`, Maven 3.9.9); não
+  precisa de Maven instalado. Nos exemplos abaixo, `mvn` pode ser trocado por
+  `./mvnw`.
 - **Docker** — para o MySQL local do backend e para os testes de integração
   com Testcontainers
 - **Node.js 20 LTS** (ou superior) e **npm** — para o app mobile
@@ -321,7 +325,7 @@ npm run typecheck      # tsc --noEmit
 
 **Pendências que seguem em aberto (não é escopo da F37 corrigir):**
 
-- [ ] Maven Wrapper (`apps/api/mvnw`): não gerado até esta etapa.
+- [x] Maven Wrapper (`apps/api/mvnw`): gerado na F44.
 - [ ] `docs/script.sql`: arquivo não commitado de propósito nesta revisão —
       é um schema divergente e mais antigo (nomes em PascalCase, `DROP
       DATABASE`, fora do controle do Flyway) que conflita com as migrations

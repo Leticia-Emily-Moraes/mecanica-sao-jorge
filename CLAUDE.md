@@ -150,4 +150,4 @@ Estilo das respostas: técnico e objetivo, sem genérico. Quando houver alternat
 
 - `V2__criar_schema_oficina.sql`, entidades JPA, login (F02), CI, ADRs e `overview.md` ainda não estão no `main`: chegam pelas PRs abertas da F30 (#4) e da F39 (#5, que contém a #4).
 - Colunas que as telas pedem e a V2 não tem (`servicos.nome`, `pecas.nome`, `movimentacoes_estoque.quantidade`, `financeiro.valor`, CPF/endereço de cliente, entre outras) — cada feature fecha a sua linha na matriz de reconciliação do `overview.md` com migration nova.
-- Maven Wrapper (`apps/api/mvnw`) ainda não gerado.
+- Maven Wrapper (`apps/api/mvnw`) gerado na F44; o `pom.xml` trava o JDK em 21 via `maven-enforcer-plugin`. Proteção da `main` exigindo `ci-api-ok` ainda depende de quem administra o repositório (PR 1b).
