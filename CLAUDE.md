@@ -27,6 +27,7 @@ Instruções de instalação, execução e testes: `README.md` da raiz e de cada
 ## Documentação complementar
 
 - `docs/architecture/arquitetura-backend.md` — responsabilidade de cada pacote, classes por módulo, rotas REST.
+- `docs/security/lgpd-registro-dados-pessoais.md` — inventário de dado pessoal por tabela (finalidade, base legal, retenção, apagamento) e decisões LGPD pendentes.
 - `docs/architecture/adr/` e `docs/architecture/overview.md` — ADRs e visão geral (chegam com as PRs da F37/F38; prevalecem sobre este arquivo em caso de divergência).
 - `docs/product/ux-ui-mapeamento.md` — telas e fluxos do app.
 - `docs/design/identidade-visual.md` — paleta, tipografia, componentes.
