@@ -1,9 +1,10 @@
 import { Ionicons } from '@expo/vector-icons';
 import type { ComponentProps, ReactElement } from 'react';
-import { Pressable, StyleSheet, View } from 'react-native';
+import { Pressable, View } from 'react-native';
 
-import { color, focusRingRadius, iconSize, minTouchTarget } from '@/theme/tokens';
 import { useFocusRing } from '@/theme/use-focus-ring';
+
+import { styles, visual } from './icon-button.styles';
 
 export type IconName = ComponentProps<typeof Ionicons>['name'];
 
@@ -39,20 +40,8 @@ export function IconButton({
         onPress={onPress}
         style={styles.button}
       >
-        <Ionicons name={icon} size={iconSize.action} color={color.text.secondary} />
+        <Ionicons name={icon} size={visual.iconSize} color={visual.iconColor} />
       </Pressable>
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  ringWrapper: {
-    borderRadius: focusRingRadius,
-  },
-  button: {
-    width: minTouchTarget,
-    height: minTouchTarget,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});

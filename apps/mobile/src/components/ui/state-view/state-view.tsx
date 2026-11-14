@@ -1,11 +1,11 @@
 import { Ionicons } from '@expo/vector-icons';
 import type { ReactElement } from 'react';
 import { useEffect } from 'react';
-import { AccessibilityInfo, ActivityIndicator, StyleSheet, Text, View } from 'react-native';
+import { AccessibilityInfo, ActivityIndicator, Text, View } from 'react-native';
 
 import { Button } from '@/components/ui/button';
 import { ErrorRetryModal, type ErrorRetryModalProps } from '@/components/ui/error-retry-modal';
-import { color, iconSize, layout, spacing, typography } from '@/theme/tokens';
+import { styles, visual } from './state-view.styles';
 
 export interface LoadingStateProps {
   readonly state: 'loading';
@@ -61,7 +61,7 @@ function LoadingState({ loadingLabel }: { loadingLabel: string }): ReactElement 
       accessibilityState={{ busy: true }}
       style={styles.centered}
     >
-      <ActivityIndicator size="large" color={color.text.primary} />
+      <ActivityIndicator size="large" color={visual.spinnerColor} />
     </View>
   );
 }
@@ -70,7 +70,11 @@ function EmptyState({ title, message, actionLabel, onAction }: EmptyStateProps):
   return (
     <View style={styles.centered}>
       <View accessibilityElementsHidden importantForAccessibility="no-hide-descendants">
-        <Ionicons name="file-tray-outline" size={iconSize.empty} color={color.text.secondary} />
+        <Ionicons
+          name="file-tray-outline"
+          size={visual.emptyIconSize}
+          color={visual.emptyIconColor}
+        />
       </View>
       <Text style={styles.emptyTitle}>{title}</Text>
       {message ? <Text style={styles.emptyMessage}>{message}</Text> : null}
@@ -82,29 +86,3 @@ function EmptyState({ title, message, actionLabel, onAction }: EmptyStateProps):
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  centered: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  emptyTitle: {
-    fontSize: typography.label.fontSize,
-    fontWeight: typography.label.fontWeight,
-    color: color.text.primary,
-    textAlign: 'center',
-    marginTop: spacing.md,
-  },
-  emptyMessage: {
-    fontSize: typography.body.fontSize,
-    color: color.text.secondary,
-    textAlign: 'center',
-    marginTop: spacing.xs,
-  },
-  emptyAction: {
-    width: '100%',
-    maxWidth: layout.dialogMaxWidth,
-    marginTop: spacing.lg,
-  },
-});

@@ -1,9 +1,9 @@
 import { StatusBar } from 'expo-status-bar';
 import { useContext, type ReactElement } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { Text, View } from 'react-native';
 import { SafeAreaInsetsContext } from 'react-native-safe-area-context';
 
-import { color, spacing, typography } from '@/theme/tokens';
+import { styles, topInset } from './screen-header.styles';
 
 export interface ScreenHeaderProps {
   readonly title: string;
@@ -22,7 +22,7 @@ export function ScreenHeader({ title, subtitle }: ScreenHeaderProps): ReactEleme
   const insets = useContext(SafeAreaInsetsContext);
 
   return (
-    <View style={[styles.band, { paddingTop: insets?.top ?? 0 }]}>
+    <View style={[styles.band, topInset(insets?.top ?? 0)]}>
       <StatusBar style="light" />
       <Text accessibilityRole="header" style={styles.title}>
         {title}
@@ -31,23 +31,3 @@ export function ScreenHeader({ title, subtitle }: ScreenHeaderProps): ReactEleme
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  band: {
-    backgroundColor: color.surface.brand,
-    paddingHorizontal: spacing.md,
-    paddingBottom: spacing.xl,
-    justifyContent: 'flex-end',
-  },
-  title: {
-    fontSize: typography.header.fontSize,
-    fontWeight: typography.header.fontWeight,
-    color: color.text.onBrand,
-  },
-  subtitle: {
-    fontSize: typography.subtitle.fontSize,
-    fontWeight: typography.subtitle.fontWeight,
-    color: color.text.onBrand,
-    marginTop: spacing.xs,
-  },
-});

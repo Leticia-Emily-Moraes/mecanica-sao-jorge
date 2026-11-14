@@ -13,7 +13,6 @@ import { TextField } from '@/components/ui/text-field';
 import { useAuth } from '@/hooks/use-auth';
 import { useLogin } from '@/hooks/use-login';
 import { t } from '@/i18n/strings';
-import { spacing } from '@/theme/tokens';
 
 export default function LoginScreen(): ReactElement {
   const { status } = useAuth();
@@ -32,7 +31,7 @@ export default function LoginScreen(): ReactElement {
   return (
     <ScreenContainer
       header={<ScreenHeader title={t('login.titulo')} subtitle={t('login.subtitulo')} />}
-      topSpacing={temBanner ? spacing.lg : spacing.formTop}
+      topSpacing={temBanner ? 'default' : 'form'}
     >
       {form.sessaoExpirada ? <InlineAlert message={t('login.sessaoExpirada.mensagem')} /> : null}
 

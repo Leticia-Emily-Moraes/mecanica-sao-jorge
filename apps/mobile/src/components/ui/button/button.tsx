@@ -1,18 +1,9 @@
 import type { ReactElement } from 'react';
-import { ActivityIndicator, Pressable, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, Pressable, Text, View } from 'react-native';
 
-import {
-  borderWidth,
-  color,
-  focusRingRadius,
-  layout,
-  minTouchTarget,
-  opacity,
-  radius,
-  spacing,
-  typography,
-} from '@/theme/tokens';
 import { useFocusRing } from '@/theme/use-focus-ring';
+
+import { styles, visual } from './button.styles';
 
 export type ButtonVariant = 'primary' | 'secondary';
 
@@ -65,7 +56,7 @@ export function Button({
         {loading ? (
           <View style={styles.loadingRow}>
             <ActivityIndicator
-              color={variant === 'primary' ? color.text.onPrimaryAction : color.text.primary}
+              color={variant === 'primary' ? visual.spinnerOnPrimary : visual.spinnerOnSecondary}
             />
             <Text
               style={[
@@ -90,48 +81,3 @@ export function Button({
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  ringWrapper: {
-    borderRadius: focusRingRadius,
-  },
-  button: {
-    minHeight: minTouchTarget,
-    borderRadius: radius.sm,
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingHorizontal: spacing.lg,
-  },
-  page: {
-    minHeight: layout.pageButtonHeight,
-  },
-  primary: {
-    backgroundColor: color.action.primaryBackground,
-  },
-  secondary: {
-    backgroundColor: 'transparent',
-    borderWidth: borderWidth.emphasis,
-    borderColor: color.border.default,
-  },
-  pressed: {
-    opacity: opacity.pressed,
-  },
-  disabled: {
-    opacity: opacity.disabled,
-  },
-  loadingRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.sm,
-  },
-  label: {
-    fontSize: typography.button.fontSize,
-    fontWeight: typography.button.fontWeight,
-  },
-  labelPrimary: {
-    color: color.text.onPrimaryAction,
-  },
-  labelSecondary: {
-    color: color.text.primary,
-  },
-});

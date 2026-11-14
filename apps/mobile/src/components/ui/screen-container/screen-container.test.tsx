@@ -50,7 +50,7 @@ describe('ScreenContainer', () => {
 
   it('should use topSpacing as the space under the header when given', () => {
     render(
-      <ScreenContainer topSpacing={spacing.formTop}>
+      <ScreenContainer topSpacing="form">
         <Text>conteúdo</Text>
       </ScreenContainer>,
     );

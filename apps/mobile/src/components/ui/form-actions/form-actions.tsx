@@ -1,7 +1,7 @@
 import type { ReactElement, ReactNode } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { View } from 'react-native';
 
-import { spacing } from '@/theme/tokens';
+import { styles } from './form-actions.styles';
 
 export interface FormActionsProps {
   readonly children: ReactNode;
@@ -15,9 +15,3 @@ export interface FormActionsProps {
 export function FormActions({ children }: FormActionsProps): ReactElement {
   return <View style={styles.actions}>{children}</View>;
 }
-
-const styles = StyleSheet.create({
-  actions: {
-    marginTop: spacing.lg - spacing.field,
-  },
-});
