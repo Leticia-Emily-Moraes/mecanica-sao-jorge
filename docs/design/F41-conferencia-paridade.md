@@ -472,3 +472,33 @@ Decisões 1 a 13, dúvidas 2, 4 e 5, lado Figma dos tokens, capturas dos estados
 ### 14.7 README
 
 README sem mudança: só aparência de tela, testes e documentação.
+
+## 15. Rodada de 2026-11-14 — referência nova `FPdB8RymAnN81pbKfizdzE` (ESQUADRO)
+
+### 15.1 Tentativa de acesso (US-PAR-11)
+
+Pedido: rodar `whoami` pelo `figma-remote` e capturar os frames de Login, Perfil, diálogo de logout e tab bar no arquivo `FPdB8RymAnN81pbKfizdzE`.
+
+Resultado real: **não rodei `whoami`.** O ambiente informou que o servidor `figma-remote` exige autenticação e que a sessão é não interativa (não dá para fazer o OAuth aqui). Nenhuma ferramenta `mcp__figma-remote__*` (`whoami`, `create_session`, `get_metadata`, `get_design_context`, `get_screenshot`) está disponível nesta sessão, então não há saída de `whoami` para registrar.
+
+Ação necessária da pessoa: autenticar o servidor (`claude mcp login figma-remote`, ou `/mcp` em sessão interativa) e reabrir a etapa.
+
+### 15.2 O que NÃO foi feito por causa do bloqueio
+
+- Listar páginas do arquivo `FPdB8RymAnN81pbKfizdzE` e confirmar quais frames valem (tarefa 2 e dúvida 5).
+- Exportar os frames de Login (5 estados), Perfil, diálogo e tab bar (tarefas 6, 8 e 10).
+- Refazer a planilha de divergências do zero (tarefa 12), reconferir R-02, R-03 e A-01, e refazer o diff de tokens e o contraste com as cores do desenho novo, incluindo X e avatar (tarefas 12 e 17).
+- Nenhum frame ou variável do Figma foi lido ou alterado.
+- US-PAR-08 permanece **aberto**. Nenhum estado foi marcado como "não se aplica": isso depende de ver os frames novos, e declará-lo agora seria suposição.
+
+### 15.3 Discrepância a resolver pela pessoa
+
+O repositório trata `FPdB8RymAnN81pbKfizdzE` como **inspiração da F39, e não como referência de paridade** (`docs/product/F41-conferencia-paridade-referencias.md:37`, `docs/design/figma.md:439`). O briefing de hoje manda refazer a F41 contra ele. Pela regra do briefing, a F39 só edita o alta fidelidade dessas quatro telas depois que a F41 fechar. Confirmar:
+
+1. Os frames válidos são `20:2131` (alta, v2 da F39) ou outro nó? Se for `20:2131`, a F41 passa a conferir um desenho que o app ainda não implementa, e a regra de "exceção temporária" (redesenho aguardando código) entra em conflito com o fechamento.
+2. As capturas de `docs/design/f41-capturas` valem como "antes" da F39 e continuam sendo a linha de base da F40 (decisão registrada no briefing), ou a F41 é refeita inteira contra o novo?
+3. Aparelho físico (premissa 9): sem modelo, sistema e resolução informados, só há simulador; a exceção precisa ser pedida e registrada (US-PAR-04).
+
+### 15.4 Estado dos arquivos
+
+`docs/design/figma.md:4` não foi alterado: a tarefa 1 manda atualizar depois de confirmar o acesso, e o acesso não foi confirmado.
