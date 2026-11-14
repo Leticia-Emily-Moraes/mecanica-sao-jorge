@@ -1,7 +1,7 @@
 import type { ReactElement, ReactNode } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { View } from 'react-native';
 
-import { color, spacing } from '@/theme/tokens';
+import { styles, topSpacingStyle, type TopSpacing } from './screen-container.styles';
 
 export interface ScreenContainerProps {
   readonly children: ReactNode;
@@ -9,8 +9,11 @@ export interface ScreenContainerProps {
   readonly header?: ReactNode;
   /** Ação fixa no rodapé da área de conteúdo (ex.: Sair no Perfil, Figma 33:33). */
   readonly footer?: ReactNode;
-  /** Respiro entre a faixa e o conteúdo; o padrão é 24 (Figma 33:33, 29:56). */
-  readonly topSpacing?: number;
+  /**
+   * Respiro entre a faixa e o conteúdo: `default` = 24 (Figma 33:33, 29:56);
+   * `form` = 30, para o formulário sem faixa de erro (Figma 29:79).
+   */
+  readonly topSpacing?: TopSpacing;
 }
 
 /**
@@ -22,29 +25,13 @@ export function ScreenContainer({
   children,
   header,
   footer,
-  topSpacing = spacing.lg,
+  topSpacing = 'default',
 }: ScreenContainerProps): ReactElement {
   return (
     <View style={styles.container}>
       {header}
-      <View style={[styles.body, { paddingTop: topSpacing }]}>{children}</View>
+      <View style={[styles.body, topSpacingStyle(topSpacing)]}>{children}</View>
       {footer ? <View style={styles.footer}>{footer}</View> : null}
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: color.surface.default,
-  },
-  body: {
-    flex: 1,
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.lg,
-  },
-  footer: {
-    paddingHorizontal: spacing.md,
-    paddingBottom: spacing.lg,
-  },
-});

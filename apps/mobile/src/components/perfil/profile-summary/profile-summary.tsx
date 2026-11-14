@@ -1,9 +1,10 @@
 import type { ReactElement } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { Text, View } from 'react-native';
 
 import { AccessProfileBadge } from '@/components/perfil/access-profile-badge';
 import { Avatar } from '@/components/perfil/avatar';
-import { borderWidth, color, spacing, typography } from '@/theme/tokens';
+
+import { styles } from './profile-summary.styles';
 
 export interface ProfileSummaryProps {
   readonly name: string;
@@ -38,31 +39,3 @@ export function ProfileSummary({
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    gap: spacing.lg + spacing.xs,
-  },
-  row: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.md,
-  },
-  details: {
-    flex: 1,
-    gap: spacing.xs,
-  },
-  name: {
-    fontSize: typography.heading.fontSize,
-    fontWeight: typography.heading.fontWeight,
-    color: color.text.primary,
-  },
-  email: {
-    fontSize: typography.subtitle.fontSize,
-    color: color.text.secondary,
-  },
-  divider: {
-    height: borderWidth.hairline,
-    backgroundColor: color.border.divider,
-  },
-});

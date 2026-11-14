@@ -1,7 +1,7 @@
 import type { ReactElement, ReactNode } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { Text, View } from 'react-native';
 
-import { color, spacing, typography } from '@/theme/tokens';
+import { styles } from './read-only-field.styles';
 
 export interface ReadOnlyFieldProps {
   readonly label: string;
@@ -19,19 +19,3 @@ export function ReadOnlyField({ label, value, children }: ReadOnlyFieldProps): R
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    marginBottom: spacing.md,
-  },
-  label: {
-    fontSize: typography.label.fontSize,
-    fontWeight: typography.label.fontWeight,
-    color: color.text.secondary,
-    marginBottom: spacing.xs,
-  },
-  value: {
-    fontSize: typography.body.fontSize,
-    color: color.text.primary,
-  },
-});

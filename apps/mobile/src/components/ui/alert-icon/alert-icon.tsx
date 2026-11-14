@@ -2,7 +2,7 @@ import { Ionicons } from '@expo/vector-icons';
 import type { ReactElement } from 'react';
 import { View } from 'react-native';
 
-import { color } from '@/theme/tokens';
+import { visual } from './alert-icon.styles';
 
 export interface AlertIconProps {
   readonly size: number;
@@ -16,7 +16,7 @@ export interface AlertIconProps {
 export function AlertIcon({ size }: AlertIconProps): ReactElement {
   return (
     <View accessibilityElementsHidden importantForAccessibility="no-hide-descendants">
-      <Ionicons name="warning" size={size} color={color.text.error} />
+      <Ionicons name="warning" size={size} color={visual.iconColor} />
     </View>
   );
 }

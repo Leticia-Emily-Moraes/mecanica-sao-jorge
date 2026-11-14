@@ -1,8 +1,9 @@
 import type { ReactElement, ReactNode } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { View } from 'react-native';
 
 import { MenuTabBar } from '@/components/menu/menu-tab-bar';
-import { color } from '@/theme/tokens';
+
+import { styles } from './menu-shell.styles';
 
 export interface MenuShellProps {
   /** Conteúdo da aba ativa (a rota filha). */
@@ -18,13 +19,3 @@ export function MenuShell({ children }: MenuShellProps): ReactElement {
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: color.surface.default,
-  },
-  content: {
-    flex: 1,
-  },
-});

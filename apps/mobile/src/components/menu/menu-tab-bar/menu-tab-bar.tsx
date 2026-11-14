@@ -1,11 +1,12 @@
 import type { ReactElement } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { TabBarItem } from '@/components/ui/tab-bar-item';
 import type { TabBarIconName } from '@/components/ui/tab-bar-item';
 import { t } from '@/i18n/strings';
-import { color, layout } from '@/theme/tokens';
+
+import { bottomInset, styles } from './menu-tab-bar.styles';
 
 interface TabBarEntry {
   readonly key: string;
@@ -61,7 +62,7 @@ export function MenuTabBar(): ReactElement {
   const insets = useSafeAreaInsets();
 
   return (
-    <View style={[styles.wrapper, { paddingBottom: insets.bottom }]}>
+    <View style={[styles.wrapper, bottomInset(insets.bottom)]}>
       <View accessibilityRole="tablist" style={styles.bar}>
         {ENTRIES.map((entry) => (
           <TabBarItem
@@ -77,15 +78,3 @@ export function MenuTabBar(): ReactElement {
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  wrapper: {
-    backgroundColor: color.surface.brand,
-    alignItems: 'center',
-  },
-  bar: {
-    flexDirection: 'row',
-    width: '100%',
-    maxWidth: layout.tabBarMaxWidth,
-  },
-});
