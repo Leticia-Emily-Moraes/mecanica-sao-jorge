@@ -47,8 +47,9 @@ cadastro de usuário, recuperação de senha e refresh token (ver
 
 ## Pré-requisitos
 
-- JDK 21
-- Maven 3.9+ (`mvn -v`) **rodando com o JDK 21**: confira a linha
+- JDK 21 (travado pelo `maven-enforcer-plugin`: outro JDK falha no `validate`)
+- Maven Wrapper incluso: `./mvnw` (Maven 3.9.9), sem Maven instalado no host.
+  Com Maven próprio: 3.9+ (`mvn -v`) **rodando com o JDK 21**: confira a linha
   `Java version` do `mvn -v`, não só o `java -version`. O Maven do Homebrew
   instala e usa o OpenJDK mais recente (ex.: 27), e o Lombok falha nele com
   `ExceptionInInitializerError: com.sun.tools.javac.tree.EndPosTable`. No
@@ -197,9 +198,6 @@ src/test/java/br/com/mecanicasaojorge/api/
 
 ## Pendências / riscos conhecidos
 
-- **Maven Wrapper (`mvnw`) não gerado.** Gerar com
-  `mvn -N wrapper:wrapper -Dmaven=<versão>` em ambiente com rede, e commitar
-  `mvnw`, `mvnw.cmd` e `.mvn/wrapper/maven-wrapper.properties`.
 - **Login sem usuário de seed**: as migrations desta fatia não inserem
   nenhum usuário. Para testar o caminho de sucesso (`200`) manualmente,
   é preciso inserir um usuário com `senha_hash` em BCrypt diretamente no
