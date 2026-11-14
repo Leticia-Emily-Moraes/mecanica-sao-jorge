@@ -113,3 +113,91 @@ Exported: <scratchpad>/export-ios
 ```
 
 Isto confirma que o Metro resolve `@/components/ui/<nome>` para `<nome>/index.ts`, o alias `@/screens` e `@/layouts` e os re-exports de `app/`, e gera o bundle sem erro. **Não executa o app**: não prova que a tela abre, só que o bundle compila. A saída foi para o scratchpad, fora do repositório.
+
+## 10. Revisão humana de 14/11: estrutura no que está em revisão (critério 1)
+
+Ambiente: macOS (Darwin 27.0.0), Node via `npm --prefix apps/mobile`, Jest com `jest-expo`. Sem simulador nem aparelho nesta rodada (ver 10.5).
+
+### 10.1 Situação da PR #10 (comando `gh pr view 10 --json headRefName,headRefOid,baseRefName,state,isDraft`)
+
+```
+{"baseRefName":"main","headRefName":"feat/f40-componentizacao-mobile","headRefOid":"ea0dd69434429a2c63319f24bc10bac96b928fb4","isDraft":true,"state":"OPEN"}
+```
+
+`git merge-base --is-ancestor ea0dd69 HEAD` respondeu que `ea0dd69` **não** é ancestral do ramo `refactor/f40-estrutura-ui-sobre-f41`. A estrutura do ADR-015 não está na PR #10. Nada foi enviado ao remoto.
+
+### 10.2 Integração I2 feita só em ramo local
+
+Ramo local `integracao/f40-i2-sobre-pr10` = `ea0dd69` + 31 commits (`git rev-list --count ea0dd69..integracao/f40-i2-sobre-pr10` = 31): a F41 (do `03bcb51` ao `1490234`) e os commits do ADR-015 (do `074cffd` ao `3e4c218`), sem o `c815235` (docs da F39). Um conflito, em `docs/design/figma.md` no commit `03bcb51`: resolvido mantendo só a seção da F41, porque a seção da F39 vem do `c815235`, que ficou de fora.
+
+`git diff --stat refactor/f40-estrutura-ui-sobre-f41 integracao/f40-i2-sobre-pr10 -- apps` não listou nenhum arquivo: o código do app é idêntico nos dois ramos. Em `docs/` diferem 3 arquivos: `F39-redesenho-wireframes-navegacao.md` e a seção da F39 em `figma.md` (efeito de excluir o `c815235`) e `F40-evidencia-paridade-visual.md` (+12 linhas que já estão na PR #10).
+
+Lint, tipos e suíte no ramo integrado (comandos abaixo, saída real):
+
+```
+npm --prefix <worktree>/apps/mobile run lint        -> eslint . ; EXIT_LINT=0
+npm --prefix <worktree>/apps/mobile run typecheck   -> tsc --noEmit ; EXIT_TSC=0
+npm --prefix <worktree>/apps/mobile test -- --ci --silent
+Test Suites: 31 passed, 31 total
+Tests:       176 passed, 176 total
+```
+
+Esse ramo **não foi publicado**: levá-lo à PR #10 exige force-push em `feat/f40-componentizacao-mobile` e contraria a decisão anterior de deixar a F41 fora da PR. Decisão e autorização são da pessoa (opção I2 do ADR-015).
+
+### 10.3 Listagem de pastas (ramo `refactor/f40-estrutura-ui-sobre-f41`, idêntica no ramo integrado)
+
+```
+$ ls apps/mobile/src/components/ui/button apps/mobile/src/components/menu/menu-tab-bar
+apps/mobile/src/components/ui/button:
+button.styles.ts   button.test.tsx   button.tsx   index.ts
+
+apps/mobile/src/components/menu/menu-tab-bar:
+index.ts   menu-tab-bar.styles.ts   menu-tab-bar.test.tsx   menu-tab-bar.tsx
+
+$ ls -R apps/mobile/src/screens
+login:           login-screen.test.tsx            login-screen.tsx
+profile:         profile-screen.test.tsx          profile-screen.tsx
+session-restore: session-restore-screen.test.tsx  session-restore-screen.tsx
+
+$ ls -R apps/mobile/src/layouts
+menu-layout:  menu-layout.test.tsx  menu-layout.tsx
+root-layout:  root-layout.tsx
+
+$ ls -R apps/mobile/app
+_layout.tsx  (menu)  index.tsx  login.tsx
+(menu): _layout.tsx  perfil.tsx
+```
+
+Conteúdo dos 5 arquivos de `app/` (cada um é uma linha de re-export):
+
+```
+app/_layout.tsx        export { default } from '@/layouts/root-layout/root-layout';
+app/index.tsx          export { default } from '@/screens/session-restore/session-restore-screen';
+app/login.tsx          export { default } from '@/screens/login/login-screen';
+app/(menu)/_layout.tsx export { default } from '@/layouts/menu-layout/menu-layout';
+app/(menu)/perfil.tsx  export { default } from '@/screens/profile/profile-screen';
+```
+
+Contagem: 13 pastas em `src/components/ui`, 2 em `src/components/menu` e 3 em `src/components/perfil` (18 pastas de componente), mais 3 pastas em `src/screens` e 2 em `src/layouts`.
+
+Desvio que a listagem expõe: `ui/error-retry-modal/` tem `.tsx`, `.styles.ts` e `index.ts`, mas **não tem `.test.tsx` próprio**. Ele só é exercido por `state-view.test.tsx` (o `StateView` o renderiza no estado de erro). O `ui-structure.test.ts` não exige teste por pasta, então passa. A regra do briefing pede teste de componente para todo componente criado ou alterado: fica registrado como pendência a corrigir (teste direto do `ErrorRetryModal`), sem que eu tenha mudado código nesta rodada.
+
+### 10.4 `ui-structure.test.ts` (comando `npm --prefix apps/mobile test -- --ci src/integration/ui-structure.test.ts --verbose`, saída real)
+
+```
+PASS src/integration/ui-structure.test.ts
+  ui-structure (ADR-015)
+    ✓ should have a folder per component when listing src/components groups
+    ✓ should have component file and index when reading each component folder
+    ✓ should have a styles file next to the component when the folder renders UI
+    ✓ should keep styles file inside its component folder when searching src
+    ✓ should have a screen file named after its folder when reading src/screens
+    ✓ should not have tests or styles inside app when reading the routes folder
+Tests:       6 passed, 6 total
+```
+
+Rodou no ramo `refactor/f40-estrutura-ui-sobre-f41` e de novo, dentro da suíte completa, no ramo integrado. Suíte completa no ramo atual: 31 suítes, 176 testes passando; lint e `tsc --noEmit` com saída 0.
+
+### 10.5 Capturas (tarefas 2 e 14): não feitas nesta rodada
+
+Havia o simulador iPhone 17 (iOS 27.0) ligado, o Expo Go 54.0.7 instalado e o Docker respondendo. Tentei subir o Metro em segundo plano a partir do ramo integrado para abrir o app e capturar; o ambiente barrou o comando (processo em segundo plano com redirecionamento), então o app **não foi aberto** e nenhuma captura nova existe. A linha de base continua sendo a da F41 em `docs/design/f41-capturas/` (md5 de `app-login-vazio.png` = `2d9941f83bf73e3c3d675d0dfda536e2`, 402 x 874). A prova de "mesma aparência" segue sendo a árvore renderizada idêntica do item 5, que não vê pixel. A tarefa 2 no sentido literal (antes da refatoração) já não é possível; o "antes" é a F41.
