@@ -1,6 +1,6 @@
 # api — backend Mecânica São Jorge
 
-API REST em Java 21 + Spring Boot 4.1.0, MySQL via Spring Data JPA,
+API REST em Java 21 + Spring Boot 4.1.2, MySQL via Spring Data JPA,
 migrations com Flyway, autenticação stateless com JWT HS256 via OAuth2
 Resource Server (ADR-004), documentação via springdoc-openapi. Pacotes
 organizados por camada, não por feature (ADR-001/ADR-002).
@@ -61,9 +61,14 @@ cadastro de usuário, recuperação de senha e refresh token (ver
 - Docker (para o MySQL local e para os testes de integração com
   Testcontainers)
 
-> Esta etapa não inclui o Maven Wrapper (`mvnw`). Gerá-lo é um passo
-> pendente (ver "Pendências" no final deste arquivo) — por ora, use o Maven
-> instalado localmente.
+> O `./mvnw` confere o SHA-256 do Maven baixado (`distributionSha256Sum` em
+> `.mvn/wrapper/maven-wrapper.properties`, OWASP A08). O hash é o do `.zip`:
+> o script só baixa o `.zip` quando há `unzip` no PATH; sem `unzip` ele baixa o
+> `.tar.gz` e a validação falha com "your Maven distribution might be
+> compromised". macOS e os runners `ubuntu-latest` do GitHub já trazem `unzip`;
+> em contêiner mínimo (ex.: `eclipse-temurin:21-jdk`), instale antes
+> (`apt-get install -y unzip`). Ao trocar a versão do Maven, atualize o hash
+> junto (`shasum -a 256` do `.zip`, conferindo o `.sha512` oficial).
 
 ## Subir o banco local
 
