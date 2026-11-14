@@ -3,7 +3,7 @@ import { StyleSheet } from 'react-native';
 
 import { borderWidth, color, layout, typography } from '@/theme/tokens';
 
-import { AlertIcon } from './alert-icon';
+import { AlertIcon } from '@/components/ui/alert-icon';
 import { InlineAlert } from './inline-alert';
 
 describe('InlineAlert', () => {
