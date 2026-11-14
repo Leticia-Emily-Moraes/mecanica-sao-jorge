@@ -502,3 +502,22 @@ O repositório trata `FPdB8RymAnN81pbKfizdzE` como **inspiração da F39, e não
 ### 15.4 Estado dos arquivos
 
 `docs/design/figma.md:4` não foi alterado: a tarefa 1 manda atualizar depois de confirmar o acesso, e o acesso não foi confirmado.
+
+## 16. Rodada de 2026-11-14 — etapa do código (ORLA)
+
+### 16.1 Código
+
+Nenhuma correção aplicada. A seção 15 não traz lista de divergências refeita, e a instrução é corrigir só o que o ESQUADRO listar. R-02, R-03 e A-01 ficam como estão (decididas contra o desenho antigo) até a reconferência.
+
+### 16.2 Figma
+
+Tentativa nesta etapa pelo conector `claude.ai Figma` (única família de ferramentas Figma exposta na sessão): `mcp__claude_ai_Figma__whoami` voltou `Claude requested permissions to use mcp__claude_ai_Figma__whoami, but you haven't granted it yet.` Não repeti a chamada nem tentei outra ferramenta do conector. O `figma-remote` segue sem autenticação (seção 15.1). Nenhum frame lido ou alterado.
+
+### 16.3 Testes (critério 9, reexecução)
+
+Comando: `npm --prefix apps/mobile test -- --silent`
+Saída real: `Test Suites: 31 passed, 31 total` e `Tests: 176 passed, 176 total`, inclusive `screen-header.test.tsx`. Os testes de `alert-icon` e `inline-alert` não aparecem na lista exibida (só as últimas 25 linhas foram vistas); a suíte inteira passou. Isso só prova que os testes batem com o código atual, que segue o desenho antigo. Eles não foram revisados contra o frame novo, porque ele não foi lido.
+
+### 16.4 Não feito
+
+Fluxo real contra a API local (critério 10), capturas no aparelho (critérios 4, 12, 13) e capturas finais com md5. Sem frames novos e sem aparelho informado, qualquer captura seria da linha antiga e não serviria de linha de base da F40.
