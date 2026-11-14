@@ -43,6 +43,7 @@ evitar fluxo órfão) em [`diagrams/navegacao-wireframe-f24.md`](diagrams/navega
 | [ADR-011](adr/ADR-011-handler-global-de-erro-e-mapeamento-de-status.md) | Handler global de erro: formato único e mapeamento de status HTTP | Aceito | 2026-11-07 |
 | [ADR-012](adr/ADR-012-remover-template-generico-do-backend.md) | Remover o template genérico do backend em vez de adaptá-lo | Aceito | 2026-11-12 |
 | [ADR-013](adr/ADR-013-adotar-migrations-flyway-como-fonte-unica-de-verdade-do-schema.md) | Adotar as migrations Flyway como fonte única de verdade do schema | Aceito | 2026-11-12 |
+| [ADR-016](adr/ADR-016-fixar-jdk-21-no-build-com-enforcer-e-maven-wrapper.md) | Fixar o JDK 21 no build da API com maven-enforcer-plugin e Maven Wrapper | Proposto | 2026-11-14 |
 
 > Nota de materialização: a F00 referenciou ADR-004/006/010/011 em código mas
 > não gravou os arquivos (ver `README.md`). Esta entrega da F02 materializa todo
