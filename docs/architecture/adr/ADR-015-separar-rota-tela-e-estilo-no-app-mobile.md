@@ -1,5 +1,5 @@
 ---
-status: proposto   # proposto até a revisão humana da F40; nenhum arquivo é movido antes do aceite
+status: proposto   # aceite é da pessoa revisora da F40; implementação existe só no ramo refactor/f40-estrutura-ui-sobre-f41, fora da main
 date: 2026-11-13
 decision-makers: [Pessoa revisora da F40 (revisão humana de 2026-11-13, pedidos a e b), CARTOGRAFO (Arquiteto)]
 consulted: [ORLA (mobile, executa a mudança), BUSSOLA (PRD F40, US-COMP-01 e R1)]
@@ -8,7 +8,8 @@ informed: [REGENTE, PRUMO, ESQUADRO, CRIVO, VIGIA, PERGAMINHO]
 
 # Separar rota, tela e estilo no app mobile: `app/` só roteia, telas em `src/screens`, estilo em `*.styles.ts` na pasta do componente
 
-Histórico de status: 2026-11-13, proposto.
+Histórico de status: 2026-11-13, proposto. 2026-11-14, revisado pelo CARTOGRAFO contra o código do
+ramo `refactor/f40-estrutura-ui-sobre-f41` (HEAD `43b60f5`): segue proposto, pronto para aceite humano.
 
 Vínculos: PRD `docs/product/F40-componentizacao-front-mobile.md` (US-COMP-01, decisão R1);
 spec `docs/design/F40-componentes-base-especificacao.md` §4 e `apps/mobile/README.md`
@@ -20,6 +21,21 @@ no ramo `docs/f39-wireframe-redesenho`): `src/theme/tokens.ts` continua a única
 Escopo: uma decisão, a organização do código de UI do mobile. Os pedidos (a) e (b) da revisão
 humana ficam no mesmo ADR porque são executados pela mesma mudança, impostos pela mesma
 configuração de lint e confirmados pelo mesmo teste de roteamento.
+
+## Linha de base e dependência da F41
+
+* A mudança foi aplicada sobre a ponta da F41 (`1490234`, ramo `feat/f41-paridade-correcoes`), não
+  sobre a PR #10. `git merge-base --is-ancestor 1490234 HEAD` confirma: os 9 commits deste ADR
+  (`074cffd` a `43b60f5`) vêm depois de `1490234`.
+* A linha de base do "antes" é a da F41, como manda a exceção temporária de paridade do briefing:
+  frames da F25 e da F34 como estavam, capturas finais do app na F41 e o dump de `toJSON()` dos 6
+  estados registrado em `docs/design/F40-evidencia-estrutura-ui.md` (30 suítes e 170 testes em
+  `1490234`, segundo essa evidência).
+* Ordem: este ADR não entra na `main` antes da F41. Se a F41 receber commit depois de `1490234`, o
+  ramo deste ADR é rebaseado sobre a nova ponta e a comparação de árvore renderizada é refeita
+  contra ela; a comparação anterior deixa de valer.
+* A F41 está "Pronta", não aceita. Até ela fechar, aceitar este ADR aprova a estrutura, não a
+  aparência; a aparência continua presa à conferência da F41.
 
 ## Contexto e problema
 
@@ -284,6 +300,70 @@ S6  ExportDefaultDeclaration
   antes. O `renderRouter` não passa pelo bundle do Metro, então só ele não basta.
 * Revisão de PR: diff de `app/` só com re-exports; `package.json` e `package-lock.json` sem mudança.
 
+Resultado em 2026-11-14, executado pelo CARTOGRAFO no ramo `refactor/f40-estrutura-ui-sobre-f41`
+(HEAD `43b60f5`):
+
+| Verificação | Comando | Resultado |
+|---|---|---|
+| Lint | `npm --prefix apps/mobile run lint` | `eslint .` sem erro |
+| Tipos | `npm --prefix apps/mobile run typecheck` | `tsc --noEmit` sem erro |
+| Suíte | `npm --prefix apps/mobile test -- --ci` | 31 suítes e 176 testes passando, incluindo `menu-routing.test.tsx` e `ui-structure.test.ts`; o "antes" (30 e 170 em `1490234`) vem da evidência da ORLA e não foi reexecutado nesta revisão |
+| `StyleSheet.create` | busca em `apps/mobile/app` e `apps/mobile/src` | 17 arquivos, todos `*.styles.ts`; o 18º `*.styles.ts` (`alert-icon`) só exporta `visual` |
+| Token em `.tsx` | busca de `@/theme/tokens` em `src/**/*.tsx` | 10 arquivos, todos `*.test.tsx` |
+| `app/` | leitura dos 5 arquivos | cada um é uma linha `export { default } from ...`, sem import |
+| Dependências | `git diff --stat 1490234 HEAD` em `package.json`, `package-lock.json` e `metro.config.js` | sem mudança |
+
+Violação proposital por `eslint --stdin --stdin-filename <caminho>`, sem criar arquivo no repositório.
+Mensagem real da regra `no-restricted-*` (os avisos de `prettier/prettier` da entrada foram ignorados):
+
+| # | Violação | Caminho simulado | Saída |
+|---|---|---|---|
+| P1 | `StyleSheet.create` em `.tsx` | `src/components/ui/button/probe.tsx` | "StyleSheet.create só em `<nome>.styles.ts`, na pasta do componente" |
+| P2 | `style={{ padding: x }}` | idem | "Objeto de estilo inline: use `styles` ou uma função de `<nome>.styles.ts`" |
+| P3 | import de `@/theme/tokens` em `.tsx` | idem | "Valor visual entra pelo `<nome>.styles.ts` (`styles` ou `visual`), não direto do token" |
+| P4 | import de `react` e de `View` em `*.styles.ts` | `src/components/ui/button/probe.styles.ts` | 2 erros: "Arquivo de estilo importa só `StyleSheet`, tipos de estilo e `@/theme/tokens`" e "Arquivo de estilo importa de `react-native` só `StyleSheet` (tipos com `import type`)" |
+| P5 | `export default` em `*.styles.ts` | idem | "Use export nomeado: `styles`, `visual` ou função pura de estilo" |
+| P6 | import e `export default` em `app/login.tsx` | `app/login.tsx` | 2 erros "app/ só roteia: reexporte a tela de `@/screens` ou o layout de `@/layouts`" |
+| P7 | `button.styles` importado por outro componente | `src/components/ui/text-field/probe.tsx` | "`*.styles` é privado da pasta do componente: só `./<nome>.styles` é permitido" |
+| P8 | `index.ts` reexportando `styles` | `src/components/ui/button/index.ts` | "O `index.ts` reexporta só o componente e seus tipos; nunca o estilo" |
+| P9 | `import type { ViewStyle }` e função pura em `*.styles.ts` | `src/components/ui/button/probe.styles.ts` | 0 erros de `no-restricted-*` (esperado) |
+| P10 | hook importando `button.styles` | `src/hooks/probe.ts` | bloqueado por `no-restricted-imports` (padrão `@/components/*` do override de hooks) |
+
+P4 e P9 juntos mostram que `importKind` chega do parser TypeScript: S5 casa `View` e deixa `import type`
+passar, o que afasta o risco de "S5 passa em silêncio" registrado em D4.6.
+
+Não verificado nesta revisão: app aberto com `npx expo start` no Expo Go (a ORLA provou só o
+`expo export` iOS), leitor de tela e fluxo real contra a API. Ficam com o CRIVO.
+
+### Conformidade do código com D1 a D6 (revisão de 2026-11-14)
+
+| Decisão | Código no ramo | Situação |
+|---|---|---|
+| D1 estrutura | 18 pastas de componente (13 em `ui/`, 2 em `menu/`, 3 em `perfil/`), todas com `<nome>.tsx`, `<nome>.styles.ts` e `index.ts`; 17 com `<nome>.test.tsx` (`error-retry-modal` já não tinha teste, como D3 previa); 3 telas em `src/screens`, 2 layouts em `src/layouts`; `app/` com 5 re-exports | conforme |
+| D1 `topSpacing` | variante semântica resolvida por `topSpacingStyle` em `screen-container.styles.ts` | conforme |
+| D2 contrato de estilo | exports `styles`, `visual` e funções puras (`bottomInset`, `topInset`, `topSpacingStyle`); nenhum `export default` | conforme |
+| D3 testes | 4 testes saíram de `app/` (3 telas e `menu-layout`); `ui-structure.test.ts` com 6 casos | conforme, com acréscimo (divergência 3) |
+| D4 lint | regras ativas e exercitadas por P1 a P10 | conforme, com divergências 1 e 2 |
+| D5 roteamento | `menu-routing.test.tsx` importa de `../../app/...` e passa, incluindo US-MENU-08 | conforme |
+| D6 execução | `4286f49` mover, `8c5ad54` estilo, `9395749` telas e layouts, `087033c` lint, `4b78663` teste, `eeb2623` docs, na ordem prevista | conforme |
+
+Divergências entre o texto de 2026-11-13 e o código, aceitas nesta revisão porque atendem o mesmo
+fator de decisão e P1 a P10 confirmam o efeito:
+
+1. D4.2, D4.3 e D4.5 previam `no-restricted-imports` para `@/theme/tokens` e `*.styles`. O código
+   usa `no-restricted-syntax` (`TOKENS_IN_JSX_FILE`, `FOREIGN_STYLES_IMPORT`, `ANY_STYLES_IMPORT`)
+   no mesmo array `JSX_FILE_SYNTAX`. Motivo: `no-restricted-imports` já é configurado por pasta
+   (`@/services/*` e outros) e, no ESLint 8, o último override substitui as opções; concentrar em
+   um array evita perder regra por sobreposição, o cuidado que D4.6 já apontava.
+2. D4.5 previa bloquear `*.styles` alheio em todo `app/**` e `src/**`. No código o bloqueio vale para
+   `.tsx` de componente, tela e layout; `app/` fica coberto por `ROUTE_ONLY` (P6) e hooks e serviços
+   pelo padrão `@/components/*` (P10). Ficam sem regra `src/theme`, `src/i18n`, `src/config` e
+   `src/test-utils`, que hoje não importam componente. Vai para o risco residual.
+3. Acréscimos que endurecem a decisão sem mudá-la: regra `STYLES_EXPORT_FROM_INDEX` em
+   `src/components/**/index.ts` (fecha o contra da opção A sobre `index.ts` reexportar estilo, P8) e
+   2 casos a mais no `ui-structure.test.ts` (toda pasta de componente tem `<nome>.styles.ts`;
+   `*.styles.ts` só ao lado do `.tsx` de mesmo nome).
+
 ## Prós e contras das opções
 
 ### A. Pasta por componente, styles e index; telas e layouts em src; app/ só re-export
@@ -344,17 +424,56 @@ S6  ExportDefaultDeclaration
 
 ## Mais informações
 
+* Governança: o texto de 2026-11-13 dizia que nenhum arquivo seria movido com o ADR em `proposto`. A
+  revisão humana de 2026-11-13 (20:44) pediu que o CARTOGRAFO registrasse e a ORLA aplicasse; a ORLA
+  aplicou num ramo à parte, sem PR e fora da `main`. Regra a partir desta revisão: nada deste ADR
+  entra na `main`, nem em PR aprovada, com status `proposto`. O ramo existe para a pessoa revisar
+  decisão e código juntos.
+* Integração com a PR #10 (pedido da revisão humana de 2026-11-14, 00:02). Fatos conferidos em
+  2026-11-14:
+  * PR #10: rascunho, aberta, base `main`, head `feat/f40-componentizacao-mobile` em `ea0dd69`
+    (`gh pr view 10`). Não tem a estrutura deste ADR.
+  * O ramo deste ADR tem 43 commits sobre a `main` e não descende de `ea0dd69`: carrega a F40 com os
+    SHAs antigos (vindos da `feat/f41-paridade-correcoes`), 1 commit de docs da F39 (`c815235`, só
+    `docs/design`), a F41 até `1490234` (38 arquivos de `apps/mobile` diferentes de `ea0dd69`) e os 9
+    commits deste ADR.
+  * Apontar a PR #10 para este ramo, ou trocar a base, sem reescrever o histórico leva junto a F40
+    duplicada e o commit da F39.
+  * Opções e custo:
+    * I1. Pilha de PRs: F41 rebaseada sobre `ea0dd69` (PR com base `feat/f40-componentizacao-mobile`)
+      e este ADR rebaseado sobre ela (PR com base no ramo da F41). A PR #10 fica só com F40, mas
+      continua sem a estrutura, que é exatamente o motivo da devolução.
+    * I2. Reescrever o head da PR #10 como `ea0dd69` + commits da F41 rebaseados + os 9 commits deste
+      ADR, sem `c815235` e sem a F40 duplicada. A PR #10 mostra a estrutura com a linha de base da
+      F41 embutida. Custo: force-push no ramo da PR e a PR passar a conter a F41.
+    * I3. Cherry-pick só dos 9 commits deste ADR sobre `ea0dd69`, sem a F41. A PR #10 fica com F40 e
+      estrutura, mas a prova de árvore idêntica deixa de valer (foi feita contra `1490234`), há
+      conflito nos componentes que a F41 corrigiu e a F41 teria de ser refeita sobre a estrutura nova.
+  * Recomendação: I2, por ser a única que coloca a estrutura dentro do que está em revisão sem perder
+    a linha de base da F41 nem refazer a prova. Ressalva: contraria a decisão anterior de manter a F41
+    fora da PR #10 (separação da branch em 2026-11-13). Essa troca e o force-push são da pessoa; nenhum
+    agente executa sem autorização explícita.
+  * Depois de integrar, a entrega anexa a saída real de `ls` de `src/components/ui/button`,
+    `src/components/menu/menu-tab-bar`, `src/screens/*` e `app/` (com o conteúdo dos 5 arquivos) e
+    roda `ui-structure.test.ts` no head da PR. A conferência desta revisão foi feita no ramo atual e
+    não substitui a do head integrado.
 * Risco residual:
-  * Os seletores S1 a S6 não foram executados nesta etapa. Seletor que não casa passa calado; por
-    isso a Confirmação exige violação proposital.
-  * A resolução de índice de pasta por Metro, Jest e tsc foi deduzida da configuração, não rodada.
-  * Branches abertas que criarem componente no formato antigo vão falhar no lint até migrarem.
-  * Fazer a mudança antes da F40 e da F41 integrarem gera conflito em quase todo arquivo de UI.
-    Recomendação: aplicar em PR próprio sobre a ponta da cadeia F40/F41, sem misturar com
-    correção visual.
-* Pendências fora deste arquivo, não alteradas nesta etapa: linha do ADR-015 na tabela Decisões de
-  `docs/architecture/overview.md`; README do mobile.
-* Condição para Aceito: revisão da pessoa revisora da F40. Nenhum arquivo do app é movido com este
-  ADR em `proposto`.
+  * Regra por seletor AST: um seletor que deixar de casar depois de atualizar `eslint-config-expo` ou o
+    parser passa calado. P1 a P10 são o roteiro de regressão; se a versão do lint mudar, vale
+    transformá-los em teste automatizado.
+  * `*.styles` alheio sem bloqueio em `src/theme`, `src/i18n`, `src/config` e `src/test-utils`
+    (divergência 2).
+  * O app não foi aberto no Expo Go depois da mudança; `renderRouter` e `expo export` não cobrem a
+    resolução de rota do Metro em modo de desenvolvimento.
+  * O rebase de I2 pode gerar conflito nos arquivos que F41 e este ADR tocam juntos (por exemplo
+    `alert-icon`, `inline-alert`, `menu-tab-bar`, `screen-header`); conflito resolvido à mão exige
+    refazer o dump de árvore renderizada e a suíte.
+  * Branch aberta que criar componente no formato antigo falha no lint até migrar.
+* Documentos ligados: `apps/mobile/README.md` e a tabela Decisões de `docs/architecture/overview.md`
+  já foram atualizados no ramo (`eeb2623`), com o ADR-015 como Proposto. Na mudança de status, a data
+  entra no histórico deste arquivo e na tabela, no mesmo commit.
+* Condição para Aceito: (1) revisão da pessoa revisora da F40 sobre este texto; (2) forma de
+  integração com a PR #10 decidida por ela e executada; (3) lint, tipos e suíte verdes no head
+  integrado, com `ui-structure.test.ts`; (4) F41 fechada, ou aceita junto, por ser a linha de base.
 * Revisitar quando: adotar biblioteca de estilização; tema escuro (estilo passaria a depender do
   tema em runtime, ex. `makeStyles(theme)`); ou `src/components/ui` passar de uns 30 componentes.
