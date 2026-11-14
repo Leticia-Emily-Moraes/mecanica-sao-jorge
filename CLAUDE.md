@@ -14,7 +14,7 @@ Uso inicialmente interno (sem publicação em loja de apps). Arquitetura deve pe
 
 ## Stack
 
-- **Java 21** (LTS) + **Spring Boot 4.1.0** — versões fixadas no `apps/api/pom.xml` na fundação F00.
+- **Java 21** (LTS) + **Spring Boot 4.1.2** — versões fixadas no `apps/api/pom.xml` (4.1.0 na F00; 4.1.2 na F44 por CVE crítica no Tomcat e no spring-webmvc).
 - **MySQL** — volume alto de relacionamentos (Cliente→Veículo→Ordem→Serviços/Peças→Pagamentos→Financeiro) e necessidade de relatórios relacionais (faturamento, lucro).
 - **Spring Data JPA**, **Spring Security** (JWT), **Bean Validation**, **Lombok**, **MapStruct**, **Flyway** (migrations).
 - **springdoc-openapi** para documentação — não usar Springfox (abandonado, incompatível com Spring Boot 3+/4 por usar `javax` em vez de `jakarta`).
