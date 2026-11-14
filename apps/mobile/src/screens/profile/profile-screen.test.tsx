@@ -3,7 +3,7 @@ import * as SecureStore from 'expo-secure-store';
 
 import { AuthProvider } from '@/hooks/use-auth';
 
-import PerfilScreen from './perfil';
+import PerfilScreen from './profile-screen';
 
 const mockReplace = jest.fn();
 jest.mock('expo-router', () => ({

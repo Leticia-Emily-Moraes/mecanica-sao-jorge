@@ -3,7 +3,7 @@ import { act, fireEvent, render, screen, waitFor } from '@testing-library/react-
 import { AuthProvider } from '@/hooks/use-auth';
 import { autenticar, CredenciaisInvalidasError, ErroDeRedeError } from '@/services/auth-service';
 
-import LoginScreen from './login';
+import LoginScreen from './login-screen';
 
 // Só a função é mockada — as classes de erro reais ficam, senão o
 // `instanceof` da tela compararia contra uma classe automockada diferente.

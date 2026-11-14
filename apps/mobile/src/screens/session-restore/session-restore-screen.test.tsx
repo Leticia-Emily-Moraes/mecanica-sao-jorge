@@ -3,7 +3,7 @@ import * as SecureStore from 'expo-secure-store';
 
 import { AuthProvider } from '@/hooks/use-auth';
 
-import IndexScreen from './index';
+import IndexScreen from './session-restore-screen';
 
 const mockReplace = jest.fn();
 jest.mock('expo-router', () => ({

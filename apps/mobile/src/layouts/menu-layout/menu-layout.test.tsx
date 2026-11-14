@@ -6,7 +6,7 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import { AuthProvider, useAuth } from '@/hooks/use-auth';
 
-import MenuLayout from './_layout';
+import MenuLayout from './menu-layout';
 
 const METRICAS_DE_TESTE = {
   frame: { x: 0, y: 0, width: 375, height: 812 },
