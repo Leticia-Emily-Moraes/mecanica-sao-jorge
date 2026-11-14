@@ -97,7 +97,19 @@ Busca no código de produção: `fetchAutenticado` continua sem chamador fora de
 ## 8. O que NÃO foi verificado
 
 - **Fluxo real contra a API** (login, Perfil, logout, voltar ao login): não executei. Havia Docker no `PATH` e um simulador ligado, mas subir MySQL + API Java + Expo Go e tocar na tela não cabia nesta etapa. Fica com o CRIVO.
-- **Simulador ou aparelho**: nenhuma verificação visual nesta entrega. A resolução de `@/components/ui/button` para `button/index.ts` foi provada só pelo Jest, pelo `tsc` e pelo ESLint; **não rodei o Metro nem abri o app** (o ADR pede `npx expo start` com Expo Go na Confirmação).
+- **Simulador ou aparelho**: nenhuma verificação visual nesta entrega e o app não foi aberto (o ADR pede `npx expo start` com Expo Go na Confirmação). O que foi provado do lado do Metro é só o empacotamento estático, no item 9.
 - **VoiceOver e TalkBack**: seguem sem teste em aparelho (R9).
 - **Figma**: sem mudança de tela, de token ou de texto nesta rodada, então não houve lado Figma a atualizar. Não chamei o conector.
 - **Foco por teclado** dos componentes movidos: coberto só pelos testes que já existiam (`has-focus-ring`), que passaram.
+
+## 9. Empacotamento do Metro (iOS)
+
+Comando: `npx --prefix apps/mobile expo export apps/mobile --platform ios --output-dir <scratchpad>`. Saída real, resumida:
+
+```
+iOS Bundled 4545ms node_modules/expo-router/entry.js (1150 modules)
+› ios bundles (1): _expo/static/js/ios/entry-3e97a03354b36f7ee097e95ba7c8807b.hbc (3.04 MB)
+Exported: <scratchpad>/export-ios
+```
+
+Isto confirma que o Metro resolve `@/components/ui/<nome>` para `<nome>/index.ts`, o alias `@/screens` e `@/layouts` e os re-exports de `app/`, e gera o bundle sem erro. **Não executa o app**: não prova que a tela abre, só que o bundle compila. A saída foi para o scratchpad, fora do repositório.
