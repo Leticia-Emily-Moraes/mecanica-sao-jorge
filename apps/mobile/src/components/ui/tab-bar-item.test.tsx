@@ -102,17 +102,73 @@ describe('TabBarItem', () => {
     expect(JSON.stringify(screen.toJSON())).not.toContain(color.action.primaryBackground);
   });
 
-  it('should draw the focus ring only while focused', () => {
+  it('should draw the white ring of 2 px with a 2 px gap only while focused (T1)', () => {
+    render(
+      <TabBarItem icon="people-outline" label="Clientes" accessibilityLabel="Clientes" selected />,
+    );
+    const ring = (): boolean =>
+      hasFocusRing(screen.getByRole('tab', { name: 'Clientes' }), color.focus.ringOnBrand);
+
+    expect(ring()).toBe(false);
+
+    fireEvent(screen.getByRole('tab', { name: 'Clientes' }), 'focus');
+    expect(ring()).toBe(true);
+
+    fireEvent(screen.getByRole('tab', { name: 'Clientes' }), 'blur');
+    expect(ring()).toBe(false);
+  });
+
+  it('should not use the petro ring, which disappears over the petro bar', () => {
     render(
       <TabBarItem icon="people-outline" label="Clientes" accessibilityLabel="Clientes" selected />,
     );
 
-    expect(hasFocusRing(screen.getByRole('tab', { name: 'Clientes' }))).toBe(false);
-
     fireEvent(screen.getByRole('tab', { name: 'Clientes' }), 'focus');
-    expect(hasFocusRing(screen.getByRole('tab', { name: 'Clientes' }))).toBe(true);
 
-    fireEvent(screen.getByRole('tab', { name: 'Clientes' }), 'blur');
     expect(hasFocusRing(screen.getByRole('tab', { name: 'Clientes' }))).toBe(false);
+  });
+
+  it('should reserve a 2 px ring and a 2 px gap around the item', () => {
+    render(
+      <TabBarItem icon="people-outline" label="Clientes" accessibilityLabel="Clientes" selected />,
+    );
+    let node = screen.getByRole('tab', { name: 'Clientes' }).parent;
+    while (node && StyleSheet.flatten(node.props.style as TestStyle)?.borderWidth === undefined) {
+      node = node.parent;
+    }
+
+    expect(StyleSheet.flatten(node?.props.style as TestStyle)).toMatchObject({
+      borderWidth: 2,
+      padding: 2,
+    });
+  });
+
+  it('should draw the selected item with the approved #EE8279 and announce it as selected', () => {
+    render(
+      <TabBarItem icon="people-outline" label="Clientes" accessibilityLabel="Clientes" selected />,
+    );
+
+    expect(StyleSheet.flatten(screen.getByText('Clientes').props.style as TestStyle).color).toBe(
+      '#EE8279',
+    );
+    expect(screen.getByRole('tab', { name: 'Clientes' }).props.accessibilityState).toMatchObject({
+      selected: true,
+    });
+  });
+
+  it('should dim an unavailable item to 50 percent, label and icon (T2)', () => {
+    render(
+      <TabBarItem
+        icon="cube-outline"
+        label="Catálogo"
+        accessibilityLabel="Catálogo, indisponível nesta versão"
+        selected={false}
+        unavailable
+      />,
+    );
+
+    expect(StyleSheet.flatten(screen.getByText('Catálogo').props.style as TestStyle).opacity).toBe(
+      0.5,
+    );
   });
 });

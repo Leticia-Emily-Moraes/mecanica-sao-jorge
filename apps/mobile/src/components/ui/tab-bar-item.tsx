@@ -34,7 +34,7 @@ export function TabBarItem({
   unavailable = false,
   onPress,
 }: TabBarItemProps): ReactElement {
-  const { focusRingStyle, onFocus, onBlur } = useFocusRing();
+  const { focusRingStyle, onFocus, onBlur } = useFocusRing({ onBrand: true });
   const tone = selected ? color.text.tabSelected : color.text.onBrandMuted;
 
   return (
