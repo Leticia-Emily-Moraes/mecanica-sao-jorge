@@ -1,6 +1,7 @@
 # F41 · Planilha de valores FPdB8 × código (linha de base, sem captura)
 
 Autor: ESQUADRO · Data: 2026-11-16 · Código conferido: ramo `feat/f41-paridade-fpdb8-codigo` em `937a3d1` · Arquivo de referência: `FPdB8RymAnN81pbKfizdzE`, página `20:2132`.
+**Atualização de 16/11, sessão com acesso ao Figma (ESQUADRO): a §15 substitui a §1 (acesso), a §7 (bloqueios) e as linhas de estado "aberta/bloqueada" que ela reclassifica.** As seções 1 a 14 ficam como histórico da sessão sem acesso.
 Substitui, por decisão de 16/11, o critério dos "pares lado a lado" (US-PAR-01, 08, 12, 13). Cada tela e estado tem uma linha por valor do frame (nó, token, medida, texto), o valor no código e o teste que o trava. A planilha de divergências com a história das decisões continua em `docs/design/F41-planilha-fpdb8.md`.
 
 ## 1. O que eu li e o que não consegui ler (US-PAR-11)
@@ -259,3 +260,79 @@ Autor: ORLA. Ramo `feat/f41-paridade-fpdb8-codigo`. **O Figma continua inacessí
 **Testes novos (§6):** `tokens.test.ts` com os literais; tab bar (50%, anel branco, `#EE8279`, SemiBold, ícone 22, gap 4); P2 com botão cheio e contorno; iniciais (João da Silva = JS, Maria de Souza Lima = ML, Ana = A, vazio); `hitSlop` do campo já existia; larguras 320 e 430 sem `width` fixo no Login (`find-fixed-widths`); estilo do rótulo e do campo, da caixa de erro, do cartão, do diálogo e do nome do Perfil; Login L3 e L4. O Jest **não mede layout nem toque**.
 
 **Capturas do app em simulador (iPhone 17, iOS 27.0, Expo Go, 16/11):** feitas só como conferência do ORLA, fora do git (scratchpad), por rota temporária apagada em seguida. 11 arquivos, 11 md5 distintos. Vi p1, p2, login-vazio, login-erro-rede, perfil, inicio e dialogo-isolado; não abri login-preenchido, login-carregando nem login-erro-credencial. O diálogo em cima da tela de Perfil não apareceu (modal não apresentado), por isso o diálogo foi fotografado isolado. Prova só aparência: login e fluxo contra a API real não foram executados pelo ORLA.
+
+## 15. Sessão com acesso ao Figma (ESQUADRO, 16/11): releitura, variáveis e o que sobra para o ORLA
+
+Autor: ESQUADRO · Sessão Figma `dabe8d86-f507-4d5c-8b04-08048d17d893` · Código lido no ramo `feat/f41-paridade-fpdb8-codigo` em `99dbe7e` · Arquivo `FPdB8RymAnN81pbKfizdzE`.
+
+**Acesso (US-PAR-11):** `whoami` passou nesta sessão (saída real colada em `docs/design/figma.md`, seção "Sessão de 16/11 com acesso ao Figma"). A §1 e a §7 desta planilha descrevem a sessão anterior, sem acesso. Tudo abaixo foi lido no arquivo hoje, nó por nó; o lado do código foi lido nos arquivos citados, **sem rodar a suíte** (não alterei código).
+
+### 15.1 Lado Figma feito (US-PAR-07)
+
+| Token | Código (`tokens.ts`) | Figma (variável, lida por `get_variable_defs`) | Nós ligados | Resultado |
+|---|---|---|---|---|
+| `color.text.placeholder` | `flint` `#6E6A66` | `color/text/placeholder` `89:716` = `#6e6a66` | `10:926`, `10:933`, `82:2117`, `82:2122` | **valores idênticos nos dois lados** |
+| `color.border.default` | `stone` `#8C8780` | `color/border/default` `89:717` = `#8c8780` | `10:932`, `82:2008`, `82:2013`, `82:2042`, `82:2047`, `82:2076`, `82:2081`, `82:2116`, `82:2121` | **idênticos** |
+| `color.text.tabSelected` | `coral` `#EE8279` | `color/text/tabSelected` `89:718` = `#ee8279` | rótulo e ícone em `20:1102` e `20:1340` (T1 herda) | **idênticos** |
+
+Os três primitivos (`primitive/flint`, `stone`, `coral`) têm o mesmo hex de `primitiveColor` em `tokens.ts`. A coleção só tem essas 6 variáveis; as demais linhas da tabela do ADR-014 **não foram criadas** (ver §15.5).
+
+### 15.2 Linhas que mudam de estado
+
+| ID | Era | Agora | Evidência |
+|---|---|---|---|
+| V-L07 (placeholder) | igual, hex "depende do §6" | **fechada** nos dois lados | 15.1 |
+| V-L09 (borda de campo) | aberta | **fechada** nos dois lados (o `tokens.ts` já estava em `#8C8780`) | 15.1 |
+| V-T06 (aba selecionada) | aberta | **fechada** nos dois lados; T1 `83:817` lido com 5 elementos em `#EE8279` e nenhum em Crail | 15.1 |
+| V-L18 (L3, erro de conexão) | aberta a conferir o texto | **fechada** no texto: frame **"Sem conexão. Verifique a internet da oficina e tente de novo."** = `login.erroRede.mensagem` (`strings.ts:30`, texto idêntico); caixa Pot Pourri/Rose Fog/El Salva, 13 de margem, 10 de espaço, ícone 18, Inter 14 / 19,6, entre a senha e o botão | `82:2092`, `82:2095`; ORLA já trocou o popup pela caixa (§14) |
+| V-L19 (L4, sessão expirada) | aberta a conferir | **fechada** no texto e na posição: **"Sua sessão expirou. Faça login novamente."**, mesma caixa, acima do campo Usuário; código `login.sessaoExpirada.mensagem` (`strings.ts:31`) com texto idêntico; "Carregando sessão…" do P1 = `sessao.inicializando.rotulo` (`strings.ts:56`), idêntico, com `…` | `82:2131`, `82:2134`, `83:753` |
+| V-P15 (P2, botões) | aberta | **lado Figma fechado**: "Tentar novamente" cheio (Crail, texto branco) e "Entrar novamente" em contorno petro; 328 × 50, raio 8 | `83:770`, `83:815`; captura conferida |
+| V-L14 (L2, carregando) | aberta a conferir | **aberta, real, com a leitura que faltava** (15.3) | `82:2049`, `82:2137` |
+| iconSize.empty, typography.title (P2), typography.body (P2), typography.rowLabel (P1), opacity.disabled, focusRingRadius, typography.caption | "a conferir" no ADR-014 | **lidas** (15.3 e 15.4) | abaixo |
+
+### 15.3 Divergências reais abertas, com o valor lido no Figma e o do código (para o ORLA)
+
+Todas são **reais** (o Figma manda, D-02); nenhuma é de plataforma. Nenhuma foi corrigida por mim: não alterei código.
+
+| # | Tela, estado | Figma (nó) | Código hoje (arquivo) | O que fazer |
+|---|---|---|---|---|
+| R-1 | Login carregando (L2) | texto **"Entrando…"** (um caractere `…`, U+2026) em `82:2049` | `login.botaoEntrar.carregando` = `Entrando...` (três pontos) em `strings.ts:26` | trocar a chave por `Entrando…` e ajustar o teste que procura o texto |
+| R-2 | Login carregando (L2) | botão Crail a **100%** de opacidade; indicador branco 16 × 16, arco de 270°, à esquerda do texto (`82:2137`) | `Button` com `loading` entra em `isDisabled` e aplica `opacity.disabled` **0,5** (`button.tsx:69`, `:120`) | no estado carregando não esmaecer; manter `opacity.disabled` só para o botão desabilitado de verdade (sem frame). Indicador branco sobre Crail: 5,41:1 (par I7) |
+| R-3 | Login, ação "Mostrar" na senha (L1, L2, L3) | Inter **Medium 13**, Flint (`82:2023`, `82:2057`) | `InlineActionButton` usa `typography.caption` (Inter Regular 12) (`inline-action-button.tsx:72`) | usar o estilo do rótulo de campo (`typography.fieldLabel`: Inter Medium 13), que já tem o mesmo desenho. `typography.caption` segue valendo só para a validação de campo (sem frame) |
+| R-4 | Perfil erro (P2), círculo | **72**, preenchimento `#EDE9E4` (`color/grey/91`) (`83:763`) | `size.avatar` = 84, fundo `color.surface.errorTint` (Pot Pourri) (`error-state.tsx:21`, `:78`) | círculo de 72 e `#EDE9E4`: **token novo** nos dois lados (sugestão de nome: `size.stateIcon` = 72, `color.surface.neutral` = `#EDE9E4`) |
+| R-5 | Perfil erro (P2), ícone | **32**, Spectra (`83:764`) | `iconSize.empty` = 48 (`error-state.tsx:46`) | 32. O token `iconSize.alert` já vale 32 e **não tem consumidor** (achado 14 do ADR): pode ser reaproveitado. `iconSize.empty` passa a ser 32 ou sai de uso, conforme o ORLA decidir (o Início proposto também usa 32) |
+| R-6 | Perfil erro (P2), título | Barlow Condensed SemiBold **20**, petro (`83:767`) | `typography.title` (Barlow Condensed SemiBold 24) (`error-state.tsx:84`) | estilo novo de 20 (sugestão: `typography.stateTitle`); `typography.title` 24 continua para o nome do Perfil |
+| R-7 | Perfil erro (P2), mensagem | Inter Regular **14 / 21**, Flint, centralizada, 289 de largura (`83:769`) | `typography.body` (Inter Regular 16) (`error-state.tsx:91`) | 14 / 21 é o mesmo desenho de `typography.dialogMessage`: reaproveitar, sem estilo novo |
+| R-8 | Tab bar, foco (T1) | anel `84:786`: **86 × 58, raio 10**, traço **branco** de 2 px **por dentro**, a 2 px da borda da célula de 90 × 62 | `focusRingRadius` = `radius.sm + 2 + 2` = **12** (`tokens.ts:178`); o anel do botão é desenhado **por fora** do controle (`button.tsx:92-95`) | medir o anel do item da tab bar no app e deixar a caixa externa em 86 × 58 com raio 10. Não consegui medir o app; a diferença de raio (10 × 12) vem da leitura dos dois arquivos |
+| R-9 | Perfil carregando (P1) | indicador **36**, petro, traço 3; texto "Carregando sessão…" (`…`) Inter Regular 14, Flint, **12** abaixo do indicador | `StateView loading` usa `typography.rowLabel` (Inter Regular 14) (`state-view.tsx:94`) | estilo igual. Conferir o espaço de 12 e o `…`; o tamanho do indicador é desenhado pelo sistema (D-16, plataforma) e fica de fora |
+
+**Os valores que a tabela do ADR-014 chamava "a conferir" ficaram assim:** `iconSize.empty` (P2) = 32 (R-5); `typography.title` no P2 = 20 (R-6); `typography.body` no P2 = 14 / 21 (R-7); `typography.rowLabel` no P1 = 14 Regular (**igual**); `opacity.disabled` no L2 = 100% (R-2); `focusRingRadius` = 10 no T1 (R-8); `typography.caption` na ação "Mostrar" = Inter Medium 13 (R-3).
+
+### 15.4 Frame proposto novo: Início (I1 `89:971`)
+
+Criado hoje na seção `82:1989`. Textos, ícone de documento de 32 e posições são **proposta minha**, não valor do Figma de referência. **Aguarda aprovação da pessoa** (D-20: fora do aceite da F41; sem aprovação nenhuma linha de Início conta como paridade). Quatro estados: vazio é o único que existe; carregando, erro e sucesso são "não se aplica" (a tela é estática, não chama API).
+
+Contraste (script `docs/design/F41-contraste.py`, saída 0, rodado hoje): título petro sobre Pampas 11,14:1; mensagem Flint sobre Pampas 4,93:1; título do cabeçalho branco sobre petro 12,12:1; ícone Spectra sobre `#EDE9E4` 6,53:1 (par I5); itens da tab bar a 50%: isentos (D1).
+Acessibilidade do I1: ordem de foco cabeçalho (título, botão de usuário com nome "Perfil"), conteúdo, tab bar; o leitor deve anunciar "Início", "Perfil, botão", "Em breve", a mensagem e cada aba como indisponível.
+
+### 15.5 Não feito, e por quê
+
+- **Escudo** 84 × 96: não exportado. Origem e liberação de uso seguem sem registro; D-21 o deixa fora do aceite. Nada inventado.
+- **Coleção completa do ADR-014** (cores restantes, medidas, raios, espaçamentos, estilos e efeitos): só criei as 3 variáveis que a pessoa aprovou. US-PAR-07 está **fechada para esses três tokens**; **não** está fechada para o restante da tabela do ADR, que continua com "Figma: criar e ligar". Quem decide se isso entra na F41 é a pessoa/BUSSOLA.
+- **R-4, R-5, R-6 criam token novo ou alteram token** (`color.surface.neutral`, tamanho 72, `typography.stateTitle`, `iconSize.empty`): quando o ORLA os criar, **as variáveis ou estilos do Figma entram na mesma entrega** (US-PAR-07). Combinar com ESQUADRO.
+- Capturas em arquivo: o shell bloqueou o download dos PNGs; conferi por `get_screenshot` em linha (P2, T1, L4 e I1) e **não gravei imagem** no repositório.
+- Suíte do app **não rodada** nesta sessão (não alterei código). O último resultado registrado é o da §10 (186 testes em `937a3d1`) e o do ORLA na §14; não confirmei nenhum dos dois hoje.
+
+### 15.6 Quadro de fechamento (US-PAR-08), sem pares lado a lado (D-19)
+
+| Condição de fechamento | Estado |
+|---|---|
+| 3 variáveis no Figma com o mesmo valor do código | **feito** (15.1) |
+| P2 `83:754` com botão cheio e contorno | **feito** |
+| T1 `83:817` em `#EE8279` | **feito** |
+| Releitura de L2, L3 e L4 com o valor em cada linha | **feita**; L3 e L4 batem com o código, **L2 não** (R-1, R-2) |
+| Frame Início aprovado | **proposto, sem aprovação**; fora do aceite (D-20) |
+| Escudo exportado | **não feito**; fora do aceite (D-21) |
+| Zero divergência real aberta | **não**: R-1 a R-9 abertas, todas do lado do código (ORLA) |
+
+A F41 **não fecha** enquanto R-1 a R-9 estiverem abertas.

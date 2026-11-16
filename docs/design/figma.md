@@ -45,7 +45,7 @@ Na página `20:2132` há duas seções: `10:3936` "Mecânica São Jorge — 49 t
 
 **Capturas "antes":** exportadas em 1x lógico (410 × 804 com margem do frame de apresentação; as da tab bar em 360 × 62), todas abaixo de 100 KB. Guardam o estado dos frames **antes de qualquer edição da F41** (regra de edição, passo 2).
 
-**Variáveis do arquivo (leitura de `get_variable_defs` em `10:895`):** o arquivo foi gerado por importação de HTML e as variáveis têm **nome automático por matiz e luminosidade**, sem papel (`color/cyan/18` = `#1E3A3F`, `color/red/47` = `#B5453D`, `color/grey/96` = `#F7F5F2`, `color/orange/87` = `#E2DEDA`, `color/grey/42` = `#6E6A66`, `color/grey/64` = `#A8A39D`, `color/grey/70` = `#B7B2AC`, `color/cyan/28` = `#33575D`, `color/grey/93-3` = `#F6E7E5`, `color/red/79` = `#E2B5B0`, `color/red/38` = `#923631`). Isso **foge da convenção `<categoria>/<papel>/<estado>`** da casa; a coleção `OP-002 Identidade v2` do ADR-014 é quem corrige, e só entra depois da aprovação dos tokens (US-PAR-07). Nenhuma variável foi criada ou alterada até esta linha.
+**Variáveis do arquivo (leitura de `get_variable_defs` em `10:895`):** o arquivo foi gerado por importação de HTML e as variáveis têm **nome automático por matiz e luminosidade**, sem papel (`color/cyan/18` = `#1E3A3F`, `color/red/47` = `#B5453D`, `color/grey/96` = `#F7F5F2`, `color/orange/87` = `#E2DEDA`, `color/grey/42` = `#6E6A66`, `color/grey/64` = `#A8A39D`, `color/grey/70` = `#B7B2AC`, `color/cyan/28` = `#33575D`, `color/grey/93-3` = `#F6E7E5`, `color/red/79` = `#E2B5B0`, `color/red/38` = `#923631`). Isso **foge da convenção `<categoria>/<papel>/<estado>`** da casa; a coleção `OP-002 Identidade v2` do ADR-014 é quem corrige, e só entra depois da aprovação dos tokens (US-PAR-07). Até a leitura de 14/11 nenhuma variável semântica existia; **em 16/11 foi criada a coleção `OP-002 Identidade v2` com 6 variáveis** (ver "Sessão de 16/11 com acesso ao Figma" mais abaixo).
 
 ### Seção "F41 — estados propostos" (`82:1989`, página `20:2132`, x 7800, y 0)
 
@@ -68,6 +68,57 @@ Observação de método: a instrução `figma-use` não pôde ser carregada nest
 A conferência da F41 (planilha, tokens, contraste e estados propostos) está em `docs/design/F41-planilha-fpdb8.md`. Desde 16/11 a prova de paridade é a planilha de valores `docs/design/F41-valores-fpdb8.md` (sem capturas lado a lado).
 
 **Sessão de 16/11 sem acesso ao Figma (ESQUADRO, US-PAR-11).** O ambiente informou que o servidor `figma-remote` exige autenticação e a sessão é não interativa; nenhuma ferramenta `mcp__figma-remote__*` ficou disponível. **Não houve chamada, então não há saída de `whoami` desta sessão.** Nada foi lido nem editado no Figma. Para liberar: `claude mcp login figma-remote` em sessão interativa. Pendente por isso: criar as 3 variáveis aprovadas (placeholder Flint, borda de campo `#8C8780`, aba selecionada `#EE8279`) e religar L1 a L4, C1, T1, T2, `20:1102` e `20:1340`; ajustar o P2 `83:754` (botão cheio + contorno); propor o frame Início; exportar o escudo de `10:895` com origem e liberação.
+
+### Sessão de 16/11 com acesso ao Figma (ESQUADRO, US-PAR-07, US-PAR-11) — o que foi feito
+
+**Saída real de `whoami` (e-mail omitido de propósito):** `{"whoami":{"user_id":"1126488233271433922","handle":"Leticia Moraes","plans":[{"name":"Time Pessoal","seat":"Full","tier":"student","key":"team::1274094162661077353","role":"admin","specs_enabled":true,"code_layers_enabled":true}]}}`. `create_session` no `FPdB8RymAnN81pbKfizdzE` devolveu a sessão `dabe8d86-f507-4d5c-8b04-08048d17d893`. Nenhum erro de permissão em `get_metadata`, `get_design_context`, `get_variable_defs`, `get_screenshot` e `use_figma`.
+
+**Método:** a instrução `figma-use` não pôde ser carregada (não há `get_figma_skill` nem recurso de skill disponível nesta sessão). Cada escrita foi feita em passo pequeno, com leitura do estado antes e conferência depois (leitura por código e `get_screenshot`). Só toquei os nós listados abaixo.
+
+**Coleção criada: `OP-002 Identidade v2`** (`VariableCollectionId:89:712`, modo "Padrão"). Só tem o que a F41 aprovou; **as outras ~70 linhas da tabela do ADR-014 não foram criadas** (ver "Não feito").
+
+| Variável | Id | Valor | Aponta para | Escopo |
+|---|---|---|---|---|
+| `primitive/flint` | `89:713` | `#6E6A66` | — | todos |
+| `primitive/stone` | `89:714` | `#8C8780` | — | todos |
+| `primitive/coral` | `89:715` | `#EE8279` | — | todos |
+| `color/text/placeholder` | `89:716` | `#6E6A66` | `primitive/flint` | texto |
+| `color/border/default` | `89:717` | `#8C8780` | `primitive/stone` | traço |
+| `color/text/tabSelected` | `89:718` | `#EE8279` | `primitive/coral` | texto, preenchimento, traço |
+
+A descrição das três semânticas guarda o antes e o depois com a razão de contraste (ADR-014, regra 16).
+
+**Nós religados (lidos de volta por `get_variable_defs`):**
+
+- `color/text/placeholder`: textos `10:926`, `10:933` (frame `10:895`), `82:2117`, `82:2122` (L4). L1, L2 e L3 não têm placeholder (campos preenchidos).
+- `color/border/default`: traço dos campos em repouso `10:932`, `82:2008`, `82:2013`, `82:2042`, `82:2047`, `82:2076`, `82:2081`, `82:2116`, `82:2121`. **Não foi religado** o traço dos campos em Crail (`10:925`, `10:960`, `10:965`: foco e erro) nem a borda externa das telas e do cartão (Westar, decorativa).
+- `color/text/tabSelected`: rótulo `10:1023` e ícone (`I10:1020;10:42`, `I10:1020;10:43`) em **`20:1102`**; rótulo `10:1141` e ícone (`I10:1136;10:95` a `10:98`) em **`20:1340`**. Como T1 `83:817` é instância de `20:1340`, ele herdou: a leitura posterior achou 5 elementos em `#EE8279` e nenhum em Crail. T2 `83:844` não mudou (os 4 itens continuam em Tide a 50%).
+- Efeito colateral aceito: toda instância desses dois componentes no arquivo passa a mostrar o item selecionado em `#EE8279` (é o propósito do componente; o ADR-014 pede isso).
+
+**P2 `83:754`:** botão `83:770` "Tentar novamente" agora é cheio (preenchimento e traço `color/red/47` = Crail, texto `color/white/solid`); `83:815` "Entrar novamente" continua em contorno petro. Medidas intactas (328 × 50, raio 8).
+
+**C1 `85:744`** (criado por mim): título trocado de "aguardam aprovação" para "aprovadas em 16/11/2026" e nome do quadro atualizado. Os exemplos dentro dele continuam com hex direto, de propósito: mostram o antes e o depois.
+
+**Novo frame proposto I1 `89:971` — Início, estado vazio** (na seção `82:1989`, x 1550, y 1850; a seção cresceu de 2450 para 2650 de altura). Tela `89:976` (362 × 742, Pampas): cabeçalho `89:996` (instância de `20:1079`, título "Início", botão de usuário 36 × 36), círculo `89:979` (72, `color/grey/91`) com ícone de documento de 32 (variante 18 da tab bar, traço Spectra, **escolha minha**: o frame não tem ícone de "em breve"), título `89:981` "Em breve" (Barlow Condensed SemiBold 20, petro), mensagem `89:984` "Os módulos da oficina chegam nas próximas versões." (Inter 14 / 21, Flint, centralizada), tab bar `89:1003` (cópia do T2: 4 itens a 50%). Textos, ícone e posições são **proposta minha, não valor do Figma de referência**. **Aguarda aprovação da pessoa**; até lá não faz parte da lista viva (D-20: Início está fora do aceite da F41).
+
+### Releitura de L2, L3, L4, L1, P1, P2 e T1 (16/11, com acesso)
+
+| Nó | Leitura |
+|---|---|
+| L2 `82:2024` botão `82:2049` | texto **"Entrando…"** (um caractere U+2026), preenchimento Crail a **100%** de opacidade (botão e texto), indicador `82:2137` elipse 16 × 16 branca, arco de 270°, à esquerda do texto |
+| L3 `82:2058` caixa `82:2092` | Pot Pourri `#F6E7E5`, borda Rose Fog `#E2B5B0` 1 px, raio 8, margem 13, espaço 10, ícone 18, texto **"Sem conexão. Verifique a internet da oficina e tente de novo."** El Salva `#923631`, Inter Regular 14 / 19,6, caixa de 66 de altura entre a senha e o botão |
+| L4 `82:2098` caixa `82:2131` | mesma caixa e estilo, texto **"Sua sessão expirou. Faça login novamente."**, **acima** do campo Usuário (entre o bloco da marca e o formulário); placeholders "Seu usuário" e "Sua senha" agora em `color/text/placeholder` |
+| L1 `82:2023` / L2 `82:2057` | ação da senha com texto visível **"Mostrar"** (a camada se chama "Mostrar senha"), Inter **Medium 13**, Flint |
+| P1 `83:712` | indicador `83:752` elipse 36, petro; texto `83:753` **"Carregando sessão…"** (U+2026), Inter Regular 14, Flint, 12 abaixo do indicador; fundo Pampas |
+| P2 `83:754` | círculo 72 em `color/grey/91` `#EDE9E4`; ícone 32 (variante 5, Spectra); título "Não foi possível carregar" Barlow Condensed SemiBold **20**, petro; mensagem Inter Regular **14 / 21**, Flint, centralizada, 289 de largura; botões de 328 × 50 empilhados com 12 de espaço, rodapé |
+| T1 `83:817` anel `84:786` | retângulo 86 × 58, traço branco 2 px **por dentro**, **raio 10**, 2 px de respiro dentro da célula de 90 × 62; legenda: 12,12:1 sobre petro |
+
+### Não feito nesta sessão (declarado)
+
+- Escudo 84 × 96 de `10:895`: **não exportado** (origem e liberação de uso sem registro; D-21 deixa fora do aceite da F41). Nenhum substituto foi inventado.
+- Frame Início: só proposto (I1), sem aprovação.
+- Coleção completa do ADR-014 (cores restantes, medidas, raios, espaçamentos, estilos de texto e efeitos): **não criada**; só as 3 variáveis que a F41 aprovou. Nenhum frame além dos listados foi ligado a variável nova.
+- Capturas em arquivo: o shell bloqueou o download dos PNGs, então conferi cada frame por `get_screenshot` em linha, sem gravar imagem no repositório.
 
 ## Páginas
 
