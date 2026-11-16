@@ -1,24 +1,9 @@
-import * as SecureStore from 'expo-secure-store';
 import type { ReactElement, ReactNode } from 'react';
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 
-import { autenticar } from './auth-api';
-import type { Usuario } from './types';
-
-const CHAVE_TOKEN = 'mecanicaSaoJorge.auth.token';
-const CHAVE_USUARIO = 'mecanicaSaoJorge.auth.usuario';
-
-/**
- * Credencial de autenticação e PII (token JWT + nome/e-mail/perfil) só são
- * acessíveis com o aparelho desbloqueado e NUNCA saem do dispositivo: o
- * sufixo THIS_DEVICE_ONLY exclui o item de backups criptografados (iCloud/
- * iTunes) e impede restauração em outro aparelho. Minimiza a exposição do
- * dado pessoal (LGPD art. 46) além do Keychain/Keystore local. Ver
- * docs/product/F30-appsec-lgpd-login-perfil.md.
- */
-const OPCOES_ARMAZENAMENTO_SEGURO: SecureStore.SecureStoreOptions = {
-  keychainAccessible: SecureStore.WHEN_UNLOCKED_THIS_DEVICE_ONLY,
-};
+import { autenticar } from '@/services/auth-service';
+import type { Usuario } from '@/services/auth-types';
+import { clearStoredSession, readStoredSession, saveSession } from '@/services/session-storage';
 
 export type AuthStatus =
   | { tipo: 'carregando' }
@@ -37,22 +22,6 @@ export interface AuthContextValue {
 
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 
-async function limparCredenciaisArmazenadas(): Promise<void> {
-  await Promise.all([
-    SecureStore.deleteItemAsync(CHAVE_TOKEN),
-    SecureStore.deleteItemAsync(CHAVE_USUARIO),
-  ]);
-}
-
-function parseUsuarioArmazenado(valor: string): Usuario | null {
-  try {
-    const candidato = JSON.parse(valor) as Usuario;
-    return candidato;
-  } catch {
-    return null;
-  }
-}
-
 export function AuthProvider({ children }: { children: ReactNode }): ReactElement {
   const [status, setStatus] = useState<AuthStatus>({ tipo: 'carregando' });
   const [tokenAtual, setTokenAtual] = useState<string | null>(null);
@@ -60,16 +29,11 @@ export function AuthProvider({ children }: { children: ReactNode }): ReactElemen
   const inicializar = useCallback(async () => {
     setStatus({ tipo: 'carregando' });
     try {
-      const [token, usuarioSerializado] = await Promise.all([
-        SecureStore.getItemAsync(CHAVE_TOKEN),
-        SecureStore.getItemAsync(CHAVE_USUARIO),
-      ]);
+      const sessao = await readStoredSession();
 
-      const usuario = usuarioSerializado ? parseUsuarioArmazenado(usuarioSerializado) : null;
-
-      if (token && usuario) {
-        setTokenAtual(token);
-        setStatus({ tipo: 'autenticado', usuario });
+      if (sessao) {
+        setTokenAtual(sessao.token);
+        setStatus({ tipo: 'autenticado', usuario: sessao.usuario });
       } else {
         setTokenAtual(null);
         setStatus({ tipo: 'naoAutenticado', sessaoExpirada: false });
@@ -86,27 +50,20 @@ export function AuthProvider({ children }: { children: ReactNode }): ReactElemen
   const login = useCallback(async (email: string, senha: string): Promise<void> => {
     const resposta = await autenticar(email, senha);
 
-    await Promise.all([
-      SecureStore.setItemAsync(CHAVE_TOKEN, resposta.token, OPCOES_ARMAZENAMENTO_SEGURO),
-      SecureStore.setItemAsync(
-        CHAVE_USUARIO,
-        JSON.stringify(resposta.usuario),
-        OPCOES_ARMAZENAMENTO_SEGURO,
-      ),
-    ]);
+    await saveSession({ token: resposta.token, usuario: resposta.usuario });
 
     setTokenAtual(resposta.token);
     setStatus({ tipo: 'autenticado', usuario: resposta.usuario });
   }, []);
 
   const logout = useCallback(async (): Promise<void> => {
-    await limparCredenciaisArmazenadas();
+    await clearStoredSession();
     setTokenAtual(null);
     setStatus({ tipo: 'naoAutenticado', sessaoExpirada: false });
   }, []);
 
   const tratarSessaoExpirada = useCallback(async (): Promise<void> => {
-    await limparCredenciaisArmazenadas();
+    await clearStoredSession();
     setTokenAtual(null);
     setStatus({ tipo: 'naoAutenticado', sessaoExpirada: true });
   }, []);
