@@ -7,7 +7,6 @@ import { Button } from '@/components/ui/button';
 import { InlineActionButton } from '@/components/ui/inline-action-button';
 import { InlineAlert } from '@/components/ui/inline-alert';
 import { ScreenContainer } from '@/components/ui/screen-container';
-import { StateView } from '@/components/ui/state-view';
 import { TextField } from '@/components/ui/text-field';
 import { useAuth } from '@/hooks/use-auth';
 import { useLogin } from '@/hooks/use-login';
@@ -30,6 +29,7 @@ export default function LoginScreen(): ReactElement {
 
   const enviando = form.estadoEnvio === 'enviando';
   const credencialInvalida = form.estadoEnvio === 'erroCredencial';
+  const erroDeRede = form.estadoEnvio === 'erroRede';
 
   return (
     <ScreenContainer centered horizontalPadding={LOGIN_HORIZONTAL_PADDING} statusBarStyle="dark">
@@ -65,6 +65,11 @@ export default function LoginScreen(): ReactElement {
         rightAccessory={
           <InlineActionButton
             label={
+              form.mostrarSenha
+                ? t('login.campoSenha.ocultarTexto')
+                : t('login.campoSenha.mostrarTexto')
+            }
+            accessibilityLabel={
               form.mostrarSenha ? t('login.campoSenha.ocultar') : t('login.campoSenha.mostrar')
             }
             disabled={enviando}
@@ -74,21 +79,13 @@ export default function LoginScreen(): ReactElement {
       />
 
       {credencialInvalida ? <InlineAlert message={t('login.erroCredencial.mensagem')} /> : null}
+      {erroDeRede ? <InlineAlert message={t('login.erroRede.mensagem')} /> : null}
 
       <Button
         label={t('login.botaoEntrar.rotulo')}
         loadingLabel={t('login.botaoEntrar.carregando')}
         loading={enviando}
         onPress={() => void form.enviar()}
-      />
-
-      <StateView
-        state="error"
-        visible={form.estadoEnvio === 'erroRede'}
-        title={t('login.erroRede.titulo')}
-        message={t('login.erroRede.mensagem')}
-        retryLabel={t('login.erroRede.botaoTentarNovamente')}
-        onRetry={() => void form.enviar()}
       />
     </ScreenContainer>
   );

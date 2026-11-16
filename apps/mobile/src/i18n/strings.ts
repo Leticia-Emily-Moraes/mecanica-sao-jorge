@@ -17,15 +17,17 @@ const strings = {
   'login.campoSenha.rotulo': 'Senha',
   'login.campoSenha.placeholder': 'Sua senha',
   'login.campoSenha.erroVazio': 'Informe sua senha',
+  /** Texto visível da ação (L1) e nome acessível completo (WCAG 2.5.3). */
+  'login.campoSenha.mostrarTexto': 'Mostrar',
+  'login.campoSenha.ocultarTexto': 'Ocultar',
   'login.campoSenha.mostrar': 'Mostrar senha',
   'login.campoSenha.ocultar': 'Ocultar senha',
   'login.botaoEntrar.rotulo': 'Entrar',
   'login.botaoEntrar.carregando': 'Entrando...',
   'login.erroCredencial.mensagem':
     'Usuário ou senha incorretos. Confira os dados e tente novamente.',
-  'login.erroRede.titulo': 'Não foi possível conectar.',
-  'login.erroRede.mensagem': 'Verifique sua conexão e tente novamente.',
-  'login.erroRede.botaoTentarNovamente': 'Tentar novamente',
+  /** L3: caixa de erro entre a senha e o botão. Redação proposta pelo ESQUADRO, frame não relido. */
+  'login.erroRede.mensagem': 'Sem conexão. Verifique a internet da oficina e tente de novo.',
   'login.sessaoExpirada.mensagem': 'Sua sessão expirou. Faça login novamente.',
 
   'cabecalho.usuario.rotulo': 'Perfil',

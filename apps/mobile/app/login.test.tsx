@@ -1,11 +1,14 @@
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react-native';
 import * as SecureStore from 'expo-secure-store';
-import { StyleSheet } from 'react-native';
-import type { TestStyle } from '@/test-utils/flat-style';
+import { useEffect } from 'react';
+import * as ReactNative from 'react-native';
+import { Modal, StyleSheet } from 'react-native';
 
-import { AuthProvider } from '@/hooks/use-auth';
+import { AuthProvider, useAuth } from '@/hooks/use-auth';
 import { autenticar, CredenciaisInvalidasError, ErroDeRedeError } from '@/services/auth-service';
 import type { Usuario } from '@/services/auth-types';
+import type { TestStyle } from '@/test-utils/flat-style';
+import { findFixedWidths } from '@/test-utils/find-fixed-widths';
 import { borderWidth, color } from '@/theme/tokens';
 
 import LoginScreen from './login';
@@ -33,6 +36,22 @@ const USUARIO_FICTICIO: Usuario = {
 };
 
 const MENSAGEM_CREDENCIAL = 'Usuário ou senha incorretos. Confira os dados e tente novamente.';
+const MENSAGEM_REDE = 'Sem conexão. Verifique a internet da oficina e tente de novo.';
+const MENSAGEM_SESSAO_EXPIRADA = 'Sua sessão expirou. Faça login novamente.';
+
+/** Simula o que o app faz quando o token expira: marca a sessão como expirada. */
+function ExpireSessionOnMount(): null {
+  const { status, tratarSessaoExpirada } = useAuth();
+
+  // Espera o bootstrap terminar, senão ele sobrescreve o estado de expirada.
+  useEffect(() => {
+    if (status.tipo === 'naoAutenticado' && !status.sessaoExpirada) {
+      void tratarSessaoExpirada();
+    }
+  }, [status, tratarSessaoExpirada]);
+
+  return null;
+}
 
 async function renderLoginScreen(): Promise<void> {
   render(
@@ -140,7 +159,7 @@ describe('LoginScreen', () => {
     expect(tree.indexOf(MENSAGEM_CREDENCIAL)).toBeLessThan(tree.lastIndexOf('"Entrar"'));
   });
 
-  it('should show the network error modal with a retry action when the API is unreachable', async () => {
+  it('should show the connection error box between the password and the button, not a popup (L3)', async () => {
     autenticarMock.mockRejectedValueOnce(new ErroDeRedeError());
     await renderLoginScreen();
 
@@ -148,8 +167,70 @@ describe('LoginScreen', () => {
     fireEvent.changeText(screen.getByLabelText('Senha'), 'senha-ficticia');
     fireEvent.press(screen.getByRole('button', { name: 'Entrar' }));
 
-    expect(await screen.findByText('Não foi possível conectar.')).toBeTruthy();
-    expect(screen.getByRole('button', { name: 'Tentar novamente' })).toBeTruthy();
+    expect(await screen.findByText(MENSAGEM_REDE)).toBeTruthy();
+    expect(screen.getByRole('alert', { name: MENSAGEM_REDE })).toBeTruthy();
+    expect(screen.UNSAFE_queryByType(Modal)).toBeNull();
+
+    const tree = JSON.stringify(screen.toJSON());
+    expect(tree.indexOf('"Sua senha"')).toBeLessThan(tree.indexOf(MENSAGEM_REDE));
+    expect(tree.indexOf(MENSAGEM_REDE)).toBeLessThan(tree.lastIndexOf('"Entrar"'));
+  });
+
+  it('should keep the fields without the error border on a connection failure', async () => {
+    autenticarMock.mockRejectedValueOnce(new ErroDeRedeError());
+    await renderLoginScreen();
+
+    fireEvent.changeText(screen.getByLabelText('Usuário'), 'ana.souza@exemplo-ficticio.com.br');
+    fireEvent.changeText(screen.getByLabelText('Senha'), 'senha-ficticia');
+    fireEvent.press(screen.getByRole('button', { name: 'Entrar' }));
+    await screen.findByText(MENSAGEM_REDE);
+
+    for (const caixa of screen.getAllByTestId('text-field-box')) {
+      expect(StyleSheet.flatten(caixa.props.style as TestStyle).borderColor).toBe(
+        color.border.default,
+      );
+    }
+  });
+
+  it('should retry the login by pressing the same Entrar button after a connection failure', async () => {
+    autenticarMock.mockRejectedValueOnce(new ErroDeRedeError());
+    autenticarMock.mockResolvedValueOnce({
+      token: 'token-jwt-fake',
+      tipo: 'Bearer',
+      expiraEm: '2026-11-14T00:00:00Z',
+      usuario: USUARIO_FICTICIO,
+    });
+    await renderLoginScreen();
+
+    fireEvent.changeText(screen.getByLabelText('Usuário'), 'ana.souza@exemplo-ficticio.com.br');
+    fireEvent.changeText(screen.getByLabelText('Senha'), 'senha-ficticia');
+    fireEvent.press(screen.getByRole('button', { name: 'Entrar' }));
+    await screen.findByText(MENSAGEM_REDE);
+
+    fireEvent.press(screen.getByRole('button', { name: 'Entrar' }));
+
+    await waitFor(() => expect(mockReplace).toHaveBeenCalledWith('/inicio'));
+    expect(autenticarMock).toHaveBeenCalledTimes(2);
+  });
+
+  it('should show the expired session notice as an alert above the form (L4)', async () => {
+    render(
+      <AuthProvider>
+        <ExpireSessionOnMount />
+        <LoginScreen />
+      </AuthProvider>,
+    );
+
+    expect(await screen.findByRole('alert', { name: MENSAGEM_SESSAO_EXPIRADA })).toBeTruthy();
+
+    const tree = JSON.stringify(screen.toJSON());
+    expect(tree.indexOf(MENSAGEM_SESSAO_EXPIRADA)).toBeLessThan(tree.indexOf('"Seu usuário"'));
+  });
+
+  it('should show no alert when the session did not expire', async () => {
+    await renderLoginScreen();
+
+    expect(screen.queryByRole('alert')).toBeNull();
   });
 
   it('should log in and navigate to /inicio when credentials are valid', async () => {
@@ -179,4 +260,30 @@ describe('LoginScreen', () => {
     expect(screen.getByLabelText('Senha').props.secureTextEntry).toBe(false);
     expect(screen.getByRole('button', { name: 'Ocultar senha' })).toBeTruthy();
   });
+
+  it('should show the short visible words Mostrar and Ocultar, keeping the long accessible name (L1)', async () => {
+    await renderLoginScreen();
+
+    expect(screen.getByText('Mostrar')).toBeTruthy();
+    expect(screen.queryByText('Mostrar senha')).toBeNull();
+    expect(screen.getByRole('button', { name: 'Mostrar senha' })).toBeTruthy();
+
+    fireEvent.press(screen.getByRole('button', { name: 'Mostrar senha' }));
+
+    expect(screen.getByText('Ocultar')).toBeTruthy();
+    expect(screen.queryByText('Ocultar senha')).toBeNull();
+    expect(screen.getByRole('button', { name: 'Ocultar senha' })).toBeTruthy();
+  });
+
+  it.each([320, 430])(
+    'should not pin the content to a fixed width when the window is %i wide',
+    async (windowWidth) => {
+      jest
+        .spyOn(ReactNative, 'useWindowDimensions')
+        .mockReturnValue({ width: windowWidth, height: 800, scale: 2, fontScale: 1 });
+      await renderLoginScreen();
+
+      expect(findFixedWidths(screen.toJSON())).toEqual([]);
+    },
+  );
 });
