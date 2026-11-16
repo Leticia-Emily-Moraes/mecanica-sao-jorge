@@ -8,12 +8,17 @@ import {
   minTouchTarget,
   opacity,
   radius,
+  size,
   spacing,
   typography,
 } from '@/theme/tokens';
 import { useFocusRing } from '@/theme/use-focus-ring';
 
-export type ButtonVariant = 'primary' | 'secondary';
+/**
+ * `primary`: ação principal (Crail). `secondary`: contorno petro (Cancelar).
+ * `outlineAccent`: contorno Westar com texto Crail ("Sair da conta").
+ */
+export type ButtonVariant = 'primary' | 'secondary' | 'outlineAccent';
 
 export interface ButtonProps {
   readonly label: string;
@@ -24,6 +29,13 @@ export interface ButtonProps {
   readonly disabled?: boolean;
   readonly accessibilityLabel?: string;
 }
+
+/**
+ * Folga que completa a área de toque até `minTouchTarget` (ADR-014, regra 15).
+ * Com o botão de 50 já acima de 48 a folga é zero, nunca negativa.
+ */
+const TOUCH_SLOP_Y = Math.max(0, (minTouchTarget - size.button) / 2);
+const TOUCH_SLOP = { top: TOUCH_SLOP_Y, bottom: TOUCH_SLOP_Y };
 
 export function Button({
   label,
@@ -36,6 +48,7 @@ export function Button({
 }: ButtonProps): ReactElement {
   const { focusRingStyle, onFocus, onBlur } = useFocusRing();
   const isDisabled = disabled || loading;
+  const labelStyle = [styles.label, labelColorByVariant[variant]];
 
   return (
     <View style={[styles.ringWrapper, focusRingStyle]}>
@@ -44,12 +57,13 @@ export function Button({
         accessibilityLabel={accessibilityLabel ?? label}
         accessibilityState={{ disabled: isDisabled, busy: loading }}
         disabled={isDisabled}
+        hitSlop={TOUCH_SLOP}
         onFocus={onFocus}
         onBlur={onBlur}
         onPress={onPress}
         style={({ pressed }) => [
           styles.button,
-          variant === 'primary' ? styles.primary : styles.secondary,
+          variantStyle[variant],
           isDisabled && styles.disabled,
           pressed && !isDisabled && styles.pressed,
         ]}
@@ -59,24 +73,10 @@ export function Button({
             <ActivityIndicator
               color={variant === 'primary' ? color.text.onPrimaryAction : color.text.primary}
             />
-            <Text
-              style={[
-                styles.label,
-                variant === 'primary' ? styles.labelPrimary : styles.labelSecondary,
-              ]}
-            >
-              {loadingLabel ?? label}
-            </Text>
+            <Text style={labelStyle}>{loadingLabel ?? label}</Text>
           </View>
         ) : (
-          <Text
-            style={[
-              styles.label,
-              variant === 'primary' ? styles.labelPrimary : styles.labelSecondary,
-            ]}
-          >
-            {label}
-          </Text>
+          <Text style={labelStyle}>{label}</Text>
         )}
       </Pressable>
     </View>
@@ -88,8 +88,8 @@ const styles = StyleSheet.create({
     borderRadius: focusRingRadius,
   },
   button: {
-    minHeight: minTouchTarget,
-    borderRadius: radius.md,
+    height: size.button,
+    borderRadius: radius.sm,
     alignItems: 'center',
     justifyContent: 'center',
     paddingHorizontal: spacing.lg,
@@ -100,7 +100,12 @@ const styles = StyleSheet.create({
   secondary: {
     backgroundColor: 'transparent',
     borderWidth: borderWidth.hairline,
-    borderColor: color.border.default,
+    borderColor: color.text.primary,
+  },
+  outlineAccent: {
+    backgroundColor: 'transparent',
+    borderWidth: borderWidth.hairline,
+    borderColor: color.border.divider,
   },
   pressed: {
     opacity: opacity.pressed,
@@ -114,8 +119,8 @@ const styles = StyleSheet.create({
     gap: spacing.sm,
   },
   label: {
+    fontFamily: typography.button.fontFamily,
     fontSize: typography.button.fontSize,
-    fontWeight: typography.button.fontWeight,
   },
   labelPrimary: {
     color: color.text.onPrimaryAction,
@@ -123,4 +128,19 @@ const styles = StyleSheet.create({
   labelSecondary: {
     color: color.text.primary,
   },
+  labelOutlineAccent: {
+    color: color.text.error,
+  },
 });
+
+const variantStyle = {
+  primary: styles.primary,
+  secondary: styles.secondary,
+  outlineAccent: styles.outlineAccent,
+} as const;
+
+const labelColorByVariant = {
+  primary: styles.labelPrimary,
+  secondary: styles.labelSecondary,
+  outlineAccent: styles.labelOutlineAccent,
+} as const;

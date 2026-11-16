@@ -90,13 +90,14 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   emptyTitle: {
+    fontFamily: typography.label.fontFamily,
     fontSize: typography.label.fontSize,
-    fontWeight: typography.label.fontWeight,
     color: color.text.primary,
     textAlign: 'center',
     marginTop: spacing.md,
   },
   emptyMessage: {
+    fontFamily: typography.body.fontFamily,
     fontSize: typography.body.fontSize,
     color: color.text.secondary,
     textAlign: 'center',

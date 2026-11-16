@@ -78,13 +78,14 @@ const styles = StyleSheet.create({
     marginBottom: spacing.sm,
   },
   title: {
+    fontFamily: typography.label.fontFamily,
     fontSize: typography.label.fontSize,
-    fontWeight: typography.label.fontWeight,
     color: color.text.primary,
     textAlign: 'center',
     marginBottom: spacing.xs,
   },
   message: {
+    fontFamily: typography.body.fontFamily,
     fontSize: typography.body.fontSize,
     color: color.text.secondary,
     textAlign: 'center',

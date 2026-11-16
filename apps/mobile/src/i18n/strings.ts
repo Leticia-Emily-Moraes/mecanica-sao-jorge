@@ -3,29 +3,50 @@
  * (convenção fixada em docs/product/F25-prototipo-login-perfil.md, seção 9).
  * Só pt-BR nesta etapa — nenhum componente usa string fixa, sempre `t(chave)`,
  * para que uma chave nova vire tradução sem tocar em tela.
+ *
+ * Textos de Login, Perfil, diálogo de logout e tab bar seguem o Figma
+ * `FPdB8RymAnN81pbKfizdzE` (F41). As chaves `login.campoEmail.*` mantêm o
+ * nome porque o campo continua enviando o e-mail (D-03); só o rótulo mudou.
  */
 const strings = {
-  'login.titulo': 'Mecânica São Jorge',
-  'login.campoEmail.rotulo': 'E-mail',
-  'login.campoEmail.erroVazio': 'Informe seu e-mail',
+  'login.titulo': 'MECÂNICA SÃO JORGE',
+  'login.subtitulo': 'Gestão da oficina',
+  'login.campoEmail.rotulo': 'Usuário',
+  'login.campoEmail.placeholder': 'Seu usuário',
+  'login.campoEmail.erroVazio': 'Informe seu usuário',
   'login.campoSenha.rotulo': 'Senha',
+  'login.campoSenha.placeholder': 'Sua senha',
   'login.campoSenha.erroVazio': 'Informe sua senha',
   'login.campoSenha.mostrar': 'Mostrar senha',
   'login.campoSenha.ocultar': 'Ocultar senha',
   'login.botaoEntrar.rotulo': 'Entrar',
   'login.botaoEntrar.carregando': 'Entrando...',
-  'login.erroCredencial.mensagem': 'E-mail ou senha incorretos.',
+  'login.erroCredencial.mensagem':
+    'Usuário ou senha incorretos. Confira os dados e tente novamente.',
   'login.erroRede.titulo': 'Não foi possível conectar.',
   'login.erroRede.mensagem': 'Verifique sua conexão e tente novamente.',
   'login.erroRede.botaoTentarNovamente': 'Tentar novamente',
   'login.sessaoExpirada.mensagem': 'Sua sessão expirou. Faça login novamente.',
 
+  'cabecalho.usuario.rotulo': 'Perfil',
+  'cabecalho.voltar.rotulo': 'Voltar',
+
+  'inicio.titulo': 'Início',
+  'inicio.vazio.titulo': 'Em breve',
+  'inicio.vazio.mensagem': 'Os módulos da oficina chegam nas próximas versões.',
+
   'perfil.titulo': 'Perfil',
-  'perfil.rotuloNome': 'Nome',
-  'perfil.rotuloEmail': 'E-mail',
+  'perfil.rotuloUsuario': 'Usuário',
   'perfil.rotuloPerfil': 'Perfil de acesso',
-  'perfil.botaoSair.rotulo': 'Sair',
-  'perfil.dialogoLogout.titulo': 'Deseja realmente sair?',
+  'perfil.rotuloVersao': 'Versão do app',
+  'perfil.versaoIndisponivel': 'Não informada',
+  'perfil.perfilAdmin.selo': 'ADMIN',
+  'perfil.perfilAdmin.texto': 'Administrador',
+  'perfil.perfilFuncionario.selo': 'FUNCIONÁRIO',
+  'perfil.perfilFuncionario.texto': 'Funcionário',
+  'perfil.botaoSair.rotulo': 'Sair da conta',
+  'perfil.dialogoLogout.titulo': 'Sair da conta?',
+  'perfil.dialogoLogout.mensagem': 'Você vai precisar do usuário e senha para entrar de novo.',
   'perfil.dialogoLogout.botaoCancelar': 'Cancelar',
   'perfil.dialogoLogout.botaoConfirmar': 'Sair',
 
@@ -35,14 +56,12 @@ const strings = {
   'sessao.erroInicializacao.botaoTentarNovamente': 'Tentar novamente',
   'sessao.erroInicializacao.botaoEntrarNovamente': 'Entrar novamente',
 
-  'menu.tabbar.perfil.rotulo': 'Perfil',
-  'menu.tabbar.perfil.selecionado': 'Perfil, aba selecionada',
-  'menu.tabbar.clientesVeiculos.rotulo': 'Clientes e Veículos',
-  'menu.tabbar.clientesVeiculos.indisponivel': 'Clientes e Veículos, indisponível nesta versão',
+  'menu.tabbar.ordens.rotulo': 'Ordens',
+  'menu.tabbar.ordens.indisponivel': 'Ordens, indisponível nesta versão',
+  'menu.tabbar.clientes.rotulo': 'Clientes',
+  'menu.tabbar.clientes.indisponivel': 'Clientes, indisponível nesta versão',
   'menu.tabbar.catalogo.rotulo': 'Catálogo',
   'menu.tabbar.catalogo.indisponivel': 'Catálogo, indisponível nesta versão',
-  'menu.tabbar.ordensServico.rotulo': 'Ordens de Serviço',
-  'menu.tabbar.ordensServico.indisponivel': 'Ordens de Serviço, indisponível nesta versão',
   'menu.tabbar.financeiro.rotulo': 'Financeiro',
   'menu.tabbar.financeiro.indisponivel': 'Financeiro, indisponível nesta versão',
 } as const;

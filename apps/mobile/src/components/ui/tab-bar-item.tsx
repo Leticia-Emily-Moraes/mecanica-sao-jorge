@@ -4,10 +4,12 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import {
   color,
+  focusRingOffset,
+  focusRingWidth,
   iconSize,
-  minTouchTarget,
   opacity,
   radius,
+  size,
   spacing,
   typography,
 } from '@/theme/tokens';
@@ -19,7 +21,7 @@ export interface TabBarItemProps {
   readonly icon: TabBarIconName;
   /** Rótulo visível sob o ícone. */
   readonly label: string;
-  /** Nome acessível completo (inclui o estado, ex.: "Perfil, aba selecionada"). */
+  /** Nome acessível completo (inclui o estado, ex.: "Ordens, aba selecionada"). */
   readonly accessibilityLabel: string;
   readonly selected: boolean;
   /** Item de placeholder: não navega, fica esmaecido e anunciado como desabilitado. */
@@ -28,8 +30,11 @@ export interface TabBarItemProps {
 }
 
 /**
- * Item de aba da barra de navegação inferior: ícone, rótulo, pílula quando
- * selecionado, esmaecido quando indisponível e anel de foco duplo.
+ * Item de aba da barra de navegação inferior, no desenho da referência: sem
+ * pílula, ícone de 22 e rótulo de 11 em colunas de 62 de altura. O item
+ * selecionado muda de cor e vai de Medium para SemiBold (não depende só de
+ * cor, WCAG 1.4.1) e expõe `selected` ao leitor de tela. Esmaecido quando
+ * indisponível e com anel de foco duplo.
  */
 export function TabBarItem({
   icon,
@@ -40,6 +45,7 @@ export function TabBarItem({
   onPress,
 }: TabBarItemProps): ReactElement {
   const { focusRingStyle, onFocus, onBlur } = useFocusRing();
+  const tone = selected ? color.text.tabSelected : color.text.onBrandMuted;
 
   return (
     <View style={[styles.cell, focusRingStyle]}>
@@ -53,17 +59,18 @@ export function TabBarItem({
         onPress={onPress}
         style={styles.pressable}
       >
-        <View style={[styles.content, selected && styles.pill]}>
+        <View style={styles.content}>
           <Ionicons
             name={icon}
             size={iconSize.tab}
-            color={selected ? color.text.onPrimaryAction : color.text.onBrand}
+            color={tone}
             style={unavailable && styles.unavailable}
           />
           <Text
             style={[
               styles.label,
               selected ? styles.labelSelected : styles.labelIdle,
+              { color: tone },
               unavailable && styles.unavailable,
             ]}
             numberOfLines={1}
@@ -83,33 +90,27 @@ const styles = StyleSheet.create({
   },
   pressable: {
     flex: 1,
-    minHeight: minTouchTarget,
+    // A célula inteira (com a borda e o respiro reservados para o anel de foco) mede 62.
+    minHeight: size.tabBar - 2 * (focusRingWidth + focusRingOffset),
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: spacing.xs,
   },
   content: {
     alignItems: 'center',
     justifyContent: 'center',
-    gap: spacing.xs / 2,
-    paddingHorizontal: spacing.sm,
-    paddingVertical: spacing.xs,
-    borderRadius: radius.pill,
-  },
-  pill: {
-    backgroundColor: color.action.primaryBackground,
+    gap: spacing.xs,
   },
   unavailable: {
     opacity: opacity.unavailable,
   },
   label: {
-    fontSize: typography.caption.fontSize,
-    fontWeight: typography.label.fontWeight,
+    fontFamily: typography.tabLabel.fontFamily,
+    fontSize: typography.tabLabel.fontSize,
   },
   labelSelected: {
-    color: color.text.onPrimaryAction,
+    fontFamily: typography.tabLabelSelected.fontFamily,
   },
   labelIdle: {
-    color: color.text.onBrand,
+    fontFamily: typography.tabLabel.fontFamily,
   },
 });

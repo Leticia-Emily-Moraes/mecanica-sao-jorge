@@ -2,7 +2,7 @@ import { fireEvent, render, screen } from '@testing-library/react-native';
 
 import { ConfirmDialog } from './confirm-dialog';
 
-function renderDialog(overrides: { visible?: boolean } = {}): {
+function renderDialog(overrides: { visible?: boolean; message?: string } = {}): {
   onCancel: jest.Mock;
   onConfirm: jest.Mock;
 } {
@@ -12,6 +12,7 @@ function renderDialog(overrides: { visible?: boolean } = {}): {
     <ConfirmDialog
       visible={overrides.visible ?? true}
       title="Deseja realmente sair?"
+      message={overrides.message}
       cancelLabel="Cancelar"
       confirmLabel="Sair"
       onCancel={onCancel}
@@ -37,6 +38,29 @@ describe('ConfirmDialog', () => {
     expect(screen.getByText('Deseja realmente sair?')).toBeTruthy();
     expect(screen.getByRole('button', { name: 'Cancelar' })).toBeTruthy();
     expect(screen.getByRole('button', { name: 'Sair' })).toBeTruthy();
+  });
+
+  it('should show the message under the title when one is given', () => {
+    renderDialog({ message: 'Você vai precisar do usuário e senha para entrar de novo.' });
+
+    expect(screen.getByRole('header', { name: 'Deseja realmente sair?' })).toBeTruthy();
+    expect(
+      screen.getByText('Você vai precisar do usuário e senha para entrar de novo.'),
+    ).toBeTruthy();
+  });
+
+  it('should not render a message line when none is given', () => {
+    renderDialog();
+
+    expect(screen.queryByText(/Você vai precisar/)).toBeNull();
+  });
+
+  it('should keep Cancelar before Sair, side by side (frame 10:3886)', () => {
+    renderDialog();
+
+    const tree = JSON.stringify(screen.toJSON());
+
+    expect(tree.indexOf('"Cancelar"')).toBeLessThan(tree.indexOf('"Sair"'));
   });
 
   it('should render nothing when not visible', () => {
