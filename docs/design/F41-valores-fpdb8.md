@@ -373,3 +373,111 @@ Autor: ORLA · ramo `feat/f41-paridade-fpdb8-codigo` · partida em `875898d`. **
 **Não corrigido, por falta de medida:** a mensagem do P2 tem 289 de largura no frame (`83:769`) e o código não limita a largura do texto; o desenho do indicador (36) é do sistema (D-16). V-L19 já estava fechada pela §15.2 (texto e posição idênticos); V-L14 fecha no código com R-1 e R-2, mas só fecha de verdade depois da captura no aparelho.
 
 **Quadro:** R-1 a R-9 estão corrigidas **no código**. A F41 continua **não fechada**: as 6 linhas da tabela acima não têm variável no Figma, não há captura no aparelho e a F41 depende da aprovação da pessoa sobre o Início (fora do aceite).
+
+## 17. Segunda sessão com acesso ao Figma (ESQUADRO, 16/11): variáveis dos 6 tokens, releitura por valor, Início I1 e capturas
+
+Autor: ESQUADRO · Sessão `f942924b-db78-4ddd-9c88-84d37812bdd6` · Arquivo `FPdB8RymAnN81pbKfizdzE` · Código lido em `fef803e` (`tokens.ts`, `state-view.tsx`, `button.tsx`); **não alterei código e não rodei a suíte do app** nesta sessão. **Esta seção substitui o quadro da §16 e a §15.5 no que diz respeito às variáveis.** Li o arquivo hoje, nó por nó; a CRIVO pode conferir pelos ids.
+
+**Acesso (US-PAR-11), saída real do `whoami` (e-mail omitido de propósito):**
+`{"whoami":{"user_id":"1126488233271433922","handle":"Leticia Moraes","plans":[{"name":"Time Pessoal","seat":"Full","tier":"student","key":"team::1274094162661077353","role":"admin","specs_enabled":true,"code_layers_enabled":true}]}}`
+`create_session` → `f942924b-db78-4ddd-9c88-84d37812bdd6`. Nenhum erro de permissão em `use_figma`, `get_variable_defs` e `get_screenshot`.
+**Método:** a instrução `figma-use` não pôde ser carregada (nem `get_figma_skill` nem leitura de recurso `skill://` existem nesta sessão). Cada escrita foi um passo pequeno, com leitura antes e depois.
+
+### 17.1 Variáveis criadas e ligadas (US-PAR-07): os 6 tokens do ORLA + o do Início
+
+Coleção `OP-002 Identidade v2` (`VariableCollectionId:89:712`), de 6 para **14 variáveis**. Valor do Figma lido de volta por `get_variable_defs`; valor do código lido em `tokens.ts` (`fef803e`).
+
+| Token no código | Variável / estilo no Figma | Id | Valor no Figma | Valor no código | Resultado |
+|---|---|---|---|---|---|
+| `color.surface.neutral` | `color/surface/neutral` → `primitive/grey91` | `92:763` → `92:761` | `#EDE9E4` | `primitiveColor.grey91` `#EDE9E4` | **idêntico** |
+| `color.icon.state` | `color/icon/state` → `primitive/spectra` | `92:764` → `92:762` | `#33575D` | `primitiveColor.spectra` `#33575D` | **idêntico** |
+| `size.stateIcon` | `size/stateIcon` | `92:765` | 72 | 72 | **idêntico** |
+| `typography.stateTitle` | estilo de texto `OP-002/stateTitle` | `S:31e4908e…` | Barlow Condensed SemiBold 20, altura de linha automática, espaçamento 0 | `displaySemiBold`, 20 | **idêntico** |
+| `radius.tabFocus` | `radius/tabFocus` | `92:767` | 10 | 10 | **idêntico** |
+| `layout.stateActionsMaxWidth` | `layout/stateActionsMaxWidth` | `92:768` | 328 | 328 | **idêntico** |
+| `iconSize.alert` (exigido pelo Início I1 e já usado pelo P2) | `iconSize/alert` | `92:766` | 32 | 32 | **idêntico** |
+
+Os dois primitivos novos (`primitive/grey91`, `primitive/spectra`) têm o mesmo hex de `primitiveColor`. `grey91` repete o valor de `color/grey/91` (variável automática da importação), que continua existindo e ligada em outros nós.
+
+**Nós ligados (confirmado por `get_variable_defs` em `83:754`, `89:971` e `83:817`):**
+- círculo `83:763` (P2) e `89:979` (I1): preenchimento → `color/surface/neutral`; largura e altura → `size/stateIcon` (72 × 72). Raio mantido em 36 (valor fixo, sem variável);
+- ícone `83:764` (P2) e `89:980` (I1): largura e altura → `iconSize/alert` (32); os 2 traços de vetor → `color/icon/state`;
+- título `83:767` (P2) e `89:983` (I1): estilo `OP-002/stateTitle`;
+- botões `83:770` e `83:815` (P2): largura → `layout/stateActionsMaxWidth` (328);
+- anel `84:786` (T1): os 4 raios de canto → `radius/tabFocus` (10).
+
+**Erro meu, corrigido na mesma sessão:** liguei os 4 raios dos círculos a `size/stateIcon`, e o raio saltou de 36 para 72. Desfiz as ligações, voltei o raio a 36 em `83:763` e `89:979` e tirei o escopo de raio da variável (`92:765` ficou só com largura e altura). Medida lida depois: 72 × 72, raio 36. Visualmente o círculo não chegou a mudar (72 é o teto do raio), mas o valor lido estava errado até a correção.
+
+**R-5b:** o traço do ícone do P2 ficou em Spectra `#33575D` depois da ligação; comparei a captura de antes (`f41-capturas/figma-fpdb8-proposto-perfil-erro-83-754.png`) com a de agora: o ícone continua verde-petróleo, sem mudança de cor. **Antes de ligar eu não li o hex do traço** (só a captura): a conclusão vem do valor que a variável hoje devolve (`#33575D`) e da comparação visual das duas imagens.
+
+### 17.2 Releitura por valor de L2, L3 e L4 (nós lidos hoje, `use_figma`)
+
+| ID | Nó | Valor lido no Figma | Código (`fef803e`) | Resultado |
+|---|---|---|---|---|
+| V-L14 (texto) | `82:2049` botão 304 × 50, Crail `#B5453D`, traço 1, raio 8 | texto **"Entrando…"** (`…` único, Inter SemiBold 15, branco) | `login.botaoEntrar.carregando` = `Entrando…` (R-1, `5597caa`) | **igual** |
+| V-L14 (opacidade) | `82:2049` e o texto | opacidade **100%** (nenhum `opacity` diferente de 1) | `Button` com `loading` não esmaece (R-2, `5ab9b7b`) | **igual** |
+| V-L14 (indicador) | `82:2137` elipse 16 × 16 branca, arco 0 → 4,7 rad (≈ 270°), raio interno 0,7; a **6,5** do texto (indicador em x 90–106 do botão, texto a partir de x 112,5) | `ActivityIndicator` com `gap: spacing.sm` = **8** (`button.tsx:126`) | **R-11 aberta** (ver 17.6) |
+| V-L18 | `82:2092` caixa 304 × 66, Pot Pourri `#F6E7E5`, traço Rose Fog `#E2B5B0` 1, raio 8, margem 13, espaço 10; ícone 18; texto 250 × 40 | "Sem conexão. Verifique a internet da oficina e tente de novo." Inter Regular 14 / 19,6, El Salva `#923631` | `login.erroRede.mensagem` com texto idêntico (§15.2) | **igual** (texto e estilo) |
+| V-L19 | `82:2131` caixa 304 × 66, mesmo estilo, a y = 299, **acima** do campo Usuário | "Sua sessão expirou. Faça login novamente." | `login.sessaoExpirada.mensagem` com texto idêntico (§15.2) | **igual** (texto e posição) |
+
+O texto de L3 e L4 e as medidas das caixas batem com a §15.2; releitura confirma. A posição de L3 (y = 467, entre a senha e o botão a y = 508) também.
+
+### 17.3 Início I1 `89:971`, lido por valor (aprovado pela pessoa em 16/11; D-20 cai)
+
+Tela `89:976` 362 × 742, Pampas `#F7F5F2`, borda Westar 1 interna, raio 10. Posições relativas à tela.
+
+| ID | Elemento (nó) | Valor no Figma | Token / variável |
+|---|---|---|---|
+| V-I01 | cabeçalho `89:996` (instância do cabeçalho `20:1079`) | 360 × 56, petro `#1E3A3F`, título "Início", botão de usuário 36 × 36 | `color.surface.brand`, `size.appBar`, `size.iconButton` |
+| V-I02 | círculo `89:979` | 72 × 72, raio 36, `#EDE9E4`, centrado em x (145) | `size/stateIcon`, `color/surface/neutral` |
+| V-I03 | ícone `89:980` | documento, 32 × 32, traço Spectra, dentro do círculo (20 de margem) | `iconSize/alert`, `color/icon/state` |
+| V-I04 | título `89:983` | "Em breve", Barlow Condensed SemiBold 20, petro, centralizado; **16 abaixo do círculo** (caixa a 10 + 6 de respiro superior) | `OP-002/stateTitle`, `color.text.primary` |
+| V-I05 | mensagem `89:985` | "Os módulos da oficina chegam nas próximas versões." Inter Regular **14 / 21**, Flint `#6E6A66`, centralizada, **289 de largura**, **10 abaixo** do título | `typography.dialogMessage`, `color.text.secondary` |
+| V-I06 | bloco (círculo, título, mensagem) | centralizado na vertical entre o cabeçalho (fim em y 57) e a tab bar (início em y 679): bloco de y 286 a 450, centro 368 = centro da área | — |
+| V-I07 | tab bar `89:1003` | 360 × 62, 4 itens a 50%, nenhum selecionado | `opacity.unavailable` |
+
+**Diferenças reais para o ORLA (o Figma manda, D-02).** Li `state-view.tsx` em `fef803e`: o estado vazio do `/inicio` usa `Ionicons file-tray-outline` de 48 em Flint, **sem círculo**, título `typography.label` (Inter SemiBold 14, `marginTop: spacing.md` = 16), mensagem `typography.body` (Inter Regular **16**, `marginTop: spacing.xs` = 4).
+
+| # | Diferença | Figma (I1) | Código hoje |
+|---|---|---|---|
+| I-1 | círculo atrás do ícone | 72, `#EDE9E4` | ausente |
+| I-2 | ícone | 32, Spectra, documento | 48 (`iconSize.empty`), Flint, bandeja de arquivo |
+| I-3 | título | Barlow Condensed SemiBold 20, petro (`stateTitle`) | Inter SemiBold 14 |
+| I-4 | mensagem | Inter 14 / 21, largura 289 | Inter 16, sem limite de largura |
+| I-5 | espaço círculo → título → mensagem | 16 e 10 | 16 e 4 |
+| I-6 | ícone de documento | desenho do arquivo (D-10: Ionicons mantidos, exceção registrada) | Ionicons; escolher `document-text-outline` (o mesmo da aba Ordens) |
+
+Sugestão, não decisão minha: o P2 já tem círculo 72 + ícone 32 + título 20 + mensagem 14 / 21 no `error-state.tsx`; o Início tem a mesma forma, sem botões. Reaproveitar a estrutura em vez de duplicar. `iconSize.empty` (48) só serve o estado vazio antigo; se o Início passar ao desenho acima, ele fica sem consumidor.
+Quatro estados do Início: vazio é o único; carregando, erro e sucesso são **não se aplica** (a tela é estática, não chama API).
+
+### 17.4 Pendências de leitura da pessoa, agora fechadas no lado Figma
+
+| Item | Leitura | Resultado |
+|---|---|---|
+| R-5b, ícone do P2 | traço do ícone `83:764` = `#33575D` (Spectra), 32 × 32 | confirmado (ressalva em 17.1) |
+| R-10, botões do P2 | `83:770` e `83:815`: **328 × 50**, raio 8 | confirmado; o código tem `layout.stateActionsMaxWidth` = 328 |
+| T1 `83:817` em `#EE8279` | `get_variable_defs` do T1 devolve `color/text/tabSelected` = `#ee8279` e **nenhuma** `color/red/47` (Crail); anel `84:786` 86 × 58, traço branco 2 interno, raio 10 | confirmado |
+
+### 17.5 Capturas dos frames (só lado Figma), exportadas em `docs/design/f41-capturas/final-2026-11-16/`
+
+15 PNGs de 4,6 KB a 95 KB (máximo 94 742 bytes; total ≈ 0,8 MB), todos com md5 distintos, baixados de `get_screenshot` hoje, depois de criar as variáveis: `login-vazio-10-895`, `login-preenchido-L1-82-1990`, `login-carregando-L2-82-2024`, `login-erro-credencial-10-936`, `login-erro-conexao-L3-82-2058`, `login-sessao-expirada-L4-82-2098`, `perfil-carregando-P1-83-712`, `perfil-erro-P2-83-754`, `perfil-preenchido-10-3842`, `dialogo-logout-10-3886`, `tabbar-ordens-selecionado-20-1102`, `tabbar-clientes-selecionado-20-1340`, `tabbar-foco-T1-83-817`, `tabbar-desabilitada-T2-83-844`, `inicio-vazio-I1-89-971`. Cobrem Login (5 estados + sessão expirada), Perfil (carregando, erro, preenchido), diálogo, tab bar (selecionado, foco, desabilitada) e o Início. Só mostram dados fictícios do próprio arquivo ("João da Silva" etc.); nenhum token ou dado real.
+**Não há captura do app** (P-03: sem aparelho e sem pares lado a lado). Abri três delas (P2, I1 e T1) para conferir o conteúdo; **não abri as outras 12**, só conferi tamanho e hash.
+Os rótulos de cima dos frames `L1` a `L4`, `P1`, `P2`, `T1`, `T2` e `I1` ainda dizem "proposto" (aparecem nas capturas). Não alterei os textos: o rótulo é do arquivo, e trocá-lo por "aprovado em 16/11" exige reexportar as 9 capturas.
+
+### 17.6 Aberto
+
+- **R-11 (nova, pequena, real):** no L2, o indicador (16) fica a **6,5** do texto e o texto fica **centralizado no botão** (x 112,5 a 191,5 de 304); o código agrupa indicador e texto com `gap` 8 e centraliza o grupo, o que desloca o texto uns 12 para a direita. Medida só por leitura dos dois lados, sem medir no app. Decisão para o ORLA: aceitar como diferença de layout do React Native (registrar) ou posicionar o indicador à esquerda do texto com o texto centralizado.
+- **Escudo 84 × 96 (D-21):** não exportado, fora do aceite, nada inventado.
+- **Aba selecionada em execução:** sem decisão da pessoa ("não se aplica hoje" ou programar); só o componente isolado prova.
+- **Restante da tabela do ADR-014** (~70 linhas: medidas, raios, espaçamentos, estilos de texto e efeitos): **não criado**. As 7 variáveis acima mais as 3 de antes cobrem os tokens que a F41 criou ou alterou; US-PAR-07 está fechada para eles. Quem decide se o restante entra na F41 é a pessoa/BUSSOLA.
+- **Ligações não feitas:** `typography.dialogMessage` (Inter 14 / 21) e `size.avatar` etc. continuam sem variável no Figma; só os 7 tokens acima foram criados, os que a F41 mudou ou o Início exigiu.
+- **Suíte do app não rodada hoje** por mim; os últimos números são os da §14 e da §16, do ORLA.
+
+| Condição de fechamento | Estado em 16/11 (fim da sessão) |
+|---|---|
+| 6 tokens novos + `iconSize/alert` no Figma, valor idêntico ao `tokens.ts` | **feito**, lido de volta (17.1) |
+| Releitura de L2, L3, L4 por valor | **feita** (17.2); L2 tem R-11 |
+| I1 lido por valor | **feito** (17.3); código diverge em I-1 a I-6 |
+| R-5b, R-10, T1 em `#EE8279` | **confirmados** (17.4) |
+| Capturas dos frames | **exportadas**, só Figma (17.5) |
+| Zero divergência real aberta | **não**: I-1 a I-6 e R-11 abertas, todas do lado do código (ORLA) |

@@ -120,6 +120,18 @@ A descrição das três semânticas guarda o antes e o depois com a razão de co
 - Coleção completa do ADR-014 (cores restantes, medidas, raios, espaçamentos, estilos de texto e efeitos): **não criada**; só as 3 variáveis que a F41 aprovou. Nenhum frame além dos listados foi ligado a variável nova.
 - Capturas em arquivo: o shell bloqueou o download dos PNGs, então conferi cada frame por `get_screenshot` em linha, sem gravar imagem no repositório.
 
+### Segunda sessão de 16/11 com acesso (ESQUADRO, US-PAR-07, US-PAR-11): variáveis dos 6 tokens, Início aprovado, capturas
+
+Detalhe completo, com valor lido e id por linha, em `docs/design/F41-valores-fpdb8.md` §17. Resumo:
+
+- **Acesso:** `whoami` passou (handle "Leticia Moraes", plano "Time Pessoal" `team::1274094162661077353`, e-mail omitido); `create_session` → `f942924b-db78-4ddd-9c88-84d37812bdd6`. `figma-use` não pôde ser carregado; escrita em passos pequenos, com leitura antes e depois.
+- **Coleção `OP-002 Identidade v2` (`89:712`): de 6 para 14 variáveis.** Novas: `primitive/grey91` `92:761` (`#EDE9E4`), `primitive/spectra` `92:762` (`#33575D`), `color/surface/neutral` `92:763`, `color/icon/state` `92:764`, `size/stateIcon` `92:765` (72), `iconSize/alert` `92:766` (32), `radius/tabFocus` `92:767` (10), `layout/stateActionsMaxWidth` `92:768` (328). Estilo de texto novo `OP-002/stateTitle` (Barlow Condensed SemiBold 20). Os 6 tokens que o ORLA criou no código (`neutral`, `icon.state`, `stateIcon`, `stateTitle`, `tabFocus`, `stateActionsMaxWidth`) agora existem no Figma com o valor do `tokens.ts`; `iconSize/alert` entra porque o Início I1 e o P2 usam o ícone de 32.
+- **Ligações (conferidas por `get_variable_defs`):** P2 `83:763` (fundo e 72 × 72), `83:764` (32 e traço Spectra), `83:767` (estilo), `83:770` e `83:815` (largura 328); I1 `89:979`, `89:980`, `89:983`; T1 anel `84:786` (raio 10). Raio dos círculos fica em 36 sem variável (ligá-lo à variável de 72 foi um erro meu e foi desfeito na mesma sessão).
+- **Início I1 `89:971`:** **aprovado pela pessoa em 16/11**; entra na lista viva de nós aprovados (a D-20 cai). Lido por valor; o código diverge em I-1 a I-6 (círculo, ícone 32, título 20 Barlow, mensagem 14 / 21, espaços 16 e 10).
+- **Releitura por valor de L2, L3, L4:** textos e caixas batem com o código; L2 tem a diferença R-11 (indicador a 6,5 do texto, texto centralizado, contra `gap` 8 no código).
+- **Capturas:** 15 PNGs dos frames de Login, Perfil, diálogo, tab bar e Início em `docs/design/f41-capturas/final-2026-11-16/` (todas abaixo de 100 KB; só lado Figma, sem app).
+- **Não feito:** escudo (D-21), restante da tabela do ADR-014 (~70 linhas) e rótulos "proposto" dos frames L1 a L4, P1, P2, T1, T2 e I1, ainda no texto de cada frame.
+
 ## Páginas
 
 ### `F24 · Wireframe baixa fidelidade`
