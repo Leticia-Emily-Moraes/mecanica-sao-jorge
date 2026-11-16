@@ -47,6 +47,24 @@ Na página `20:2132` há duas seções: `10:3936` "Mecânica São Jorge — 49 t
 
 **Variáveis do arquivo (leitura de `get_variable_defs` em `10:895`):** o arquivo foi gerado por importação de HTML e as variáveis têm **nome automático por matiz e luminosidade**, sem papel (`color/cyan/18` = `#1E3A3F`, `color/red/47` = `#B5453D`, `color/grey/96` = `#F7F5F2`, `color/orange/87` = `#E2DEDA`, `color/grey/42` = `#6E6A66`, `color/grey/64` = `#A8A39D`, `color/grey/70` = `#B7B2AC`, `color/cyan/28` = `#33575D`, `color/grey/93-3` = `#F6E7E5`, `color/red/79` = `#E2B5B0`, `color/red/38` = `#923631`). Isso **foge da convenção `<categoria>/<papel>/<estado>`** da casa; a coleção `OP-002 Identidade v2` do ADR-014 é quem corrige, e só entra depois da aprovação dos tokens (US-PAR-07). Nenhuma variável foi criada ou alterada até esta linha.
 
+### Seção "F41 — estados propostos" (`82:1989`, página `20:2132`, x 7800, y 0)
+
+Criada por ESQUADRO em 2026-11-16 via `use_figma`, só com nós novos (cópias dos frames de referência e frames novos). **Todos aguardam aprovação da pessoa**; enquanto isso **não** fazem parte da lista viva de nós aprovados acima (regra do ADR-014). Sem variável criada.
+
+| Frame | Nó | Captura |
+|---|---|---|
+| L1 Login — preenchido — proposto | `82:1990` | — |
+| L2 Login — carregando — proposto | `82:2024` | — |
+| L3 Login — erro de conexão — proposto | `82:2058` | — |
+| L4 Login — sessão expirada — proposto | `82:2098` | — |
+| P1 Perfil — carregando — proposto | `83:712` | `f41-capturas/figma-fpdb8-proposto-perfil-carregando-83-712.png` |
+| P2 Perfil — erro ao carregar — proposto | `83:754` | `f41-capturas/figma-fpdb8-proposto-perfil-erro-83-754.png` |
+| T1 Tab bar — foco no item — proposto | `83:817` | `f41-capturas/figma-fpdb8-proposto-tabbar-foco-83-817.png` |
+| T2 Tab bar — módulos indisponíveis — proposto | `83:844` | `f41-capturas/figma-fpdb8-proposto-tabbar-desabilitada-83-844.png` |
+| C1 Cores AA propostas | `85:744` | `f41-capturas/figma-fpdb8-proposto-cores-aa-85-744.png` |
+
+Observação de método: a instrução `figma-use` não pôde ser carregada nesta sessão; cada passo foi conferido por `get_screenshot`.
+
 A conferência da F41 (planilha, tokens, contraste e estados propostos) está em `docs/design/F41-planilha-fpdb8.md`.
 
 ## Páginas
