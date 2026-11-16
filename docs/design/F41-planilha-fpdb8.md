@@ -215,3 +215,51 @@ Os arquivos `alert-icon.test` (não existe na `main`: o `AlertIcon` ainda não e
 **Não verificado:** qualquer medida do app em pixel (sem captura); qualquer par lado a lado; foco e leitor de tela em aparelho (US-MENU-06, "não alcançável sem aparelho"); a origem da biblioteca de ícones; a regra das iniciais; o estado do `use_figma` sem a instrução `figma-use` (conferi por captura); a quebra de linha dos textos propostos em fonte do sistema.
 
 **Sem cobertura:** composição lado a lado, medida no app, protocolo de captura (tarefas 3, 5, 7, 9, 11, 19 e 20), tokens e variáveis (tarefa 17) e teste de componente (tarefa 18).
+
+## 10. Resultado da correção de código (ORLA, 2026-11-16)
+
+Branch `feat/f41-paridade-fpdb8-codigo`, base `348a43e`. Capturas do app em `docs/design/f41-capturas/par-*.png` (Figma à esquerda, app à direita), tiradas no commit `ef54855` (o único commit seguinte, `README`, não toca código). **Aparelho: simulador iPhone 17, iOS 27.0, Expo Go, retrato, barra de status em 9:41, escala de fonte padrão.** Não é o aparelho físico da premissa 9 da feature: a pessoa não informou o aparelho (P-02), então é um desvio registrado. Android não foi verificado. As capturas são de uma rota temporária (apagada, nunca versionada) que monta as telas reais com sessão fictícia `joao.silva` e componentes reais com props fixas nos estados de erro, sem passar pela API: provam aparência, não fluxo.
+
+Legenda: **corrigido** = código igual ao frame, visto na captura; **aberto** = divergência real que continua, com a causa.
+
+### Login
+| ID | Resultado | Observação |
+|---|---|---|
+| L-01, L-03, L-04, L-05, L-07, L-10, L-11, L-12, L-13, L-14, L-15, L-20 | corrigido | Pampas, título e subtítulo, rótulo "Usuário", campo 46 / raio 8, faixa de erro com círculo "!" sem altura fixa, mensagem do frame, as duas bordas de 2 px em erro, botão 50, margens 28/16/6/10/14, `StatusBar` escura no Login e clara nos cabeçalhos |
+| L-02 | **aberto** | Escudo: bloqueado pela D2 (licença da imagem, ADR-014 regra 7b). Sem substituto improvisado. Na captura o bloco da marca sobe sem a imagem |
+| L-06 | **aberto** | Texto e placeholders corrigidos. A cor Dawn reprova AA (C-03); está com Flint (5,36:1) até a pessoa aprovar o C1 |
+| L-07 (borda) | **aberto** | Borda de repouso continua `slate500` (4,76:1) porque Westar reprova 3:1 (C-22); aguarda C1 |
+| L-08 | corrigido, confirmar | Foco com borda de 2 px Crail, pela leitura do ESQUADRO de `10:895`. P-11 continua com a pessoa. Foco de teclado em aparelho segue em US-MENU-06 |
+| L-09 | **aberto** | "Mostrar senha" mantido (P-06); não existe no frame |
+| L-16, L-17, L-18, L-19 | **aberto** | Frames L1 a L4 propostos e não aprovados. Código: carregando, preenchido, popup de conexão e aviso de sessão expirada (este já com o desenho novo da faixa) |
+
+### Perfil e cabeçalho
+| ID | Resultado | Observação |
+|---|---|---|
+| P-01, P-03, P-04, P-05, P-06, P-07, P-08, P-09, P-10, P-11, P-14 | corrigido | Cabeçalho petro 56 com seta, nome, selo petro, cartão com Usuário / Perfil de acesso / Versão do app, "Sair da conta" em contorno no rodapé, Perfil fora da tab bar, botão de usuário 36 × 36 com nome acessível "Perfil". Espaçamento medido nas imagens compostas e ajustado (36 acima do avatar, 20 entre selo e cartão) |
+| P-02 | corrigido, confirmar | Avatar com iniciais pela regra proposta na P-14 (primeira letra do primeiro e do último nome) |
+| P-06 (dado) | linha de dado | O app mostra `0.1.0` (lido de `app.config.ts`); o frame mostra "1.0.0" (P-07 do PRD) |
+| P-07 (dado) | linha de dado | O app mostra o e-mail sob "Usuário" (P-09); a captura usa `joao.silva` como e-mail fictício para igualar o dado do frame |
+| P-08 | corrigido, confirmar | Texto de FUNCIONARIO ("Funcionário") é proposta minha (P-15) |
+| P-12, P-13 | **aberto** | Frames P1 e P2 não aprovados. Código: reidratação de sessão com `StateView` e popup de erro, como antes |
+
+### Diálogo de logout
+D-01 a D-05 **corrigidos** (título Barlow 22, mensagem, Cancelar e Sair lado a lado, cartão raio 10 com margem 22, scrim petro 55%). A sombra do diálogo no Android é aproximada por `elevation` (P-08 do ADR-014, sem aparelho Android para ver).
+
+### Tab bar
+| ID | Resultado | Observação |
+|---|---|---|
+| T-01, T-02, T-03, T-05, T-07 | corrigido | 4 itens na ordem do Figma, rótulos "Ordens" e "Clientes", barra de 62, ícone 22, rótulo 11, inativo em Tide |
+| T-04 | **aberto** | Ícones Ionicons (`document-text-outline`, `people-outline`, `cube-outline`, `card-outline`); desenho difere do arquivo. P-10 (SVG exige `react-native-svg`) |
+| T-06 | **aberto** | Sem pílula. O selecionado usa branco (12,12:1) no lugar do Crail (2,24:1 reprova) até a pessoa aprovar o C1. **Não aparece no app em execução** (nenhum item é selecionável): é provado só pelo teste do componente `TabBarItem` |
+| T-09, T-10 | **aberto** | Frames T1 e T2 não aprovados. Desabilitado = opacidade 0,6 (valor antigo); foco = anel petro + halo branco (valor antigo, **não visto sobre a barra petro**) |
+| T-11 | implementado, confirmar | P-01 opção A: `/inicio` com cabeçalho, estado vazio e tab bar de 4 itens desabilitados |
+
+### Tokens (US-PAR-07)
+`tokens.ts` recebeu os valores do FPdB8 da §4. Nenhuma variável do Figma foi criada ou alterada. Valores que **não** entraram como estão por reprovarem AA: placeholder, borda de campo em repouso e aba selecionada. Ao aprovar o C1, `tokens.ts` (`text.placeholder`, `border.default`, `text.tabSelected`) e as variáveis do Figma mudam juntos.
+
+### Achados de layout que a captura revelou (e foram corrigidos)
+O botão ficava 8 px mais estreito que o campo (a moldura do anel de foco ocupava layout) e a tab bar saía cortada na base (o Yoga media a barra só pela moldura do anel; medido: raiz 874, conteúdo 832). Ambos corrigidos e cobertos por teste de componente.
+
+### O que continua sem prova
+Foco de teclado e leitor de tela em aparelho (US-MENU-06), tudo em Android, o aparelho físico do protocolo, o fluxo contra a API local (US-PAR-10; ver o relatório) e o estado selecionado da tab bar em execução.
