@@ -28,7 +28,7 @@ describe('IndexScreen', () => {
     await waitFor(() => expect(mockReplace).toHaveBeenCalledWith('/login'));
   });
 
-  it('should redirect to /perfil when a valid session is already stored', async () => {
+  it('should redirect to /inicio when a valid session is already stored', async () => {
     await SecureStore.setItemAsync('mecanicaSaoJorge.auth.token', 'token-existente');
     await SecureStore.setItemAsync(
       'mecanicaSaoJorge.auth.usuario',
@@ -41,7 +41,7 @@ describe('IndexScreen', () => {
       </AuthProvider>,
     );
 
-    await waitFor(() => expect(mockReplace).toHaveBeenCalledWith('/perfil'));
+    await waitFor(() => expect(mockReplace).toHaveBeenCalledWith('/inicio'));
   });
 
   it('should show a retry modal when restoring the session fails', async () => {
