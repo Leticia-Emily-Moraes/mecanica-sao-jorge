@@ -91,7 +91,12 @@ PARES = [
     ('B4', 'borda', 'Borda do botão Cancelar (petro) sobre branco', PETRO, WHITE),
     ('F1', 'borda', 'Anel de foco do item da tab bar (branco, T1) sobre petro', WHITE, PETRO),
     ('F2', 'borda', 'Anel de foco dos controles em tela clara (petro) sobre branco', PETRO, WHITE),
+    # Pares lidos no Figma em 16/11 (P1, P2, L2) e no frame proposto I1:
+    ('I5', 'icone', 'Ícone do estado de erro (P2) e do vazio (I1), Spectra, sobre o círculo #EDE9E4', SPECTRA, '#EDE9E4'),
+    ('I6', 'icone', 'Indicador de carregamento do P1 (petro) sobre Pampas', PETRO, PAMPAS),
+    ('I7', 'icone', 'Indicador de carregamento do botão no L2 (branco) sobre Crail', WHITE, CRAIL),
     # Registro, sem reprovar o script:
+    ('B7', 'decorativo', 'Círculo #EDE9E4 do P2 sobre Pampas; o ícone e o texto carregam a informação', '#EDE9E4', PAMPAS),
     ('B5', 'decorativo', 'Borda do botão "Sair da conta" (Westar) sobre Pampas; o texto Crail (T13) identifica o botão', WESTAR, PAMPAS),
     ('B6', 'decorativo', 'Borda do cartão (Westar) sobre Pampas; o conteúdo é texto e não depende da borda', WESTAR, PAMPAS),
     ('D1', 'isento', 'Item desabilitado da tab bar (Tide a 50% sobre petro): componente inativo, isento (WCAG 1.4.3 e 1.4.11)', tab_off_label, PETRO),
