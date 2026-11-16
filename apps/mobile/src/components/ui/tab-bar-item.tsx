@@ -2,17 +2,7 @@ import { Ionicons } from '@expo/vector-icons';
 import type { ComponentProps, ReactElement } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
-import {
-  color,
-  focusRingOffset,
-  focusRingWidth,
-  iconSize,
-  opacity,
-  radius,
-  size,
-  spacing,
-  typography,
-} from '@/theme/tokens';
+import { color, iconSize, opacity, radius, spacing, typography } from '@/theme/tokens';
 import { useFocusRing } from '@/theme/use-focus-ring';
 
 export type TabBarIconName = ComponentProps<typeof Ionicons>['name'];
@@ -90,8 +80,6 @@ const styles = StyleSheet.create({
   },
   pressable: {
     flex: 1,
-    // A célula inteira (com a borda e o respiro reservados para o anel de foco) mede 62.
-    minHeight: size.tabBar - 2 * (focusRingWidth + focusRingOffset),
     alignItems: 'center',
     justifyContent: 'center',
   },

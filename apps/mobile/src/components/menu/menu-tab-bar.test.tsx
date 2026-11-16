@@ -1,5 +1,8 @@
 import { fireEvent, render, screen } from '@testing-library/react-native';
+import { StyleSheet } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
+
+import type { TestStyle } from '@/test-utils/flat-style';
 
 import { MenuTabBar } from './menu-tab-bar';
 
@@ -55,6 +58,14 @@ describe('MenuTabBar', () => {
       const item = screen.getByRole('tab', { name: rotulo });
       expect(item.props.accessibilityState).toMatchObject({ selected: false, disabled: true });
     }
+  });
+
+  it('should give the bar an explicit height of 62, as in frame 20:1102', () => {
+    renderMenuTabBar();
+
+    expect(
+      StyleSheet.flatten(screen.getByTestId('menu-tab-bar').props.style as TestStyle).height,
+    ).toBe(62);
   });
 
   it('should not navigate when a disabled item is pressed', () => {

@@ -4,7 +4,9 @@ import { ActivityIndicator, Pressable, StyleSheet, Text, View } from 'react-nati
 import {
   borderWidth,
   color,
+  focusRingOffset,
   focusRingRadius,
+  focusRingWidth,
   minTouchTarget,
   opacity,
   radius,
@@ -84,8 +86,12 @@ export function Button({
 }
 
 const styles = StyleSheet.create({
+  // A moldura do anel de foco (borda + respiro) é reservada em volta do botão;
+  // a margem negativa a devolve para fora do layout, então o botão visível mede
+  // a largura e a altura do frame e o anel só aparece sobre o espaço vizinho.
   ringWrapper: {
     borderRadius: focusRingRadius,
+    margin: -(focusRingWidth + focusRingOffset),
   },
   button: {
     height: size.button,
