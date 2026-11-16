@@ -1,7 +1,16 @@
 import type { ReactElement } from 'react';
 import { ActivityIndicator, Pressable, StyleSheet, Text, View } from 'react-native';
 
-import { color, minTouchTarget, radius, spacing, typography } from '@/theme/tokens';
+import {
+  borderWidth,
+  color,
+  focusRingRadius,
+  minTouchTarget,
+  opacity,
+  radius,
+  spacing,
+  typography,
+} from '@/theme/tokens';
 import { useFocusRing } from '@/theme/use-focus-ring';
 
 export type ButtonVariant = 'primary' | 'secondary';
@@ -76,7 +85,7 @@ export function Button({
 
 const styles = StyleSheet.create({
   ringWrapper: {
-    borderRadius: radius.md + 4,
+    borderRadius: focusRingRadius,
   },
   button: {
     minHeight: minTouchTarget,
@@ -90,14 +99,14 @@ const styles = StyleSheet.create({
   },
   secondary: {
     backgroundColor: 'transparent',
-    borderWidth: 1,
+    borderWidth: borderWidth.hairline,
     borderColor: color.border.default,
   },
   pressed: {
-    opacity: 0.85,
+    opacity: opacity.pressed,
   },
   disabled: {
-    opacity: 0.5,
+    opacity: opacity.disabled,
   },
   loadingRow: {
     flexDirection: 'row',
