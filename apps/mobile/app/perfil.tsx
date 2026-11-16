@@ -107,8 +107,9 @@ const styles = StyleSheet.create({
   identity: {
     alignItems: 'center',
     gap: spacing.sm,
-    paddingTop: spacing.s20,
-    paddingBottom: spacing.s12,
+    // Medido no frame 10:3842: 36 entre a barra e o avatar, 20 entre o selo e o cartão.
+    paddingTop: spacing.md + spacing.s20,
+    paddingBottom: spacing.s20,
   },
   name: {
     color: color.text.primary,
