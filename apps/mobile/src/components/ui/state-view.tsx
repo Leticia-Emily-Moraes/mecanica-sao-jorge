@@ -95,7 +95,7 @@ const styles = StyleSheet.create({
     fontSize: typography.rowLabel.fontSize,
     color: color.text.secondary,
     textAlign: 'center',
-    marginTop: spacing.md,
+    marginTop: spacing.s12,
   },
   emptyTitle: {
     fontFamily: typography.label.fontFamily,

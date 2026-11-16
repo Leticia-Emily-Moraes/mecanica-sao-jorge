@@ -64,6 +64,23 @@ describe('StateView', () => {
     });
   });
 
+  describe('state loading spacing (P1, R-9)', () => {
+    it('should leave 12 between the indicator and the loading text', () => {
+      render(<StateView state="loading" loadingLabel="Carregando sessão…" />);
+
+      expect(
+        StyleSheet.flatten(screen.getByText('Carregando sessão…').props.style as TestStyle)
+          .marginTop,
+      ).toBe(12);
+    });
+
+    it('should use the large system indicator, drawn by the platform (D-16)', () => {
+      render(<StateView state="loading" loadingLabel="Carregando sessão…" />);
+
+      expect(screen.UNSAFE_getByType(ActivityIndicator).props.size).toBe('large');
+    });
+  });
+
   describe('state empty', () => {
     it('should show the title and the message as readable text', () => {
       render(
