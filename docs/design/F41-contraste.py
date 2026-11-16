@@ -1,4 +1,16 @@
-"""Contraste WCAG 2.x dos pares de cor lidos no Figma FPdB8 (frames 10:895, 10:936, 10:3842, 10:3886, 20:1102/1340, 20:1079)."""
+"""Contraste WCAG 2.x (AA) dos pares de cor finais de Login, Perfil, diálogo de logout e tab bar.
+
+Valores do Figma FPdB8 (frames 10:895, 10:936, 10:3842, 10:3886, 20:1102/1340, 20:1079), lidos por
+`get_variable_defs` em 16/11/2026, com as três cores aprovadas pela pessoa na mesma data:
+placeholder = Flint, borda de campo = #8C8780, aba selecionada = #EE8279.
+
+Uso:  python3 docs/design/F41-contraste.py
+Saída: uma linha por par e código de saída 1 se algum par obrigatório ficar abaixo do alvo.
+Alvos: texto 4,5:1 (WCAG 1.4.3); ícone e borda de controle 3:1 (WCAG 1.4.11).
+Pares "isento" e "decorativo" são impressos para registro e não derrubam o script.
+"""
+
+import sys
 
 
 def hexrgb(h):
@@ -17,13 +29,15 @@ def lum(rgb):
 
 
 def ratio(a, b):
-    la, lb = lum(hexrgb(a) if isinstance(a, str) else a), lum(hexrgb(b) if isinstance(b, str) else b)
+    la = lum(hexrgb(a) if isinstance(a, str) else a)
+    lb = lum(hexrgb(b) if isinstance(b, str) else b)
     hi, lo = max(la, lb), min(la, lb)
     return (hi + 0.05) / (lo + 0.05)
 
 
 def blend(fg, bg, alpha):
-    f, b = hexrgb(fg), hexrgb(bg)
+    f = hexrgb(fg) if isinstance(fg, str) else fg
+    b = hexrgb(bg) if isinstance(bg, str) else bg
     return tuple(round(alpha * f[i] + (1 - alpha) * b[i]) for i in range(3))
 
 
@@ -32,78 +46,90 @@ CRAIL = '#B5453D'
 WHITE = '#FFFFFF'
 PAMPAS = '#F7F5F2'
 FLINT = '#6E6A66'
-DAWN = '#A8A39D'
 WESTAR = '#E2DEDA'
 TIDE = '#B7B2AC'
 SPECTRA = '#33575D'
 ELSALVA = '#923631'
 POT = '#F6E7E5'
-ROSE = '#E2B5B0'
-btn36 = blend(WHITE, PETRO, 0.12)  # botão de ícone 36x36 sobre o cabeçalho
-scrim_over_pampas = blend(PETRO, PAMPAS, 0.55)
+# Valores aprovados em 16/11 (substituem Dawn, Westar-como-borda-de-campo e Crail-na-aba).
+PLACEHOLDER = FLINT
+FIELD_BORDER = '#8C8780'
+TAB_SELECTED = '#EE8279'
 
-pares = [
+btn36 = blend(WHITE, PETRO, 0.12)  # botão de ícone 36x36 sobre o cabeçalho (branco a 12% sobre petro)
+tab_off_label = blend(TIDE, PETRO, 0.5)  # item desabilitado: 50% de opacidade sobre a barra petro (T2)
+
+# (id, tipo, descrição, primeiro plano, fundo)
+# tipo: texto | icone | borda  -> obrigatórios; isento | decorativo -> só registro.
+PARES = [
     ('T1', 'texto', 'Marca "MECÂNICA SÃO JORGE" (petro) sobre Pampas', PETRO, PAMPAS),
     ('T2', 'texto', '"Gestão da oficina" e rótulos de campo (Flint) sobre Pampas', FLINT, PAMPAS),
-    ('T3', 'texto', 'Placeholder (Dawn) sobre campo branco', DAWN, WHITE),
+    ('T3', 'texto', 'Placeholder (Flint, aprovado) sobre campo branco', PLACEHOLDER, WHITE),
     ('T4', 'texto', 'Valor digitado (petro) sobre campo branco', PETRO, WHITE),
-    ('T5', 'texto', 'Rótulo do botão Entrar / Sair (branco) sobre Crail', WHITE, CRAIL),
+    ('T5', 'texto', 'Rótulo do botão Entrar e Sair do diálogo (branco) sobre Crail', WHITE, CRAIL),
     ('T6', 'texto', 'Mensagem de erro (El Salva) sobre Pot Pourri', ELSALVA, POT),
     ('T7', 'texto', 'Título do cabeçalho (branco) sobre petro', WHITE, PETRO),
     ('T8', 'texto', 'Iniciais do avatar (branco) sobre Spectra', WHITE, SPECTRA),
     ('T9', 'texto', 'Nome no Perfil (petro) sobre Pampas', PETRO, PAMPAS),
-    ('T10', 'texto', 'Selo ADMIN (branco) sobre petro', WHITE, PETRO),
+    ('T10', 'texto', 'Selo ADMIN / FUNCIONÁRIO (branco) sobre petro', WHITE, PETRO),
     ('T11', 'texto', 'Rótulos do cartão (Flint) sobre branco', FLINT, WHITE),
     ('T12', 'texto', 'Valores do cartão (petro) sobre branco', PETRO, WHITE),
-    ('T13', 'texto', '"Sair da conta" (Crail) sobre Pampas', CRAIL, PAMPAS),
+    ('T13', 'texto', 'Texto "Sair da conta" (Crail) sobre Pampas', CRAIL, PAMPAS),
     ('T14', 'texto', 'Título do diálogo (petro) sobre branco', PETRO, WHITE),
     ('T15', 'texto', 'Mensagem do diálogo (Flint) sobre branco', FLINT, WHITE),
     ('T16', 'texto', 'Cancelar (petro) sobre branco', PETRO, WHITE),
     ('T17', 'texto', 'Rótulo da aba inativa (Tide) sobre petro', TIDE, PETRO),
-    ('T18', 'texto', 'Rótulo da aba selecionada (Crail) sobre petro', CRAIL, PETRO),
-    ('I1', 'ícone', 'Ícone da aba inativa (Tide) sobre petro', TIDE, PETRO),
-    ('I2', 'ícone', 'Ícone da aba selecionada (Crail) sobre petro', CRAIL, PETRO),
-    ('I3', 'ícone', 'Ícone de usuário / seta de voltar (branco) sobre botão 36 (petro + 12% branco)', WHITE, btn36),
-    ('B1', 'borda', 'Borda do campo em repouso (Westar) sobre branco, contra o fundo Pampas', WESTAR, PAMPAS),
-    ('B1b', 'borda', 'Borda do campo em repouso (Westar) contra o interior branco', WESTAR, WHITE),
-    ('B2', 'borda', 'Borda de foco/erro de 2 px (Crail) sobre branco', CRAIL, WHITE),
-    ('B3', 'borda', 'Borda do campo em erro (Crail) contra Pampas', CRAIL, PAMPAS),
+    ('T18', 'texto', 'Rótulo da aba selecionada (#EE8279, 11 px) sobre petro', TAB_SELECTED, PETRO),
+    ('I1', 'icone', 'Ícone da aba inativa (Tide) sobre petro', TIDE, PETRO),
+    ('I2', 'icone', 'Ícone da aba selecionada (#EE8279) sobre petro', TAB_SELECTED, PETRO),
+    ('I3', 'icone', 'Ícone de usuário e seta de voltar (branco) sobre o botão de 36', WHITE, btn36),
+    ('I4', 'icone', 'Círculo e "!" do alerta (El Salva) sobre Pot Pourri', ELSALVA, POT),
+    ('B1', 'borda', 'Borda do campo em repouso (#8C8780) contra o interior branco', FIELD_BORDER, WHITE),
+    ('B1b', 'borda', 'Borda do campo em repouso (#8C8780) contra o fundo Pampas', FIELD_BORDER, PAMPAS),
+    ('B2', 'borda', 'Borda de foco e de erro de 2 px (Crail) contra o interior branco', CRAIL, WHITE),
+    ('B3', 'borda', 'Borda de foco e de erro de 2 px (Crail) contra Pampas', CRAIL, PAMPAS),
     ('B4', 'borda', 'Borda do botão Cancelar (petro) sobre branco', PETRO, WHITE),
-    ('B5', 'borda', 'Borda do botão Sair da conta (Westar) sobre Pampas', WESTAR, PAMPAS),
-    ('B6', 'borda', 'Borda do cartão (Westar) sobre Pampas', WESTAR, PAMPAS),
+    ('F1', 'borda', 'Anel de foco do item da tab bar (branco, T1) sobre petro', WHITE, PETRO),
+    ('F2', 'borda', 'Anel de foco dos controles em tela clara (petro) sobre branco', PETRO, WHITE),
+    # Registro, sem reprovar o script:
+    ('B5', 'decorativo', 'Borda do botão "Sair da conta" (Westar) sobre Pampas; o texto Crail (T13) identifica o botão', WESTAR, PAMPAS),
+    ('B6', 'decorativo', 'Borda do cartão (Westar) sobre Pampas; o conteúdo é texto e não depende da borda', WESTAR, PAMPAS),
+    ('D1', 'isento', 'Item desabilitado da tab bar (Tide a 50% sobre petro): componente inativo, isento (WCAG 1.4.3 e 1.4.11)', tab_off_label, PETRO),
 ]
 
-print('par  tipo   razão   alvo  resultado  descrição')
-for pid, tipo, desc, fg, bg in pares:
-    r = ratio(fg, bg)
-    alvo = 4.5 if tipo == 'texto' else 3.0
-    ok = 'passa' if r >= alvo else 'REPROVA'
-    print(f'{pid:4} {tipo:6} {r:5.2f}:1 {alvo:4.1f}  {ok:8} {desc}')
+ALVO = {'texto': 4.5, 'icone': 3.0, 'borda': 3.0}
 
-print()
-print('Candidatas para placeholder (sobre branco e sobre Pampas):')
-for h in ['#6E6A66', '#756F6A', '#78726C', '#7A746E', '#807A74', '#8C8780']:
-    print(h, f'branco {ratio(h, WHITE):.2f}', f'Pampas {ratio(h, PAMPAS):.2f}', f'vs petro {ratio(h, PETRO):.2f}')
 
-print()
-print('Candidatas para aba selecionada (texto 11 px e ícone sobre petro):')
-for h in ['#E8776E', '#EB7F76', '#EE8279', '#F08C83', '#F2968D', '#F4A29A']:
-    print(h, f'petro {ratio(h, PETRO):.2f}', f'vs Tide {ratio(h, TIDE):.2f}', f'vs branco {ratio(h, WHITE):.2f}')
+def main():
+    falhas = []
+    print('par   tipo        razão    alvo  resultado   descrição')
+    for pid, tipo, desc, fg, bg in PARES:
+        r = ratio(fg, bg)
+        if tipo in ALVO:
+            alvo = ALVO[tipo]
+            ok = r >= alvo
+            resultado = 'passa' if ok else 'REPROVA'
+            if not ok:
+                falhas.append(pid)
+        else:
+            alvo = 0.0
+            resultado = tipo
+        print(f'{pid:5} {tipo:10} {r:6.2f}:1 {alvo:5.1f}  {resultado:10}  {desc}')
 
-print()
-print('Candidatas para borda de campo em repouso (3:1 sobre Pampas e sobre branco):')
-for h in ['#8C8780', '#8A857E', '#908B85', '#928D87']:
-    print(h, f'Pampas {ratio(h, PAMPAS):.2f}', f'branco {ratio(h, WHITE):.2f}')
+    print()
+    print('Contraste entre estados da aba (informativo; o selecionado se distingue por cor, peso SemiBold e anúncio):')
+    print(f'  #EE8279 contra Tide #B7B2AC = {ratio(TAB_SELECTED, TIDE):.2f}:1')
+    print()
+    print('Botões B5 e B6 decorativos (WCAG 1.4.11): a borda não é a única pista do controle, o texto é.')
+    print(f'  texto do botão "Sair da conta" T13 = {ratio(CRAIL, PAMPAS):.2f}:1 (alvo 4,5:1)')
 
-print()
-print('Código atual (main): pares do app hoje')
-for desc, fg, bg in [
-    ('error slate? text.error primary600 sobre branco', '#B5453D', WHITE),
-    ('border.default slate500 sobre branco', '#64748B', WHITE),
-    ('text.secondary slate700 sobre branco', '#334155', WHITE),
-    ('texto tab idle branco sobre petro (opacity 0.6 => mistura)', '#FFFFFF', PETRO),
-]:
-    print(f'{ratio(fg, bg):5.2f}:1  {desc}')
-tab_off = blend(WHITE, PETRO, 0.6)
-print(f'{ratio(tab_off, PETRO):5.2f}:1  aba indisponível (branco a 60% sobre petro)')
-print(f'{ratio(blend(CRAIL, PETRO, 0.6), PETRO):5.2f}:1  (n/a)')
+    print()
+    if falhas:
+        print('FALHOU: pares obrigatórios abaixo do alvo ->', ', '.join(falhas))
+        return 1
+    print('OK: todos os pares obrigatórios atingem o alvo.')
+    return 0
+
+
+if __name__ == '__main__':
+    sys.exit(main())
