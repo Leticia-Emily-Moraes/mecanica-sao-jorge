@@ -1,7 +1,9 @@
 # F41 · Planilha de divergências Figma `FPdB8` × app (refeita do zero)
 
 Autor: ESQUADRO · Data: 2026-11-16 · Base do código: `main` em `348a43e` (F40 incluída) · Arquivo de referência: `FPdB8RymAnN81pbKfizdzE`, página `20:2132`.
-Estado da feature: **NÃO fechada.** Falta a captura do app (aparelho da pessoa), as imagens compostas, a aprovação das cores AA, os frames propostos e as correções de código. Esta planilha substitui por inteiro a de 2026-11-13 (`docs/design/F41-planilha-divergencias.md` na branch `docs/f41-rodada-figma-fpdb8`, feita contra o arquivo `DLqb…`).
+**Atualização de 16/11 (revisão humana, ESQUADRO):** a pessoa aprovou os frames L1 a L4, P1, P2 (com botões ajustados), T1 e T2, as três cores AA e o ADR-014, e **dispensou captura e pares lado a lado**. A prova passa a ser a planilha de valores `docs/design/F41-valores-fpdb8.md` (uma linha por valor, com o teste que o trava) mais os testes de componente. Onde esta planilha falar em captura ou imagem composta, vale a decisão de 16/11. Contraste refeito com os valores finais (§5). **Nesta sessão o Figma não estava acessível** (detalhe em `F41-valores-fpdb8.md`, §1): as variáveis novas, o ajuste do P2 e o frame Início **não foram feitos**.
+
+Estado da feature: **NÃO fechada.** Faltam o frame Início aprovado, o escudo exportado com origem e liberação, as variáveis no Figma, o ajuste do P2 e as correções de código listadas em `F41-valores-fpdb8.md` §7. Esta planilha substitui por inteiro a de 2026-11-13 (`docs/design/F41-planilha-divergencias.md` na branch `docs/f41-rodada-figma-fpdb8`, feita contra o arquivo `DLqb…`).
 
 Regra de classificação (D-02, ADR-014): o Figma manda. **Só são "de plataforma"** barra de status e áreas do sistema, renderização de uma mesma família de fonte do sistema e tamanho de aparelho. Todo o resto (estrutura, hierarquia, texto, token, família de fonte, ícone, estado) é **real**.
 
@@ -43,24 +45,24 @@ Coluna **PRD** liga à numeração N-xx citada no PRD. **Lado** = onde corrigir:
 | ID | PRD | Elemento | Figma | App hoje (`login.tsx` e componentes) | Classe | Lado / decisão |
 |---|---|---|---|---|---|---|
 | L-01 | — | Fundo da tela | Pampas `#F7F5F2` | `color.surface.default` branco (`screen-container.tsx`) | real | código; token novo `surface.background` |
-| L-02 | N-02 | Escudo | 84 × 96 acima do título, centralizado | ausente | real | código; **bloqueado por P-05** (ativo e licença) |
+| L-02 | N-02 | Escudo | 84 × 96 acima do título, centralizado | ausente | real | código; **bloqueado (16/11):** o escudo 84 × 96 de `10:895` ainda não foi exportado e a origem e a liberação de uso não estão registradas. Sem substituto improvisado. Fecha só com o ativo exportado e a liberação anotada |
 | L-03 | N-06 | Título | "MECÂNICA SÃO JORGE" (caixa alta), Barlow Condensed Bold 30, espaçamento 0,6, petro, centralizado | "Mecânica São Jorge", fonte do sistema, 24/700 (`login.titulo`) | real (texto, família, tamanho) | código; texto na chave `login.titulo`; **bloqueado por P-05** para a fonte |
 | L-04 | — | Subtítulo | "Gestão da oficina", Inter Regular 13, Flint | ausente | real | código; chave nova `login.subtitulo` |
 | L-05 | N-01 | Rótulo do campo de entrada | "Usuário", Inter Medium 13, Flint | "E-mail", 14/600, slate700 (`login.campoEmail.rotulo`) | real (texto, família, peso, tamanho, cor) | código (D-03): texto "Usuário"; **o campo continua enviando e-mail** |
-| L-06 | — | Placeholder | "Seu usuário" e "Sua senha", Inter 15, Dawn | sem placeholder | real (texto, estado) | código; chaves novas; **cor Dawn reprova AA (C-03)**, usa a proposta aprovada |
-| L-07 | N-04 | Campo | altura 46, raio 8, borda 1 px Westar, margem interna 14, fundo branco, texto Inter 15 | `minHeight` 48, raio 12, borda 1 px slate500, margem 16, 16 px do sistema | real | código; ver P-04: visível 46, área de toque ≥ 48 por `hitSlop` |
+| L-06 | — | Placeholder | "Seu usuário" e "Sua senha", Inter 15, Dawn | sem placeholder | real (texto, estado) | código; chaves novas. **Decidido 16/11:** o Figma usa Dawn `#A8A39D` (2,50:1, reprova); o código usa **Flint `#6E6A66`** (5,36:1 sobre branco). Aprovado, remover o comentário PROVISÓRIO do `tokens.ts` e criar a variável no FPdB8 (bloqueado, §7 de `F41-valores-fpdb8.md`) |
+| L-07 | N-04 | Campo | altura 46, raio 8, borda 1 px Westar, margem interna 14, fundo branco, texto Inter 15 | `minHeight` 48, raio 12, borda 1 px slate500, margem 16, 16 px do sistema | real | código; ver P-04: visível 46, área de toque ≥ 48 por `hitSlop`. **Borda de repouso:** Figma Westar `#E2DEDA` (1,34:1, reprova 3:1); **decidido 16/11: `#8C8780`** (3,56:1 sobre branco, 3,28:1 sobre Pampas); hoje `tokens.ts` tem `slate500` provisório: trocar e remover o PROVISÓRIO |
 | L-08 | — | Foco de campo | borda de 2 px Crail (campo Usuário em `10:895`; **leitura minha**: o frame não nomeia o estado) | anel duplo petro com halo branco (`use-focus-ring.ts`) | real | código; confirmar com a pessoa que `10:895` é o foco (P-11) |
-| L-09 | N-05 | Ação "Mostrar senha" | ausente no frame | `InlineActionButton` "Mostrar senha/Ocultar senha" | real (estado sem frame) | **decisão P-06**; proposta L1/L2/L3 mantém o controle com o rótulo "Mostrar" |
+| L-09 | N-05 | Ação "Mostrar senha" | ausente no frame | `InlineActionButton` "Mostrar senha/Ocultar senha" | real (estado sem frame) | **Decidido 16/11: "Mostrar senha" mantido** (o frame de referência `10:895` não tem o controle; L1 `82:1990` tem, com o texto visível "Mostrar"). Código: texto visível "Mostrar"/"Ocultar" e nome acessível "Mostrar senha"/"Ocultar senha", em chaves de i18n. Hoje o texto visível é "Mostrar senha": **divergência de texto aberta** |
 | L-10 | R-02 | Caixa de erro de credencial | caixa Pot Pourri `#F6E7E5`, borda Rose Fog 1 px, raio 8, margem 13, ícone círculo com "!" 18, texto El Salva Inter 14 / 19,6, entre a senha e o botão | `InlineAlert`: texto simples Crail centralizado, sem caixa nem ícone, **acima** do campo de e-mail | real (estrutura, posição, ícone, token) | código. **R-02 reconferido**: o ícone é círculo com "!" em contorno, **não** o triângulo cheio da rodada antiga; o `AlertIcon` de `6b3c082` não serve |
 | L-11 | R-03 | Altura da caixa de erro | sem altura fixa: margem 13 + 1 borda; **2 linhas = 67**, 1 linha ≈ 48 | (rodada antiga: `inlineAlertMinHeight` 44) | real | código. **R-03 reconferido**: o valor 44 não vale; a caixa se dimensiona pelo texto e pela margem |
 | L-12 | — | Texto do erro de credencial | "Usuário ou senha incorretos. Confira os dados e tente novamente." | "E-mail ou senha incorretos." (`login.erroCredencial.mensagem`) | real (texto) | código, na chave i18n; mensagem continua genérica |
 | L-13 | — | Bordas em erro de credencial | os **dois** campos com 2 px Crail | campos não mudam | real (estado) | código |
 | L-14 | — | Botão Entrar | altura 50, raio 8, Crail, Inter SemiBold 15 branco, 304 de largura | `minHeight` 48, raio 12, 16/600 do sistema, anel de foco | real | código; P-04 |
 | L-15 | — | Espaçamento | margem 16 + 12 laterais (conteúdo 304 de 360), 16 entre grupos, rótulo→campo 6, bloco do logo com 10 entre itens e 14 abaixo, conteúdo centrado na vertical | margem 24, `marginBottom` 16 por campo, rótulo→campo 4 | real | código |
-| L-16 | — | Estado carregando | **sem frame** (proposto L2 `82:2024`) | `Button` com `ActivityIndicator` e "Entrando..." com opacidade 0,5 | real (estado sem frame) | aprovar L2; código segue o frame aprovado (sugiro **não** aplicar opacidade 0,5 ao botão em carregamento) |
-| L-17 | — | Estado preenchido | **sem frame** (proposto L1 `82:1990`) | existe | real | aprovar L1 |
-| L-18 | — | Erro de conexão | **sem frame no Login**; o `1c` `10:981` é o padrão global em tela de lista: ícone de sem conexão, título "Sem conexão", mensagem, botão "Tentar novamente" | `StateView error` abre o popup `ErrorRetryModal` "Não foi possível conectar." | real (estado sem frame, padrão de apresentação diferente) | aprovar L3 `82:2058` (caixa) **ou** decidir que o padrão 1c vale também no Login (P-13) |
-| L-19 | — | Sessão expirada | **sem frame** (proposto L4 `82:2098`) | `InlineAlert` acima do e-mail | real (estado sem frame) | aprovar L4 |
+| L-16 | — | Estado carregando | **sem frame** (proposto L2 `82:2024`) | `Button` com `ActivityIndicator` e "Entrando..." com opacidade 0,5 | real (estado sem frame) | **L2 `82:2024` aprovado em 16/11.** Código segue o frame aprovado; a opacidade 0,5 do botão em carregamento e o "..." contra o "…" do frame **não foram conferidos hoje** (frame não relido): conferir em `82:2024` antes de fechar |
+| L-17 | — | Estado preenchido | **L1 `82:1990` aprovado em 16/11** (preenchido, com "Mostrar" na senha) | existe | real | código; ver L-09 para o texto "Mostrar" |
+| L-18 | — | Erro de conexão | **sem frame no Login**; o `1c` `10:981` é o padrão global em tela de lista: ícone de sem conexão, título "Sem conexão", mensagem, botão "Tentar novamente" | `StateView error` abre o popup `ErrorRetryModal` "Não foi possível conectar." | real (estado sem frame, padrão de apresentação diferente) | **L3 `82:2058` aprovado em 16/11** (caixa entre a senha e o botão). Código ainda abre o popup: **divergência aberta**. Texto exato de L3 **não lido hoje** |
+| L-19 | — | Sessão expirada | **sem frame** (proposto L4 `82:2098`) | `InlineAlert` acima do e-mail | real (estado sem frame) | **L4 `82:2098` aprovado em 16/11.** Texto do frame **não lido hoje**; o código mostra "Sua sessão expirou. Faça login novamente." sem teste de tela: conferir o texto no Figma e cobrir com teste |
 | L-20 | A-01 | Barra de status | o frame não mostra a barra; Login tem fundo claro | `userInterfaceStyle: automatic`; o app não define `StatusBar` por tela | **real** (ADR-014: o estilo definido pelo app é real) | código: ícones **escuros** sobre Pampas (Login) e **claros** sobre petro (cabeçalho). **A-01 reconferido**: vale por tela, não só "claro". Conteúdo da barra é plataforma |
 
 ### 3.2 Perfil (`10:3842`) e cabeçalho com botão de usuário (`20:1079`, `10:981`)
@@ -78,8 +80,8 @@ Coluna **PRD** liga à numeração N-xx citada no PRD. **Lado** = onde corrigir:
 | P-09 | — | Botão "Sair da conta" | contorno Westar 1 px, sem fundo, texto Crail Inter SemiBold 15, altura 50, raio 8, **no rodapé** | botão **cheio** Crail "Sair" logo abaixo dos campos (`perfil.botaoSair.rotulo`) | real (variante, texto, posição) | código |
 | P-10 | N-12 | Tab bar no Perfil | **sem** tab bar | Perfil dentro de `(menu)` com `MenuShell` e tab bar | real | código (D-05): Perfil sai do grupo `(menu)` |
 | P-11 | — | Fundo, margem e ritmo | Pampas, margem 16, 12 entre blocos, avatar com 20 acima e 8 abaixo | branco, margem 24, 16 | real | código |
-| P-12 | — | Perfil carregando | **sem frame** (proposto P1 `83:712`); no código é a reidratação de sessão em `app/index.tsx` | `StateView loading` sobre fundo branco | real (estado sem frame) | aprovar P1 |
-| P-13 | — | Perfil erro | **sem frame** (proposto P2 `83:754`); no código é `sessao.erroInicializacao` | popup `ErrorRetryModal` com "Tentar novamente" e "Entrar novamente" | real (estado sem frame) | aprovar P2 |
+| P-12 | — | Perfil carregando | **sem frame** (proposto P1 `83:712`); no código é a reidratação de sessão em `app/index.tsx` | `StateView loading` sobre fundo branco | real (estado sem frame) | **P1 aprovado em 16/11.** Frame: fundo Pampas, indicador petro e o texto **visível** "Carregando sessão…" abaixo (capturei e li `83:712` hoje). O código mostra só o indicador (o texto é só o nome acessível): **divergência aberta** |
+| P-13 | — | Perfil erro | **sem frame** (proposto P2 `83:754`); no código é `sessao.erroInicializacao` | popup `ErrorRetryModal` com "Tentar novamente" e "Entrar novamente" | real (estado sem frame) | **P2 aprovado em 16/11, com os botões ajustados:** "Tentar novamente" **cheio** (Crail) e "Entrar novamente" em **contorno**. O frame `83:754` ainda desenha os dois em contorno (li a captura hoje): **ajustar o frame** (bloqueado, sem acesso ao Figma) e o código. O desenho aprovado é tela cheia, sem cabeçalho nem tab bar, com ícone de sem conexão em círculo, título "Não foi possível carregar" e mensagem "Verifique a internet da oficina e tente de novo. Se continuar, entre novamente."; o código tem popup com ⚠ e outro texto: **divergência aberta** |
 | P-14 | N-12 | Botão de usuário no cabeçalho | 36 × 36, raio 8, branco 12%, ícone de pessoa 18, canto direito do cabeçalho de 56 (pl 16 / pr 12) | ausente | real | código (D-05): nome acessível "Perfil" (chave), área de toque ≥ 48 por `hitSlop` |
 
 ### 3.3 Diálogo de logout (`10:3886`)
@@ -100,14 +102,14 @@ Coluna **PRD** liga à numeração N-xx citada no PRD. **Lado** = onde corrigir:
 | T-01 | N-12 | Itens | **4**: Ordens, Clientes, Catálogo, Financeiro, nesta ordem | **5**: Perfil, Clientes e Veículos, Catálogo, Ordens de Serviço, Financeiro | real | código (D-05) |
 | T-02 | N-13 | Rótulos | "Ordens", "Clientes" | "Ordens de Serviço", "Clientes e Veículos" | real (texto) | código, chaves i18n |
 | T-03 | — | Altura e células | barra 62; 4 células de 90 × 62; ícone 22 em y 11,5; rótulo em y 37,5; 4 entre ícone e rótulo | célula `minHeight` 48 + margens; 5 células; **altura real não medida** | real | código; medir na captura; alvo `size/tabBar` 62 |
-| T-04 | — | Ícones | família de linha própria do arquivo (documento, pessoas, caixa, cartão) | Ionicons `person`, `car-outline`, `list-outline`, `construct-outline`, `cash-outline` | real (ícone) | código; **P-10**: exige SVG do Figma (`react-native-svg` ainda não está no app) ou Ionicons equivalentes |
+| T-04 | — | Ícones | família de linha própria do arquivo (documento, pessoas, caixa, cartão) | Ionicons `person`, `car-outline`, `list-outline`, `construct-outline`, `cash-outline` | real (ícone) | **Decidido 16/11: Ionicons como exceção registrada** (o arquivo tem família de linha própria: documento, pessoas, caixa, cartão; sem `react-native-svg` e sem licença da biblioteca). Vale para tab bar, botão de usuário e seta. A diferença de desenho continua visível e aceita; não conta como aberta |
 | T-05 | — | Rótulo | Inter 11; **SemiBold** no selecionado, **Medium** no inativo | `caption` 12/400 e `label` 600, fonte do sistema | real | código. **Correção ao PRD:** a medida lida é **11**, não 10,5 (`get_design_context` de `20:1102`) |
-| T-06 | — | Selecionado | sem pill; ícone e rótulo em Crail `#B5453D` | pill Crail com ícone e rótulo brancos | real | código; **Crail sobre petro = 2,24:1 reprova (C-18/C-19)**: usar a cor aprovada |
+| T-06 | — | Selecionado | sem pill; ícone e rótulo em Crail `#B5453D` | pill Crail com ícone e rótulo brancos | real | código. Figma: ícone e rótulo Crail `#B5453D` (2,24:1 sobre petro, reprova). **Decidido 16/11: `#EE8279`** (4,68:1), SemiBold 11, sem pílula, anúncio "selecionado". Hoje o `tokens.ts` tem branco provisório: **trocar para `#EE8279`** e remover o PROVISÓRIO. Nenhum item é navegável: provado só pelo teste do `TabBarItem` isolado |
 | T-07 | — | Inativo | ícone e rótulo Tide `#B7B2AC` (5,76:1) | branco com opacidade 0,6 | real (token) | código |
 | T-08 | — | Fundo | petro, sem borda | `surface.brand` | igual | — |
-| T-09 | — | Estado desabilitado | **sem frame** (proposto T2 `83:844`); no Figma os 4 itens são navegáveis | os 4 itens `unavailable`, opacidade 0,6, `disabled` | real (estado sem frame) | aprovar T2 |
-| T-10 | — | Estado com foco | **sem frame** (proposto T1 `83:817`) | anel duplo petro + halo branco (`use-focus-ring.ts`); **a aparência sobre a barra petro não foi vista nesta rodada** (a borda petro sobre petro não se distingue; só o halo branco apareceria) | real (estado sem frame) | aprovar T1; anel branco `focus.ringOnBrand`; conferir na captura |
-| T-11 | — | Tela inicial pós-login | **não há frame** de "pós-login" sem módulo | Perfil | real | **P-01 do PRD segue aberta** |
+| T-09 | — | Estado desabilitado | **sem frame** (proposto T2 `83:844`); no Figma os 4 itens são navegáveis | os 4 itens `unavailable`, opacidade 0,6, `disabled` | real (estado sem frame) | **T2 aprovado em 16/11:** 4 itens a **50%** de opacidade, nenhum selecionado, anunciados como indisponíveis (legenda do `83:844`, li a captura hoje). O código usa `opacity.unavailable` = 0,6: **trocar para 0,5** |
+| T-10 | — | Estado com foco | **sem frame** (proposto T1 `83:817`) | anel duplo petro + halo branco (`use-focus-ring.ts`); **a aparência sobre a barra petro não foi vista nesta rodada** (a borda petro sobre petro não se distingue; só o halo branco apareceria) | real (estado sem frame) | **T1 aprovado em 16/11:** anel **branco** de 2 px com respiro de 2 px no item (legenda de `83:817`: 12,12:1 sobre petro). O código desenha anel petro + halo branco, que some sobre a barra petro: **trocar para anel branco** (token `focus.ringOnBrand`, ainda inexistente). O frame T1 está desenhado com o item em Crail: religar à variável `#EE8279` (bloqueado). Foco real em aparelho segue em US-MENU-06 |
+| T-11 | — | Tela inicial pós-login | **não há frame** de "pós-login" sem módulo | Perfil | real | **Aberta (16/11):** Início só vale depois de a pessoa aprovar o frame proposto. O frame **não foi criado** (Figma inacessível nesta sessão); a especificação em texto está em `F41-valores-fpdb8.md` §13. Nenhuma linha de Início conta como paridade até lá |
 
 ## 4. Diferenças de token (US-PAR-07), Figma como fonte
 
@@ -165,7 +167,11 @@ Calculado com a fórmula WCAG 2.x (luminância relativa sRGB) em um script meu, 
 
 **Mais um par que reprova do que o PRD listava:** a borda do campo em repouso (C-22). O erro de campo e a caixa de erro passam.
 
-### Propostas de cor (quadro C1 `85:744`; aguardam aprovação)
+### Recálculo com os valores finais (16/11)
+
+Script refeito e rodado hoje: `python3 -I docs/design/F41-contraste.py` (saída 0). Os pares reprovados acima (C-03, C-18, C-19, C-22) passam com as cores aprovadas: **placeholder Flint 5,36:1 sobre branco; borda de campo `#8C8780` 3,56:1 sobre branco e 3,28:1 sobre Pampas; aba selecionada `#EE8279` 4,68:1 sobre petro (texto de 11 px e ícone); texto "Sair da conta" Crail 4,97:1 sobre Pampas.** C-23 e C-24 (bordas Westar de 1,23:1 no botão "Sair da conta" e no cartão) são **decorativas** pelo WCAG 1.4.11, porque o botão tem texto a 4,97:1 e o cartão se lê pelo conteúdo. Os itens desabilitados da tab bar (Tide a 50% sobre petro, 2,58:1) são **isentos** (componente inativo). A tabela completa, com a razão de cada par, está em `F41-valores-fpdb8.md` §9 e na saída do script.
+
+### Propostas de cor (quadro C1 `85:744`; **aprovadas em 16/11**, entram nos dois lados juntos)
 
 | Item | Atual | Proposta | Razão da proposta | Observação |
 |---|---|---|---|---|
@@ -175,7 +181,9 @@ Calculado com a fórmula WCAG 2.x (luminância relativa sRGB) em um script meu, 
 
 Candidatas descartadas, com a razão calculada: `#EB7F76` 4,52:1 (margem curta), `#E8776E` 4,21:1 (reprova no texto de 11 px). Coral `#EE8279` contra Tide é só 1,23:1: o item selecionado se distingue por matiz, peso (SemiBold) e anúncio "selecionado" do leitor de tela, não só por cor — **P-12** pergunta se isso basta ou se entra uma marca.
 
-## 6. Perguntas abertas para a pessoa
+## 6. Perguntas para a pessoa (respondidas em 16/11)
+
+**Respostas que o pedido de revisão cita (as únicas que registro):** P-09 e-mail sob o rótulo "Usuário"; P-10 Ionicons como exceção; P-12 aba selecionada em cor + SemiBold + anúncio, sem marca extra (os critérios 3 e 7 fixam `#EE8279`, SemiBold e o anúncio "selecionado"); P-13 L3 como caixa no Login e P2 em tela cheia (L1 a L4, P1 e P2 aprovados); P-14 iniciais ignoram da/de/do/dos/das; P-15 "Funcionário" no estilo do selo ADMIN; P-16 bordas B5 e B6 decorativas; "Mostrar senha" mantido; versão real 0.1.0. **P-11 (o contorno de 2 px é o foco?) não aparece no pedido: sem resposta registrada por mim.** O texto das respostas P-01 a P-16 não está no material que recebi.
 
 Numeradas para não colidir com P-01 a P-07 do PRD.
 
@@ -193,6 +201,21 @@ Numeradas para não colidir com P-01 a P-07 do PRD.
 As perguntas P-01 a P-07 do PRD seguem como estão (P-04 e P-06 têm recomendação minha acima: seguir 46/50/62 com `hitSlop`, manter "Mostrar").
 
 ## 7. Registros pedidos na revisão
+
+**Decisões de 16/11 com o lado corrigido (critérios 5 e 6):**
+
+| Decisão | Lado corrigido | Linhas |
+|---|---|---|
+| "Mostrar senha" mantido | código mantido; texto visível "Mostrar"/"Ocultar" segue L1 | L-09 |
+| Ionicons como exceção (sem `react-native-svg`, sem licença da biblioteca) | código mantido; exceção registrada | T-04, P-01 (seta), P-14 |
+| Versão real 0.1.0 (o frame mostra "1.0.0" como dado de exemplo) | código | P-06 |
+| E-mail sob o rótulo "Usuário" | código | P-07 |
+| Iniciais ignoram da/de/do/dos/das | código (ORLA confere) | P-02 |
+| "Funcionário" no estilo do selo ADMIN | código | P-08 |
+| Placeholder Flint; borda `#8C8780`; aba `#EE8279` | `tokens.ts` e variáveis do FPdB8 na mesma entrega (Figma bloqueado nesta sessão) | L-06, L-07, T-06 |
+| Glifo nativo é plataforma; sombra é real; `elevation` no Android aceita e registrada | sem correção; Android sem cobertura | D-04 (diálogo), P-05 (cartão) |
+| L1 a L4, P1, P2 (botões ajustados), T1, T2 aprovados | código se ajusta; frame P2 precisa do ajuste (bloqueado) | L-16 a L-19, P-12, P-13, T-09, T-10 |
+| Início só depois da aprovação do frame proposto | frame não criado; especificação em `F41-valores-fpdb8.md` §13 | T-11 |
 
 **Decisão geral de 16/11 (US-PAR-06), registrada:** o Figma manda; o código se ajusta, inclusive N-01 (L-05), N-10 (P-06) e N-12 (T-01, P-10, P-14). Divergência de texto se corrige na chave de i18n. Lado corrigido em todas as linhas reais acima: **código**, salvo as que dependem de aprovação (frames propostos, cores AA, P-xx).
 
@@ -217,6 +240,8 @@ Os arquivos `alert-icon.test` (não existe na `main`: o `AlertIcon` ainda não e
 **Sem cobertura:** composição lado a lado, medida no app, protocolo de captura (tarefas 3, 5, 7, 9, 11, 19 e 20), tokens e variáveis (tarefa 17) e teste de componente (tarefa 18).
 
 ## 10. Resultado da correção de código (ORLA, 2026-11-16)
+
+> **Nota de 16/11 (ESQUADRO):** as capturas `par-*.png` citadas aqui deixam de ser prova de paridade pela decisão de dispensar capturas e pares lado a lado. A prova é `F41-valores-fpdb8.md`. Os arquivos continuam no ramo; remover `docs/design/f41-capturas` só se a REGENTE confirmar antes do merge, e eu não removi nada.
 
 Branch `feat/f41-paridade-fpdb8-codigo`, base `348a43e`. Capturas do app em `docs/design/f41-capturas/par-*.png` (Figma à esquerda, app à direita), tiradas no commit `ef54855` (o único commit seguinte, `README`, não toca código). **Aparelho: simulador iPhone 17, iOS 27.0, Expo Go, retrato, barra de status em 9:41, escala de fonte padrão.** Não é o aparelho físico da premissa 9 da feature: a pessoa não informou o aparelho (P-02), então é um desvio registrado. Android não foi verificado. As capturas são de uma rota temporária (apagada, nunca versionada) que monta as telas reais com sessão fictícia `joao.silva` e componentes reais com props fixas nos estados de erro, sem passar pela API: provam aparência, não fluxo.
 

@@ -65,7 +65,9 @@ Criada por ESQUADRO em 2026-11-16 via `use_figma`, só com nós novos (cópias d
 
 Observação de método: a instrução `figma-use` não pôde ser carregada nesta sessão; cada passo foi conferido por `get_screenshot`.
 
-A conferência da F41 (planilha, tokens, contraste e estados propostos) está em `docs/design/F41-planilha-fpdb8.md`.
+A conferência da F41 (planilha, tokens, contraste e estados propostos) está em `docs/design/F41-planilha-fpdb8.md`. Desde 16/11 a prova de paridade é a planilha de valores `docs/design/F41-valores-fpdb8.md` (sem capturas lado a lado).
+
+**Sessão de 16/11 sem acesso ao Figma (ESQUADRO, US-PAR-11).** O ambiente informou que o servidor `figma-remote` exige autenticação e a sessão é não interativa; nenhuma ferramenta `mcp__figma-remote__*` ficou disponível. **Não houve chamada, então não há saída de `whoami` desta sessão.** Nada foi lido nem editado no Figma. Para liberar: `claude mcp login figma-remote` em sessão interativa. Pendente por isso: criar as 3 variáveis aprovadas (placeholder Flint, borda de campo `#8C8780`, aba selecionada `#EE8279`) e religar L1 a L4, C1, T1, T2, `20:1102` e `20:1340`; ajustar o P2 `83:754` (botão cheio + contorno); propor o frame Início; exportar o escudo de `10:895` com origem e liberação.
 
 ## Páginas
 
