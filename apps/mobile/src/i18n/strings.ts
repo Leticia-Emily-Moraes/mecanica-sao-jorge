@@ -23,7 +23,7 @@ const strings = {
   'login.campoSenha.mostrar': 'Mostrar senha',
   'login.campoSenha.ocultar': 'Ocultar senha',
   'login.botaoEntrar.rotulo': 'Entrar',
-  'login.botaoEntrar.carregando': 'Entrando...',
+  'login.botaoEntrar.carregando': 'Entrando…',
   'login.erroCredencial.mensagem':
     'Usuário ou senha incorretos. Confira os dados e tente novamente.',
   /** L3: caixa de erro entre a senha e o botão. Redação proposta pelo ESQUADRO, frame não relido. */
