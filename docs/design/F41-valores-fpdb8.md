@@ -233,3 +233,29 @@ Motivo de não estar no Figma: sem acesso nesta sessão (§1). Isto é só a esp
 - **Estados:** não tem carregando nem erro (a tela não chama API). Vazio é o único estado; carregando, erro e sucesso: "não se aplica", justificativa: a tela é estática.
 - **Acessibilidade:** ordem de foco título, botão de usuário (nome "Perfil"), conteúdo, tab bar; o leitor anuncia "Início", "Perfil, botão", "Em breve", a mensagem e cada item como "Ordens, indisponível nesta versão" etc. Contraste: Flint sobre Pampas 4,93:1 (passa).
 - **Diferença hoje no código:** o estado vazio usa `StateView empty` com ícone `file-tray-outline` de 48, título 14 SemiBold e mensagem 16. Quando o frame for aprovado, o código se ajusta a ele (D-02).
+
+## 14. Rodada do ORLA em 16/11 (código corrigido; Figma não tocado)
+
+Autor: ORLA. Ramo `feat/f41-paridade-fpdb8-codigo`. **O Figma continua inacessível:** `mcp__claude_ai_Figma__whoami` voltou "Claude requested permissions to use mcp__claude_ai_Figma__whoami, but you haven't granted it yet" e o `figma-remote` pede login. Nenhum valor abaixo foi relido no arquivo; todos vêm da planilha do ESQUADRO.
+
+| ID | Resultado no código | Trava |
+|---|---|---|
+| V-T06 | `color.text.tabSelected` = `#EE8279`, comentário PROVISÓRIO removido | `tokens.test`, `tab-bar-item.test` |
+| V-L09 | `color.border.default` = `#8C8780` (primitivo `slate500` removido por falta de uso) | `tokens.test`, `text-field.test` |
+| V-L07 | placeholder = Flint, comentário PROVISÓRIO removido | `tokens.test`, `text-field.test` |
+| V-T07 | `opacity.unavailable` = 0,5 | `tokens.test`, `tab-bar-item.test` |
+| V-T08 | anel de foco branco de 2 px com respiro de 2 px (`color.focus.ringOnBrand`, `useFocusRing({ onBrand })`) | `tab-bar-item.test` (branco sim, petro não) |
+| V-L13 | texto visível "Mostrar"/"Ocultar", nome acessível "Mostrar senha"/"Ocultar senha" (chaves `login.campoSenha.mostrarTexto` e `ocultarTexto`) | `login.test`, `inline-action-button.test` |
+| V-L18 | caixa de erro (`InlineAlert`) entre a senha e o botão, sem popup; texto "Sem conexão. Verifique a internet da oficina e tente de novo." | `login.test` (posição, sem `Modal`, campos sem borda de erro, repetir pelo "Entrar") |
+| V-P14 | texto visível "Carregando sessão…" em Flint sob o indicador petro | `state-view.test`, `index.test` |
+| V-P15 | erro de tela cheia: ícone `cloud-offline-outline` em círculo, título sem ponto, mensagem da planilha, botão cheio "Tentar novamente" e contorno "Entrar novamente"; `ErrorRetryModal` removido | `state-view.test`, `index.test` |
+| D-14 | iniciais ignoram da/de/do/dos/das (se só houver partículas, elas contam) | `get-initials.test` |
+| V-L19 | **só testado**: aviso de sessão expirada como alerta acima do formulário; texto do frame **não lido** | `login.test` |
+
+**Valores do ORLA que não vêm do Figma (o ESQUADRO confere em `83:754` e `10:981`):** círculo de 84 e ícone de 48 do P2 (reaproveitam `size.avatar` e `iconSize.empty`), cores do círculo (Pot Pourri) e do ícone (El Salva), título em `typography.title` (24), mensagem em 16, texto do P1 em Inter 14 Flint, as reticências "…" do P1/P2.
+
+**Continua aberto:** V-L14 (L2): o código mantém "Entrando..." e o botão a 50% de opacidade, porque o frame L2 não foi relido e o texto com "…" é só a transcrição da planilha. As 3 variáveis do FPdB8, o frame P2 `83:754` com botão cheio, T1 em coral, o escudo e o frame Início seguem com o ESQUADRO e a pessoa. **US-PAR-07 e US-PAR-08 não fecham sem isso.**
+
+**Testes novos (§6):** `tokens.test.ts` com os literais; tab bar (50%, anel branco, `#EE8279`, SemiBold, ícone 22, gap 4); P2 com botão cheio e contorno; iniciais (João da Silva = JS, Maria de Souza Lima = ML, Ana = A, vazio); `hitSlop` do campo já existia; larguras 320 e 430 sem `width` fixo no Login (`find-fixed-widths`); estilo do rótulo e do campo, da caixa de erro, do cartão, do diálogo e do nome do Perfil; Login L3 e L4. O Jest **não mede layout nem toque**.
+
+**Capturas do app em simulador (iPhone 17, iOS 27.0, Expo Go, 16/11):** feitas só como conferência do ORLA, fora do git (scratchpad), por rota temporária apagada em seguida. 11 arquivos, 11 md5 distintos. Vi p1, p2, login-vazio, login-erro-rede, perfil, inicio e dialogo-isolado; não abri login-preenchido, login-carregando nem login-erro-credencial. O diálogo em cima da tela de Perfil não apareceu (modal não apresentado), por isso o diálogo foi fotografado isolado. Prova só aparência: login e fluxo contra a API real não foram executados pelo ORLA.
