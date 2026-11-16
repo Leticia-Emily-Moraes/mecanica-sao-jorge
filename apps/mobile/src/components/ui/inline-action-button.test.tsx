@@ -1,6 +1,9 @@
 import { fireEvent, render, screen } from '@testing-library/react-native';
+import { StyleSheet } from 'react-native';
 
+import type { TestStyle } from '@/test-utils/flat-style';
 import { hasFocusRing } from '@/test-utils/has-focus-ring';
+import { color, fontFamily } from '@/theme/tokens';
 
 import { InlineActionButton } from './inline-action-button';
 
@@ -20,6 +23,16 @@ describe('InlineActionButton', () => {
 
     expect(screen.getByText('Mostrar')).toBeTruthy();
     expect(button.props.accessibilityLabel).toContain('Mostrar');
+  });
+
+  it('should draw the label in Inter Medium 13 in Flint, as the Mostrar action of the frames (R-3)', () => {
+    render(<InlineActionButton label="Mostrar" onPress={jest.fn()} />);
+
+    expect(StyleSheet.flatten(screen.getByText('Mostrar').props.style as TestStyle)).toMatchObject({
+      fontFamily: fontFamily.bodyMedium,
+      fontSize: 13,
+      color: color.text.secondary,
+    });
   });
 
   it('should call onPress when pressed', () => {

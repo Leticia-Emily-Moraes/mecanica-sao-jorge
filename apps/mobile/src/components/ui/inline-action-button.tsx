@@ -69,8 +69,8 @@ const styles = StyleSheet.create({
     paddingVertical: spacing.xs,
   },
   label: {
-    fontFamily: typography.caption.fontFamily,
-    fontSize: typography.caption.fontSize,
+    fontFamily: typography.fieldLabel.fontFamily,
+    fontSize: typography.fieldLabel.fontSize,
     color: color.text.secondary,
   },
 });
