@@ -118,6 +118,8 @@ export const radius = {
   lg: 16,
   /** Cartão do diálogo (Figma). */
   dialog: 10,
+  /** Anel de foco do item da tab bar (T1 `84:786`): 86 × 58 dentro da célula de 90 × 62. */
+  tabFocus: 10,
   /** Avatar de 84 px (metade). */
   avatar: 42,
   pill: 999,

@@ -145,6 +145,27 @@ describe('TabBarItem', () => {
     });
   });
 
+  it('should inset the ring 2 px from the cell and round it at radius 10 (T1 84:786, R-8)', () => {
+    render(
+      <TabBarItem icon="people-outline" label="Clientes" accessibilityLabel="Clientes" selected />,
+    );
+    const tab = screen.getByRole('tab', { name: 'Clientes' });
+    const ancestors: TestStyle[] = [];
+    for (let node = tab.parent; node; node = node.parent) {
+      const style = StyleSheet.flatten(node.props.style as TestStyle);
+      if (style) ancestors.push(style);
+    }
+    const ringIndex = ancestors.findIndex((style) => style.borderWidth !== undefined);
+    // Acima do anel, a célula é o primeiro ancestral com folga e sem borda própria.
+    const cell = ancestors
+      .slice(ringIndex + 1)
+      .find((style) => style.padding !== undefined && style.borderWidth === undefined);
+
+    expect(ancestors[ringIndex]).toMatchObject({ borderWidth: 2, borderRadius: 10 });
+    // Célula de 90 × 62 com 2 de folga: o anel mede 86 × 58, por dentro dela.
+    expect(cell).toMatchObject({ padding: 2 });
+  });
+
   it('should draw the selected item with the approved #EE8279 and announce it as selected', () => {
     render(
       <TabBarItem icon="people-outline" label="Clientes" accessibilityLabel="Clientes" selected />,

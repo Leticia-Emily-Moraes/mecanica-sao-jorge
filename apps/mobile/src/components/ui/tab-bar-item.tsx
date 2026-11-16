@@ -2,7 +2,15 @@ import { Ionicons } from '@expo/vector-icons';
 import type { ComponentProps, ReactElement } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
-import { color, iconSize, opacity, radius, spacing, typography } from '@/theme/tokens';
+import {
+  color,
+  focusRingOffset,
+  iconSize,
+  opacity,
+  radius,
+  spacing,
+  typography,
+} from '@/theme/tokens';
 import { useFocusRing } from '@/theme/use-focus-ring';
 
 export type TabBarIconName = ComponentProps<typeof Ionicons>['name'];
@@ -38,45 +46,52 @@ export function TabBarItem({
   const tone = selected ? color.text.tabSelected : color.text.onBrandMuted;
 
   return (
-    <View style={[styles.cell, focusRingStyle]}>
-      <Pressable
-        accessibilityRole="tab"
-        accessibilityLabel={accessibilityLabel}
-        accessibilityState={{ selected, disabled: unavailable }}
-        disabled={unavailable}
-        onFocus={onFocus}
-        onBlur={onBlur}
-        onPress={onPress}
-        style={styles.pressable}
-      >
-        <View style={styles.content}>
-          <Ionicons
-            name={icon}
-            size={iconSize.tab}
-            color={tone}
-            style={unavailable && styles.unavailable}
-          />
-          <Text
-            style={[
-              styles.label,
-              selected ? styles.labelSelected : styles.labelIdle,
-              { color: tone },
-              unavailable && styles.unavailable,
-            ]}
-            numberOfLines={1}
-          >
-            {label}
-          </Text>
-        </View>
-      </Pressable>
+    <View style={styles.cell}>
+      <View style={[styles.ring, focusRingStyle]}>
+        <Pressable
+          accessibilityRole="tab"
+          accessibilityLabel={accessibilityLabel}
+          accessibilityState={{ selected, disabled: unavailable }}
+          disabled={unavailable}
+          onFocus={onFocus}
+          onBlur={onBlur}
+          onPress={onPress}
+          style={styles.pressable}
+        >
+          <View style={styles.content}>
+            <Ionicons
+              name={icon}
+              size={iconSize.tab}
+              color={tone}
+              style={unavailable && styles.unavailable}
+            />
+            <Text
+              style={[
+                styles.label,
+                selected ? styles.labelSelected : styles.labelIdle,
+                { color: tone },
+                unavailable && styles.unavailable,
+              ]}
+              numberOfLines={1}
+            >
+              {label}
+            </Text>
+          </View>
+        </Pressable>
+      </View>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
+  // Célula de 90 × 62 (frame `20:1102`): o anel fica 2 de folga por dentro dela.
   cell: {
     flex: 1,
-    borderRadius: radius.md,
+    padding: focusRingOffset,
+  },
+  ring: {
+    flex: 1,
+    borderRadius: radius.tabFocus,
   },
   pressable: {
     flex: 1,
