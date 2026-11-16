@@ -10,9 +10,13 @@ O que existe hoje:
 - **Login** (`app/login.tsx`): campo "Usuário" (o valor digitado segue sendo
   enviado como `email` em `POST /api/v1/auth/login`) e senha, validação de
   campo vazio sem chamar a API, faixa de erro genérica de credencial inválida
-  (401) com as duas bordas em erro, popup de erro de conexão com "Tentar
-  novamente", alternar mostrar/ocultar senha, e aviso de sessão expirada
-  quando a API devolve 401 numa chamada autenticada;
+  (401) com as duas bordas em erro, caixa de erro de conexão entre a senha e o
+  botão (refaz o login pelo próprio "Entrar"), ação "Mostrar"/"Ocultar" na
+  senha (nome acessível "Mostrar senha"/"Ocultar senha"), e aviso de sessão
+  expirada quando a API devolve 401 numa chamada autenticada;
+- **Abertura do app** (`app/index.tsx`): carregando com o texto visível
+  "Carregando sessão…" e erro de tela cheia com "Tentar novamente" e
+  "Entrar novamente" quando a sessão salva não pode ser lida;
 - **Início** (`app/(menu)/inicio.tsx`, F41): destino pós-login. Sem módulo
   programado ainda, mostra o cabeçalho com o botão de usuário, o estado vazio
   e a tab bar de 4 itens (Ordens, Clientes, Catálogo, Financeiro) desabilitados;
@@ -252,7 +256,7 @@ Executado nesta sessão, com shell real — não apenas escrito:
   `osascript` simular toque por coordenada — tentei e recebi erro de
   permissão (-1719), não contornei. O comportamento de toque foi exercitado
   pelos testes automatizados (RNTL `fireEvent` contra os componentes reais),
-  não por interação humana/visual na tela de Perfil, no popup de erro de rede
+  não por interação humana/visual na tela de Perfil, na caixa de erro de rede
   nem no diálogo de confirmação.
 - **Não verificado**: Android (nenhum emulador/`adb` disponível nesta
   sessão) e leitor de tela real (VoiceOver/TalkBack).
