@@ -481,3 +481,21 @@ Os rótulos de cima dos frames `L1` a `L4`, `P1`, `P2`, `T1`, `T2` e `I1` ainda 
 | R-5b, R-10, T1 em `#EE8279` | **confirmados** (17.4) |
 | Capturas dos frames | **exportadas**, só Figma (17.5) |
 | Zero divergência real aberta | **não**: I-1 a I-6 e R-11 abertas, todas do lado do código (ORLA) |
+
+## 18. Correção de código do ORLA (16/11, depois da §17)
+
+**Acesso ao Figma (US-PAR-11):** esta sessão do ORLA não tem nenhuma ferramenta `figma-remote`, então não existe saída de `whoami` para colar. Chamei o ESQUADRO para criar as variáveis; ele respondeu que também não tem a ferramenta nesta sessão e parou sem tocar no arquivo. Ninguém contornou. Tudo do lado Figma abaixo está **pendente**.
+
+| Item | Código | Commit | Prova | Figma |
+|---|---|---|---|---|
+| I-1 círculo 72 `#EDE9E4` | `StateIllustration` (`size.stateIcon`, `color.surface.neutral`) | `3c8df54` | `state-illustration.test`, `inicio.test` | lido na §17.3 |
+| I-2 ícone 32 Spectra, documento | `document-text-outline`, `iconSize.alert`, `color.icon.state` | `3c8df54` | `inicio.test` | lido na §17.3 |
+| I-3 título Barlow SemiBold 20 petro | `typography.stateTitle` | `3c8df54` | `state-illustration.test`, `inicio.test` | lido na §17.3 |
+| I-4 mensagem Inter 14/21, 289 | `typography.dialogMessage`, **token novo `layout.stateMessageMaxWidth` = 289** | `3c8df54` | `tokens.test`, `inicio.test`, `state-view.test` (P2 R-7 também) | **variável não criada** |
+| I-5 espaços 16 e 10 | `spacing.md` e `spacing.s10` | `3c8df54` | `inicio.test` | lido na §17.3 |
+| I-6 bloco centrado | `flex: 1`, `justifyContent: center` no contêiner do vazio | já era assim | `inicio.test` (estilo; não medido no aparelho) | lido na §17.3 |
+| R-11 indicador a 6,5 do texto, texto centrado | caixa de 16 (**token novo `size.loadingIndicator` = 16**), `gap` = `spacing.s6` (6) e espelho de 16 do outro lado | `7f9db9f` | `button.test` | **variável não criada**; 6 contra 6,5 é diferença de 0,5, sem token para 6,5 |
+
+Efeitos colaterais: o erro P2 passou a usar a mesma `StateIllustration` (24 sob o círculo, 8 sob o título, mensagem com `maxWidth` 289, o que fecha a R-7 que estava "não corrigida por falta de medida"). `iconSize.empty` (48) foi removido porque ficou sem uso.
+
+**Pendente para o ESQUADRO, com Figma:** criar `layout/stateMessageMaxWidth` (289) e `size/loadingIndicator` (16) com valor idêntico ao `tokens.ts` e ligar aos nós `83:769`, `89:985` e `82:2137`; reler o I1 e o L2 contra o código novo; decidir se 6 contra 6,5 passa. **Sem isso a US-PAR-07 e a US-PAR-08 não fecham.**
