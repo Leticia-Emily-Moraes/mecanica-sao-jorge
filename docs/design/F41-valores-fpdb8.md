@@ -336,3 +336,40 @@ Acessibilidade do I1: ordem de foco cabeçalho (título, botão de usuário com 
 | Zero divergência real aberta | **não**: R-1 a R-9 abertas, todas do lado do código (ORLA) |
 
 A F41 **não fecha** enquanto R-1 a R-9 estiverem abertas.
+
+## 16. Correções de código R-1 a R-9 (ORLA, 16/11)
+
+Autor: ORLA · ramo `feat/f41-paridade-fpdb8-codigo` · partida em `875898d`. **Nenhum valor foi lido no Figma por mim:** o `whoami` desta sessão voltou `Claude requested permissions to use mcp__figma-remote__whoami, but you haven't granted it yet.` Os números abaixo são os da §15.3, lidos pelo ESQUADRO. O que o Jest trava é o valor de estilo, não o layout medido no aparelho.
+
+| # | Estado | Commit | O que mudou no código | Teste que trava |
+|---|---|---|---|---|
+| R-1 | **corrigida no código** | `5597caa` | `login.botaoEntrar.carregando` = `Entrando…` (U+2026) | `strings.test.ts` |
+| R-2 | **corrigida no código** | `5ab9b7b` | `Button` só esmaece com `disabled`; `loading` bloqueia o toque e fica a 100% | `button.test.tsx` (3 testes novos) |
+| R-3 | **corrigida no código** | `2357422` | `InlineActionButton` usa `typography.fieldLabel` (Inter Medium 13, Flint) | `inline-action-button.test.tsx` |
+| R-4 | **corrigida no código; token novo sem variável no Figma** | `855606c` | círculo `size.stateIcon` = 72, fundo `color.surface.neutral` = `#EDE9E4` | `error-state.test.tsx`, `tokens.test.ts` |
+| R-5 | **corrigida no código; token novo sem variável no Figma** | `855606c` | ícone `iconSize.alert` = 32, cor `color.icon.state` = Spectra `#33575D` | `error-state.test.tsx`, `tokens.test.ts` |
+| R-6 | **corrigida no código; estilo novo sem estilo no Figma** | `855606c` | `typography.stateTitle` = Barlow Condensed SemiBold 20 | `error-state.test.tsx`, `tokens.test.ts` |
+| R-7 | **corrigida no código** | `855606c` | mensagem em `typography.dialogMessage` (Inter 14 / 21) | `error-state.test.tsx` |
+| R-8 | **corrigida no código; token novo sem variável no Figma** | `f364285` | célula com 2 de folga e anel dentro dela, raio `radius.tabFocus` = 10 | `tab-bar-item.test.tsx` |
+| R-9 | **corrigida no código** | `0182046` | espaço de 12 (`spacing.s12`) entre indicador e texto | `state-view.test.tsx` |
+
+**Achados meus, não listados na §15.3 (ESQUADRO confere):**
+- **R-5b, cor do ícone do P2:** o código usava El Salva (`errorOnBanner`); a §15.3 diz Spectra para o nó `83:764`. Troquei para Spectra (`color.icon.state`). Contraste do par: 6,53:1 (I5, `F41-contraste.py`).
+- **R-10, largura dos botões do P2:** a §15.2 lê 328 × 50 e o código limitava a coluna a 320 (`layout.dialogMaxWidth`), 8 a menos num aparelho de 360. Criei `layout.stateActionsMaxWidth` = 328. Só leitura dos dois arquivos, sem medida no app.
+
+**Tokens que o ESQUADRO precisa espelhar no Figma na mesma entrega (US-PAR-07), com o valor idêntico:**
+
+| Token no código | Valor | Variável ou estilo no Figma a criar |
+|---|---|---|
+| `color.surface.neutral` | `#EDE9E4` | ligar à variável `color/grey/91` que o `83:763` já usa |
+| `color.icon.state` | `#33575D` | ligar ao Spectra do `83:764` |
+| `size.stateIcon` | 72 | medida do `83:763` |
+| `typography.stateTitle` | Barlow Condensed SemiBold 20 | estilo do `83:767` |
+| `radius.tabFocus` | 10 | raio do `84:786` |
+| `layout.stateActionsMaxWidth` | 328 | largura dos `83:770` e `83:815` |
+
+**Decisão sobre `iconSize.empty` (R-5):** continua 48. Ele só serve o estado vazio do `StateView`, que o Início usa, e o Início não tem frame aprovado (D-20). Mudar para 32 alteraria uma tela sem referência. O P2 passou a usar `iconSize.alert` (32).
+
+**Não corrigido, por falta de medida:** a mensagem do P2 tem 289 de largura no frame (`83:769`) e o código não limita a largura do texto; o desenho do indicador (36) é do sistema (D-16). V-L19 já estava fechada pela §15.2 (texto e posição idênticos); V-L14 fecha no código com R-1 e R-2, mas só fecha de verdade depois da captura no aparelho.
+
+**Quadro:** R-1 a R-9 estão corrigidas **no código**. A F41 continua **não fechada**: as 6 linhas da tabela acima não têm variável no Figma, não há captura no aparelho e a F41 depende da aprovação da pessoa sobre o Início (fora do aceite).
