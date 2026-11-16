@@ -43,7 +43,7 @@ evitar fluxo órfão) em [`diagrams/navegacao-wireframe-f24.md`](diagrams/navega
 | [ADR-011](adr/ADR-011-handler-global-de-erro-e-mapeamento-de-status.md) | Handler global de erro: formato único e mapeamento de status HTTP | Aceito | 2026-11-07 |
 | [ADR-012](adr/ADR-012-remover-template-generico-do-backend.md) | Remover o template genérico do backend em vez de adaptá-lo | Aceito | 2026-11-12 |
 | [ADR-013](adr/ADR-013-adotar-migrations-flyway-como-fonte-unica-de-verdade-do-schema.md) | Adotar as migrations Flyway como fonte única de verdade do schema | Aceito | 2026-11-12 |
-| [ADR-014](adr/ADR-014-adotar-referencia-figma-como-nova-identidade-visual.md) | Adotar o visual do Figma de referência como nova identidade visual do app | Proposto | 2026-11-13 |
+| [ADR-014](adr/ADR-014-adotar-referencia-figma-como-nova-identidade-visual.md) | Adotar o visual do Figma de referência como nova identidade visual do app (revisado para a F41: referência aprovada e lista fechada de plataforma) | Proposto | 2026-11-16 |
 | [ADR-017](adr/ADR-017-padronizar-listagem-com-busca-e-paginacao.md) | Padronizar a listagem com busca: termo literal, collation ai_ci fixada por migration e página própria | Proposto | 2026-11-14 |
 
 ADR-014 entra pela branch `docs/f41-adr014-referencia-aprovada`, trazido de `docs/f39-wireframe-redesenho` (`18efb4e`) porque a F41 depende dele. ADR-015 e ADR-016 continuam em ramos fora da `main` (`refactor/f40-estrutura-ui-sobre-f41` e o PR 13). A numeração deles está reservada, e cada um entra nesta tabela no próprio merge.
