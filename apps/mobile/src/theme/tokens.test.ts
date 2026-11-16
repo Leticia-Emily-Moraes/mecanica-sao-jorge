@@ -20,6 +20,7 @@ describe('tokens (FPdB8 literal values)', () => {
       ['background', color.surface.background, '#F7F5F2'],
       ['brand', color.surface.brand, '#1E3A3F'],
       ['errorTint', color.surface.errorTint, '#F6E7E5'],
+      ['neutral (P2 icon circle)', color.surface.neutral, '#EDE9E4'],
       ['avatar', color.surface.avatar, '#33575D'],
       ['overlay', color.surface.overlay, 'rgba(30, 58, 63, 0.55)'],
       ['onBrandControl', color.surface.onBrandControl, 'rgba(255, 255, 255, 0.12)'],
@@ -56,6 +57,12 @@ describe('tokens (FPdB8 literal values)', () => {
     });
   });
 
+  describe('color.icon', () => {
+    it('should draw the P2 state icon in Spectra', () => {
+      expect(color.icon.state).toBe('#33575D');
+    });
+  });
+
   describe('color.focus', () => {
     it('should draw the ring over the petro bar in white', () => {
       expect(color.focus.ringOnBrand).toBe('#FFFFFF');
@@ -71,6 +78,7 @@ describe('tokens (FPdB8 literal values)', () => {
         tabBar: 62,
         avatar: 84,
         iconButton: 36,
+        stateIcon: 72,
       });
     });
 
@@ -98,6 +106,13 @@ describe('tokens (FPdB8 literal values)', () => {
       expect(typography.tabLabelSelected).toEqual({
         fontFamily: 'Inter_600SemiBold',
         fontSize: 11,
+      });
+    });
+
+    it('should keep the full-screen state title at Barlow SemiBold 20 (P2)', () => {
+      expect(typography.stateTitle).toEqual({
+        fontFamily: 'BarlowCondensed_600SemiBold',
+        fontSize: 20,
       });
     });
 

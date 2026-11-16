@@ -26,6 +26,8 @@ const primitiveColor = {
   /** Item selecionado da tab bar (aprovado em 16/11), 4,68:1 sobre petro. */
   coral: '#EE8279',
   spectra: '#33575D',
+  /** Círculo neutro do ícone de estado do P2 (`color/grey/91` no FPdB8). */
+  grey91: '#EDE9E4',
   potPourri: '#F6E7E5',
   roseFog: '#E2B5B0',
   elSalva: '#923631',
@@ -36,6 +38,10 @@ const primitiveColor = {
 } as const;
 
 export const color = {
+  /** Ícone ilustrativo de estado (P2): Spectra, 6,53:1 sobre `#EDE9E4`. */
+  icon: {
+    state: primitiveColor.spectra,
+  },
   surface: {
     default: primitiveColor.white,
     /** Fundo de tela (Pampas). */
@@ -45,6 +51,8 @@ export const color = {
     overlay: primitiveColor.scrimPetro,
     /** Faixa de erro dentro do formulário (Pot Pourri). */
     errorTint: primitiveColor.potPourri,
+    /** Círculo do ícone de estado de tela cheia (P2), `#EDE9E4`. */
+    neutral: primitiveColor.grey91,
     /** Círculo do avatar (Spectra). */
     avatar: primitiveColor.spectra,
     /** Botão de ícone sobre o cabeçalho petro (branco a 12%). */
@@ -126,6 +134,8 @@ export const fontFamily = {
 
 export const typography = {
   title: { fontFamily: fontFamily.displaySemiBold, fontSize: 24 },
+  /** Título do estado de tela cheia (P2): Barlow Condensed SemiBold 20. */
+  stateTitle: { fontFamily: fontFamily.displaySemiBold, fontSize: 20 },
   body: { fontFamily: fontFamily.body, fontSize: 16 },
   label: { fontFamily: fontFamily.bodySemiBold, fontSize: 14 },
   button: { fontFamily: fontFamily.bodySemiBold, fontSize: 15 },
@@ -161,6 +171,8 @@ export const size = {
   avatar: 84,
   /** Botão de ícone do cabeçalho (seta de voltar e botão de usuário). */
   iconButton: 36,
+  /** Círculo do ícone de estado de tela cheia (P2). */
+  stateIcon: 72,
 } as const;
 
 /**
@@ -203,6 +215,8 @@ export const iconSize = {
 export const layout = {
   dialogMaxWidth: 320,
   tabBarMaxWidth: 480,
+  /** Coluna de ações do estado de tela cheia (P2): botões de 328 no frame de 360. */
+  stateActionsMaxWidth: 328,
 } as const;
 
 /**

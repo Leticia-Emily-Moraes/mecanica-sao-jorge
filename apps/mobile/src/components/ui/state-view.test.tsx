@@ -208,7 +208,7 @@ describe('StateView', () => {
       );
 
       // O círculo do ícone é o único elemento com medida absoluta (decorativo).
-      expect(findFixedWidths(screen.toJSON())).toEqual([84]);
+      expect(findFixedWidths(screen.toJSON())).toEqual([72]);
     });
   });
 });

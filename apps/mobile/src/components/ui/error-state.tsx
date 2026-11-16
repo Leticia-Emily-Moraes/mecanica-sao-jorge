@@ -3,7 +3,7 @@ import type { ReactElement } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 
 import { Button } from '@/components/ui/button';
-import { color, iconSize, layout, radius, size, spacing, typography } from '@/theme/tokens';
+import { color, iconSize, layout, size, spacing, typography } from '@/theme/tokens';
 
 export interface ErrorStateProps {
   readonly title: string;
@@ -13,12 +13,6 @@ export interface ErrorStateProps {
   readonly secondaryLabel?: string;
   readonly onSecondaryPress?: () => void;
 }
-
-/**
- * Medida do círculo do ícone: reaproveita os 84 do avatar. O diâmetro e o
- * ícone do frame P2 (`83:754`) ainda não foram medidos no arquivo.
- */
-const ICON_CIRCLE = size.avatar;
 
 /**
  * Erro de tela cheia (P2): sem cabeçalho nem tab bar, ícone de sem conexão em
@@ -41,11 +35,7 @@ export function ErrorState({
         importantForAccessibility="no-hide-descendants"
         style={styles.iconCircle}
       >
-        <Ionicons
-          name="cloud-offline-outline"
-          size={iconSize.empty}
-          color={color.text.errorOnBanner}
-        />
+        <Ionicons name="cloud-offline-outline" size={iconSize.alert} color={color.icon.state} />
       </View>
       <Text accessibilityRole="header" style={styles.title}>
         {title}
@@ -72,31 +62,32 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   iconCircle: {
-    width: ICON_CIRCLE,
-    height: ICON_CIRCLE,
-    borderRadius: radius.avatar,
-    backgroundColor: color.surface.errorTint,
+    width: size.stateIcon,
+    height: size.stateIcon,
+    borderRadius: size.stateIcon / 2,
+    backgroundColor: color.surface.neutral,
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: spacing.lg,
   },
   title: {
-    fontFamily: typography.title.fontFamily,
-    fontSize: typography.title.fontSize,
+    fontFamily: typography.stateTitle.fontFamily,
+    fontSize: typography.stateTitle.fontSize,
     color: color.text.primary,
     textAlign: 'center',
     marginBottom: spacing.sm,
   },
   message: {
-    fontFamily: typography.body.fontFamily,
-    fontSize: typography.body.fontSize,
+    fontFamily: typography.dialogMessage.fontFamily,
+    fontSize: typography.dialogMessage.fontSize,
+    lineHeight: typography.dialogMessage.lineHeight,
     color: color.text.secondary,
     textAlign: 'center',
     marginBottom: spacing.lg,
   },
   actions: {
     width: '100%',
-    maxWidth: layout.dialogMaxWidth,
+    maxWidth: layout.stateActionsMaxWidth,
     gap: spacing.s10,
   },
 });
