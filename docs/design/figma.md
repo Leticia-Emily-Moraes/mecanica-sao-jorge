@@ -1,6 +1,11 @@
 # Arquivo Figma da operação OP-002
 
-- **Arquivo**: OP-002 app-mecanica-sao-jorge
+> **Referência de alta fidelidade (desde 2026-11-16, decisão da pessoa, F41):**
+> https://www.figma.com/design/FPdB8RymAnN81pbKfizdzE (`FPdB8RymAnN81pbKfizdzE`, "Feito-pelo-Claude-Desing").
+> Detalhe e lista viva de nós na seção "Referência F41 (FPdB8)" logo abaixo.
+> O arquivo `DLqbSzzKRxiN2eyvXG73Lr` descrito a seguir é **histórico da v1** (F24, F25, F34): não é mais referência de paridade e não é editado.
+
+- **Arquivo (histórico v1)**: OP-002 app-mecanica-sao-jorge
 - **Link**: https://www.figma.com/design/DLqbSzzKRxiN2eyvXG73Lr
 - **file_key**: `DLqbSzzKRxiN2eyvXG73Lr`
 - **Pasta**: `team::1274094162661077353` / projeto `681115069` (pasta da operação)
@@ -10,6 +15,39 @@
 Um arquivo por operação. Toda nova entrega de design desta operação (F24, e as
 próximas F25+) continua neste mesmo arquivo, em páginas novas, sem criar
 arquivo adicional.
+
+## Referência F41 (FPdB8) — lista viva de nós aprovados
+
+Lido por ESQUADRO em **2026-11-16** com o Figma MCP oficial (`figma-remote`), sessão `0aa749b1-35d2-40cf-aabc-92c54f24f036`.
+Regra de edição e escopo: ADR-014, seção "Edição do arquivo de referência".
+
+**Acesso (US-PAR-11), saída real de `whoami`:**
+`{"handle":"Leticia Moraes","plans":[{"name":"Time Pessoal","seat":"Full","tier":"student","key":"team::1274094162661077353","role":"admin"}]}` (e-mail omitido aqui de propósito). Leitura de `get_metadata`, `get_screenshot`, `get_design_context` e `get_variable_defs` do arquivo `FPdB8RymAnN81pbKfizdzE`: sem erro de permissão.
+
+**Páginas do arquivo:** `20:2131` "01 — Wireframes", `20:2132` "02 — Alta fidelidade", `1:66` "Componentes".
+Na página `20:2132` há duas seções: `10:3936` "Mecânica São Jorge — 49 telas de alta fidelidade" (referência da F41) e `62:1529` "Complementos de fluxo — 9 telas de alta fidelidade" (6136, 0; **posterior à leitura de 14/11, fora do escopo da F41, não tocada**).
+
+| Tela e estado | Frame | Nó (verificado por `get_metadata` em 16/11) | Captura "antes" |
+|---|---|---|---|
+| Login, estado inicial | 1a — Login | `10:895` (362 × 772; tela `10:900`, 362 × 742) | `f41-capturas/figma-fpdb8-login-vazio-10-895.png` |
+| Login, erro de credencial | 1b — Login — erro de credencial | `10:936` | `f41-capturas/figma-fpdb8-login-erro-credencial-10-936.png` |
+| Cabeçalho com botão de usuário (e padrão "Sem conexão") | 1c — Sem conexão (padrão global) | `10:981` | `f41-capturas/figma-fpdb8-ordens-sem-conexao-cabecalho-10-981.png` |
+| Perfil | 1av — Perfil | `10:3842` | `f41-capturas/figma-fpdb8-perfil-10-3842.png` |
+| Diálogo de logout | 1aw — Sair — confirmação | `10:3886` | `f41-capturas/figma-fpdb8-logout-10-3886.png` |
+| Tab bar, Ordens selecionado | símbolo `Alta fidelidade / Navegação inferior / Ordens · Clientes · Catálogo · Financeiro` | **`20:1102`** (360 × 62) | `f41-capturas/figma-fpdb8-tabbar-ordens-20-1102.png` |
+| Tab bar, Clientes selecionado | mesmo nome, sufixo `/ 2` | **`20:1340`** (360 × 62) | `f41-capturas/figma-fpdb8-tabbar-clientes-20-1340.png` |
+| Cabeçalho "Ordens de Serviço" com botão de usuário | símbolo `Alta fidelidade / Cabeçalho / Ordens de Serviço` | `20:1079` (360 × 56) | — |
+| Cabeçalho "Perfil" com seta de voltar | símbolo `Alta fidelidade / Cabeçalho / Perfil` | `20:2083` | — |
+| Botão Entrar | símbolo | `20:1073` (304 × 50) | — |
+| Cartão do Perfil | símbolo | `20:2097` (328 wide) | — |
+
+**Id da tab bar (achado 11 do CARTOGRAFO), verificado por `get_metadata` em 16/11:** os dois ids existem e não se contradizem. **`20:1102`** é o **componente** (símbolo, na seção "Componentes reutilizáveis", 360 × 62) e **`20:1103`** é a **instância** dele posicionada dentro do frame 1c (x 1, y 679, 360 × 62; mesmos 4 itens de 90 × 62, ícone 22 em x 34 / y 11,5, rótulo em y 37,5). A referência de paridade é o componente (`20:1102` Ordens selecionado, `20:1340` Clientes selecionado); `20:1103` é só onde ele aparece na tela. O ADR-014 pode citar os dois, com essa distinção.
+
+**Capturas "antes":** exportadas em 1x lógico (410 × 804 com margem do frame de apresentação; as da tab bar em 360 × 62), todas abaixo de 100 KB. Guardam o estado dos frames **antes de qualquer edição da F41** (regra de edição, passo 2).
+
+**Variáveis do arquivo (leitura de `get_variable_defs` em `10:895`):** o arquivo foi gerado por importação de HTML e as variáveis têm **nome automático por matiz e luminosidade**, sem papel (`color/cyan/18` = `#1E3A3F`, `color/red/47` = `#B5453D`, `color/grey/96` = `#F7F5F2`, `color/orange/87` = `#E2DEDA`, `color/grey/42` = `#6E6A66`, `color/grey/64` = `#A8A39D`, `color/grey/70` = `#B7B2AC`, `color/cyan/28` = `#33575D`, `color/grey/93-3` = `#F6E7E5`, `color/red/79` = `#E2B5B0`, `color/red/38` = `#923631`). Isso **foge da convenção `<categoria>/<papel>/<estado>`** da casa; a coleção `OP-002 Identidade v2` do ADR-014 é quem corrige, e só entra depois da aprovação dos tokens (US-PAR-07). Nenhuma variável foi criada ou alterada até esta linha.
+
+A conferência da F41 (planilha, tokens, contraste e estados propostos) está em `docs/design/F41-planilha-fpdb8.md`.
 
 ## Páginas
 
