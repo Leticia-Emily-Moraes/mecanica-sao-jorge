@@ -11,7 +11,7 @@ import { ErrorState } from './error-state';
 // A fonte de ícones é a borda externa: o carregamento assíncrono dela atualiza estado fora do `act`.
 jest.mock('@expo/vector-icons', () => ({ Ionicons: () => null }));
 
-const TITLE ='Não foi possível carregar';
+const TITLE = 'Não foi possível carregar';
 const MESSAGE = 'Verifique a internet da oficina e tente de novo. Se continuar, entre novamente.';
 
 function renderError(): void {
