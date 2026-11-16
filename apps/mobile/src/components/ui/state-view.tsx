@@ -4,7 +4,7 @@ import { useEffect } from 'react';
 import { AccessibilityInfo, ActivityIndicator, StyleSheet, Text, View } from 'react-native';
 
 import { Button } from '@/components/ui/button';
-import { ErrorRetryModal, type ErrorRetryModalProps } from '@/components/ui/error-retry-modal';
+import { ErrorState, type ErrorStateProps as ErrorViewProps } from '@/components/ui/error-state';
 import { color, iconSize, layout, spacing, typography } from '@/theme/tokens';
 
 export interface LoadingStateProps {
@@ -25,14 +25,14 @@ export type EmptyStateProps = EmptyStateBaseProps &
     | { readonly actionLabel?: undefined; readonly onAction?: undefined }
   );
 
-export type ErrorStateProps = ErrorRetryModalProps & { readonly state: 'error' };
+export type ErrorStateProps = ErrorViewProps & { readonly state: 'error' };
 
 export type StateViewProps = LoadingStateProps | EmptyStateProps | ErrorStateProps;
 
 /**
  * Estados de tela sem conteúdo: carregando, vazio e erro. Todo texto chega
- * por prop (o componente não conhece i18n). O erro é o popup sobre o
- * conteúdo de fundo, como aprovado na F24/F25/F30.
+ * por prop (o componente não conhece i18n). Carregando mostra o texto visível
+ * sob o indicador (P1) e o erro ocupa a tela inteira (P2).
  */
 export function StateView(props: StateViewProps): ReactElement {
   switch (props.state) {
@@ -41,7 +41,7 @@ export function StateView(props: StateViewProps): ReactElement {
     case 'empty':
       return <EmptyState {...props} />;
     case 'error':
-      return <ErrorRetryModal {...props} />;
+      return <ErrorState {...props} />;
   }
 }
 
@@ -62,6 +62,7 @@ function LoadingState({ loadingLabel }: { loadingLabel: string }): ReactElement 
       style={styles.centered}
     >
       <ActivityIndicator size="large" color={color.text.primary} />
+      <Text style={styles.loadingText}>{loadingLabel}</Text>
     </View>
   );
 }
@@ -88,6 +89,13 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  loadingText: {
+    fontFamily: typography.rowLabel.fontFamily,
+    fontSize: typography.rowLabel.fontSize,
+    color: color.text.secondary,
+    textAlign: 'center',
+    marginTop: spacing.md,
   },
   emptyTitle: {
     fontFamily: typography.label.fontFamily,

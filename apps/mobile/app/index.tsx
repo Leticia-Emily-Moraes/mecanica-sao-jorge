@@ -31,19 +31,20 @@ export default function IndexScreen(): ReactElement {
   return (
     <ScreenContainer>
       {status.tipo === 'carregando' ? (
-        <StateView state="loading" loadingLabel={t('sessao.inicializando.anuncio')} />
+        <StateView state="loading" loadingLabel={t('sessao.inicializando.rotulo')} />
       ) : null}
 
-      <StateView
-        state="error"
-        visible={status.tipo === 'erroInicializacao'}
-        title={t('sessao.erroInicializacao.titulo')}
-        message={t('sessao.erroInicializacao.mensagem')}
-        retryLabel={t('sessao.erroInicializacao.botaoTentarNovamente')}
-        onRetry={tentarNovamenteInicializacao}
-        secondaryLabel={t('sessao.erroInicializacao.botaoEntrarNovamente')}
-        onSecondaryPress={() => void logout()}
-      />
+      {status.tipo === 'erroInicializacao' ? (
+        <StateView
+          state="error"
+          title={t('sessao.erroInicializacao.titulo')}
+          message={t('sessao.erroInicializacao.mensagem')}
+          retryLabel={t('sessao.erroInicializacao.botaoTentarNovamente')}
+          onRetry={tentarNovamenteInicializacao}
+          secondaryLabel={t('sessao.erroInicializacao.botaoEntrarNovamente')}
+          onSecondaryPress={() => void logout()}
+        />
+      ) : null}
     </ScreenContainer>
   );
 }

@@ -52,9 +52,12 @@ const strings = {
   'perfil.dialogoLogout.botaoCancelar': 'Cancelar',
   'perfil.dialogoLogout.botaoConfirmar': 'Sair',
 
-  'sessao.inicializando.anuncio': 'Carregando sessão...',
-  'sessao.erroInicializacao.titulo': 'Não foi possível carregar.',
-  'sessao.erroInicializacao.mensagem': 'Verifique sua conexão e tente novamente.',
+  /** P1: texto visível sob o indicador e também o nome acessível da região. */
+  'sessao.inicializando.rotulo': 'Carregando sessão…',
+  /** P2 (`83:754`): textos transcritos da planilha F41; o frame não foi relido. */
+  'sessao.erroInicializacao.titulo': 'Não foi possível carregar',
+  'sessao.erroInicializacao.mensagem':
+    'Verifique a internet da oficina e tente de novo. Se continuar, entre novamente.',
   'sessao.erroInicializacao.botaoTentarNovamente': 'Tentar novamente',
   'sessao.erroInicializacao.botaoEntrarNovamente': 'Entrar novamente',
 
