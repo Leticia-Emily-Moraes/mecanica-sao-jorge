@@ -5,10 +5,12 @@
  * única fonte de valor de cor do app — nenhuma outra tela deve usar um hex
  * solto fora daqui.
  *
- * Três pares do Figma reprovam AA e NÃO entram como estão (planilha F41, §5,
- * aguardam aprovação da pessoa): placeholder (Dawn, 2,50:1), borda de campo em
- * repouso (Westar, 1,34:1) e item selecionado da tab bar (Crail sobre petro,
- * 2,24:1). Cada um tem um valor provisório que passa AA, marcado abaixo.
+ * Três pares do Figma reprovavam AA (placeholder Dawn 2,50:1, borda de campo
+ * Westar 1,34:1, item selecionado Crail sobre petro 2,24:1). A pessoa aprovou
+ * em 16/11 os valores que passam: placeholder = Flint, borda de campo =
+ * `#8C8780` e aba selecionada = `#EE8279` (planilha F41, decisão D-17). As três
+ * variáveis correspondentes no FPdB8 são criadas pelo ESQUADRO; enquanto não
+ * existirem, os valores daqui são os da decisão, não leitura do arquivo.
  */
 
 const primitiveColor = {
@@ -19,11 +21,14 @@ const primitiveColor = {
   flint: '#6E6A66',
   westar: '#E2DEDA',
   tide: '#B7B2AC',
+  /** Borda de campo em repouso (aprovada em 16/11), 3,56:1 sobre branco. */
+  stone: '#8C8780',
+  /** Item selecionado da tab bar (aprovado em 16/11), 4,68:1 sobre petro. */
+  coral: '#EE8279',
   spectra: '#33575D',
   potPourri: '#F6E7E5',
   roseFog: '#E2B5B0',
   elSalva: '#923631',
-  slate500: '#64748B',
   slate200: '#E2E8F0',
   slate100: '#F1F5F9',
   whiteOverlay12: 'rgba(255, 255, 255, 0.12)',
@@ -54,25 +59,16 @@ export const color = {
     error: primitiveColor.primary600,
     /** Texto dentro da faixa de erro (El Salva), 6,26:1 sobre Pot Pourri. */
     errorOnBanner: primitiveColor.elSalva,
-    /**
-     * PROVISÓRIO: o Figma usa Dawn `#A8A39D` (2,50:1, reprova AA). Usa Flint
-     * (5,36:1) até a pessoa aprovar a cor do quadro C1 (`85:744`).
-     */
+    /** Placeholder do campo (Flint), 5,36:1 sobre branco. */
     placeholder: primitiveColor.flint,
     /** Item inativo da tab bar (Tide), 5,76:1 sobre petro. */
     onBrandMuted: primitiveColor.tide,
-    /**
-     * PROVISÓRIO: o Figma usa Crail sobre petro (2,24:1, reprova AA). Usa
-     * branco (12,12:1) até a pessoa aprovar a cor do quadro C1 (`85:744`).
-     */
-    tabSelected: primitiveColor.white,
+    /** Item selecionado da tab bar, 4,68:1 sobre petro. */
+    tabSelected: primitiveColor.coral,
   },
   border: {
-    /**
-     * PROVISÓRIO: o Figma usa Westar `#E2DEDA` na borda do campo em repouso
-     * (1,34:1, reprova 3:1). Mantém slate500 (4,76:1) até a aprovação do C1.
-     */
-    default: primitiveColor.slate500,
+    /** Borda de campo em repouso, 3,56:1 sobre branco e 3,28:1 sobre Pampas. */
+    default: primitiveColor.stone,
     skeleton: primitiveColor.slate200,
     /** Divisor e contorno decorativo (Westar): cartão e botão "Sair da conta". */
     divider: primitiveColor.westar,
@@ -88,6 +84,8 @@ export const color = {
   focus: {
     ring: primitiveColor.petro900,
     ringOffset: primitiveColor.white,
+    /** Anel sobre a barra petro (T1): branco, 12,12:1; o petro some sobre a barra. */
+    ringOnBrand: primitiveColor.white,
   },
 } as const;
 
@@ -188,7 +186,8 @@ export const borderWidth = {
 export const opacity = {
   pressed: 0.85,
   disabled: 0.5,
-  unavailable: 0.6,
+  /** Itens desabilitados da tab bar (T2, legenda do frame: 50%). */
+  unavailable: 0.5,
 } as const;
 
 export const iconSize = {
