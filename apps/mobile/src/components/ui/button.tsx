@@ -72,11 +72,15 @@ export function Button({
         ]}
       >
         {loading ? (
-          <View style={styles.loadingRow}>
-            <ActivityIndicator
-              color={variant === 'primary' ? color.text.onPrimaryAction : color.text.primary}
-            />
+          <View testID="button-loading-row" style={styles.loadingRow}>
+            <View testID="button-loading-indicator" style={styles.loadingSlot}>
+              <ActivityIndicator
+                color={variant === 'primary' ? color.text.onPrimaryAction : color.text.primary}
+              />
+            </View>
             <Text style={labelStyle}>{loadingLabel ?? label}</Text>
+            {/* Espelha o indicador para o texto ficar centralizado no botão (L2, R-11). */}
+            <View testID="button-loading-balance" style={styles.loadingSlot} />
           </View>
         ) : (
           <Text style={labelStyle}>{label}</Text>
@@ -123,7 +127,14 @@ const styles = StyleSheet.create({
   loadingRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: spacing.sm,
+    gap: spacing.s6,
+  },
+  // Caixa de 16 do indicador (L2 `82:2137`); o indicador do sistema se centra nela.
+  loadingSlot: {
+    width: size.loadingIndicator,
+    height: size.loadingIndicator,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   label: {
     fontFamily: typography.button.fontFamily,

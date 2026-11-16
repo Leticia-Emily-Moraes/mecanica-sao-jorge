@@ -70,9 +70,27 @@ describe('Button', () => {
     const indicator = screen.UNSAFE_getByType(ActivityIndicator);
 
     expect(indicator.props.color).toBe(color.text.onPrimaryAction);
-    expect(StyleSheet.flatten(indicator.parent?.props.style as TestStyle)).toMatchObject({
-      flexDirection: 'row',
-    });
+    expect(
+      StyleSheet.flatten(screen.getByTestId('button-loading-row').props.style as TestStyle),
+    ).toMatchObject({ flexDirection: 'row' });
+  });
+
+  it('should box the indicator in 16 and mirror it so the label stays centered (L2, R-11)', () => {
+    render(<Button label="Entrar" loadingLabel="Entrando…" loading onPress={jest.fn()} />);
+
+    const slot = StyleSheet.flatten(
+      screen.getByTestId('button-loading-indicator').props.style as TestStyle,
+    );
+    const balance = StyleSheet.flatten(
+      screen.getByTestId('button-loading-balance').props.style as TestStyle,
+    );
+    const row = StyleSheet.flatten(
+      screen.getByTestId('button-loading-row').props.style as TestStyle,
+    );
+
+    expect(slot).toMatchObject({ width: 16, height: 16 });
+    expect(balance).toMatchObject({ width: 16, height: 16 });
+    expect(row.gap).toBe(6);
   });
 
   it('should dim a truly disabled button to the disabled opacity', () => {
