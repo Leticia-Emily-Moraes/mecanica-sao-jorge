@@ -66,7 +66,8 @@ export function Button({
         style={({ pressed }) => [
           styles.button,
           variantStyle[variant],
-          isDisabled && styles.disabled,
+          // Carregando bloqueia o toque mas não esmaece (L2, 100%); só o desabilitado esmaece.
+          disabled && styles.disabled,
           pressed && !isDisabled && styles.pressed,
         ]}
       >
