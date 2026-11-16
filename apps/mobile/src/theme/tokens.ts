@@ -175,6 +175,8 @@ export const size = {
   iconButton: 36,
   /** Círculo do ícone de estado de tela cheia (P2). */
   stateIcon: 72,
+  /** Caixa do indicador de carregamento dentro do botão (L2 `82:2137`). */
+  loadingIndicator: 16,
 } as const;
 
 /**
@@ -210,8 +212,6 @@ export const iconSize = {
   /** Ícones do cabeçalho (seta e usuário) e da faixa de erro. */
   appBar: 18,
   banner: 18,
-  /** Ícone ilustrativo do estado vazio — valor novo (a F40 cria o estado; ver spec §4.4). */
-  empty: 48,
 } as const;
 
 export const layout = {
@@ -219,6 +219,8 @@ export const layout = {
   tabBarMaxWidth: 480,
   /** Coluna de ações do estado de tela cheia (P2): botões de 328 no frame de 360. */
   stateActionsMaxWidth: 328,
+  /** Largura da mensagem do estado de tela cheia (P2 `83:769` e Início I1 `89:985`). */
+  stateMessageMaxWidth: 289,
 } as const;
 
 /**

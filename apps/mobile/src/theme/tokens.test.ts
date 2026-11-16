@@ -2,6 +2,7 @@ import {
   borderWidth,
   color,
   iconSize,
+  layout,
   opacity,
   radius,
   shadow,
@@ -79,11 +80,16 @@ describe('tokens (FPdB8 literal values)', () => {
         avatar: 84,
         iconButton: 36,
         stateIcon: 72,
+        loadingIndicator: 16,
       });
     });
 
     it('should keep the icon sizes of the frames', () => {
-      expect(iconSize).toMatchObject({ tab: 22, appBar: 18, banner: 18 });
+      expect(iconSize).toEqual({ tab: 22, alert: 32, appBar: 18, banner: 18 });
+    });
+
+    it('should keep the full-screen state widths: actions 328 and message 289', () => {
+      expect(layout).toMatchObject({ stateActionsMaxWidth: 328, stateMessageMaxWidth: 289 });
     });
 
     it('should dim the unavailable tab bar items to 50 percent (T2)', () => {

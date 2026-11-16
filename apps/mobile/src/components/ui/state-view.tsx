@@ -1,11 +1,11 @@
-import { Ionicons } from '@expo/vector-icons';
 import type { ReactElement } from 'react';
 import { useEffect } from 'react';
 import { AccessibilityInfo, ActivityIndicator, StyleSheet, Text, View } from 'react-native';
 
 import { Button } from '@/components/ui/button';
 import { ErrorState, type ErrorStateProps as ErrorViewProps } from '@/components/ui/error-state';
-import { color, iconSize, layout, spacing, typography } from '@/theme/tokens';
+import { StateIllustration } from '@/components/ui/state-illustration';
+import { color, layout, spacing, typography } from '@/theme/tokens';
 
 export interface LoadingStateProps {
   readonly state: 'loading';
@@ -69,12 +69,14 @@ function LoadingState({ loadingLabel }: { loadingLabel: string }): ReactElement 
 
 function EmptyState({ title, message, actionLabel, onAction }: EmptyStateProps): ReactElement {
   return (
-    <View style={styles.centered}>
-      <View accessibilityElementsHidden importantForAccessibility="no-hide-descendants">
-        <Ionicons name="file-tray-outline" size={iconSize.empty} color={color.text.secondary} />
-      </View>
-      <Text style={styles.emptyTitle}>{title}</Text>
-      {message ? <Text style={styles.emptyMessage}>{message}</Text> : null}
+    <View testID="state-view-empty" style={styles.centered}>
+      <StateIllustration
+        icon="document-text-outline"
+        title={title}
+        message={message}
+        titleGap={spacing.md}
+        messageGap={spacing.s10}
+      />
       {actionLabel && onAction ? (
         <View style={styles.emptyAction}>
           <Button label={actionLabel} onPress={onAction} variant="primary" />
@@ -96,20 +98,6 @@ const styles = StyleSheet.create({
     color: color.text.secondary,
     textAlign: 'center',
     marginTop: spacing.s12,
-  },
-  emptyTitle: {
-    fontFamily: typography.label.fontFamily,
-    fontSize: typography.label.fontSize,
-    color: color.text.primary,
-    textAlign: 'center',
-    marginTop: spacing.md,
-  },
-  emptyMessage: {
-    fontFamily: typography.body.fontFamily,
-    fontSize: typography.body.fontSize,
-    color: color.text.secondary,
-    textAlign: 'center',
-    marginTop: spacing.xs,
   },
   emptyAction: {
     width: '100%',
