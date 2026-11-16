@@ -5,7 +5,13 @@ import { color, minTouchTarget, radius, spacing, typography } from '@/theme/toke
 import { useFocusRing } from '@/theme/use-focus-ring';
 
 export interface InlineActionButtonProps {
+  /** Texto visível ("Mostrar"). */
   readonly label: string;
+  /**
+   * Nome acessível quando precisa ser mais completo que o texto visível
+   * ("Mostrar senha"). Deve conter o texto visível (WCAG 2.5.3).
+   */
+  readonly accessibilityLabel?: string;
   readonly onPress: () => void;
   readonly disabled?: boolean;
 }
@@ -16,6 +22,7 @@ export interface InlineActionButtonProps {
  */
 export function InlineActionButton({
   label,
+  accessibilityLabel,
   onPress,
   disabled = false,
 }: InlineActionButtonProps): ReactElement {
@@ -25,7 +32,7 @@ export function InlineActionButton({
     <View style={[styles.ringWrapper, focusRingStyle]}>
       <Pressable
         accessibilityRole="button"
-        accessibilityLabel={label}
+        accessibilityLabel={accessibilityLabel ?? label}
         accessibilityState={{ disabled }}
         disabled={disabled}
         onFocus={onFocus}

@@ -11,6 +11,17 @@ describe('InlineActionButton', () => {
     expect(screen.getByRole('button', { name: 'Mostrar senha' })).toBeTruthy();
   });
 
+  it('should show the short label and expose the longer accessible name (WCAG 2.5.3)', () => {
+    render(
+      <InlineActionButton label="Mostrar" accessibilityLabel="Mostrar senha" onPress={jest.fn()} />,
+    );
+
+    const button = screen.getByRole('button', { name: 'Mostrar senha' });
+
+    expect(screen.getByText('Mostrar')).toBeTruthy();
+    expect(button.props.accessibilityLabel).toContain('Mostrar');
+  });
+
   it('should call onPress when pressed', () => {
     const onPress = jest.fn();
     render(<InlineActionButton label="Mostrar senha" onPress={onPress} />);
