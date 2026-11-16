@@ -45,6 +45,31 @@ describe('InlineAlert', () => {
     expect(text.color).toBe(color.text.errorOnBanner);
   });
 
+  it('should keep the Figma measures: 1 px border, 13 margin, 10 gap, text 14 over 19.6 (V-L15)', () => {
+    render(<InlineAlert message={MENSAGEM} />);
+
+    const box = StyleSheet.flatten(screen.getByRole('alert').props.style as TestStyle);
+    const text = StyleSheet.flatten(screen.getByText(MENSAGEM).props.style as TestStyle);
+
+    expect(box).toMatchObject({
+      borderWidth: 1,
+      padding: 13,
+      gap: 10,
+      flexDirection: 'row',
+    });
+    expect(text).toMatchObject({ fontFamily: 'Inter_400Regular', fontSize: 14, lineHeight: 19.6 });
+  });
+
+  it('should draw the box in the literal Figma colors (Pot Pourri, Rose Fog, El Salva)', () => {
+    render(<InlineAlert message={MENSAGEM} />);
+
+    const box = StyleSheet.flatten(screen.getByRole('alert').props.style as TestStyle);
+    const text = StyleSheet.flatten(screen.getByText(MENSAGEM).props.style as TestStyle);
+
+    expect(box).toMatchObject({ backgroundColor: '#F6E7E5', borderColor: '#E2B5B0' });
+    expect(text.color).toBe('#923631');
+  });
+
   it('should have no fixed height: it grows with the text (R-03)', () => {
     render(<InlineAlert message={MENSAGEM} />);
 

@@ -1,8 +1,9 @@
 import { fireEvent, render, screen } from '@testing-library/react-native';
 import { createRef } from 'react';
 import { StyleSheet, Text, type TextInput } from 'react-native';
-import type { TestStyle } from '@/test-utils/flat-style';
 
+import { findFixedWidths } from '@/test-utils/find-fixed-widths';
+import type { TestStyle } from '@/test-utils/flat-style';
 import { borderWidth, color } from '@/theme/tokens';
 
 import { TextField } from './text-field';
@@ -162,6 +163,52 @@ describe('TextField', () => {
 
     fireEvent(input, 'blur');
     expect(fieldBorder(screen.getByLabelText('Usuário')).width).toBe(borderWidth.hairline);
+  });
+
+  it('should draw the resting border in the approved #8C8780 (3,56:1 on white)', () => {
+    render(<TextField label="Usuário" value="" onChangeText={jest.fn()} />);
+
+    expect(fieldBorder(screen.getByLabelText('Usuário')).color).toBe('#8C8780');
+  });
+
+  it('should draw the label in Inter Medium 13 Flint, 6 above the box (V-L06)', () => {
+    render(<TextField label="Usuário" value="" onChangeText={jest.fn()} />);
+
+    expect(StyleSheet.flatten(screen.getByText('Usuário').props.style as TestStyle)).toMatchObject({
+      fontFamily: 'Inter_500Medium',
+      fontSize: 13,
+      color: '#6E6A66',
+      marginBottom: 6,
+    });
+  });
+
+  it('should draw the box with radius 8, white fill and a 14 inner margin (V-L08)', () => {
+    render(<TextField label="Usuário" value="" onChangeText={jest.fn()} />);
+
+    // 1 px de borda em repouso: o padding soma 1 para o conteúdo ficar nos 14 do frame.
+    expect(
+      StyleSheet.flatten(screen.getByTestId('text-field-box').props.style as TestStyle),
+    ).toMatchObject({ borderRadius: 8, backgroundColor: '#FFFFFF', paddingHorizontal: 14 + 1 });
+  });
+
+  it('should type in Inter 15 petro and use Flint for the placeholder (V-L07, V-L08)', () => {
+    render(
+      <TextField label="Usuário" value="" placeholder="Seu usuário" onChangeText={jest.fn()} />,
+    );
+    const input = screen.getByLabelText('Usuário');
+
+    expect(StyleSheet.flatten(input.props.style as TestStyle)).toMatchObject({
+      fontFamily: 'Inter_400Regular',
+      fontSize: 15,
+      color: '#1E3A3F',
+    });
+    expect(input.props.placeholderTextColor).toBe('#6E6A66');
+  });
+
+  it('should leave the field without a fixed width so it follows the screen (320 to 430)', () => {
+    render(<TextField label="Usuário" value="" onChangeText={jest.fn()} />);
+
+    expect(findFixedWidths(screen.toJSON())).toEqual([]);
   });
 
   it('should draw the 2 px error border when invalid, even without its own message', () => {

@@ -1,7 +1,9 @@
+import { Ionicons } from '@expo/vector-icons';
 import { fireEvent, render, screen } from '@testing-library/react-native';
 import { StyleSheet } from 'react-native';
 import type { TestStyle } from '@/test-utils/flat-style';
 
+import { findAncestorStyle } from '@/test-utils/find-ancestor-with-style';
 import { hasFocusRing } from '@/test-utils/has-focus-ring';
 import { color, fontFamily } from '@/theme/tokens';
 
@@ -154,6 +156,18 @@ describe('TabBarItem', () => {
     expect(screen.getByRole('tab', { name: 'Clientes' }).props.accessibilityState).toMatchObject({
       selected: true,
     });
+  });
+
+  it('should draw a 22 icon in the same tone as the label, 4 above it (V-T03, V-T05)', () => {
+    render(
+      <TabBarItem icon="people-outline" label="Clientes" accessibilityLabel="Clientes" selected />,
+    );
+
+    const icon = screen.UNSAFE_getByType(Ionicons);
+
+    expect(icon.props.size).toBe(22);
+    expect(icon.props.color).toBe('#EE8279');
+    expect(findAncestorStyle(screen.getByText('Clientes'), 'gap')).toMatchObject({ gap: 4 });
   });
 
   it('should dim an unavailable item to 50 percent, label and icon (T2)', () => {

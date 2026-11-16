@@ -1,9 +1,11 @@
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react-native';
 import * as SecureStore from 'expo-secure-store';
+import { StyleSheet } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import { getAppVersion } from '@/config/app-version';
 import { AuthProvider } from '@/hooks/use-auth';
+import type { TestStyle } from '@/test-utils/flat-style';
 
 import PerfilScreen from './perfil';
 
@@ -66,6 +68,19 @@ describe('PerfilScreen', () => {
     expect(screen.getByLabelText('Usuário: joao.silva@exemplo-ficticio.com.br')).toBeTruthy();
     expect(screen.getByLabelText('Perfil de acesso: Administrador')).toBeTruthy();
     expect(screen.getByLabelText('Versão do app: 0.1.0')).toBeTruthy();
+  });
+
+  it('should draw the name in Barlow Condensed SemiBold 24 petro, centered (V-P04)', async () => {
+    await renderPerfilScreen();
+
+    expect(
+      StyleSheet.flatten(screen.getByText('João da Silva').props.style as TestStyle),
+    ).toMatchObject({
+      fontFamily: 'BarlowCondensed_600SemiBold',
+      fontSize: 24,
+      color: '#1E3A3F',
+      textAlign: 'center',
+    });
   });
 
   it('should show the e-mail under the "Usuário" label and no separate name or e-mail rows', async () => {
