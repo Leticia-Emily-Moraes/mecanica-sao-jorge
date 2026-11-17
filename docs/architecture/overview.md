@@ -141,7 +141,7 @@ copiadas do script às cegas: `CASCADE` apaga histórico.
 | `pagamentos.parcela_id` | `ON DELETE CASCADE` | sem ação | F22 |
 | `financeiro.ordem_id`, `financeiro.pagamento_id` | `ON DELETE SET NULL` | sem ação | F22 / F23 |
 | Índices fora de FK: `idx_ordem_status`, `idx_parcela_vencimento`, `idx_financeiro_tipo`, `idx_financeiro_data` | presentes | ausentes | F06 / F07 / F31 |
-| `clientes.nome`, `telefone`, `email` (collation) | sem `COLLATE` | sem `COLLATE`; no `mysql:8.4` herdam `utf8mb4_0900_ai_ci` (verificado em 2026-11-14) | F03a: a V3 fixa `utf8mb4_0900_ai_ci` (ADR-017, achado A7) |
+| `clientes.nome`, `telefone`, `email` (collation) | sem `COLLATE` | sem `COLLATE`; no `mysql:8.4` padrão herdam `utf8mb4_0900_ai_ci` (verificado em 2026-11-14); num servidor com `--character-set-server=latin1` herdam `latin1_swedish_ci` (verificado em 2026-11-17) | F03a: a V3 fixa `utf8mb4_0900_ai_ci` nos dois casos (ADR-017, achado A7) |
 | `clientes.telefone` (formato) | `VARCHAR(20)` sem `CHECK` | `VARCHAR(20)` sem `CHECK` | F03c: `CHECK` de 10 ou 11 dígitos, junto com a validação de escrita (ADR-017, achado A8) |
 | `ordens_servico.data_abertura`, `pagamentos.data_pagamento` | `TIMESTAMP DEFAULT CURRENT_TIMESTAMP` | ausentes | F18 e F22: entram como `NOT NULL DEFAULT CURRENT_TIMESTAMP`, porque sustentam o prazo R1 da política de dados de cliente (achado A6). A `data_fechamento` da OS (F20) entra no cálculo quando existir |
 
@@ -210,13 +210,13 @@ Erros:
 
 ## Contrato de API — Clientes listar (F03a)
 
-Contrato normativo no [ADR-017](adr/ADR-017-padronizar-listagem-com-busca-e-paginacao.md): `GET /api/v1/clientes` com `q` (até 100 caracteres), `page` (a partir de 0) e `size` (1 a 100, padrão 20), ordem por `nome` e `id`, corpo `PaginaResponse<ClienteListResponse>` com `itens`, `pagina`, `tamanho`, `totalItens` e `totalPaginas`. Cada item traz só `id`, `nome`, `telefone` e `email`. Erros 400, 401 e 500 seguem o formato do ADR-011. A F35 consome exatamente esse formato, e mudança nele exige alinhar com a F35 (premissa P6).
+Contrato normativo no [ADR-017](adr/ADR-017-padronizar-listagem-com-busca-e-paginacao.md): `GET /api/v1/clientes` com `q` (até 100 caracteres contados no valor bruto, antes do `strip`), `page` (de 0 a 2.147.483.647) e `size` (1 a 100, padrão 20), ordem por `nome` e `id`, corpo `PaginaResponse<ClienteListResponse>` com `itens`, `pagina`, `tamanho`, `totalItens` e `totalPaginas`. Cada item traz só `id`, `nome`, `telefone` e `email`. O telefone só é consultado quando o termo é numérico (dígitos ASCII, `(`, `)`, `-`, `.`, `+` e espaço, com pelo menos um dígito; ADR-017, eixo 5). Página além do fim devolve 200 com `itens` vazio e total real, inclusive quando `page * size` passa de 2.147.483.647 (ADR-017, eixo 6). Erros 400, 401, 404, 405 e 500 seguem o formato do ADR-011. A sessão com o banco fica em `utf8mb4` pelo padrão do Connector/J, afirmada no teste de integração, e todo script manual roda com `mysql --default-character-set=utf8mb4` (ADR-017, eixo 4). A F35 consome exatamente esse formato, e mudança nele exige alinhar com a F35 (premissa P6).
 
 Pontos de integração da F03a:
 
 * `controller.ClienteController` chama `service.ClienteService`, que chama `repository.ClienteRepository` sobre a tabela `clientes`.
 * `mapper.ClienteMapper` (MapStruct) converte `Cliente` em `ClienteListResponse`; `dto.PaginaResponse<T>` monta a página.
-* `exception.GlobalExceptionHandler` ganha os handlers de 400 para parâmetro inválido (achado A1).
+* `exception.GlobalExceptionHandler` ganha os handlers de 400 para parâmetro inválido (achado A1) e, na revisão 2 do ADR-017, os de 404 e 405 (RH-A3), sem log de erro inesperado nem eco da query string.
 * `security.MascaraDadoPessoal`: utilitário único de máscara de telefone e CPF para log (seção 6.2 da política de dados). Classe `final` com métodos estáticos, sem bean, com teste unitário para entrada nula, curta e com formatação. Ver a divergência 8.
 
 ## Threat model — busca de clientes (STRIDE, F03a)
@@ -226,10 +226,10 @@ Onde o dado pessoal entra, circula e sai: o termo `q`, que pode ser nome, telefo
 | Ameaça (STRIDE) | Vetor na busca | Mitigação | Risco residual |
 |---|---|---|---|
 | Spoofing | Chamar sem token ou com token expirado | Rota fora de `PUBLIC_PATHS`; 401 pelo entry point | Token vazado vale até 7 dias (ADR-004) |
-| Tampering | Injeção pelo termo; curinga para ampliar o resultado | JPQL com parâmetro ligado; escape com `!` e `ESCAPE` explícito (ADR-017) | Nenhum conhecido |
+| Tampering | Injeção pelo termo; curinga para ampliar o resultado | JPQL com parâmetro ligado; escape com `!` e `ESCAPE` explícito; barra invertida literal, sem escape (ADR-017, achado A2 fechado com o VIGIA) | Cláusula `like` nova sem `ESCAPE` deixa curinga passar; coberto por `grep` e por um teste por cláusula |
 | Repudiation | Negar extração da base | Linha de log `clientes.listar` com `usuarioId`, `total`, `page` e `size` | Sem auditoria persistida (fora de escopo) |
-| Information disclosure | Termo em log, access log ou proxy; DTO largo; 500 com SQL | Log sem o termo; access log desligado ou só com `%U`; DTO com 4 campos; 500 com mensagem fixa | Termo na query string fora da aplicação (A4) |
-| Denial of service | `size` enorme; termo longo; varredura repetida | `size` e `q` limitados a 100, com 400; volume pequeno (P2) | Sem rate limiting (backlog, igual ao login) |
+| Information disclosure | Termo em log, access log ou proxy; DTO largo; 500 com SQL; 404 ou 405 com detalhe | Log sem o termo; access log desligado ou só com `%U`; DTO com 4 campos; 500 com mensagem fixa; 404 e 405 com mensagem fixa e `path` sem query; sem token, toda rota responde 401 | Termo na query string fora da aplicação (A4) |
+| Denial of service | `size` enorme; termo longo; varredura repetida; `page` gigante | `size` e `q` limitados a 100, com 400; volume pequeno (P2); `page` com deslocamento acima de 2.147.483.647 responde 200 só com a contagem (ADR-017, O3) | Sem rate limiting (backlog, igual ao login) |
 | Elevation of privilege | FUNCIONARIO listar tudo | Não se aplica: perfis sem diferença nesta fase | A3, risco aceito: qualquer token percorre a base |
 
 ## Threat model — fluxo de login (STRIDE)
