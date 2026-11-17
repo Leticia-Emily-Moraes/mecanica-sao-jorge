@@ -13,4 +13,11 @@ public record ClienteListResponse(
     @Schema(example = "Ana Exemplo") String nome,
     @Schema(description = "Somente digitos, como gravado", example = "11912345678", nullable = true)
         String telefone,
-    @Schema(example = "ana@example.com", nullable = true) String email) {}
+    @Schema(example = "ana@example.com", nullable = true) String email) {
+
+  /** Mostra so o id: nome, telefone e email nao vao a log por {@code toString()} (achado B1). */
+  @Override
+  public String toString() {
+    return "ClienteListResponse[id=" + id + "]";
+  }
+}
