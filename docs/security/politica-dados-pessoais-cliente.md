@@ -1,6 +1,6 @@
 # Política de dados pessoais de cliente: retenção, descarte e mascaramento
 
-Dono: VIGIA (AppSec/LGPD). Criada em 2026-11-14 na F03a, antes de qualquer código do módulo Clientes.
+Dono: VIGIA (AppSec/LGPD). Criada em 2026-11-14 na F03a, antes de qualquer código do módulo Clientes. Revisada em 2026-11-17 (seção 11).
 
 Vale para: F03a (listar), F03b (detalhe), F03c (criar), F03d (editar), F09 (CPF e endereço), F35 (tela de lista) e toda feature que leia ou grave `clientes` ou `veiculos`.
 
@@ -9,7 +9,7 @@ Status:
 * Regras técnicas (seções 6 e 7): **vigentes desde já**. Feature que não as cumpre não passa na revisão do VIGIA.
 * Base legal e prazos (seções 2 a 5): **proposta do VIGIA**, aplicada como hipótese de trabalho até a validação jurídica (D2 da F03a) e a aprovação da oficina, que é a controladora. Mudança de prazo depois da validação altera só este arquivo e a rotina de descarte; nenhum contrato de API depende do prazo.
 
-Relação com outros documentos: complementa `docs/security/lgpd-registro-dados-pessoais.md` (inventário do schema inteiro, criado na F44 e ainda fora da `main`, no PR #13). Quando os dois estiverem na `main`, as linhas `clientes` e `veiculos` do registro passam a apontar para cá. Nada aqui é jurídico definitivo: é a leitura técnica do VIGIA sobre a LGPD (Lei 13.709/2018) e as leis citadas, para a pessoa validar.
+Relação com outros documentos: complementa `docs/security/lgpd-registro-dados-pessoais.md` (inventário do schema inteiro, criado na F44; entrou no ramo `fix/f44-main-compilando` pelo PR #13 e só chega à `main` com o PR #14, ainda aberto em 2026-11-17). Quando os dois estiverem na `main`, as linhas `clientes` e `veiculos` do registro passam a apontar para cá. Nada aqui é jurídico definitivo: é a leitura técnica do VIGIA sobre a LGPD (Lei 13.709/2018) e as leis citadas, para a pessoa validar.
 
 ## 1. Papéis
 
@@ -106,7 +106,38 @@ Usar o `id` interno (`clienteId`, `veiculoId`, `usuarioId`). Quando o dado em si
 | Nome | Nunca, nem mascarado | usar `clienteId` |
 | Placa | Nunca, nem mascarada | usar `veiculoId` |
 
-A máscara fica num utilitário único na API (por exemplo `exception` ou `config`, decisão do CARTOGRAFO), com teste unitário para entrada nula, curta e com máscara de formatação. Nada de máscara copiada em cada classe.
+A máscara fica no utilitário único `security.MascaraDadoPessoal` (decisão do CARTOGRAFO em `docs/architecture/overview.md`, divergência 8: classe `final`, métodos estáticos, sem bean), seguindo o contrato da seção 6.2.1. Nada de máscara copiada em cada classe.
+
+#### 6.2.1 Contrato exato da máscara (vigente desde 2026-11-17)
+
+Vale para os dois métodos do utilitário, aqui chamados `telefone(String)` e `cpf(String)` (o nome final do método é do ESPRESSO):
+
+1. Aceitam qualquer `String`, inclusive `null`. Nunca lançam exceção e nunca escrevem em log.
+2. Antes de contar, removem tudo que não for dígito ASCII de 0 a 9. Não usar `Character.isDigit` nem `\d` em modo Unicode, que aceitam dígitos de outros alfabetos.
+3. Telefone: se sobrarem exatamente 10 ou 11 dígitos, a saída é `*` repetido (quantidade de dígitos menos 4) seguido dos 4 últimos dígitos, sem formatação. Qualquer outro caso (`null`, vazio, só letras, menos de 10 ou mais de 11 dígitos) devolve o texto fixo `***`.
+4. CPF: se sobrarem exatamente 11 dígitos, a saída é `***.*` + 5º e 6º dígitos + `.` + 7º dígito + `**-**`. Qualquer outro caso devolve o texto fixo `***.***.***-**`.
+5. Por que a saída fixa no caso inválido: num valor curto, os 4 finais seriam quase o dado inteiro, e repetir o tamanho do valor inválido também vaza informação.
+
+Tabela que o teste unitário cobre linha a linha (todos os valores são fictícios):
+
+| Método | Entrada | Saída |
+|---|---|---|
+| telefone | `11987654321` | `*******4321` |
+| telefone | `(11) 98765-4321` | `*******4321` |
+| telefone | `1133334444` | `******4444` |
+| telefone | `null` | `***` |
+| telefone | vazio | `***` |
+| telefone | `4321` | `***` |
+| telefone | `ana` | `***` |
+| telefone | `551198765432` (12 dígitos) | `***` |
+| telefone | 11 dígitos arábico-índicos (U+0661 etc.) | `***` |
+| cpf | `12345678909` | `***.*56.7**-**` |
+| cpf | `123.456.789-09` | `***.*56.7**-**` |
+| cpf | `null` | `***.***.***-**` |
+| cpf | `1234567890` (10 dígitos) | `***.***.***-**` |
+| cpf | `abc` | `***.***.***-**` |
+
+Uso na F03a: a linha de log da seção 6.3 não leva telefone nem CPF, então a F03a só cria o utilitário com o teste acima (tarefa 8). O primeiro uso real em log é da F03c em diante. Se uma classe precisar logar telefone ou CPF sem passar por este utilitário, a revisão do VIGIA reprova.
 
 ### 6.3 Linha de log da busca (F03a, US-CLI-08)
 
@@ -139,11 +170,11 @@ Teste e ambiente local:
 
 ## 8. Achados AppSec do desenho da F03a
 
-Revisão feita por leitura de código na `origin/main` (11f35b3), antes de existir código de Clientes. Nada foi executado contra endpoint de cliente, porque ele ainda não existe.
+Revisão feita por leitura de código na `origin/main` (11f35b3), antes de existir código de Clientes. Nada foi executado contra endpoint de cliente, porque ele ainda não existe. Reconferido por leitura em 2026-11-17 na `origin/main` dfab787: A0 (pom com Boot 4.1.0) e A1 (handler sem tratamento de validação de parâmetro) continuam abertos.
 
 | ID | Severidade | OWASP | Achado | Impacto concreto | Correção específica | Dono |
 |---|---|---|---|---|---|---|
-| A0 | Crítica (já conhecida) | A06 | `apps/api/pom.xml` da `main` ainda usa Spring Boot 4.1.0, com CVE crítica (osv-scanner na F44: 7 críticas e 11 altas). A correção para 4.1.2 está no PR #13, fora da `main` | O endpoint novo de clientes nasceria sobre Tomcat e spring-webmvc vulneráveis | Não mergear a F03a antes do PR #13, ou rebasear a F03a sobre ele. Regra da casa: dependência com vulnerabilidade conhecida bloqueia o merge | Pessoa (merge do #13), ESPRESSO (rebase) |
+| A0 | Crítica (já conhecida) | A06 | `apps/api/pom.xml` da `main` ainda usa Spring Boot 4.1.0, com CVE crítica (osv-scanner na F44: 7 críticas e 11 altas). A correção para 4.1.2 entrou no ramo `fix/f44-main-compilando` pelo PR #13, mas a `main` só recebe com o merge do PR #14 | O endpoint novo de clientes nasceria sobre Tomcat e spring-webmvc vulneráveis | Não mergear o código da F03a antes do PR #14, ou rebasear a F03a sobre ele. Regra da casa: dependência com vulnerabilidade conhecida bloqueia o merge | Pessoa (merge do #14), ESPRESSO (rebase) |
 | A1 | Média, bloqueia US-CLI-03a | A05 | `GlobalExceptionHandler` só trata `MethodArgumentNotValidException`. Validação de `@RequestParam` (`HandlerMethodValidationException`, `ConstraintViolationException`), `page=abc` (`MethodArgumentTypeMismatchException`) e parâmetro ausente caem no `@ExceptionHandler(Exception.class)` | `size=0`, `size=101`, `page=-1` ou `q` com 101 caracteres respondem 500 em vez de 400. Mesmo padrão já visto pelo CRIVO na F44 (JSON malformado vira 500) | Handlers para essas exceções devolvendo 400 no formato global, com mensagem fixa ou só nome do parâmetro, nunca o valor rejeitado. Teste MockMvc para cada caso | ESPRESSO |
 | A2 | Média | A03 | Busca com `LIKE`: `%`, `_` e `\` no termo viram curinga se não forem escapados. O escape padrão do MySQL é `\` | Termo `%` lista a base inteira; termo com `\` pode quebrar a consulta | Parâmetro sempre ligado (nunca concatenado em JPQL ou SQL nativo); escapar `\`, `%` e `_` no service e declarar `ESCAPE` explícito na consulta. Teste de integração com `%`, `_` e `\` contra MySQL real (US-CLI-01a) | ESPRESSO |
 | A3 | Média, risco aceito | A01 / A04 | Sem diferença de perfil (briefing) e com JWT de 7 dias sem revogação (ADR-004), qualquer token válido percorre a base inteira em páginas de 100 | Token vazado ou funcionário desligado com token ativo extrai nome, telefone e email de todos os clientes por até 7 dias | Aceito nesta fase. Mitigação vigente: linha de log com `usuarioId` e `total` (seção 6.3). Revisar expiração do JWT e perfil por endpoint quando entrar controle de permissão (backlog) | Pessoa (aceite), CARTOGRAFO (ADR quando houver permissão) |
@@ -164,7 +195,7 @@ Conferido sem achado: `SecurityConfig` exige autenticação em tudo fora de `PUB
 | P3 | Canal do titular e quem responde (seção 5, D3 da F03a) | Pessoa, com BUSSOLA | Primeiro cliente real em produção |
 | P4 | Aviso de privacidade ao cliente no cadastro (art. 9º) | BUSSOLA (texto), F03c e F35 (tela) | F03c |
 | P5 | Datas de OS e pagamento (A6) | CARTOGRAFO | Rotina automática de R1 |
-| P6 | Merge do PR #13 (A0) | Pessoa | Merge da F03a |
+| P6 | Merge do PR #14 na `main` (A0). O PR #13 foi mergeado no ramo do #14, não na `main` | Pessoa | Merge da F03a |
 
 ## 10. Como verificar esta política na F03a
 
@@ -173,3 +204,13 @@ Conferido sem achado: `SecurityConfig` exige autenticação em tudo fora de `PUB
 * Teste MockMvc de 400 para `size=0`, `size=101`, `page=-1`, `page=abc` e `q` com 101 caracteres, sem o valor rejeitado no corpo (A1).
 * Teste de integração com `%`, `_` e `\` como termo (A2).
 * `git grep -nE "show-sql|jdbc.bind|log-request-details|accesslog" -- apps/api` sem ocorrência que viole a seção 7.
+* Teste unitário de `MascaraDadoPessoal` cobrindo todas as linhas da tabela da seção 6.2.1.
+* `git show origin/main:apps/api/pom.xml | grep -A1 spring-boot-starter-parent` mostrando 4.1.2 ou superior antes do merge do código da F03a (A0).
+
+## 11. Histórico
+
+| Data | Mudança | Onde |
+|---|---|---|
+| 2026-11-14 | Criação, antes de qualquer código de Clientes | commit 2488c75 |
+| 2026-11-16 | Entrou na `main` junto com o ADR-017, mergeado pela pessoa (sem review formal registrado no GitHub) | PR #15, merge 348a43e |
+| 2026-11-17 | Revisão 1: A0 e P6 apontam para o PR #14 (o #13 foi mergeado no ramo do #14, e a `main` segue em Boot 4.1.0); local do utilitário de máscara fixado em `security.MascaraDadoPessoal`; contrato exato da máscara (6.2.1); A0 e A1 reconferidos abertos na `main` dfab787. Base legal e prazos seguem como proposta (P1) | esta revisão |
