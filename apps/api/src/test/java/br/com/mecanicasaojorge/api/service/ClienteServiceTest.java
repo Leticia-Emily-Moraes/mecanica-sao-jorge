@@ -90,12 +90,76 @@ class ClienteServiceTest {
   }
 
   @Test
-  void shouldSearchWithEscapedPatternAndPhoneDigitsWhenTermHasMaskAndWildcard() {
+  void shouldSearchWithPhoneDigitsWhenTermIsNumericWithMask() {
+    given(clienteRepository.buscar(any(), any(), any(Pageable.class))).willReturn(Page.empty());
+
+    clienteService.listar("(11) 98", 0, 20, "7");
+
+    verify(clienteRepository).buscar(eq("%(11) 98%"), eq("%1198%"), any(Pageable.class));
+  }
+
+  @Test
+  void shouldNotQueryPhoneWhenTermMixesDigitAndWildcard() {
     given(clienteRepository.buscar(any(), any(), any(Pageable.class))).willReturn(Page.empty());
 
     clienteService.listar("(11) 9_8", 0, 20, "7");
 
-    verify(clienteRepository).buscar(eq("%(11) 9!_8%"), eq("%1198%"), any(Pageable.class));
+    verify(clienteRepository).buscar(eq("%(11) 9!_8%"), eq(null), any(Pageable.class));
+  }
+
+  @Test
+  void shouldNotQueryPhoneWhenTermIsEmailWithDigit() {
+    given(clienteRepository.buscar(any(), any(), any(Pageable.class))).willReturn(Page.empty());
+
+    clienteService.listar("zeta5@example.org", 0, 20, "7");
+
+    verify(clienteRepository).buscar(eq("%zeta5@example.org%"), eq(null), any(Pageable.class));
+  }
+
+  @Test
+  void shouldCountWithFirstPageAndReturnEmptyItemsWhenOffsetExceedsIntegerMax() {
+    given(clienteRepository.findAll(any(Pageable.class)))
+        .willReturn(new PageImpl<>(List.of(cliente(1L, "Ana")), PageRequest.of(0, 1), 25));
+
+    PaginaResponse<ClienteListResponse> resposta =
+        clienteService.listar(null, 21_474_837, 100, "7");
+
+    ArgumentCaptor<Pageable> captor = ArgumentCaptor.forClass(Pageable.class);
+    verify(clienteRepository).findAll(captor.capture());
+    assertThat(captor.getValue().getPageNumber()).isZero();
+    assertThat(captor.getValue().getPageSize()).isEqualTo(1);
+    assertThat(resposta.itens()).isEmpty();
+    assertThat(resposta.pagina()).isEqualTo(21_474_837);
+    assertThat(resposta.tamanho()).isEqualTo(100);
+    assertThat(resposta.totalItens()).isEqualTo(25);
+  }
+
+  @Test
+  void shouldKeepSearchFilterWhenOffsetExceedsIntegerMax() {
+    given(clienteRepository.buscar(any(), any(), any(Pageable.class)))
+        .willReturn(new PageImpl<>(List.of(cliente(1L, "Ana")), PageRequest.of(0, 1), 3));
+
+    PaginaResponse<ClienteListResponse> resposta =
+        clienteService.listar("ana", 21_474_837, 100, "7");
+
+    ArgumentCaptor<Pageable> captor = ArgumentCaptor.forClass(Pageable.class);
+    verify(clienteRepository).buscar(eq("%ana%"), eq(null), captor.capture());
+    assertThat(captor.getValue().getPageSize()).isEqualTo(1);
+    assertThat(resposta.itens()).isEmpty();
+    assertThat(resposta.totalItens()).isEqualTo(3);
+  }
+
+  @Test
+  void shouldQueryNormallyWhenOffsetIsExactlyIntegerMax() {
+    // 21474836 * 100 = 2.147.483.600 <= Integer.MAX_VALUE: ainda e consulta paginada comum
+    given(clienteRepository.findAll(any(Pageable.class))).willReturn(Page.empty());
+
+    clienteService.listar(null, 21_474_836, 100, "7");
+
+    ArgumentCaptor<Pageable> captor = ArgumentCaptor.forClass(Pageable.class);
+    verify(clienteRepository).findAll(captor.capture());
+    assertThat(captor.getValue().getPageNumber()).isEqualTo(21_474_836);
+    assertThat(captor.getValue().getPageSize()).isEqualTo(100);
   }
 
   @Test
