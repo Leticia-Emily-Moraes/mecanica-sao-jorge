@@ -1,6 +1,11 @@
 # Arquivo Figma da operação OP-002
 
-- **Arquivo**: OP-002 app-mecanica-sao-jorge
+> **Referência de alta fidelidade (desde 2026-11-16, decisão da pessoa, F41):**
+> https://www.figma.com/design/FPdB8RymAnN81pbKfizdzE (`FPdB8RymAnN81pbKfizdzE`, "Feito-pelo-Claude-Desing").
+> Detalhe e lista viva de nós na seção "Referência F41 (FPdB8)" logo abaixo.
+> O arquivo `DLqbSzzKRxiN2eyvXG73Lr` descrito a seguir é **histórico da v1** (F24, F25, F34): não é mais referência de paridade e não é editado.
+
+- **Arquivo (histórico v1)**: OP-002 app-mecanica-sao-jorge
 - **Link**: https://www.figma.com/design/DLqbSzzKRxiN2eyvXG73Lr
 - **file_key**: `DLqbSzzKRxiN2eyvXG73Lr`
 - **Pasta**: `team::1274094162661077353` / projeto `681115069` (pasta da operação)
@@ -10,6 +15,146 @@
 Um arquivo por operação. Toda nova entrega de design desta operação (F24, e as
 próximas F25+) continua neste mesmo arquivo, em páginas novas, sem criar
 arquivo adicional.
+
+## Referência F41 (FPdB8) — lista viva de nós aprovados
+
+Lido por ESQUADRO em **2026-11-16** com o Figma MCP oficial (`figma-remote`), sessão `0aa749b1-35d2-40cf-aabc-92c54f24f036`.
+Regra de edição e escopo: ADR-014, seção "Edição do arquivo de referência".
+
+**Acesso (US-PAR-11), saída real de `whoami`:**
+`{"handle":"Leticia Moraes","plans":[{"name":"Time Pessoal","seat":"Full","tier":"student","key":"team::1274094162661077353","role":"admin"}]}` (e-mail omitido aqui de propósito). Leitura de `get_metadata`, `get_screenshot`, `get_design_context` e `get_variable_defs` do arquivo `FPdB8RymAnN81pbKfizdzE`: sem erro de permissão.
+
+**Páginas do arquivo:** `20:2131` "01 — Wireframes", `20:2132` "02 — Alta fidelidade", `1:66` "Componentes".
+Na página `20:2132` há duas seções: `10:3936` "Mecânica São Jorge — 49 telas de alta fidelidade" (referência da F41) e `62:1529` "Complementos de fluxo — 9 telas de alta fidelidade" (6136, 0; **posterior à leitura de 14/11, fora do escopo da F41, não tocada**).
+
+| Tela e estado | Frame | Nó (verificado por `get_metadata` em 16/11) | Captura "antes" |
+|---|---|---|---|
+| Login, estado inicial | 1a — Login | `10:895` (362 × 772; tela `10:900`, 362 × 742) | `f41-capturas/figma-fpdb8-login-vazio-10-895.png` |
+| Login, erro de credencial | 1b — Login — erro de credencial | `10:936` | `f41-capturas/figma-fpdb8-login-erro-credencial-10-936.png` |
+| Cabeçalho com botão de usuário (e padrão "Sem conexão") | 1c — Sem conexão (padrão global) | `10:981` | `f41-capturas/figma-fpdb8-ordens-sem-conexao-cabecalho-10-981.png` |
+| Perfil | 1av — Perfil | `10:3842` | `f41-capturas/figma-fpdb8-perfil-10-3842.png` |
+| Diálogo de logout | 1aw — Sair — confirmação | `10:3886` | `f41-capturas/figma-fpdb8-logout-10-3886.png` |
+| Tab bar, Ordens selecionado | símbolo `Alta fidelidade / Navegação inferior / Ordens · Clientes · Catálogo · Financeiro` | **`20:1102`** (360 × 62) | `f41-capturas/figma-fpdb8-tabbar-ordens-20-1102.png` |
+| Tab bar, Clientes selecionado | mesmo nome, sufixo `/ 2` | **`20:1340`** (360 × 62) | `f41-capturas/figma-fpdb8-tabbar-clientes-20-1340.png` |
+| Cabeçalho "Ordens de Serviço" com botão de usuário | símbolo `Alta fidelidade / Cabeçalho / Ordens de Serviço` | `20:1079` (360 × 56) | — |
+| Cabeçalho "Perfil" com seta de voltar | símbolo `Alta fidelidade / Cabeçalho / Perfil` | `20:2083` | — |
+| Botão Entrar | símbolo | `20:1073` (304 × 50) | — |
+| Cartão do Perfil | símbolo | `20:2097` (328 wide) | — |
+
+**Id da tab bar (achado 11 do CARTOGRAFO), verificado por `get_metadata` em 16/11:** os dois ids existem e não se contradizem. **`20:1102`** é o **componente** (símbolo, na seção "Componentes reutilizáveis", 360 × 62) e **`20:1103`** é a **instância** dele posicionada dentro do frame 1c (x 1, y 679, 360 × 62; mesmos 4 itens de 90 × 62, ícone 22 em x 34 / y 11,5, rótulo em y 37,5). A referência de paridade é o componente (`20:1102` Ordens selecionado, `20:1340` Clientes selecionado); `20:1103` é só onde ele aparece na tela. O ADR-014 pode citar os dois, com essa distinção.
+
+**Capturas "antes":** exportadas em 1x lógico (410 × 804 com margem do frame de apresentação; as da tab bar em 360 × 62), todas abaixo de 100 KB. Guardam o estado dos frames **antes de qualquer edição da F41** (regra de edição, passo 2).
+
+**Variáveis do arquivo (leitura de `get_variable_defs` em `10:895`):** o arquivo foi gerado por importação de HTML e as variáveis têm **nome automático por matiz e luminosidade**, sem papel (`color/cyan/18` = `#1E3A3F`, `color/red/47` = `#B5453D`, `color/grey/96` = `#F7F5F2`, `color/orange/87` = `#E2DEDA`, `color/grey/42` = `#6E6A66`, `color/grey/64` = `#A8A39D`, `color/grey/70` = `#B7B2AC`, `color/cyan/28` = `#33575D`, `color/grey/93-3` = `#F6E7E5`, `color/red/79` = `#E2B5B0`, `color/red/38` = `#923631`). Isso **foge da convenção `<categoria>/<papel>/<estado>`** da casa; a coleção `OP-002 Identidade v2` do ADR-014 é quem corrige, e só entra depois da aprovação dos tokens (US-PAR-07). Até a leitura de 14/11 nenhuma variável semântica existia; **em 16/11 foi criada a coleção `OP-002 Identidade v2` com 6 variáveis** (ver "Sessão de 16/11 com acesso ao Figma" mais abaixo).
+
+### Seção "F41 — estados propostos" (`82:1989`, página `20:2132`, x 7800, y 0)
+
+Criada por ESQUADRO em 2026-11-16 via `use_figma`, só com nós novos (cópias dos frames de referência e frames novos). **Todos aguardam aprovação da pessoa**; enquanto isso **não** fazem parte da lista viva de nós aprovados acima (regra do ADR-014). Sem variável criada.
+
+| Frame | Nó | Captura |
+|---|---|---|
+| L1 Login — preenchido — proposto | `82:1990` | — |
+| L2 Login — carregando — proposto | `82:2024` | — |
+| L3 Login — erro de conexão — proposto | `82:2058` | — |
+| L4 Login — sessão expirada — proposto | `82:2098` | — |
+| P1 Perfil — carregando — proposto | `83:712` | `f41-capturas/figma-fpdb8-proposto-perfil-carregando-83-712.png` |
+| P2 Perfil — erro ao carregar — proposto | `83:754` | `f41-capturas/figma-fpdb8-proposto-perfil-erro-83-754.png` |
+| T1 Tab bar — foco no item — proposto | `83:817` | `f41-capturas/figma-fpdb8-proposto-tabbar-foco-83-817.png` |
+| T2 Tab bar — módulos indisponíveis — proposto | `83:844` | `f41-capturas/figma-fpdb8-proposto-tabbar-desabilitada-83-844.png` |
+| C1 Cores AA propostas | `85:744` | `f41-capturas/figma-fpdb8-proposto-cores-aa-85-744.png` |
+
+Observação de método: a instrução `figma-use` não pôde ser carregada nesta sessão; cada passo foi conferido por `get_screenshot`.
+
+A conferência da F41 (planilha, tokens, contraste e estados propostos) está em `docs/design/F41-planilha-fpdb8.md`. Desde 16/11 a prova de paridade é a planilha de valores `docs/design/F41-valores-fpdb8.md` (sem capturas lado a lado).
+
+**Sessão de 16/11 sem acesso ao Figma (ESQUADRO, US-PAR-11).** O ambiente informou que o servidor `figma-remote` exige autenticação e a sessão é não interativa; nenhuma ferramenta `mcp__figma-remote__*` ficou disponível. **Não houve chamada, então não há saída de `whoami` desta sessão.** Nada foi lido nem editado no Figma. Para liberar: `claude mcp login figma-remote` em sessão interativa. Pendente por isso: criar as 3 variáveis aprovadas (placeholder Flint, borda de campo `#8C8780`, aba selecionada `#EE8279`) e religar L1 a L4, C1, T1, T2, `20:1102` e `20:1340`; ajustar o P2 `83:754` (botão cheio + contorno); propor o frame Início; exportar o escudo de `10:895` com origem e liberação.
+
+### Sessão de 16/11 com acesso ao Figma (ESQUADRO, US-PAR-07, US-PAR-11) — o que foi feito
+
+**Saída real de `whoami` (e-mail omitido de propósito):** `{"whoami":{"user_id":"1126488233271433922","handle":"Leticia Moraes","plans":[{"name":"Time Pessoal","seat":"Full","tier":"student","key":"team::1274094162661077353","role":"admin","specs_enabled":true,"code_layers_enabled":true}]}}`. `create_session` no `FPdB8RymAnN81pbKfizdzE` devolveu a sessão `dabe8d86-f507-4d5c-8b04-08048d17d893`. Nenhum erro de permissão em `get_metadata`, `get_design_context`, `get_variable_defs`, `get_screenshot` e `use_figma`.
+
+**Método:** a instrução `figma-use` não pôde ser carregada (não há `get_figma_skill` nem recurso de skill disponível nesta sessão). Cada escrita foi feita em passo pequeno, com leitura do estado antes e conferência depois (leitura por código e `get_screenshot`). Só toquei os nós listados abaixo.
+
+**Coleção criada: `OP-002 Identidade v2`** (`VariableCollectionId:89:712`, modo "Padrão"). Só tem o que a F41 aprovou; **as outras ~70 linhas da tabela do ADR-014 não foram criadas** (ver "Não feito").
+
+| Variável | Id | Valor | Aponta para | Escopo |
+|---|---|---|---|---|
+| `primitive/flint` | `89:713` | `#6E6A66` | — | todos |
+| `primitive/stone` | `89:714` | `#8C8780` | — | todos |
+| `primitive/coral` | `89:715` | `#EE8279` | — | todos |
+| `color/text/placeholder` | `89:716` | `#6E6A66` | `primitive/flint` | texto |
+| `color/border/default` | `89:717` | `#8C8780` | `primitive/stone` | traço |
+| `color/text/tabSelected` | `89:718` | `#EE8279` | `primitive/coral` | texto, preenchimento, traço |
+
+A descrição das três semânticas guarda o antes e o depois com a razão de contraste (ADR-014, regra 16).
+
+**Nós religados (lidos de volta por `get_variable_defs`):**
+
+- `color/text/placeholder`: textos `10:926`, `10:933` (frame `10:895`), `82:2117`, `82:2122` (L4). L1, L2 e L3 não têm placeholder (campos preenchidos).
+- `color/border/default`: traço dos campos em repouso `10:932`, `82:2008`, `82:2013`, `82:2042`, `82:2047`, `82:2076`, `82:2081`, `82:2116`, `82:2121`. **Não foi religado** o traço dos campos em Crail (`10:925`, `10:960`, `10:965`: foco e erro) nem a borda externa das telas e do cartão (Westar, decorativa).
+- `color/text/tabSelected`: rótulo `10:1023` e ícone (`I10:1020;10:42`, `I10:1020;10:43`) em **`20:1102`**; rótulo `10:1141` e ícone (`I10:1136;10:95` a `10:98`) em **`20:1340`**. Como T1 `83:817` é instância de `20:1340`, ele herdou: a leitura posterior achou 5 elementos em `#EE8279` e nenhum em Crail. T2 `83:844` não mudou (os 4 itens continuam em Tide a 50%).
+- Efeito colateral aceito: toda instância desses dois componentes no arquivo passa a mostrar o item selecionado em `#EE8279` (é o propósito do componente; o ADR-014 pede isso).
+
+**P2 `83:754`:** botão `83:770` "Tentar novamente" agora é cheio (preenchimento e traço `color/red/47` = Crail, texto `color/white/solid`); `83:815` "Entrar novamente" continua em contorno petro. Medidas intactas (328 × 50, raio 8).
+
+**C1 `85:744`** (criado por mim): título trocado de "aguardam aprovação" para "aprovadas em 16/11/2026" e nome do quadro atualizado. Os exemplos dentro dele continuam com hex direto, de propósito: mostram o antes e o depois.
+
+**Novo frame proposto I1 `89:971` — Início, estado vazio** (na seção `82:1989`, x 1550, y 1850; a seção cresceu de 2450 para 2650 de altura). Tela `89:976` (362 × 742, Pampas): cabeçalho `89:996` (instância de `20:1079`, título "Início", botão de usuário 36 × 36), círculo `89:979` (72, `color/grey/91`) com ícone de documento de 32 (variante 18 da tab bar, traço Spectra, **escolha minha**: o frame não tem ícone de "em breve"), título `89:981` "Em breve" (Barlow Condensed SemiBold 20, petro), mensagem `89:984` "Os módulos da oficina chegam nas próximas versões." (Inter 14 / 21, Flint, centralizada), tab bar `89:1003` (cópia do T2: 4 itens a 50%). Textos, ícone e posições são **proposta minha, não valor do Figma de referência**. **Aguarda aprovação da pessoa**; até lá não faz parte da lista viva (D-20: Início está fora do aceite da F41).
+
+### Releitura de L2, L3, L4, L1, P1, P2 e T1 (16/11, com acesso)
+
+| Nó | Leitura |
+|---|---|
+| L2 `82:2024` botão `82:2049` | texto **"Entrando…"** (um caractere U+2026), preenchimento Crail a **100%** de opacidade (botão e texto), indicador `82:2137` elipse 16 × 16 branca, arco de 270°, à esquerda do texto |
+| L3 `82:2058` caixa `82:2092` | Pot Pourri `#F6E7E5`, borda Rose Fog `#E2B5B0` 1 px, raio 8, margem 13, espaço 10, ícone 18, texto **"Sem conexão. Verifique a internet da oficina e tente de novo."** El Salva `#923631`, Inter Regular 14 / 19,6, caixa de 66 de altura entre a senha e o botão |
+| L4 `82:2098` caixa `82:2131` | mesma caixa e estilo, texto **"Sua sessão expirou. Faça login novamente."**, **acima** do campo Usuário (entre o bloco da marca e o formulário); placeholders "Seu usuário" e "Sua senha" agora em `color/text/placeholder` |
+| L1 `82:2023` / L2 `82:2057` | ação da senha com texto visível **"Mostrar"** (a camada se chama "Mostrar senha"), Inter **Medium 13**, Flint |
+| P1 `83:712` | indicador `83:752` elipse 36, petro; texto `83:753` **"Carregando sessão…"** (U+2026), Inter Regular 14, Flint, 12 abaixo do indicador; fundo Pampas |
+| P2 `83:754` | círculo 72 em `color/grey/91` `#EDE9E4`; ícone 32 (variante 5, Spectra); título "Não foi possível carregar" Barlow Condensed SemiBold **20**, petro; mensagem Inter Regular **14 / 21**, Flint, centralizada, 289 de largura; botões de 328 × 50 empilhados com 12 de espaço, rodapé |
+| T1 `83:817` anel `84:786` | retângulo 86 × 58, traço branco 2 px **por dentro**, **raio 10**, 2 px de respiro dentro da célula de 90 × 62; legenda: 12,12:1 sobre petro |
+
+### Não feito nesta sessão (declarado)
+
+- Escudo 84 × 96 de `10:895`: **não exportado** (origem e liberação de uso sem registro; D-21 deixa fora do aceite da F41). Nenhum substituto foi inventado.
+- Frame Início: só proposto (I1), sem aprovação.
+- Coleção completa do ADR-014 (cores restantes, medidas, raios, espaçamentos, estilos de texto e efeitos): **não criada**; só as 3 variáveis que a F41 aprovou. Nenhum frame além dos listados foi ligado a variável nova.
+- Capturas em arquivo: o shell bloqueou o download dos PNGs, então conferi cada frame por `get_screenshot` em linha, sem gravar imagem no repositório.
+
+### Segunda sessão de 16/11 com acesso (ESQUADRO, US-PAR-07, US-PAR-11): variáveis dos 6 tokens, Início aprovado, capturas
+
+Detalhe completo, com valor lido e id por linha, em `docs/design/F41-valores-fpdb8.md` §17. Resumo:
+
+- **Acesso:** `whoami` passou (handle "Leticia Moraes", plano "Time Pessoal" `team::1274094162661077353`, e-mail omitido); `create_session` → `f942924b-db78-4ddd-9c88-84d37812bdd6`. `figma-use` não pôde ser carregado; escrita em passos pequenos, com leitura antes e depois.
+- **Coleção `OP-002 Identidade v2` (`89:712`): de 6 para 14 variáveis.** Novas: `primitive/grey91` `92:761` (`#EDE9E4`), `primitive/spectra` `92:762` (`#33575D`), `color/surface/neutral` `92:763`, `color/icon/state` `92:764`, `size/stateIcon` `92:765` (72), `iconSize/alert` `92:766` (32), `radius/tabFocus` `92:767` (10), `layout/stateActionsMaxWidth` `92:768` (328). Estilo de texto novo `OP-002/stateTitle` (Barlow Condensed SemiBold 20). Os 6 tokens que o ORLA criou no código (`neutral`, `icon.state`, `stateIcon`, `stateTitle`, `tabFocus`, `stateActionsMaxWidth`) agora existem no Figma com o valor do `tokens.ts`; `iconSize/alert` entra porque o Início I1 e o P2 usam o ícone de 32.
+- **Ligações (conferidas por `get_variable_defs`):** P2 `83:763` (fundo e 72 × 72), `83:764` (32 e traço Spectra), `83:767` (estilo), `83:770` e `83:815` (largura 328); I1 `89:979`, `89:980`, `89:983`; T1 anel `84:786` (raio 10). Raio dos círculos fica em 36 sem variável (ligá-lo à variável de 72 foi um erro meu e foi desfeito na mesma sessão).
+- **Início I1 `89:971`:** **aprovado pela pessoa em 16/11**; entra na lista viva de nós aprovados (a D-20 cai). Lido por valor; o código diverge em I-1 a I-6 (círculo, ícone 32, título 20 Barlow, mensagem 14 / 21, espaços 16 e 10).
+- **Releitura por valor de L2, L3, L4:** textos e caixas batem com o código; L2 tem a diferença R-11 (indicador a 6,5 do texto, texto centralizado, contra `gap` 8 no código).
+- **Capturas:** 15 PNGs dos frames de Login, Perfil, diálogo, tab bar e Início em `docs/design/f41-capturas/final-2026-11-16/` (todas abaixo de 100 KB; só lado Figma, sem app).
+- **Não feito:** escudo (D-21), restante da tabela do ADR-014 (~70 linhas) e rótulos "proposto" dos frames L1 a L4, P1, P2, T1, T2 e I1, ainda no texto de cada frame.
+
+### Terceira sessão de 16/11 com acesso (ESQUADRO, US-PAR-07, US-PAR-11): 2 variáveis, R-11, I1 e L2 relidos, lista fechada
+
+Detalhe completo em `docs/design/F41-valores-fpdb8.md` §19. Resumo:
+
+- **Acesso:** `whoami` passou (handle "Leticia Moraes", plano "Time Pessoal" `team::1274094162661077353`, e-mail omitido); `create_session` → `82501eec-57a2-4d20-be22-fcb0a288a02d`. `figma-use` não pôde ser carregado; escrita em passos pequenos, com leitura antes e depois.
+- **Coleção `OP-002 Identidade v2` (`89:712`): de 14 para 16 variáveis.** Novas: `layout/stateMessageMaxWidth` `94:712` (289) e `size/loadingIndicator` `94:713` (16), escopo só largura e altura. Ligadas a `83:769` e `89:985` (largura) e a `82:2137` (largura e altura); lidas de volta por `get_variable_defs` em `89:971`, `83:754` e `82:2024`.
+- **R-11 decidida a favor do código (6 = `spacing.s6`):** o indicador `82:2137` do L2 foi movido de x 102 para 102,5, deixando 6 até o texto "Entrando…" (antes 6,5). PNG do L2 reexportado.
+- **Releitura:** I1 e L2 batem com o código `3c8df54` e `7f9db9f` (I-1 a I-6 fechadas).
+- **Confirmado no arquivo:** o Perfil `10:3842` não desenha tab bar; T2 a 50%, T1 com anel 86 × 58 raio 10 branco; `20:1102` e `20:1340` desenham um item selecionado, que o código não renderiza (P-01, aguarda a pessoa).
+- **Achado novo, P2 `83:754`:** gaps 16 e 10 (código 24 e 8), botões ancorados na base com 12 entre eles (código 10, agrupados com a mensagem). R-12, R-13 e R-14, do lado do código.
+- Nenhum frame fora de Login, Perfil, diálogo, tab bar e Início foi editado.
+
+### Quarta sessão de 17/11 com acesso (ESQUADRO, US-PAR-07, US-PAR-11): R-15, O-1 a O-3, anotação da tab bar, escudo e capturas
+
+Detalhe completo, com valor lido e id por linha, em `docs/design/F41-valores-fpdb8.md` §20. Resumo:
+
+- **Acesso:** `whoami` passou (handle "Leticia Moraes", plano "Time Pessoal" `team::1274094162661077353`, e-mail omitido); `create_session` → `11c14d87-2e3a-4429-be87-0133cebb0a28`. `download_assets` foi **negado** ("Claude requested permissions to use mcp__figma-remote__download_assets, but you haven't granted it yet."); não repeti e usei `get_screenshot` e `exportAsync`. `figma-use` não pôde ser carregado.
+- **Achado de processo:** ao chegar, encontrei no arquivo, **sem registro** neste documento, a variável `color/surface/skeleton` `98:713` (alias de `primitive/slate100` `98:712` = `#F1F5F9`) ligada ao fundo dos campos do L2 (`82:2042`, `82:2047`), e o texto "Mostrar" `98:714` no campo Senha do `10:936`. A edição é de depois da sessão da §19 (que registrou só `94:712` e `94:713`); não sei quem fez. Registrei o estado lido por valor e **não alterei nenhum dos dois**.
+- **R-15 (L2) e O-2 (`10:936`):** lidos por valor, batem com o código; PNGs reexportados (L2 `2aa84cf0…`, `10:936` `edbf416b…`). A coleção `OP-002 Identidade v2` (`89:712`) tem hoje **18 variáveis** (lido por `use_figma`): as 16 da §19 mais `primitive/slate100` `98:712` (escopo "todos") e `color/surface/skeleton` `98:713` (escopo só preenchimento de quadro e de forma).
+- **Anotação nativa "estado futuro"** gravada em `20:1102` e `20:1340` (P-01: "não se aplica ainda"), lida de volta. Não aparece nos PNGs (hashes idênticos).
+- **Escudo:** nó `10:906` (`variant=1`, 84 × 96) exportado em PNG 1x, 2x e 3x (RGBA) e SVG para `docs/design/f41-ativos/escudo/`. Autoria e licença: **sem registro no arquivo**; S-2 segue sem resposta da pessoa.
+- **Capturas:** 15 frames aprovados reexportados em `docs/design/f41-capturas/final-2026-11-16/`; 13 com hash idêntico, 2 mudaram (L2 e `10:936`).
+- **Não feito:** ligar variável a `size/avatar` e `typography/dialogMessage`; restante da tabela do ADR-014; rótulos "proposto" dos frames L1 a L4, P1, P2, T1, T2 e I1 (o texto de cada frame ainda diz "proposto").
 
 ## Páginas
 
