@@ -290,3 +290,20 @@ O botão ficava 8 px mais estreito que o campo (a moldura do anel de foco ocupav
 
 ### O que continua sem prova
 Foco de teclado e leitor de tela em aparelho (US-MENU-06), tudo em Android, o aparelho físico do protocolo, o fluxo contra a API local (US-PAR-10; ver o relatório) e o estado selecionado da tab bar em execução.
+
+## 11. Decisões da revisão humana de 16/11, 22:28 (BUSSOLA, PRD v4)
+
+Registro de produto. O lado Figma é do ESQUADRO e o lado código é do ORLA; o texto completo e os critérios estão em `docs/product/F41-prd-paridade-figma-fpdb8.md` (v4). Esta seção **substitui o estado** das linhas T-06, T-09, T-10, T-11 e L-02 da §3 e da §10 acima, que foram escritas antes dessas decisões.
+
+| Linha | Decisão da pessoa (16/11) | Lado | Estado depois desta seção |
+|---|---|---|---|
+| T-06 (aba selecionada) e P-01 | **não se aplica ainda**: as 4 abas estão desabilitadas e nenhuma navega, então não há rota para ficar selecionada | nenhum | **fechada** como "não se aplica ainda". O ESQUADRO anota "estado futuro" em `20:1102` e `20:1340`. **Reabre quando uma aba for habilitada.** |
+| T-11 (Início) | o Início **entra no aceite, por valor** (D-20 cai) | código e Figma já alinhados | frame I1 `89:971` aprovado; conferido por valor em `F41-valores-fpdb8.md` §17.3 e §19.2; deixa de ser "aberta" |
+| L-02 (escudo 84 × 96) | **entra no aceite** (D-21 cai): o ESQUADRO exporta o nó e registra origem e licença; o ORLA programa em PNG 1x, 2x e 3x, com teste | código | **aberta**, dentro do aceite (US-PAR-19); depende da licença (dúvida S-2 do PRD) |
+| R-15 (L2, campo em carregamento cinza) | a favor do **código** | **Figma** | **aberta**: ESQUADRO atualiza o L2 `82:2024` para a cor do skeleton, ligada à variável, e reexporta o PNG; ORLA cria o teste da cor do campo desabilitado; `F41-contraste.py` registra que campo desabilitado é isento |
+| O-1 (ícone do círculo do P2) | exceção D-10: Ionicons mantidos | nenhum | **decidida** |
+| O-2 (`10:936` sem "Mostrar") | a favor do **código** (o frame é antigo) | **Figma** | **aberta**: ESQUADRO atualiza `10:936` com "Mostrar" no campo Senha e reexporta o PNG |
+| O-3 (spinner nativo do P1) | só de plataforma (ADR-014:216) | nenhum | **decidida** |
+| `f41-capturas` | os 6 `par-*.png` antigos enganam | repositório | **removidos** (histórico no git); referência = `final-2026-11-16` e `app-2026-11-16-orla`; `LEIA-ME.md` na pasta |
+
+**Não verificado por mim:** nenhum nó do Figma (não tenho a ferramenta nesta sessão), nenhum teste executado, nenhuma imagem aberta.
