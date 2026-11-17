@@ -100,11 +100,16 @@ public class GlobalExceptionHandler {
 
   /**
    * Variavel de rota vazia ou so com espacos (ex.: {@code /clientes/%20}): o Spring converte para
-   * {@code null} e sinaliza ausencia da variavel. E entrada invalida do cliente, logo 400 (F-1).
+   * {@code null} e sinaliza ausencia da variavel apos a conversao. E entrada invalida do cliente,
+   * logo 400 (F-1). Sem conversao, a variavel falta no mapeamento da rota: defeito do servidor, que
+   * segue como erro inesperado (500 com log).
    */
   @ExceptionHandler(MissingPathVariableException.class)
   public ResponseEntity<ErrorResponse> handleMissingPathVariable(
       MissingPathVariableException ex, HttpServletRequest request) {
+    if (!ex.isMissingAfterConversion()) {
+      return handleUnexpected(ex, request);
+    }
     return buildResponse(HttpStatus.BAD_REQUEST, mensagemParametro(ex.getVariableName()), request);
   }
 

@@ -85,13 +85,31 @@ class GlobalExceptionHandlerTest {
 
     ResponseEntity<ErrorResponse> response =
         handler.handleMissingPathVariable(
-            new org.springframework.web.bind.MissingPathVariableException("id", parametro),
+            new org.springframework.web.bind.MissingPathVariableException("id", parametro, true),
             request);
 
     assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
     assertThat(response.getBody()).isNotNull();
     assertThat(response.getBody().status()).isEqualTo(400);
     assertThat(response.getBody().mensagem()).isEqualTo("Parametro invalido: id");
+  }
+
+  @Test
+  void shouldKeepServerErrorWhenPathVariableIsMissingFromTheRouteMapping() throws Exception {
+    when(request.getRequestURI()).thenReturn("/api/v1/clientes/7");
+    var parametro =
+        new org.springframework.core.MethodParameter(
+            GlobalExceptionHandlerTest.class.getDeclaredMethod("alvo", Long.class), 0);
+
+    ResponseEntity<ErrorResponse> response =
+        handler.handleMissingPathVariable(
+            new org.springframework.web.bind.MissingPathVariableException("id", parametro, false),
+            request);
+
+    assertThat(response.getStatusCode()).isEqualTo(HttpStatus.INTERNAL_SERVER_ERROR);
+    assertThat(response.getBody()).isNotNull();
+    assertThat(response.getBody().status()).isEqualTo(500);
+    assertThat(response.getBody().mensagem()).isEqualTo("Erro interno inesperado");
   }
 
   @SuppressWarnings("unused")
