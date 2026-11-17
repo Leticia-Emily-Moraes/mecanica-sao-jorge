@@ -1,6 +1,6 @@
 # api — backend Mecânica São Jorge
 
-API REST em Java 21 + Spring Boot 4.1.0, MySQL via Spring Data JPA,
+API REST em Java 21 + Spring Boot 4.1.2, MySQL via Spring Data JPA,
 migrations com Flyway, autenticação stateless com JWT HS256 via OAuth2
 Resource Server (ADR-004), documentação via springdoc-openapi. Pacotes
 organizados por camada, não por feature (ADR-001/ADR-002).
@@ -47,8 +47,9 @@ cadastro de usuário, recuperação de senha e refresh token (ver
 
 ## Pré-requisitos
 
-- JDK 21
-- Maven 3.9+ (`mvn -v`) **rodando com o JDK 21**: confira a linha
+- JDK 21 (travado pelo `maven-enforcer-plugin`: outro JDK falha no `validate`)
+- Maven Wrapper incluso: `./mvnw` (Maven 3.9.9), sem Maven instalado no host.
+  Com Maven próprio: 3.9+ (`mvn -v`) **rodando com o JDK 21**: confira a linha
   `Java version` do `mvn -v`, não só o `java -version`. O Maven do Homebrew
   instala e usa o OpenJDK mais recente (ex.: 27), e o Lombok falha nele com
   `ExceptionInInitializerError: com.sun.tools.javac.tree.EndPosTable`. No
@@ -60,9 +61,14 @@ cadastro de usuário, recuperação de senha e refresh token (ver
 - Docker (para o MySQL local e para os testes de integração com
   Testcontainers)
 
-> Esta etapa não inclui o Maven Wrapper (`mvnw`). Gerá-lo é um passo
-> pendente (ver "Pendências" no final deste arquivo) — por ora, use o Maven
-> instalado localmente.
+> O `./mvnw` confere o SHA-256 do Maven baixado (`distributionSha256Sum` em
+> `.mvn/wrapper/maven-wrapper.properties`, OWASP A08). O hash é o do `.zip`:
+> o script só baixa o `.zip` quando há `unzip` no PATH; sem `unzip` ele baixa o
+> `.tar.gz` e a validação falha com "your Maven distribution might be
+> compromised". macOS e os runners `ubuntu-latest` do GitHub já trazem `unzip`;
+> em contêiner mínimo (ex.: `eclipse-temurin:21-jdk`), instale antes
+> (`apt-get install -y unzip`). Ao trocar a versão do Maven, atualize o hash
+> junto (`shasum -a 256` do `.zip`, conferindo o `.sha512` oficial).
 
 ## Subir o banco local
 
@@ -197,9 +203,6 @@ src/test/java/br/com/mecanicasaojorge/api/
 
 ## Pendências / riscos conhecidos
 
-- **Maven Wrapper (`mvnw`) não gerado.** Gerar com
-  `mvn -N wrapper:wrapper -Dmaven=<versão>` em ambiente com rede, e commitar
-  `mvnw`, `mvnw.cmd` e `.mvn/wrapper/maven-wrapper.properties`.
 - **Login sem usuário de seed**: as migrations desta fatia não inserem
   nenhum usuário. Para testar o caminho de sucesso (`200`) manualmente,
   é preciso inserir um usuário com `senha_hash` em BCrypt diretamente no
