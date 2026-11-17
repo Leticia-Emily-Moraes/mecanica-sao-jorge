@@ -1,75 +1,71 @@
 # F26 — Protótipo de alta fidelidade de Clientes e Veículos (Figma)
 
-- Autor: ESQUADRO (etapa 1 de 2 da rota: ESQUADRO → CRIVO)
-- Data: 2026-11-17
-- Feature: F26, Sprint 02, critérios US-PROTO-CLV-01 a 14
-- Estado: **entregue ao Figma, AGUARDANDO APROVAÇÃO. Não aprovado e não aprovável ainda** (seção 1)
+- Autor: ESQUADRO (etapa 2 de 3 da rota: BUSSOLA → ESQUADRO → CRIVO)
+- Datas: entrega inicial 2026-11-17; revisão dos ajustes da revisão humana (14:33) em 2026-11-17
+- Feature: F26, Sprint 02, critérios US-PROTO-CLV-01 a 19 (os 15 a 19 vêm do PRD da BUSSOLA)
+- PRD: `docs/product/F26-prototipo-clientes-veiculos.md`
+- Estado: **entregue ao Figma, AGUARDANDO APROVAÇÃO. Não aprovado.** Faltam a decisão da base (D8), o teste do link restrito e a aprovação da pessoa (seções 1, 12 e 13)
 
-## 1. Bloqueio de aprovação: a F39 não está aprovada
+## 1. Base dos frames: a F39 não está aprovada (decisão D8, da pessoa)
 
-A premissa 10 e o critério US-PROTO-CLV-07 da F26 dizem que a feature só inicia depois que o wireframe redesenhado da F39 estiver aprovado, e que esse wireframe é a base de cada frame.
+A premissa 10 e o critério US-PROTO-CLV-07 dizem que a feature só inicia depois que o wireframe redesenhado da F39 estiver aprovado, e que ele é a base de cada frame.
 
-O que verifiquei no repositório (leitura de `docs/design/F39-redesenho-wireframes-navegacao.md` e do PRD em `docs/product/F39-redesenho-wireframes-navegacao-figma.md`, e do ramo `docs/f39-wireframe-redesenho`):
+O que verifiquei no repositório:
 
-- O PRD da F39 não tem nenhuma linha "Aprovado" (registro de execução vazio).
-- O documento do ESQUADRO da F39 continua com estado "BLOQUEADO — nenhuma tela foi redesenhada".
-- O PRD v3 registra "nenhum frame consta como editado" e deixa D9 a D14 abertas.
+- O PRD da F39 não tem registro "Aprovado".
+- O documento do ESQUADRO da F39 segue com estado "BLOQUEADO — nenhuma tela foi redesenhada".
+- O PRD v3 da F39 registra que nenhum frame consta como editado e deixa D9 a D14 abertas.
 
-O comandante pediu para montar as 7 telas "a partir do wireframe da F39". Como esse wireframe aprovado não existe, **usei como base as telas de Clientes e Veículos da referência `FPdB8RymAnN81pbKfizdzE`** (a inspiração visual que o briefing já fixa para baixa e alta fidelidade): wireframes `1b`, `1c`, `1d`, `1e`, `1f`, `2f`, `2i`, `2j` da página `20:2131` e os frames de alta fidelidade `1d` a `1p` da página `20:2132` (seção 4). Isso é uma **suposição minha**, não uma decisão da pessoa.
+**A tarefa 1 está reaberta.** Como o wireframe aprovado não existe, a base foi a referência `FPdB8RymAnN81pbKfizdzE` (a inspiração visual que o briefing fixa para baixa e alta fidelidade). Isso foi **escolha minha, não decisão da pessoa**. A BUSSOLA recomenda aceitar a referência como base e, quando a F39 for aprovada, comparar e refazer só os frames que divergirem (D8 do PRD).
 
 Consequências, todas abertas:
 
-- US-PROTO-CLV-05 (aprovação) e US-PROTO-CLV-07 (base aprovada) **não estão cumpridos**. O front do módulo (F35) **não deve começar**.
-- Se a F39 mudar a estrutura de alguma dessas telas, os frames da F26 precisam ser refeitos.
-- Decisão que cabe à pessoa: aceitar os frames da referência como base (e então aprovar a F26) ou esperar a F39.
+- US-PROTO-CLV-05 (aprovação) e US-PROTO-CLV-07 (base) **não estão cumpridos**. A F35 **não deve começar**.
+- Se a F39 mudar a estrutura de uma dessas telas, os frames da F26 precisam ser refeitos.
+- Quem decide: a pessoa (aceitar a referência como base, ou esperar a F39).
 
-## 2. Acesso ao Figma (pré-condição da regra de edição do ADR-014)
+## 2. Acesso ao Figma
 
-Saída real de `whoami` desta sessão (e-mail omitido de propósito):
+`whoami` respondeu normalmente nesta sessão (conta com plano "Time Pessoal", assento Full, papel admin). Os identificadores da conta e da sessão **não são registrados aqui** (pedido da revisão humana, critério 14).
 
-```
-{"whoami":{"user_id":"1126488233271433922","handle":"Leticia Moraes","plans":[{"name":"Time Pessoal","seat":"Full","tier":"student","key":"team::1274094162661077353","role":"admin","specs_enabled":true,"code_layers_enabled":true}]}}
-```
-
-- `create_session` no arquivo `FPdB8RymAnN81pbKfizdzE` devolveu a sessão `a0522956-7327-4d02-8be2-261f09336518`.
-- `get_metadata`, `get_screenshot` e `use_figma` funcionaram sem erro de permissão.
-- A instrução `figma-use` **não pôde ser carregada** (não há `get_figma_skill` nem leitura de recurso nesta sessão). Compensei com passos pequenos: leitura antes, escrita, `get_screenshot` depois.
-- `download_assets` não foi usado. As capturas foram baixadas pela URL de `get_screenshot`.
+- `create_session` no arquivo `FPdB8RymAnN81pbKfizdzE` funcionou, e `get_metadata`, `get_screenshot` e `use_figma` também.
+- A instrução `figma-use` **não pôde ser carregada** (esta sessão não tem `get_figma_skill` nem leitura de recurso de skill). Compensei com passos pequenos: leitura antes, escrita, conferência por `get_screenshot` e por leitura de volta.
+- `download_assets` não foi usado. As capturas foram baixadas pela URL de `get_screenshot` e **não foram versionadas** (PNG; o registro é pelos ids dos nós).
 
 ## 3. Onde está o trabalho e por que neste arquivo
 
-- Arquivo: `FPdB8RymAnN81pbKfizdzE` (o arquivo informado no briefing).
-- Página `20:2132` "02 — Alta fidelidade".
-- **Seção nova `106:2097`** "F26 — Clientes e Veículos — protótipo de alta fidelidade (aguardando aprovação)", em x 9900, y 0 (2772 × 7872). Foi criada ao lado das seções existentes. **Nenhum nó existente foi alterado.** Os frames são clones; os originais continuam como estavam.
-- Ponto de partida do fluxo: `L4` (`109:2402`), com o nome "F26 — Clientes e Veículos". É o único ponto de partida da página (lido de volta no fim).
+- Arquivo: `FPdB8RymAnN81pbKfizdzE` (o arquivo informado no briefing). Página `20:2132` "02 — Alta fidelidade".
+- **Seção `106:2097`** "F26 — Clientes e Veículos — protótipo de alta fidelidade (aguardando aprovação)", em x 9900, y 0, agora com 2772 × 8800.
+- Os frames são clones; os originais da referência continuam como estavam. Nenhum nó fora da seção foi alterado nesta revisão.
+- Ponto de partida do fluxo: `L4` (`109:2402`), nome "F26 — Clientes e Veículos". Lido de volta no fim: é o único ponto de partida da página.
 
-Por que não criei arquivo novo na pasta `681115069`: o briefing manda continuar no arquivo já registrado quando houver um, e a referência `FPdB8…` é onde vivem as variáveis `OP-002 Identidade v2`, os componentes (cabeçalho, busca, cartão, navegação inferior) e o ícone/indicador da F41. Um arquivo novo perderia tudo isso. O arquivo histórico `DLqbSzzKRxiN2eyvXG73Lr` está com a identidade v1 e a regra da F41 diz que ele não é mais editado. Responde à dúvida 2 da feature: **mesmo arquivo da referência, seção nova**. Fica registrado como decisão para a pessoa confirmar.
+Por que não criei arquivo novo na pasta `681115069`: o briefing manda continuar no arquivo registrado, e a referência `FPdB8…` é onde vivem as variáveis `OP-002 Identidade v2`, os componentes (cabeçalho, busca, cartão, navegação inferior) e o indicador da F41. Responde à dúvida 2: **mesmo arquivo, seção nova** (a BUSSOLA confirma; falta a pessoa confirmar).
 
-Observação sobre o ponto de partida: ao gravar as reações, o Figma criou sozinho um ponto "Flow 1" apontando para o L1 (`106:2098`, nó meu). Removi esse e deixei só o L4. A página não tinha nenhum outro ponto de partida (não li a lista antes de criar as reações, então **não consigo provar** que não havia outro; o que li depois da criação só tinha o "Flow 1" automático e o meu).
+Observação: ao gravar as reações pela primeira vez o Figma criou sozinho um ponto "Flow 1" no L1; removi e deixei só o L4. Não consigo provar que não havia outro ponto antes (não li a lista antes de gravar).
 
 ## 4. Base lida na referência (ids lidos por `get_metadata` em 2026-11-17)
 
 Alta fidelidade, página `20:2132`, seção `20:1067` "Clientes e Veículos":
 
-| Frame da referência | Nó (tela) | Usado como base de |
+| Frame da referência | Nó | Usado como base de |
 |---|---|---|
-| 1d Lista de Clientes | `10:1052` | L1, L4 (via L2) |
+| 1d Lista de Clientes | `10:1052` | L1, L4 (via L2), L7 |
 | 1e Lista de Clientes — vazia | `10:1157` | L2, L4, L5 |
 | 1f Busca sem resultado | `10:1214` | L3 |
-| 1g Cliente criado, toast | `10:1269` | L6 (e o aviso de sucesso) |
+| 1g Cliente criado, toast | `10:1269` | L6 e os avisos de sucesso |
 | 1h Detalhe do Cliente | `10:1373` | D1 a D5 |
-| 1i Novo Cliente | `10:1455` | C1, C2, C4, C5, C6 |
-| 1j Editar Cliente | `10:1494` | E1, E2, E3 |
+| 1i Novo Cliente | `10:1455` | C1, C2, C4 a C7 |
+| 1j Editar Cliente | `10:1494` | E1 a E3 |
 | 1k Novo Cliente — validação | `10:1535` | C3 |
 | 1m Detalhe do Veículo | `10:1651` | V1 a V5 |
 | 1n Novo Veículo | `10:1732` | N1, N2, N4, N5 |
-| 1o Editar Veículo | `10:1778` | M1, M2, M3 |
+| 1o Editar Veículo | `10:1778` | M1 a M3 |
 | 1p Novo Veículo — validação | `10:1826` | N3 |
-| 1l Excluir Cliente — confirmação | `10:1587` | **não usado** (exclusão está fora do escopo) |
+| 1l Excluir Cliente — confirmação | `10:1587` | **não usado** (exclusão fora do escopo) |
+| 1av Perfil | `10:3847` | PF (destino do Voltar do L5) |
+| 1aw Sair — confirmação | `10:3925` (camada do diálogo) | X1 a X4 (diálogo "Descartar alterações?", mesma estrutura de scrim e cartão) |
 
-Estados do indicador e do erro reaproveitados da F41: `83:752` e `83:753` (carregando), `83:763` a `83:769` (círculo, ícone `83:764`, título e mensagem de erro), `83:815` (botão secundário), `82:2137` (indicador do botão "Salvando…").
-
-Wireframes de baixa fidelidade equivalentes na página `20:2131`: `1:912` (1b), `1:970` (1c), `1:1020` (1d), `1:1053` (1e), `1:1096` (1f), `1:329` (2f), `1:452` (2i), `1:491` (2j).
+Estados reaproveitados da F41: `83:752`/`83:753` (carregando), `83:763` a `83:769` (erro), `83:815` (botão secundário), `82:2137` (indicador do "Salvando…").
 
 Variáveis usadas (coleção `html.to.design` `1:2` e `OP-002 Identidade v2` `89:712`):
 
@@ -85,9 +81,9 @@ Variáveis usadas (coleção `html.to.design` `1:2` e `OP-002 Identidade v2` `89
 | borda de campo (AA) | `color/border/default` `89:717` | `#8C8780` |
 | fundo bloqueado | `color/surface/skeleton` `98:713` | `#F1F5F9` |
 
-## 5. Os 33 frames e a folha de foco
+## 5. Os frames
 
-Todos 362 × 742, clonados e ajustados. Nome no Figma: `F26-<código> <título>`. Acima de cada frame há o rótulo `<código> · <título>` e abaixo a anotação de acessibilidade (ordem de foco, leitor de tela, alvo de toque).
+39 frames de tela (todos 362 × 742), a folha de foco `113:2666` e o frame de apoio PF. Nome no Figma: `F26-<código> <título>`. Acima de cada frame há o rótulo e abaixo a anotação de acessibilidade (ordem de foco, leitor de tela, alvo de toque).
 
 | Linha | Código | Estado | Nó |
 |---|---|---|---|
@@ -95,7 +91,7 @@ Todos 362 × 742, clonados e ajustados. Nome no Figma: `F26-<código> <título>`
 | | L2 | vazio (sem cadastros) | `106:2112` |
 | | L3 | vazio de busca | `106:2128` |
 | | L4 | carregando | `109:2402` |
-| | L5 | erro ao carregar | `109:2453` |
+| | L5 | erro ao carregar (Tentar novamente + Voltar) | `109:2453` |
 | | L6 | sucesso (cliente cadastrado) | `106:2146` |
 | Clientes · detalhe | D1 | preenchido | `106:2159` |
 | | D2 | carregando | `109:2507` |
@@ -103,13 +99,13 @@ Todos 362 × 742, clonados e ajustados. Nome no Figma: `F26-<código> <título>`
 | | D4 | sucesso (alterações salvas) | `109:2809` |
 | | D5 | sucesso (veículo cadastrado) | `109:2877` |
 | Veículos · detalhe | V1 | preenchido, histórico de OS | `106:2214` |
-| | V2 | histórico de OS vazio | `109:3030` |
+| | V2 | histórico de OS vazio (estado real até a Sprint 04) | `109:3030` |
 | | V3 | carregando | `109:2651` |
 | | V4 | erro ao carregar | `109:2723` |
 | | V5 | sucesso (alterações salvas) | `109:2959` |
-| Clientes · criar | C1 | vazio | `106:2277` |
-| | C2 | salvando | `110:2535` |
-| | C3 | erro: campo obrigatório vazio (+ telefone incompleto) | `106:2409` |
+| Clientes · criar | C1 | vazio, com aviso de privacidade | `106:2277` |
+| | C2 | salvando, com aviso de privacidade | `110:2535` |
+| | C3 | erro: campo obrigatório vazio e telefone incompleto | `106:2409` |
 | | C4 | erro: CPF inválido | `110:2576` |
 | | C5 | erro: CPF já cadastrado | `110:2625` |
 | | C6 | erro: falha de envio | `110:2674` |
@@ -118,41 +114,51 @@ Todos 362 × 742, clonados e ajustados. Nome no Figma: `F26-<código> <título>`
 | | E3 | erro: falha de envio | `110:2762` |
 | Veículos · criar | N1 | vazio | `106:2334` |
 | | N2 | salvando | `111:2589` |
-| | N3 | erro: obrigatório e placa inválida | `106:2440` |
+| | N3 | erro: obrigatório, placa inválida e ano inválido | `106:2440` |
 | | N4 | erro: placa já cadastrada | `111:2632` |
 | | N5 | erro: falha de envio | `111:2683` |
 | Veículos · editar | M1 | preenchido | `106:2368` |
 | | M2 | salvando | `111:2729` |
 | | M3 | erro: falha de envio | `111:2775` |
+| **Acrescentados na revisão** | L7 | lista com contatos ausentes (e-mail no lugar do telefone; "Sem contato cadastrado") | `119:779` |
+| | C7 | erro: e-mail inválido | `119:712` |
+| | X1 | diálogo "Descartar alterações?" sobre C3 (criar cliente) | `119:905` |
+| | X2 | idem sobre E3 (editar cliente) | `119:976` |
+| | X3 | idem sobre N3 (criar veículo) | `119:1041` |
+| | X4 | idem sobre M3 (editar veículo) | `119:1120` |
+| Apoio | PF | Perfil (cópia da 1av), destino do Voltar do L5 | `117:2636` |
 | Folha de foco | F | estados de foco por tipo de controle | `113:2666` |
 
-Os sucessos (L6, D4, D5, V5) existem porque a regra da casa pede os quatro estados com "sucesso"; a lista de estados da F26 não os cita, então são **acréscimo meu**, fácil de remover.
+Os sucessos (L6, D4, D5, V5) são acréscimo do ESQUADRO que a BUSSOLA manteve (D7).
 
 ## 6. Decisões de design e divergências em relação à referência
 
-Cada linha é uma escolha minha que a pessoa pode reverter.
+Cada linha é reversível. As marcadas "BUSSOLA" já têm decisão no PRD.
 
-1. **Telefone, e-mail, CPF e endereço são opcionais; só o nome é obrigatório.** Motivo: `docs/security/politica-dados-pessoais-cliente.md` (VIGIA, vigente) diz que telefone é opcional e que CPF e endereço só se coletam quando a nota fiscal exigir; a V2 tem `telefone` e `email` com `NULL`. A referência marcava o telefone como obrigatório (`Telefone *`). Isso contradiz a política, então segui a política. **Confirmar com a pessoa e BUSSOLA.**
-2. **Campo de e-mail acrescentado** (a referência não tinha). Motivo: a coluna existe na V2 e a F26 pede que o protótipo defina "CPF, telefone, email, endereço".
-3. **Rótulo "CPF" em vez de "CPF / CNPJ".** A F26 e a política falam só de CPF. Se a oficina atende empresas, falta decidir CNPJ (dúvida nova abaixo).
-4. **Ajuda do CPF:** "Só preencha se o cliente pedir nota fiscal." (a referência dizia "Usado em recibos e notas."), alinhada à regra de não coletar "por garantia".
-5. **CPF mascarado no detalhe:** `***.*56.7**-**`, mesma máscara da seção 6.2 da política. Adota a sugestão da dúvida 3 da feature, **ainda sem decisão da pessoa**. No formulário de edição o CPF aparece inteiro, porque é preciso editá-lo. Na lista o CPF não aparece, como manda a política.
-6. **Cartão da lista mostra só o telefone**, sem "N veículos". Motivo: o `ClienteListResponse` real (ADR-017) traz id, nome, telefone e e-mail, sem contagem de veículos. Mostrar a contagem exigiria mudar o contrato.
-7. **Busca:** placeholder "Buscar por nome, telefone ou e-mail" (a referência dizia "ou documento"). O ADR-017 busca por nome, e-mail e telefone; CPF fica fora.
-8. **Removi "+ Nova OS" (detalhe do cliente) e "+ Nova OS para este veículo" (detalhe do veículo).** Motivo: leva a uma tela de OS que só existe na F28; deixar o botão sem destino seria beco sem saída (US-PROTO-CLV-03). Volta quando a F28 desenhar a criação de OS.
-9. **Removi "Excluir cliente" e o diálogo `1l`.** Exclusão está fora do escopo da F26.
-10. **Mensagens de erro de duplicidade não revelam outro cliente.** A referência dizia "Esta placa já está cadastrada para Fernanda Souza." Troquei por "Esta placa já está cadastrada." e "Já existe um cliente com este CPF." Motivo: a mensagem exibiria dado pessoal de outra pessoa (política, seções 2 e 6).
-11. **Histórico de OS:** cada item ganhou um rótulo visível "Exemplo" (contorno petro, texto petro) e não tem reação, então não abre a OS (US-PROTO-CLV-09).
-12. **Datas e valores do histórico** (`12/11/2026 · R$ 380,00` etc.) vêm da referência. São fictícios, mas **não confirmei que a referência os tenha tirado de dado real**.
-13. **Erro de formulário** tem ícone, texto junto ao campo e o rótulo continua visível. Quando há erro, um aviso-resumo "Corrija o campo destacado para salvar." fica acima do botão (padrão do `1k`). O N3 ganhou esse aviso (o `1p` não tinha).
-14. **Botões do cabeçalho de 36 pt ganharam alvo de toque de 44 × 44 pt** (frame transparente `Alvo de toque 44×44 — Voltar/Editar/Perfil`, posicionado por cima). O visual de 36 pt continua igual ao da referência.
-15. **Ações de salvar "Salvando…"** usam o botão detachado com o indicador de 16 pt da F41 (`82:2137`) e os campos com fundo `color/surface/skeleton` (mesmo tratamento do L2 de Login).
-16. **Estados de erro de detalhe (D3, V4)** têm "Tentar novamente" e "Voltar" (botão), além da seta do cabeçalho. **O erro da lista (L5) só tem "Tentar novamente"**: a lista é raiz da aba e a saída é a barra de abas. O critério 3 fala em "tentar novamente e voltar" para qualquer erro; interpretei assim e **fica para o CRIVO e a pessoa confirmarem**.
-17. Placeholder e borda de campo em repouso usam `color/text/placeholder` e `color/border/default` (regra 16 do ADR-014). A referência usava `#A8A39D` (2,5:1 sobre branco) e `#E2DEDA` (1,2:1), que não passam. Ícones de seta e lupa em `#A8A39D` também foram religados a `color/border/default` (3,5:1).
+1. **Telefone, e-mail, CPF e endereço são opcionais; só o nome é obrigatório.** Motivo: política de dados do VIGIA (`docs/security/politica-dados-pessoais-cliente.md`) e V2 com `NULL`. A referência marcava o telefone como obrigatório. Fechada pela BUSSOLA (D5); falta confirmar com o texto da F09.
+2. **Campo de e-mail acrescentado** (a referência não tinha). A coluna existe na V2.
+3. **Rótulo "CPF" em vez de "CPF / CNPJ".** Dúvida 6 **fechada pela BUSSOLA (D6)**: só CPF por enquanto; se a oficina atender empresa, reabre (rótulo "CPF/CNPJ", validação e base legal próprias).
+4. **Ajuda do CPF:** "Só preencha se o cliente pedir nota fiscal."
+5. **CPF mascarado no detalhe:** `***.*56.7**-**`, mesma máscara da política (6.2). No formulário de edição o CPF aparece inteiro. Na lista o CPF não aparece. A BUSSOLA mantém (D3), sujeita à G3 (a F08 precisa devolver o CPF inteiro; a máscara da política é de log, a pessoa confirma se vale para a tela).
+6. **Cartão da lista sem "N veículos"** (o contrato da lista não traz a contagem). **Novo:** o cartão mostra o e-mail quando não há telefone, e "Sem contato cadastrado" quando não há nenhum dos dois, sem mudar altura nem área de toque (L7, critério 16).
+7. **Busca:** placeholder "Buscar por nome, telefone ou e-mail" (o ADR-017 não busca por documento).
+8. **Removidos "+ Nova OS" (cliente e veículo)**: leva à tela de OS da F28. Volta com a F28 e a F42.
+9. **Removido "Excluir cliente"** e o diálogo `1l`: exclusão fora do escopo.
+10. **Mensagens de duplicidade não revelam outro cliente.**
+11. **Histórico de OS:** cada item tem o rótulo visível "Exemplo" e não abre a OS. O V1 é só demonstração; **o V2 (vazio) é o único estado real até a Sprint 04** e está anotado assim.
+12. **Erro de formulário** com ícone, texto junto ao campo e rótulo visível. Aviso-resumo acima do botão.
+13. **Alvo de toque de 44 × 44 pt nos botões de cabeçalho** (frame transparente por cima do visual de 36 pt).
+14. **"Salvando…"** com o indicador de 16 pt da F41 e campos em `color/surface/skeleton`.
+15. **Erro de detalhe (D3, V4)** tem "Tentar novamente" e "Voltar". **Erro da lista (L5), alterado nesta revisão:** agora também tem "Voltar" (botão de contorno), que leva ao **Perfil** (PF), tela de pouso do app, como a BUSSOLA definiu (C3a). O PF é uma cópia da tela 1av dentro da seção, porque a 1av está aninhada em outro quadro e não pode ser destino de navegação; a cópia não tem reações próprias, exceto a seta do cabeçalho, que volta ao L1 só no protótipo.
+16. **Placeholder e borda de campo** em `color/text/placeholder` e `color/border/default` (regra 16 do ADR-014).
+17. **Novo, D4 fechada pela BUSSOLA: confirmar ao sair com alteração.** Voltar e Cancelar dos formulários com dado digitado (C3, E3, N3, M3) abrem "Descartar alterações?" (X1 a X4), com "Continuar editando" (botão primário, foco inicial) e "Descartar". Sem alteração, sai direto. Os botões ficam empilhados (a largura de 133 pt da referência não comporta "Continuar editando").
+18. **Novo: aviso de privacidade** (rascunho da BUSSOLA, sem caixa de aceite) acima do botão Salvar em C1 e C2. Nos frames de erro o espaço pertence ao aviso de erro; no app o texto rola junto e fica em todos os estados.
+19. **Novo: dica da placa cita os dois padrões** ("Placa inválida. Use ABC1D23 ou ABC1234.").
+20. **Novo: e-mail inválido** (C7, "Informe um e-mail válido."). O "ano inválido" já existia no N3.
 
 ## 7. Navegação (modo Prototype)
 
-Fluxo iniciado em L4. 33 telas, 90 reações lidas de volta. Verificado por script: **33 de 33 telas alcançáveis a partir de L4, nenhuma sem saída, todas com caminho até L1**.
+Fluxo iniciado em L4. **40 frames de navegação (39 telas e o PF), 110 reações lidas de volta**: 92 de clique, 11 de tempo e 7 de tecla. Lido por script: **todos alcançáveis a partir de L4, nenhum sem saída, todos com caminho até L1.**
 
 | De | Ação | Para |
 |---|---|---|
@@ -160,9 +166,12 @@ Fluxo iniciado em L4. 33 telas, 90 reações lidas de volta. Verificado por scri
 | L1 | cartão de cliente | D2 → D1 (automático) |
 | L1 | busca | L3 |
 | L1 | Novo cliente | C1 |
-| L1 | tecla 2 / tecla 3 (só no protótipo) | L2 / L5 |
-| L2, L3 | Novo cliente / Cadastrar "Gustavo" | C1 (campos não são pré-preenchidos) |
+| L1 | tecla 2 / 3 / 4 (só no protótipo) | L2 / L5 / L7 |
+| L7 | tecla 1 (só no protótipo) | L1 |
+| L2, L3 | Novo cliente / Cadastrar "Lauro" | C1 |
 | L5 | Tentar novamente | L4 |
+| **L5** | **Voltar (novo)** | **PF (Perfil)** |
+| PF | seta do cabeçalho (só protótipo) | L1 |
 | L6 | automático em 3 s | L1 |
 | D1 | Voltar / Editar / veículo 1 / veículo 2 / + Veículo | L1 / E1 / V3 → V1 / V2 / N1 |
 | D1 | tecla 3 (só no protótipo) | D3 |
@@ -171,71 +180,85 @@ Fluxo iniciado em L4. 33 telas, 90 reações lidas de volta. Verificado por scri
 | V1, V2, V5 | Voltar / Editar | D1 / M1 |
 | V1 | tecla 3 (só no protótipo) | V4 |
 | V4 | Tentar novamente / Voltar | V3 / D1 |
-| C1 → C3 → C4 → C5 → C6 → C2 | Salvar cliente (sequência demonstrativa dos erros) | próximo da cadeia; C2 vai a L6 em 1,5 s |
-| E1 → E3 → E2 | Salvar alterações | E2 vai a D4 em 1,5 s; Cancelar volta a D1 |
+| C1 → C3 → **C7** → C4 → C5 → C6 → C2 | Salvar cliente (sequência demonstrativa dos erros) | próximo da cadeia; C2 vai a L6 em 1,5 s |
+| E1 → E3 → E2 | Salvar alterações | E2 vai a D4 em 1,5 s |
 | N1 → N3 → N4 → N5 → N2 | Salvar veículo (sequência demonstrativa) | N2 vai a D5 em 1,5 s |
-| M1 → M3 → M2 | Salvar alterações | M2 vai a V5 em 1,5 s; Cancelar volta a V1 |
-| qualquer formulário | seta Voltar | tela de origem |
+| M1 → M3 → M2 | Salvar alterações | M2 vai a V5 em 1,5 s |
+| C1, E1, N1, M1 | Voltar ou Cancelar | tela de origem |
+| **C3, E3, N3, M3** | **Voltar / Cancelar (novo)** | **X1 / X2 / X3 / X4** |
+| X1 / X2 / X3 / X4 | Continuar editando | C3 / E3 / N3 / M3 |
+| X1 / X2 / X3 / X4 | Descartar | L1 / D1 / D1 / V1 |
 
-Pontos que **não** têm destino neste protótipo, de propósito: botão do perfil no cabeçalho da lista, abas Ordens, Catálogo e Financeiro (outros módulos), itens do histórico de OS (F28). As teclas 2 e 3 existem só para alcançar vazio e erro na apresentação; não são comportamento do app. A sequência de erros dos formulários também é demonstrativa: no app real cada erro depende do que o usuário digitou.
+Sem destino de propósito: abas Ordens, Catálogo e Financeiro, itens do histórico de OS (F28) e o botão do perfil no cabeçalho da lista (L1 a L7).
 
-Caminho pedido pelo critério 3 (lista, detalhe do cliente, criar veículo, editar cliente, detalhe do veículo com histórico, editar veículo): L1 → D1 → N1 → (voltar) D1 → E1 → (voltar) D1 → V1 → M1. Percorri o caminho só pelo grafo de reações, **não em modo Present**.
+O caminho do critério 3 (lista, detalhe do cliente, criar veículo, editar cliente, detalhe do veículo com histórico, editar veículo) existe no grafo: L1 → D1 → N1 → D1 → E1 → D1 → V1 → M1. **Percorri o caminho só pelo grafo de reações, não em modo Present** (o MCP não aciona o Present). O roteiro de cliques para quem for percorrer está na seção 8.1 do PRD.
 
-## 8. Acessibilidade
+## 8. Acessibilidade (medição repetida em 2026-11-17, depois das alterações)
 
-Medido por script no arquivo (fórmula de luminância relativa do WCAG 2.2), sobre as 33 telas:
+Medido por script no arquivo, fórmula de luminância relativa do WCAG 2.2, sobre os 39 frames de tela (sem a camada de foco e sem o PF e a folha F). Nos frames do diálogo (X) só foram medidos os textos e ícones do diálogo, porque o resto fica sob o escurecimento.
 
-- **Texto:** 405 textos de cor única medidos contra o fundo efetivo; **menor razão 4,68:1**, nenhum abaixo de 4,5:1. Os 40 textos "de duas cores" (rótulo com `*` obrigatório e "Cliente: Roberto Alves") medidos por trecho: 4,93:1 e 4,97:1 no rótulo e no asterisco; 11,14:1 no nome.
-- **Borda de campo:** todos os campos de texto, a busca e o campo Endereço usam `#8C8780` (3,5:1 sobre branco, 3:1 ou mais sobre o fundo). Corrigi o campo Endereço, que a primeira medição achou em 1,23:1.
-- **Ícones:** a primeira medição achou ícones em `#A8A39D` (2,5:1 sobre branco, as setas e a lupa). Religados 27 a `#8C8780`. Medição repetida depois: 222 ícones, **menor razão 3,56:1, nenhum abaixo de 3:1**.
-- **Bordas de cartão** (lista, cartões de veículo, avisos, estado vazio do histórico) ficam em 1,23:1 a 1,6:1. Entendi como decorativas: o cartão é identificado pelo texto e pela seta, não pela borda. É uma interpretação minha de WCAG 1.4.11; **o CRIVO deve conferir**.
-- **Foco visível:** folha `113:2666` define o foco por tipo de controle (botão: anel petro 2 pt com respiro branco 2 pt; campo: borda primary 2 pt; cartão: anel petro; botão do cabeçalho: anel branco 2 pt). Razões calculadas: petro sobre o fundo 11,14:1; branco sobre primary 5,41:1; branco sobre petro 12,12:1; borda primary 4,97:1 sobre o fundo e 5,41:1 sobre branco. **Os frames das telas não mostram o anel desenhado em cada controle**; o foco está especificado na folha, e as telas trazem a ordem de foco anotada.
-- **Ordem de foco, leitura e alvo** anotados abaixo de cada um dos 33 frames (texto do que o leitor de tela anuncia, inclusive "obrigatório" e "opcional" e o erro por campo).
-- **Alvo de toque:** todo nó com reação mede ao menos 44 × 44 pt (cartões 66, botões 50, busca 46, alvos dos botões do cabeçalho 44). Medido por script, 0 abaixo de 44.
-- **Cor não é o único sinal:** erro tem ícone e texto; obrigatório tem `*` e a anotação diz "obrigatório"; "Exemplo" é texto; estado de linha da OS tem texto (EM ANDAMENTO, ENTREGUE).
+- **Texto:** 544 trechos de texto medidos contra o fundo efetivo (empilhando as cores de fundo dos ancestrais); **menor razão 4,68:1, nenhum abaixo do mínimo** (4,5:1; 3:1 nos 4 trechos de texto grande). O resultado repete o relato anterior.
+- **Ícones e traços de vetor:** 240 medidos; **menor razão 3,56:1, nenhum abaixo de 3:1**. Repete o relato anterior.
+- **Bordas de cartão** (1,23:1 a 1,6:1) tratadas como decorativas: o cartão é identificado por texto e seta. Interpretação minha de WCAG 1.4.11, **a conferir pelo CRIVO**.
+- **Foco visível por controle (novo).** Cada frame tem a camada "Foco por controle (sobreposição de especificação; ocultar para paridade)", com um anel em cada controle navegável e um selo numerado com a ordem de foco. Padrão da folha `113:2666`: botão e cartão com anel petro de 2 pt e respiro branco de 2 pt; campo com borda primary de 2 pt; botão de cabeçalho e aba com anel branco de 2 pt. Selo: branco sobre primary (5,41:1). Nos estados bloqueados (C2, E2, N2, M2: só Salvar; D2 e V3: só Voltar; L4: só a busca) a camada mostra só o controle que recebe foco. **A camada fica visível por padrão; para capturar o frame sem foco (paridade com o app), oculte-a.** As razões das cores de anel vêm dos cálculos da folha (petro sobre o fundo 11,14:1; branco sobre petro 12,12:1; borda primary 4,97:1 sobre o fundo e 5,41:1 sobre branco); não as remedi nesta rodada, só nos textos e ícones acima.
+- **Ordem de foco, leitura e alvo** anotados abaixo de cada frame. A ordem numérica dos selos segue a leitura de cima para baixo e da esquerda para a direita, igual à anotação.
+- **Alvo de toque:** 91 nós com reação nos 39 frames; **0 abaixo de 44 × 44 pt** (cartões 66, botões 50, busca 46, alvos do cabeçalho 44, diálogo 50). Os cartões e os botões do cabeçalho foram medidos pelo mesmo script. Pendência: as 4 abas da barra inferior medem 90 × 62, mas só têm reação onde a aba leva a algum lugar; as abas sem destino não entram nessa contagem e **não foram medidas como controle** (o foco desenhado cobre as 4).
+- **Cor não é o único sinal:** erro tem ícone e texto; obrigatório tem `*` e a anotação diz "obrigatório"; "Exemplo" é texto; estado de OS tem texto.
+- **Leitor de tela real:** não testado (VoiceOver, TalkBack). As anotações descrevem o que deve ser anunciado.
 
-## 9. Tokens e tipografia
+## 9. Tokens e tipografia (contagem repetida em 2026-11-17)
 
-- 1.134 preenchimentos e traços sólidos nas 33 telas; **1.127 ligados a variável**. Os 7 restantes eram os indicadores de carregamento clonados da F41; religados depois a petro e branco (**não reli a contagem depois do religamento**).
-- Textos: 427 com estilo de texto existente; 11 textos novos receberam estilo; **8 rótulos de duas cores** (campo com `*`) ficam sem estilo único porque têm duas cores numa linha, como no original.
-- Cores `petro` e `primary` aparecem por variável (`1:13`, `1:29`). **Não criei variável nem estilo novo.**
-- Cuidado conhecido: ao religar uma cor a variável pela API, o Figma guarda o valor antigo da cor. Corri uma passada que alinha o valor guardado ao valor real da variável (8 correções).
+- **1.450 preenchimentos e traços sólidos visíveis nos 39 frames de tela, 1.450 ligados a variável (0 soltos).** A contagem anterior (1.127 de 1.134, com 7 indicadores soltos) foi refeita depois do religamento dos indicadores. Contei fundos, traços e as cores de cada trecho de texto; a camada de foco, o PF e a folha F ficaram de fora.
+- **565 textos, 565 com estilo de texto** (contando cada trecho nos rótulos de duas cores).
+- `petro` e `primary` entram por variável (`1:13`, `1:29`). **Não criei variável nem estilo novo.**
+- Cuidado conhecido: ao religar uma cor por variável pela API, o Figma guarda o valor antigo da cor; uma passada anterior alinhou o valor guardado ao valor real.
+- Frames novos desta revisão (L7, C7, X1 a X4) são clones de frames existentes e herdam os vínculos.
+- **Para conferir por amostragem** (critério 1): abrir a seção `106:2097`, conferir a contagem de 39 telas mais a folha F e o PF, e clicar em alguns textos e cartões para ver a variável ou o estilo no painel de propriedades.
 
 ## 10. Dados fictícios (US-PROTO-CLV-08)
 
-- Telefones `(11) 90000-0001` a `(11) 90000-0005` no padrão pedido; placeholders `(11) 90000-0000`.
-- E-mails `roberto.alves@example.com`, `marcos.lima@example.com`, placeholder `nome@example.com`.
-- CPF `123.456.789-09` (o valor fictício que a política usa) e `123.456.789-00`; nenhum é de pessoa real.
-- Nomes (Roberto Alves, Fernanda Souza, Marcos Lima, Ana Paula Ribeiro, José Carlos Mendes), placas (ABC1D23, XYZ9K88, QWE4R56) e endereço vêm da referência. **Não consegui provar que não foram copiados de cadastro real**; assumo que a referência já era fictícia. A única placa criada por mim é `QWE4R56` (veículo extra do D5), inventada.
-- Os nomes das camadas dos cartões da lista foram renomeados para "Cartão de cliente · <iniciais>", sem telefone antigo no nome.
+Todos os dados pessoais dos frames são **inventados** nesta revisão; nenhum valor vem de planilha ou cadastro real da oficina. Não é possível provar que um nome ou uma placa inventados não existem no mundo; o que se registra é a origem (inventada).
+
+- Nomes: Teodoro Lemos, Cecília Barros, Otávio Neves, Iara Montenegro, Dário Cavalcanti. Termo de busca de exemplo: "Lauro". Iniciais dos avatares atualizadas.
+- Telefones `(11) 90000-0001` a `(11) 90000-0005`; placeholder `(11) 90000-0000`.
+- E-mails `teodoro.lemos@example.com`, `otavio.neves@example.com`, placeholder `nome@example.com`; o C7 mostra `otavio.neves.example.com` (sem arroba, como exemplo de e-mail inválido).
+- **CPF com dígito verificador inválido** em todos os frames: `123.456.789-00`; o C4 (CPF inválido) usa `123.456.789-10`; placeholder `000.000.000-00`. O C5 (CPF já cadastrado) usa o mesmo valor `-00` e a anotação avisa que, na API, a duplicidade só é checada depois da validação do dígito.
+- Placas inventadas no padrão Mercosul: `RTK4M81`, `NHP7C20`, `BVD5F39`. As dicas de formato citam `ABC1D23` e `ABC1234` apenas como exemplo de padrão. Marca e modelo (Honda Civic, Chevrolet Onix, Fiat Argo) são nomes públicos de produto.
+- Endereço inventado ("Rua Modelo, 100 · Jardim Exemplo"); histórico de OS com número, data e valor inventados.
+- Nomes de camada dos cartões renomeados para as iniciais novas; conferi por script que nenhum texto nem nome de camada da seção guarda os valores antigos (0 sobras).
 
 ## 11. Dúvidas da feature
 
 | # | Dúvida | Estado |
 |---|---|---|
-| 1 | Link do Figma de referência que destrava a F39 | Reaberta: o link existe (`FPdB8…`), mas o wireframe **aprovado** da F39 não existe; ver seção 1 |
-| 2 | Página nova no mesmo arquivo ou arquivo novo | **Proposta e feita:** seção nova no arquivo da referência (seção 3). Confirmar |
-| 3 | CPF completo ou mascarado | **Proposta e feita:** fora da lista, mascarado no detalhe, inteiro só ao editar. Confirmar |
-| 4 | Sair do formulário com alteração pede confirmação | **Não decidido.** Voltar e Cancelar descartam sem perguntar; a anotação do E1 cita a dúvida |
-| 5 (nova) | Telefone opcional contra a referência obrigatória | Segui a política do VIGIA. Confirmar com BUSSOLA |
-| 6 (nova) | CNPJ: a oficina atende empresa? | Não decidido |
-| 7 (nova) | Sucesso, "Nova OS" e exclusão | Acrescentei sucesso; removi Nova OS e exclusão (itens 8 e 9 da seção 6) |
+| 1 | Link do Figma de referência que destrava a F39 | O link existe (`FPdB8…`); o wireframe **aprovado** da F39 não existe. Depende da D8 |
+| 2 | Página nova no mesmo arquivo ou arquivo novo | Feita: seção nova no arquivo da referência. A pessoa confirma |
+| 3 | CPF completo ou mascarado | Feita: mascarado no detalhe, inteiro só ao editar. A pessoa confirma, sujeita à G3 do PRD |
+| 4 | Sair do formulário com alteração pede confirmação | **Fechada (BUSSOLA, D4): sim.** Desenhado em X1 a X4; sem alteração sai direto |
+| 5 | Telefone opcional contra a referência obrigatória | Fechada (BUSSOLA, D5); confirmar com o texto da F09 |
+| 6 | CNPJ: a oficina atende empresa? | **Fechada com padrão reversível (BUSSOLA, D6): só CPF por enquanto.** Reabre se a oficina atender empresa |
+| 7 | Sucesso, "Nova OS" e exclusão | Fechada (BUSSOLA, D7): sucesso mantido; "Nova OS" volta com a F28/F42; exclusão fora |
 
 ## 12. O que não consegui fazer ou verificar
 
-- **Aprovação da pessoa** (US-05) e registro no PRD: não aconteceu.
-- **Link restrito à equipe** (US-10): o MCP não altera nem lê as permissões de compartilhamento. Não testei o acesso sem permissão. **Pendente para a pessoa**.
-- **Modo Present / clique real:** não abri o protótipo em reprodução. O que afirmo é o que li das reações gravadas (grafo por script).
-- **Leitor de tela real** (VoiceOver, TalkBack): não testado; as anotações descrevem o que deve ser anunciado.
-- **Zoom em todas as telas:** olhei de perto L4, D1, D3, D5, V1, V2, C2, C3, C4, E1, E3, N3 e a folha de foco, e a seção inteira em baixa resolução. As demais (L1, L2, L3, L5, L6, D2, D4, V3, V4, V5, C1, C5, C6, E2, N1, N2, N4, N5, M1, M2, M3) só foram vistas na captura geral e medidas por script.
-- **Capturas no repositório:** não versionei PNG (a captura da seção inteira tinha 667 KB). O registro é pelos ids dos nós; as capturas podem ser refeitas com `get_screenshot`.
-- **Regra de captura "antes" do ADR-014:** como só criei nós novos (clones), não alterei nenhum frame aprovado e a captura do antes não se aplica.
+- **Aprovação da pessoa e registro no PRD** (US-05): não aconteceu. A seção 10 do PRD está vazia, de propósito.
+- **Decisão da base (D8):** pendente (seção 1).
+- **Link restrito à equipe** (US-10): o MCP não altera nem lê as permissões de compartilhamento. **Nenhum teste de acesso sem permissão foi feito.** Roteiro na seção 8.3 do PRD, para a pessoa executar.
+- **Modo Present / clique real:** não aberto. O que afirmo é o que li das reações gravadas.
+- **Leitor de tela real:** não testado.
+- **Zoom em todas as telas:** olhei com `get_screenshot` L5, L7, C1, C7, N1, N3, X1 e X4 depois das alterações. As demais só foram medidas por script e vistas na rodada anterior; **os anéis de foco foram conferidos visualmente só em L1, L7 e N1**.
+- **A camada de foco não foi vista nas telas de formulário de erro e nas de detalhe** (conferida por script: contagem e tipo de controle por frame; ordem numerada conforme a leitura).
+- **Capturas no repositório:** não versionei PNG. As capturas da F35 podem ser refeitas com `get_screenshot`.
+- **Reação do botão de perfil do cabeçalho da lista:** sem destino (o PF só serve ao L5).
+- **Regra de captura "antes" do ADR-014:** só criei nós novos (clones) e mexi no texto de clones da própria seção; nenhum frame aprovado da referência foi alterado.
 - **Tablet, código do app, telas de OS:** fora do escopo.
-- Conferência contra `docs/product/ux-ui-mapeamento.md` (tarefa 2): as 7 telas existem lá (linhas 33 a 50). O mapeamento diz "botão nova OS" e "editar/excluir cliente" no detalhe do cliente; **divergi** (itens 8 e 9 da seção 6). Também diz "documento" onde uso "CPF".
+- **Conferência contra `docs/product/ux-ui-mapeamento.md`** (tarefa 2): as 7 telas existem lá (linhas 33 a 50). O mapeamento diz "botão nova OS" e "editar/excluir cliente" no detalhe do cliente; divergi (itens 8 e 9 da seção 6). Também diz "documento" onde uso "CPF".
+- **Nada foi comparado com a F39**, porque ela não tem wireframe aprovado.
 
 ## 13. Próximo passo
 
-1. A pessoa decide se aceita a referência `FPdB8…` como base da F26 enquanto a F39 não é aprovada (seção 1).
-2. CRIVO confere os frames, o grafo e as medições (seção 8) e os pontos marcados "confirmar".
-3. A pessoa revisa, restringe o link à equipe, aprova ou aponta pendência, e BUSSOLA registra no PRD.
-4. Só depois a F35 pode abrir.
+1. A pessoa decide a D8 (referência `FPdB8…` como base ou esperar a F39).
+2. A pessoa restringe o link à equipe e executa o teste da seção 8.3 do PRD; registra neste documento a data e os três resultados, sem e-mail nem identificador de conta.
+3. A pessoa (ou o CRIVO) percorre o roteiro 8.1 do PRD em modo Present.
+4. O CRIVO reproduz as contagens e as medições da seção 8 e 9.
+5. Com tudo isso, a pessoa aprova ou aponta pendência, e a BUSSOLA registra no PRD (seção 10). Só então a F35 pode abrir. Quando a aprovação existir, acrescentar aqui o link do protótipo aprovado e a data (critério 14).
