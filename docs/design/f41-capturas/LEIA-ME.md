@@ -4,7 +4,7 @@ Decisão de 16/11 (REGENTE confirma a D-19; PRD v4, D-22). **Imagem não é a pr
 
 | Pasta ou arquivo | O que é | Uso |
 |---|---|---|
-| `final-2026-11-16/` | 15 PNGs exportados do Figma `FPdB8RymAnN81pbKfizdzE` (só lado Figma, ESQUADRO) | **referência visual de apoio** |
+| `final-2026-11-16/` | 15 PNGs exportados do Figma `FPdB8RymAnN81pbKfizdzE` (só lado Figma, ESQUADRO). Reexportados em 17/11: 13 idênticos, 2 mudaram por decisão de 16/11 (`login-carregando-L2-82-2024.png`, R-15, e `login-erro-credencial-10-936.png`, O-2); hashes em `docs/design/F41-valores-fpdb8.md` §20.5 | **referência visual de apoio** |
 | `app-2026-11-16-orla/` | capturas do app no simulador (`app-*.png`) e pares com o Figma (`lado-a-lado-*.png`, ORLA); protocolo em `docs/design/F41-capturas-app-orla.md` | **referência visual de apoio**; vêm de uma rota temporária que compõe os componentes reais, não das telas de `app/*.tsx` |
 | `figma-fpdb8-*.png` (12 arquivos na raiz) | capturas "antes" de frames da primeira rodada | **histórico**, sem valor de prova |
 
