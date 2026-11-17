@@ -12,6 +12,13 @@ Prioridade P1 · Frontend · Sprint 01.
 - US-PAR-01 a 08 ganham o bloco "**Estado em 16/11 · Prova**", que aponta o estado real e o arquivo que o sustenta.
 - US-PAR-09, 10, 12, 13, 15 e 18 mudam só onde §5 diz; **US-PAR-19 é novo**.
 
+**v4.1 (BUSSOLA, 2026-11-17):** instrução do comandante: levar S-1 e S-2 à pessoa, reescrever o critério 3 e dar a cada US-PAR estado e prova esperada, sem abrir escopo.
+- **S-1 e S-2 seguem abertas.** Não tenho canal direto com a pessoa nesta sessão e **não há resposta dela no material que recebi**. As perguntas estão em §7.1, em forma de resposta fechada, com o campo "Resposta literal da pessoa" **vazio**. Nada foi preenchido por suposição; a leitura adotada da S-1 continua marcada como leitura minha, não como decisão.
+- **Critério 3 (US-PAR-03) reescrito** como texto único e autossuficiente, com o bloco "Texto para o quadro" que substitui o enunciado antigo (Perfil na tab bar em padrão, selecionado e foco; ordem Clientes/Veículos, Catálogo, Ordens de Serviço, Financeiro; "nos dois lados" por captura). As decisões que o sustentam (D-05, D-19, D-23) já existiam; **nenhum cenário novo e nenhum escopo novo**.
+- **Estado e prova esperada** escritos nos critérios que ainda não tinham o bloco (US-PAR-09, 10, 11, 14, 15, 16, 17) e consolidados em §5.1 para os 19.
+- **Conferido contra o repositório em 17/11** (§10): suíte e contraste rodados por mim; PNG do L2 alterado e não commitado na árvore; os 4 `F44-*.md` não rastreados.
+- **Dúvida nova S-3** (foco da tab bar: T1 desenha foco em item selecionado e o app só tem item desabilitado). Registrada, não bloqueia.
+
 **Conflito de instrução, exposto para o REGENTE:** a instrução desta etapa pedia "D-20 e D-21 fora do aceite, com o motivo". A revisão humana das 22:28 decidiu o contrário (critério 8 e observação geral). A decisão da pessoa é mais recente e prevalece; o motivo original **continua escrito** em §2 (linhas D-20 e D-21), para o rastro não se perder. A observação geral diz "D-20 confirmada" e o critério 8 diz "PRD v4 reverte a D-20": li como a mesma decisão (a D-20 cai e o Início entra por valor), o que bate com `docs/design/F41-valores-fpdb8.md` §17.3 ("aprovado pela pessoa em 16/11; D-20 cai"). Se a leitura estiver errada, é a dúvida **S-1** (§7), com o caminho de volta descrito.
 
 Base do documento: ramo `feat/f41-paridade-fpdb8-codigo`, código em `12c5e78`, sobre a `main` em `348a43e` (F40 já mergeada pela PR #10). A tab bar de 4 itens vem de `361989a`.
@@ -20,7 +27,7 @@ Base do documento: ramo `feat/f41-paridade-fpdb8-codigo`, código em `12c5e78`, 
 **Depende de:** [[F25]], [[F30]], [[F33]], [[F34]], [[F40]] (já na `main`).
 **Altera por decisão da pessoa (16/11):** [[F33]] (US-MENU-01, 02 e 03; ver §6).
 
-Este documento **substitui** o PRD v2 da F41 (commit `00f1f17`) e, para a F41, os critérios US-PAR-01 a 18 da feature, exceto US-PAR-14, que vale como está. As dúvidas P-01 a P-07 do v2 estão fechadas em §7; resta só a **S-2** (licença do escudo, que é da pessoa) e a **S-1** (leitura da D-20), esta com a leitura adotada e sem bloquear nada.
+Este documento **substitui** o PRD v2 da F41 (commit `00f1f17`) e, para a F41, os critérios US-PAR-01 a 18 da feature, exceto US-PAR-14, que vale como está. As dúvidas P-01 a P-07 do v2 estão fechadas em §7; resta só a **S-2** (licença do escudo, que é da pessoa) e a **S-1** (leitura da D-20), esta com a leitura adotada e sem bloquear nada; a v4.1 acrescenta a **S-3** (foco da tab bar), também sem bloquear.
 
 Nada foi corrigido em código nem no Figma nesta etapa. Só decisão, escopo e critério.
 
@@ -103,7 +110,7 @@ Nada foi corrigido em código nem no Figma nesta etapa. Só decisão, escopo e c
 
 ## 5. Critérios de aceitação (Gherkin)
 
-Reescritos na v4: US-PAR-01 a 08 (todos ganham o bloco **Estado em 16/11 · Prova**; 02 C, 03 E, 05, 06, 07 e 08 têm conteúdo novo), 12, 13 e 18. Ajustados: 09, 10 e 15. **Novo: US-PAR-19.** Vale como na feature: US-PAR-14. Sem alteração: 11, 16 e 17. Os IDs `US-PAR-NN` rastreiam até teste. **Nesta etapa nenhum teste foi rodado por mim**: os arquivos de teste citados tiveram a existência conferida por listagem, não a execução.
+Reescritos na v4: US-PAR-01 a 08 (todos ganham o bloco **Estado em 16/11 · Prova**; 02 C, 03 E, 05, 06, 07 e 08 têm conteúdo novo), 12, 13 e 18. Ajustados: 09, 10 e 15. **Novo: US-PAR-19.** Vale como na feature: US-PAR-14. Sem alteração: 11, 16 e 17. Os IDs `US-PAR-NN` rastreiam até teste. **Na v4 (16/11) nenhum teste foi rodado por mim**: os arquivos de teste citados tiveram a existência conferida por listagem, não a execução. **Na v4.1 (17/11) rodei a suíte inteira e o script de contraste (§10).** Os blocos "Estado em 16/11" são da v4; os "Estado em 17/11 · Prova esperada" são desta versão.
 
 ### US-PAR-01 — Cobertura de telas e prova
 - **Dado** Login, Perfil, diálogo de confirmação de logout, cabeçalho com botão de usuário, tab bar e **Início** do arquivo `FPdB8RymAnN81pbKfizdzE`,
@@ -145,7 +152,23 @@ Reescritos na v4: US-PAR-01 a 08 (todos ganham o bloco **Estado em 16/11 · Prov
 - **C: aberto.** A atualização do L2 e do `10:936` é do ESQUADRO e o teste da cor é do ORLA; **nenhum dos dois foi feito até esta etapa** (tarefas T29 e T31).
 - **Prova de apoio:** `app-2026-11-16-orla/lado-a-lado-login-{vazio,preenchido,carregando,credencial,rede,expirada}.png`, `lado-a-lado-perfil-{carregando,erro}.png`, `lado-a-lado-perfil.png`, `lado-a-lado-inicio.png`; lado Figma em `final-2026-11-16/`.
 
-### US-PAR-03 — Tab bar de 4 itens desabilitados, sem Perfil (v3.1; cenário E fechado na v4)
+### US-PAR-03 — Tab bar de 4 itens desabilitados, sem Perfil (reescrito na v3.1; cenário E fechado na v4; texto para o quadro na v4.1)
+
+**Texto para o quadro (substitui o enunciado antigo do critério 3 na feature):**
+
+> **US-PAR-03 Cenário cobertura da tab bar:** **Dado** a tab bar do arquivo `FPdB8RymAnN81pbKfizdzE` renderizada em `/inicio`, **Quando** reviso o código, os testes e os frames `20:1102`, `20:1340`, `83:817` e `83:844`, **Então** há 4 itens, sem Perfil, na ordem Ordens, Clientes, Catálogo, Financeiro, todos desabilitados a 50% de opacidade, anunciados como indisponíveis e sem navegação, **E** o anel de foco é branco de 2 px e vive no `TabBarItem`, provado por teste isolado, **E** o estado selecionado é "não se aplica ainda" (D-23) e reabre quando a primeira aba for habilitada, **E** o Perfil abre pelo botão de usuário do cabeçalho e não aparece na tab bar. A prova é a planilha de valores mais os testes, não captura (D-19).
+
+**O que mudou em relação ao enunciado antigo (e por quê):**
+
+| Enunciado antigo | Agora | Origem |
+|---|---|---|
+| Perfil aparece na tab bar em padrão, selecionado e foco | **Não existe item Perfil na tab bar**; o Perfil abre pelo botão de usuário do cabeçalho | D-05 (pessoa) |
+| Desabilitados na ordem Clientes/Veículos, Catálogo, Ordens de Serviço, Financeiro | Ordem **Ordens, Clientes, Catálogo, Financeiro**, com rótulos curtos do frame | D-05; frames `20:1102` e `20:1340` |
+| Perfil habilitado e 4 desabilitados (premissa 8 da feature, travada em 09/11) | 4 desabilitados e nenhum habilitado; a premissa 8 fica superada | D-05 (16/11, mais recente que o travamento de 09/11) |
+| Estado selecionado exigido nos dois lados | **Não se aplica ainda**: nenhuma aba navega, então não há rota para ficar selecionada; gatilho de reabertura no cenário E | D-23 (pessoa) |
+| Conferência "nos dois lados" por captura lado a lado | Conferência por valor (planilha) mais teste; captura é só apoio | D-19 (pessoa) |
+
+Nenhuma linha da tabela abre escopo: cada uma só alinha o texto do critério a uma decisão já registrada em §2.
 
 Escrito sobre o que `MenuTabBar` (`apps/mobile/src/components/menu/menu-tab-bar.tsx`) renderiza hoje e sobre os frames do arquivo `FPdB8` (símbolos `20:1102` Ordens ativa e `20:1340` Clientes ativa; T1 `83:817` e T2 `83:844` aprovados). A tab bar só existe dentro de `MenuShell`, ou seja, **só na rota `/inicio`**; o Perfil (`app/perfil.tsx`) fica fora do grupo `(menu)` e não a mostra. Os valores do lado Figma vêm da planilha do ESQUADRO (`F41-valores-fpdb8.md` §4.4), não de leitura minha (ver §10).
 
@@ -200,6 +223,8 @@ Escrito sobre o que `MenuTabBar` (`apps/mobile/src/components/menu/menu-tab-bar.
 - **E: não se aplica ainda** (D-23). Não há mais "divergência aberta" de tab bar.
 - **Prova de apoio, Figma:** `final-2026-11-16/tabbar-desabilitada-T2-83-844.png`, `tabbar-foco-T1-83-817.png`, `tabbar-ordens-selecionado-20-1102.png`, `tabbar-clientes-selecionado-20-1340.png`. **App:** `app-2026-11-16-orla/lado-a-lado-inicio.png` (4 abas a 50%, nenhuma selecionada).
 - **Perfil sem tab bar:** o frame `10:3842` não desenha tab bar (leitura do ESQUADRO, `F41-valores-fpdb8.md` §19.4) e `perfil.test` tem o caso "without a tab bar".
+- **Estado em 17/11 · Prova esperada (BUSSOLA).** `npm --prefix apps/mobile test -- --silent`, rodado por mim em `454a67b`: 37 suítes e 289 testes, todos verdes (inclui `menu-tab-bar.test`, `tab-bar-item.test`, `(menu)/_layout.test`, `perfil.test` e `integration/menu-routing.test`). `menu-tab-bar.tsx` tem 4 `ENTRIES` na ordem ordens, clientes, catalogo, financeiro e `selected={false}` na linha 62 (`grep`). O código em `apps/` não mudou desde `c242b6f` (`git diff --stat c242b6f HEAD -- apps` sem saída). **Para o critério fechar, a prova esperada é:** (1) a suíte acima verde na entrega final; (2) a anotação "estado futuro" em `20:1102` e `20:1340`, feita pelo ESQUADRO (T29, ainda não feita); (3) a linha V-T da planilha de valores sem "FALTA" (T32). **Estado: A, B, D, E e F sustentados por teste; falta só a anotação do Figma e a reconciliação das marcas.**
+- **Lacuna registrada, S-3 (§7, não bloqueia):** o frame T1 `83:817` desenha o anel de foco sobre item **selecionado** (instância de `20:1340`); o app só tem item **desabilitado**, e o teste do anel usa o item "Clientes" desabilitado. A paridade provada no cenário C é só a do **anel** (cor, 2 px, respiro, raio); não afirmo paridade de T1 inteiro nem que um item desabilitado receba foco em aparelho (US-MENU-06).
 
 ### US-PAR-04 — Protocolo de captura (não se aplica ao aceite)
 - **Dado** que a pessoa dispensou captura e pares lado a lado como prova de aceite (D-19) e não há aparelho físico,
@@ -241,7 +266,7 @@ As demais diferenças dos pares (moldura de aparelho, barra de status, largura 4
 | R-1 a R-10 | ao Figma (D-02) | código | corrigidas (`F41-valores-fpdb8.md` §16, §17.4) |
 | R-11 (indicador a 6 contra 6,5) | aceitar 6 | **Figma** (indicador movido, §19.3) | feito pelo ESQUADRO |
 | R-12 a R-14 (P2: gaps 16 e 10, botões na base, gap 12) | ao Figma | código | corrigidas em `c242b6f`; testes em `error-state.test.tsx` (não executei) |
-| **R-15** (L2, campo em carregamento cinza) | a favor do **código** | **Figma** | **aberto** (ESQUADRO atualiza L2 e PNG; ORLA cria o teste) |
+| **R-15** (L2, campo em carregamento cinza) | a favor do **código** | **Figma** | **aberto**. Em 17/11 o PNG do L2 está alterado e sem commit e mostra os campos em cinza-azulado (abri a imagem), mas **não há registro do ESQUADRO** da variável ligada nem do `get_variable_defs`; só conta como feito com esse registro e o commit. O teste da cor é do ORLA e não existe |
 | O-1 | exceção D-10 | nenhum | decidida |
 | **O-2** (`10:936` sem "Mostrar") | a favor do **código** | **Figma** | **aberto** (ESQUADRO atualiza `10:936` e PNG) |
 | O-3 | só de plataforma | nenhum | decidida |
@@ -325,7 +350,12 @@ As demais diferenças dos pares (moldura de aparelho, barra de status, largura 4
 - **Quando** a entrega fecha,
 - **Então** os testes de `tokens`, `text-field`, `inline-action-button`, `inline-alert`, `state-view`, `tab-bar-item`, `header-icon-button`, `get-initials`, `login`, `perfil`, `index`, `confirm-dialog`, `inicio` e os de menu estão ajustados ao desenho novo, **mais os dois novos da v4**: cor do campo desabilitado (D-24) e escudo (US-PAR-19),
 - **E** a suíte inteira rodou, com **comando e saída reais** e o que ficou sem cobertura declarado (pixel, toque real, Android, aparelho),
-- **E** nesta etapa **nenhum teste foi rodado por mim** (só documentação).
+- **E** na v4 (16/11) nenhum teste foi rodado por mim; na v4.1 (17/11) rodei a suíte (bloco abaixo).
+
+**Estado em 17/11 · Prova esperada**
+- **Estado: parcial.** A suíte atual passa (rodei em `454a67b`: 37 suítes, 289 testes, 0 falhas), mas os **dois testes novos da v4 não existem**: a cor do campo desabilitado (D-24; `text-field.test.tsx` só tem o caso de `editable={false}`, linhas 92 a 98) e o escudo (US-PAR-19 B).
+- **Prova esperada:** `npm --prefix apps/mobile test -- --silent` terminando em `Test Suites: N passed, N total` e `Tests: M passed, M total`, com N maior ou igual a 37 e M maior que 289 (os dois testes novos), mais `npm --prefix apps/mobile run typecheck` e `npm --prefix apps/mobile run lint` sem erro. Typecheck e lint **não foram rodados por mim** nesta etapa.
+- **Sem cobertura declarada:** pixel renderizado, área de toque real, Android e aparelho. Quem: ORLA escreve, CRIVO reexecuta.
 
 ### US-PAR-10 — Comportamento e endpoints
 - **Dado** as correções aplicadas e a API local no ar,
@@ -333,6 +363,10 @@ As demais diferenças dos pares (moldura de aparelho, barra de status, largura 4
 - **Então** o **único** endpoint chamado no login é `POST /api/v1/auth/login`, com o e-mail no campo `email` do corpo, mesmo com o rótulo "Usuário", e nenhum endpoint novo é chamado,
 - **E** o resultado de cada passo é registrado com comando e saída reais,
 - **E** o destino pós-login é `/inicio`, agora **com paridade por valor** (US-PAR-18).
+
+**Estado em 17/11 · Prova esperada**
+- **Estado: não repetido por mim.** Última prova real: o CRIVO, rodada 8 (em `12c5e78`), subiu a API em contêiner e viu só 2 chamadas de rede (`POST /api/v1/auth/login`), login errado, login certo, 4 abas desabilitadas, Perfil sem tab bar, Cancelar mantendo o token e Sair limpando (relato do CRIVO; não reproduzi). O código em `apps/` não mudou desde `c242b6f`, então a prova segue válida para o código de hoje, **mas o escudo e o teste da cor (US-PAR-19, D-24) ainda vão mexer em `apps/mobile`**.
+- **Prova esperada:** repetir o fluxo contra a API local depois do último commit de código da F41, com comando e saída reais: único endpoint `POST /api/v1/auth/login` com `email` no corpo, nenhuma chamada nova, controle negativo (com a API parada o teste falha) e nenhum e-mail, senha ou token no log. Quem: CRIVO (T28). `auth-service.test.ts` e `auth-service-logging.test.ts` seguram o contrato no nível de unidade.
 
 ### US-PAR-11 — Figma inacessível
 - **Dado** o MCP do Figma bloqueado na sessão,
@@ -344,6 +378,10 @@ As demais diferenças dos pares (moldura de aparelho, barra de status, largura 4
 **Registro desta etapa (BUSSOLA, 2026-11-16):** `mcp__figma-remote__whoami` → `Claude requested permissions to use mcp__figma-remote__whoami, but you haven't granted it yet.` O `whoami` do ESQUADRO numa sessão anterior de 16/11 respondeu com o plano "Time Pessoal" (`F41-planilha-fpdb8.md` §1); em sessões posteriores ORLA e esta voltaram negadas. O acesso varia por sessão.
 
 **Cada agente que precisar do Figma:** ESQUADRO e CRIVO repetem o `whoami` e colam a saída; o CRIVO declara no relatório se **leu o Figma** ou só a planilha do ESQUADRO.
+
+**Estado em 17/11 · Prova esperada**
+- **Estado: aplicável hoje, sem prova de acesso minha.** No conjunto de ferramentas do BUSSOLA nesta sessão não existe nenhuma `mcp__figma-remote__*`: é ferramenta **ausente**, não login negado; nenhuma chamada foi feita e nada do Figma foi lido por mim. Tudo do lado Figma vem da planilha do ESQUADRO e dos PNGs.
+- **Prova esperada:** o ESQUADRO cola na entrega a saída real de `whoami` e de `get_variable_defs` do L2 `82:2024`; se vier negado, cola o texto exato e a feature fica aguardando. O CRIVO declara se leu o Figma ou só a planilha. Enquanto L2, `10:936` e as anotações dependerem desse acesso, o US-PAR-08 não fecha.
 
 ### US-PAR-12 — Dados fictícios nas imagens versionadas
 - **Dado** as imagens de `docs/design/f41-capturas/` depois da remoção dos 6 `par-*` (12 `figma-fpdb8-*` na raiz, 15 em `final-2026-11-16`, 22 em `app-2026-11-16-orla`: 49 arquivos),
@@ -360,12 +398,16 @@ As demais diferenças dos pares (moldura de aparelho, barra de status, largura 4
 - **E** as imagens de `final-2026-11-16` (Figma) e `app-2026-11-16-orla` (app e pares) são a **referência visual de apoio**, e os 12 `figma-fpdb8-*` da raiz são só histórico (D-22),
 - **E** os 6 `par-*.png` antigos **não existem mais** no repositório, para ninguém tomá-los por referência.
 
-**Estado em 16/11 · Prova:** a remoção dos 6 `par-*.png` e o `docs/design/f41-capturas/LEIA-ME.md` entram nesta etapa, em commit próprio. A linha de base só vale depois do US-PAR-08 fechar.
+**Estado em 16/11 · Prova:** **feito em `454a67b`**: a raiz de `docs/design/f41-capturas/` não tem mais nenhum `par-*.png` (`ls` em 17/11) e `LEIA-ME.md` está presente. **Em 17/11 o PNG `final-2026-11-16/login-carregando-L2-82-2024.png` aparece como modificado e não commitado** (mtime 16/11 22:39, depois da revisão humana); ver R-15 em US-PAR-06 e §10. A linha de base só vale depois do US-PAR-08 fechar.
 
 ### US-PAR-14 — Higiene de git (vale como na feature)
 - **Dado** a feature concluída,
 - **Quando** verifico o repositório,
 - **Então** os commits são pequenos, em Conventional Commits, sem trailer de coautor, o `git status` não tem pendência e nenhum arquivo gerado, segredo ou binário grande foi versionado.
+
+**Estado em 17/11 · Prova esperada**
+- **Estado: aberto.** `git status --short` em 17/11, em `454a67b`: uma linha ` M` no PNG `final-2026-11-16/login-carregando-L2-82-2024.png` e quatro `??` em `docs/product/F44-*.md`. `git log main..HEAD --format=%B | grep -ci co-authored-by` devolveu 0 (nenhum trailer de coautor).
+- **Prova esperada:** `git status --short` sem nenhuma linha; o mesmo `grep` com 0; commits em Conventional Commits; nenhum arquivo gerado, segredo ou binário grande novo. O PNG do L2 só sai do status se o ESQUADRO o validar e commitar (R-15). Os 4 `F44-*.md` seguem o caminho de R6 (§9), que depende da pessoa.
 
 ### US-PAR-15 — Contraste AA com os valores finais
 - **Dado** as cores em texto, ícones e bordas de controle de Login, Perfil, diálogo e tab bar,
@@ -374,6 +416,10 @@ As demais diferenças dos pares (moldura de aparelho, barra de status, largura 4
 - **E** os itens desabilitados (Tide a 50% sobre petro, 2,58:1) são **isentos** por serem inativos, e as bordas Westar do botão "Sair da conta" e do cartão (1,23:1) são **decorativas** (WCAG 1.4.11), ambos por D-18,
 - **E** o campo desabilitado em carregamento (cor do skeleton, R-15) também é **isento**, por ser inativo, e o `F41-contraste.py` registra isso (tarefa T29, ainda não feita),
 - **E** a saída do script, com código de saída 0, fica registrada na entrega.
+
+**Estado em 17/11 · Prova esperada**
+- **Estado: os pares obrigatórios passam hoje.** `python3 -I docs/design/F41-contraste.py` em 17/11 imprime "OK: todos os pares obrigatórios atingem o alvo", com código de saída 0 (medido sem pipe). **Pendente:** o script ainda não registra a isenção do campo desabilitado (T29).
+- **Prova esperada:** o mesmo comando, saída "OK..." e código 0, com a isenção do campo em carregamento escrita no script. Quem: ESQUADRO (script) e CRIVO (reexecuta).
 
 ### US-PAR-16 — Rótulo "Usuário" envia e-mail
 **Cenário A — caminho feliz**
@@ -403,6 +449,10 @@ As demais diferenças dos pares (moldura de aparelho, barra de status, largura 4
 - **Quando** o Perfil abre,
 - **Então** a linha `perfil.rotuloUsuario` = "Usuário" mostra o **e-mail** do usuário (a API não devolve nome de usuário separado, D-13).
 
+**Estado em 17/11 · Prova esperada**
+- **Estado: sustentado por teste; passou na suíte de 17/11.** Existem `app/login.test.tsx`, `src/services/auth-service.test.ts`, `src/services/auth-service-logging.test.ts` e `src/hooks/use-login.test.tsx`; **não li o conteúdo de cada um**, só confirmei por `grep` que `auth-service.test.ts` cita `email` e `auth/login`.
+- **Prova esperada:** `npm --prefix apps/mobile test -- app/login.test.tsx src/services/auth-service.test.ts src/services/auth-service-logging.test.ts src/hooks/use-login.test.tsx --silent` verde, com asserção no corpo `{ email, senha }`, nas mensagens "Informe seu usuário" e "Informe sua senha" e no log sem dado pessoal; mais o fluxo real do CRIVO (T28).
+
 ### US-PAR-17 — Versão do app no Perfil
 - **Dado** o Perfil preenchido,
 - **Quando** o cartão é exibido,
@@ -410,6 +460,10 @@ As demais diferenças dos pares (moldura de aparelho, barra de status, largura 4
 - **Dado** a configuração sem versão,
 - **Quando** o Perfil abre,
 - **Então** a linha mostra "Não informada" (chave `perfil.versaoIndisponivel`) e a tela não quebra.
+
+**Estado em 17/11 · Prova esperada**
+- **Estado: sustentado por teste.** `app/perfil.test.tsx` (linha 70: "Versão do app: 0.1.0"; linha 98: "Versão do app: Não informada"), `src/config/app-version.test.ts` e `src/components/perfil/info-card.test.tsx`; `apps/mobile/app.config.ts` linha 7 tem a versão 0.1.0. Passaram na suíte de 17/11.
+- **Prova esperada:** `npm --prefix apps/mobile test -- app/perfil.test.tsx src/config/app-version.test.ts src/components/perfil/info-card.test.tsx --silent` verde; o teste de leitura continua lendo a configuração do Expo e não um texto fixo.
 
 ### US-PAR-18 — Início, destino pós-login, com paridade por valor (reescrito na v4, D-20)
 - **Dado** um login bem-sucedido ou uma sessão retomada,
@@ -456,6 +510,32 @@ As demais diferenças dos pares (moldura de aparelho, barra de status, largura 4
 **Estado em 16/11 · Prova: ABERTO.** Nada exportado nem programado. Verificado hoje: `apps/mobile` não tem pasta `assets` nem `react-native-svg` no `package.json`. A licença depende da pessoa (S-2). Sem dado pessoal.
 
 
+### 5.1 Quadro de estado e prova esperada por critério (v4.1, 2026-11-17)
+
+Resumo de uma linha por critério; o detalhe e a evidência estão no bloco "Estado" de cada US-PAR acima. "Prova esperada" é o que o CRIVO deve conseguir reexecutar ou abrir, sem tradução.
+
+| ID | Estado em 17/11 | Prova esperada | Quem |
+|---|---|---|---|
+| US-PAR-01 | parcial: 22 marcas "FALTA" na planilha; escudo sem linha | planilha de valores sem "FALTA", uma linha por estado com nó, valor lido, valor do código e teste | ESQUADRO, ORLA (T32) |
+| US-PAR-02 | parcial: A sustentado por teste, B feito, C aberto | testes que travam texto, token e medida; L2 e `10:936` atualizados com PNG reexportado e commitado; teste da cor do campo desabilitado | ESQUADRO, ORLA |
+| US-PAR-03 | sustentado por teste; falta a anotação "estado futuro" no Figma | suíte verde; anotação em `20:1102` e `20:1340`; V-T sem "FALTA" | ESQUADRO, ORLA |
+| US-PAR-04 | não se aplica ao aceite (D-19) | nenhuma; o protocolo do simulador fica só como referência | nenhum |
+| US-PAR-05 | classificação decidida; registro na planilha aberto | linhas O-1, O-2 e O-3 em `F41-valores-fpdb8.md`, com o par que prova | ESQUADRO (T29) |
+| US-PAR-06 | parcial: R-15, O-2 e L-02 abertos | cada item com lado e decisão; R-15 e O-2 com PNG reexportado e commitado | ESQUADRO, ORLA |
+| US-PAR-07 | A, B e C feitos; D aberto | `get_variable_defs` do L2 devolvendo o hex de `color.surface.skeleton`; `tokens.test.ts` verde | ESQUADRO |
+| US-PAR-08 | aberto, 8 condições do cenário A | as 8 condições fechadas, suíte verde e PR #16 fora de rascunho | todos |
+| US-PAR-09 | parcial: faltam 2 testes novos | suíte com N maior ou igual a 37 e M maior que 289, mais typecheck e lint sem erro | ORLA, CRIVO |
+| US-PAR-10 | não repetido por mim; última prova é a rodada 8 do CRIVO | fluxo real depois do último commit de código, só `POST /api/v1/auth/login` | CRIVO (T28) |
+| US-PAR-11 | aplicável; BUSSOLA sem ferramenta Figma | saída real de `whoami` e `get_variable_defs` colada na entrega | ESQUADRO, CRIVO |
+| US-PAR-12 | não verificado por mim | CRIVO abre as imagens e confirma só dado fictício | CRIVO |
+| US-PAR-13 | imagens: feito em `454a67b`; a linha de base só vale após o US-PAR-08 | `ls` sem `par-*`, `LEIA-ME.md`, planilha e testes travados | CRIVO |
+| US-PAR-14 | aberto: 1 PNG modificado e 4 `??` de F44 | `git status --short` vazio e 0 trailers de coautor | ORLA, ESQUADRO, pessoa (R6) |
+| US-PAR-15 | passa hoje; falta registrar a isenção | script com "OK" e código 0, com a isenção do campo desabilitado escrita | ESQUADRO, CRIVO |
+| US-PAR-16 | sustentado por teste | testes citados verdes mais o fluxo real | CRIVO |
+| US-PAR-17 | sustentado por teste | testes citados verdes | CRIVO |
+| US-PAR-18 | feito por valor | `inicio.test`, `menu-tab-bar.test`, `(menu)/_layout.test` e o fluxo real; depende da leitura da S-1 | CRIVO, pessoa (S-1) |
+| US-PAR-19 | aberto, depende da S-2 | origem e licença registradas; PNG 1x, 2x e 3x até 50 KB; teste de 84 × 96, posição e alternativa de texto | ESQUADRO, ORLA, pessoa |
+
 ## 6. Efeito sobre outras features e documentos
 
 1. **[[F33]]:** US-MENU-01 (aterrissa no Menu com Perfil selecionado), US-MENU-02 ("1 habilitado e 4 desabilitados") e US-MENU-03 deixam de valer como escritos. Não reescrevo o PRD da F33; registro aqui, e o ORLA ajusta `menu-tab-bar.test`, `(menu)/_layout.test` e `menu-routing.test`. O gap de US-MENU-06 permanece.
@@ -467,7 +547,7 @@ As demais diferenças dos pares (moldura de aparelho, barra de status, largura 4
 
 ## 7. Dúvidas em aberto
 
-**Duas em aberto, nenhuma bloqueia código (v4):** S-1 (leitura da D-20) e S-2 (licença do escudo). As dúvidas P-01 a P-07 do PRD v2 estão fechadas.
+**Três em aberto (v4.1): S-1, S-2 e S-3. Nenhuma bloqueia código, mas a S-2 bloqueia o fechamento (US-PAR-19 A e US-PAR-08).** As perguntas estão em §7.1 com o campo de resposta literal vazio. As dúvidas P-01 a P-07 do PRD v2 estão fechadas.
 
 | # | Dúvida | Fechamento | Origem |
 |---|---|---|---|
@@ -481,6 +561,29 @@ As demais diferenças dos pares (moldura de aparelho, barra de status, largura 4
 | P-11 (do ESQUADRO) | O contorno de 2 px Crail no campo é o foco? | Vale como foco do campo, travado por teste. O ESQUADRO registra na releitura (US-PAR-02 B) o que `10:895` mostra; se divergir, o código se ajusta ao Figma (D-02) | PO (aplicação de D-02) |
 | S-1 | A observação geral da revisão diz "D-20 confirmada" e o critério 8 diz "PRD v4 reverte a D-20". | **Li como a mesma decisão:** a D-20 cai e o Início entra no aceite por valor (bate com `F41-valores-fpdb8.md` §17.3). **Caminho de volta, se a leitura estiver errada:** restaurar a D-20 e a US-PAR-18 do commit `361989a` e tirar o Início das condições do US-PAR-08. Não bloqueia nada. | pessoa (confirmar) |
 | S-2 | De quem é o escudo 84 × 96 e sob que licença ele pode ficar no repositório? (a D2 do ADR-014) | **Aberta.** O ESQUADRO consegue registrar de onde o arquivo saiu do Figma, mas a licença de uso é informação da pessoa. Sem resposta, o US-PAR-19 A não fecha e o US-PAR-08 também não. Não escolho por ela. | pessoa |
+| S-3 | O frame T1 `83:817` (instância de `20:1340`) desenha o anel de foco sobre item **selecionado**; o app só tem item **desabilitado** e prova o anel num item desabilitado. A paridade de T1 vale só para o anel? | **Aberta.** Registrada pela BUSSOLA em 17/11; não decido. Sem resposta, o cenário C do US-PAR-03 afirma só a paridade do anel e o foco real fica em US-MENU-06. Reabre junto com o estado selecionado (D-23). | ESQUADRO e pessoa |
+
+### 7.1 Perguntas levadas à pessoa em 17/11 e resposta literal
+
+**Como foi feito.** O BUSSOLA não tem canal direto com a pessoa nesta sessão: as perguntas seguem no relatório de handoff desta etapa. **Regra de registro:** quem receber a resposta a cola **literalmente** no campo correspondente, com data e com quem colou; o PRD só muda de leitura depois disso. Campo vazio significa dúvida aberta, e nada é decidido por mim.
+
+**S-1 — O Início entra no aceite?** Responda A ou B.
+- **A.** O Início **entra** no aceite, por valor, contra o frame I1 `89:971` (a D-20 original, que o deixava fora, cai).
+- **B.** O Início fica **fora** do aceite (a D-20 original vale). Efeito: restaurar a D-20 e a US-PAR-18 de `361989a` e tirar o Início do escopo e das condições do US-PAR-08.
+- **Leitura adotada até a resposta (minha, não decisão):** A, porque o critério 8 diz "PRD v4 reverte a D-20" e `F41-valores-fpdb8.md` §17.3 registra "aprovado pela pessoa em 16/11; D-20 cai". A frase ambígua é "D-20 confirmada", da observação geral.
+- **Resposta literal da pessoa:** _(vazio; nenhuma resposta recebida até 2026-11-17)_
+
+**S-2 — De quem é o escudo e sob que licença ele fica no repositório?** (a D2 do ADR-014)
+1. Quem criou ou forneceu o desenho do escudo 84 × 96 do frame `10:895`?
+2. Sob que permissão ele pode ser versionado (por exemplo: ativo próprio da oficina; ativo contratado com cessão de uso; banco de imagens com licença nomeada; outra)? Indique o documento ou o nome da licença.
+3. Pode ser versionado como PNG 1x, 2x e 3x de até 50 KB cada (premissa 12)? Responda sim, não ou outro limite.
+- **Efeito da resposta:** o ESQUADRO registra nó, formato, md5, origem e licença (T30) e só então o ORLA programa (T31). Sem resposta, o escudo continua divergência real aberta, o US-PAR-19 A não fecha e a F41 não fecha. Nada é improvisado no lugar.
+- **Resposta literal da pessoa:** _(vazio; nenhuma resposta recebida até 2026-11-17)_
+
+**S-3 — A paridade de T1 vale só para o anel de foco?** (nova, não bloqueia) Responda A ou B.
+- **A.** Vale só o anel; o item desabilitado com foco no app é aceito até a primeira aba ser habilitada (D-23).
+- **B.** T1 passa a mostrar item desabilitado com foco, por decisão da pessoa a favor do código, e o ESQUADRO ajusta o frame (o código já desenha o anel no item desabilitado). Sem essa decisão, D-02 faz o Figma mandar.
+- **Resposta literal da pessoa:** _(vazio)_
 
 ## 8. Frames de referência
 
@@ -511,7 +614,7 @@ A seção `62:1529` "Complementos de fluxo" **não** é referência da F41.
 | R3 | O Jest não mede pixel, toque nem Android: "um teste por linha" prova estilo declarado, não o renderizado. | Médio | Declarado em US-PAR-08 B e US-PAR-09. |
 | R4 | O estado "selecionado" da tab bar não aparece no app em execução e o frame o desenha. | Baixo | Fechado como "não se aplica ainda" (D-23). Reabre com a primeira aba habilitada; só o `TabBarItem` isolado o trava até lá. |
 | R5 | Ionicons diferem do desenho do arquivo. | Baixo | Exceção registrada (D-10). |
-| R6 | Os 4 arquivos `docs/product/F44-*.md` não rastreados, **de outra feature**, sujam o `git status` da F41 (US-PAR-14). | Médio | Conferi: a branch `docs/f44-evidencias` (`df3d66a`, já no `origin`) **já tem os 4**. Três são idênticos aos da F41 (mesmo hash de blob) e o quarto, `F44-pr-seguranca-boot-sha-rascunho.md`, **está mais novo na branch da F44** (tem a seção "Hipótese de CVE" que a cópia da F41 não tem). Nada precisa ser commitado de novo. As 4 cópias não rastreadas continuam na pasta da F41, sem apagar nem commitar, e ainda aparecem como `??` em `git status`; quem decide removê-las ou ignorá-las localmente é a pessoa. |
+| R6 | Os 4 arquivos `docs/product/F44-*.md` não rastreados, **de outra feature**, sujam o `git status` da F41 (US-PAR-14). | Médio | Conferi: a branch `docs/f44-evidencias` (`df3d66a`, já no `origin`) **já tem os 4**. Três são idênticos aos da F41 (mesmo hash de blob) e o quarto, `F44-pr-seguranca-boot-sha-rascunho.md`, **está mais novo na branch da F44** (tem a seção "Hipótese de CVE" que a cópia da F41 não tem). Nada precisa ser commitado de novo. As 4 cópias não rastreadas continuam na pasta da F41, sem apagar nem commitar, e ainda aparecem como `??` em `git status`; quem decide removê-las ou ignorá-las localmente é a pessoa. **Atualização de 17/11 (a revisão humana, critério 14, pede commitar os 4 no worktree da F44):** reconferi por hash. Três dos quatro (`F44-pr1a-rascunho-descricao-e-provas`, `F44-qa-crivo-2026-11-16` e `F44-revalidacao-main-348a43e`) já estão em `docs/f44-evidencias` (`df3d66a`) com o mesmo hash de blob. O quarto, `F44-pr-seguranca-boot-sha-rascunho.md`, **difere**: a branch tem a seção "Hipotese de CVE a confirmar" (linhas 101 a 104) que a cópia local não tem. Commitar a cópia local por cima **regrediria** o arquivo, e os worktrees da F44 ficam em pastas de scratchpad de outras sessões, **fora da pasta desta operação**; por isso **não commitei nada nem apaguei**. **Decisão da pessoa:** (a) apagar as 4 cópias locais (nada se perde, estão na branch); (b) ignorá-las localmente em `.git/info/exclude`, sem versionar; (c) levar a cópia local depois de comparar a diferença. Até lá o `git status` da F41 não fica limpo (US-PAR-14). |
 | R7 | O PRD da F33 e os testes de menu ainda descrevem a tab bar de 5 itens. | Médio | §6 item 1; o ORLA ajusta os testes. |
 | R8 | As capturas do ORLA em `app-2026-11-16-orla` chegam a 233 KB (`app-dialogo.png`), acima do teto de 100 KB que a D-22 da v3 fixava para as antigas. | Baixo | Recomendo manter: são apoio e histórico, e 233 KB não é binário grande. Se a pessoa preferir o teto, o ORLA recorta as capturas e refaz os pares. |
 | R9 | O escudo pode não ter licença registrável, e a F41 não fecha sem ele. | Alto | S-2; nenhum substituto improvisado (US-PAR-19 A). |
@@ -539,6 +642,21 @@ A seção `62:1529` "Complementos de fluxo" **não** é referência da F41.
 - **Figma:** não tenho ferramenta `mcp__figma-remote__*` nesta sessão (ausente); nada foi lido. **Imagens:** nenhuma aberta.
 
 
+**Verificado na v4.1 (2026-11-17, ramo `feat/f41-paridade-fpdb8-codigo` em `454a67b`; comandos rodados por mim):**
+- `npm --prefix apps/mobile test -- --silent`: `Test Suites: 37 passed, 37 total` e `Tests: 289 passed, 289 total`.
+- `python3 -I docs/design/F41-contraste.py`: "OK: todos os pares obrigatórios atingem o alvo", código de saída 0 (medido sem pipe).
+- `git diff --stat c242b6f HEAD -- apps`: sem saída (o código de `apps/` não mudou desde `c242b6f`).
+- `git log main..HEAD --format=%B | grep -ci co-authored-by`: 0.
+- `git status --short`: um PNG modificado (L2) e quatro `??` de `docs/product/F44-*.md`.
+- `menu-tab-bar.tsx`: 4 `ENTRIES` (ordens, clientes, catalogo, financeiro) e `selected={false}` na linha 62; `tab-bar-item.tsx` usa `useFocusRing({ onBrand: true })` e `disabled={unavailable}`.
+- Abri `login-carregando-L2-82-2024.png` (modificado): campos Usuário e Senha em cinza-azulado claro e "Entrando…" no botão. **Isso não prova** que o frame do Figma foi alterado nem que a variável está ligada.
+- Hashes dos 4 `F44-*.md` contra `docs/f44-evidencias`: 3 iguais e 1 diferente (R6).
+- Raiz de `docs/design/f41-capturas/` sem `par-*.png`; `LEIA-ME.md` presente.
+- Nenhuma ferramenta `mcp__figma-remote__*` neste conjunto; nada do Figma foi lido.
+- **Não rodei:** `typecheck`, `lint`, `format:check` nem o fluxo contra a API.
+
+**Não verificado por mim:**
+
 **Não verificado por mim:**
 - Qualquer nó, variável ou medida do Figma (acesso negado). Tudo de §8 e a releitura de L2 a L4 vêm do ESQUADRO.
 - Nenhum teste rodado nesta etapa. Os nomes e a cobertura dos testes citados vêm das planilhas do ESQUADRO e do ORLA; não reproduzi os 256 testes citados por outros agentes.
@@ -565,3 +683,4 @@ Mantêm-se as tarefas 1 a 22, com estes ajustes:
 - **T32** (ESQUADRO e ORLA): reconciliar as 22 marcas FALTA de `F41-valores-fpdb8.md` com o que a §14 e a §16 já cobrem (US-PAR-01).
 - **T33** (BUSSOLA, **feito nesta etapa**): este PRD v4; registro do P-01 na planilha (`F41-planilha-fpdb8.md` §11); remoção dos 6 `par-*.png` e `LEIA-ME.md` da pasta de capturas.
 - **T5, T6 a T11, T19 e T20** seguem "não se aplicam ao aceite"; as capturas que existem são apoio (D-19, D-22).
+- **T34** (BUSSOLA, **feito na v4.1**): S-1 e S-2 levadas à pessoa como pergunta fechada (§7.1), **sem resposta recebida**; critério 3 reescrito com texto para o quadro; estado e prova esperada dos 19 critérios (§5.1). **Pendente da pessoa:** S-1, S-2, S-3 e o destino dos 4 `F44-*.md` (R6).
