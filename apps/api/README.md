@@ -30,11 +30,16 @@ organizados por camada, não por feature (ADR-001/ADR-002).
   HS256 válido por `jwt.expiration-minutes` (padrão 10080 min = 7 dias) e os
   dados básicos do usuário, sem nunca expor `senha_hash`;
 - `GET /api/v1/clientes` (F03a, autenticado): lista paginada com busca opcional
-  `q` (nome, email ou telefone por dígitos, sem diferenciar maiúsculas e
-  acentos; `%`, `_`, `\` e `!` valem como texto), `page` (base 0, padrão 0) e
-  `size` (1 a 100, padrão 20). Resposta `{itens, pagina, tamanho, totalItens,
-  totalPaginas}`, cada item só com `id`, `nome`, `telefone` e `email`.
-  Parâmetro inválido responde 400 no formato do handler global. Contrato em
+  `q` (nome e email, sem diferenciar maiúsculas e acentos; `%`, `_`, `\` e `!`
+  valem como texto; o telefone só é consultado quando o termo é numérico, isto
+  é, só dígitos e `( ) - . +` e espaço, com ou sem máscara: `zeta5@example.org`
+  não casa telefone), `page` (base 0, padrão 0) e `size` (1 a 100, padrão 20).
+  Resposta `{itens, pagina, tamanho, totalItens, totalPaginas}`, cada item só
+  com `id`, `nome`, `telefone` e `email`. Página além do fim, mesmo com
+  `page * size` acima de 2.147.483.647, responde 200 com `itens` vazio e o total
+  real. Parâmetro inválido (inclusive `page` acima de 2.147.483.647) responde
+  400; rota inexistente 404 e método não suportado 405 (com `Allow`), todos no
+  formato do handler global. Contrato em
   `docs/architecture/adr/ADR-017-padronizar-listagem-com-busca-e-paginacao.md`
   e na Swagger UI. Migration `V3__fixar_collation_clientes.sql` fixa a
   collation `utf8mb4_0900_ai_ci` da tabela `clientes`;

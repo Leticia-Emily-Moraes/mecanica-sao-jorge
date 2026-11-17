@@ -241,16 +241,13 @@ mvn checkstyle:check   # lint
 mvn spotless:check     # verifica formatação (google-java-format)
 ```
 
-> **Evidência real desta etapa (PERGAMINHO, `mvn clean verify` do zero,
-> MySQL 8.4 via Testcontainers, JDK Temurin 21):** 19 testes, 0 falhas —
-> `AuthServiceTest` (7), `AuthControllerTest` (7, MockMvc com contexto
-> Spring completo, incluindo token malformado/expirado contra o
-> `JwtDecoder`/`RestAuthenticationEntryPoint` reais), `GlobalExceptionHandlerTest`
-> (2) e `FlywayMigrationIT` (3, aplica V1+V2 do zero contra MySQL real).
-> `mvn checkstyle:check` e `mvn spotless:check` sem violação. Além disso,
-> subi a API de pé (`java -jar target/api.jar`) contra um MySQL local e
-> testei com `curl`: ver exemplos reais na seção "Login" acima e em
-> "Uso → Rodar o backend".
+> **Evidência real (ESPRESSO, 2026-11-17, F03a):** `mvn -B spotless:apply verify`
+> em contêiner `maven:3.9-eclipse-temurin-21` com o socket do Docker (MySQL 8.4
+> via Testcontainers): 93 testes unitários (surefire) e 30 de integração
+> (failsafe), 0 falhas, `BUILD SUCCESS` — 123 no total. Os de integração são
+> `ClienteListagemIT` (24), `ClienteCollationLatin1IT` (3) e `FlywayMigrationIT`
+> (3). Esse número muda a cada feature: confira rodando `mvn verify`, não por
+> este texto.
 
 ### Mobile
 
@@ -304,9 +301,8 @@ npm run typecheck      # tsc --noEmit
       `POST /api/v1/auth/login` emitindo JWT HS256 via OAuth2 Resource
       Server; `GET /api/v1/clientes` (F03a: lista paginada com busca, migration
       `V3`, detalhes em `apps/api/README.md`); `RestAuthenticationEntryPoint`
-      customizado. 19 testes
-      automatizados + checkstyle/spotless, reconfirmados nesta revisão
-      contra o `HEAD` atual (ver "Testes").
+      customizado. Testes automatizados + checkstyle/spotless (contagem e
+      comando em "Testes").
 - [x] `apps/mobile`: telas de Login e Perfil com logout (F30) e a tab bar do
       menu principal pós-login (F33), token e dados do usuário presos ao
       `expo-secure-store`. Desde a F41 essas telas seguem o Figma
