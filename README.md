@@ -302,7 +302,9 @@ npm run typecheck      # tsc --noEmit
       12 entidades JPA reais no singular (11 de negócio da oficina +
       `Usuario`); migrations `V1` (`usuarios`) e `V2` (demais 11 tabelas);
       `POST /api/v1/auth/login` emitindo JWT HS256 via OAuth2 Resource
-      Server; `RestAuthenticationEntryPoint` customizado. 19 testes
+      Server; `GET /api/v1/clientes` (F03a: lista paginada com busca, migration
+      `V3`, detalhes em `apps/api/README.md`); `RestAuthenticationEntryPoint`
+      customizado. 19 testes
       automatizados + checkstyle/spotless, reconfirmados nesta revisão
       contra o `HEAD` atual (ver "Testes").
 - [x] `apps/mobile`: telas de Login e Perfil com logout (F30) e a tab bar do
