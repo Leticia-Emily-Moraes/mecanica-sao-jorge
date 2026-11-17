@@ -1,7 +1,8 @@
-# F41 — PRD revisado (v3): paridade com o Figma `FPdB8RymAnN81pbKfizdzE`
+# F41 — PRD revisado (v3.1): paridade com o Figma `FPdB8RymAnN81pbKfizdzE`
 
 PRD — dono: BUSSOLA (Product Owner). Data: 2026-11-16. Rota: BUSSOLA → CARTOGRAFO → ESQUADRO → ORLA → CRIVO.
 Prioridade P1 · Frontend · Sprint 01.
+**v3.1 (BUSSOLA, 2026-11-16):** só o US-PAR-03 foi reescrito (tab bar do código e do frame FPdB8), com o P-01 reaberto em §7 e o R4 ajustado. D-20 e D-21 seguem como estavam; nenhum outro critério foi alterado.
 Base do documento: ramo `feat/f41-paridade-fpdb8-codigo`, código em `c627ac6`, sobre a `main` em `348a43e` (F40 já mergeada pela PR #10).
 
 **Depende de:** [[F25]], [[F30]], [[F33]], [[F34]], [[F40]] (já na `main`).
@@ -81,7 +82,7 @@ Nada foi corrigido em código nem no Figma nesta etapa. Só decisão, escopo e c
 
 ## 5. Critérios de aceitação (Gherkin)
 
-Reescritos: US-PAR-01, 02, 03, 04, 06, 07, 08, 10, 11, 12, 13, 15, 16, 17, 18. Ajustados: US-PAR-05 e 09. Vale como na feature: US-PAR-14. Os IDs `US-PAR-NN` rastreiam até teste.
+Reescritos: US-PAR-01, 02, 03 (de novo na v3.1), 04, 06, 07, 08, 10, 11, 12, 13, 15, 16, 17, 18. Ajustados: US-PAR-05 e 09. Vale como na feature: US-PAR-14. Os IDs `US-PAR-NN` rastreiam até teste.
 
 ### US-PAR-01 — Cobertura de telas e prova
 - **Dado** Login, Perfil, diálogo de confirmação de logout, cabeçalho com botão de usuário e tab bar do arquivo `FPdB8RymAnN81pbKfizdzE`,
@@ -105,35 +106,52 @@ Reescritos: US-PAR-01, 02, 03, 04, 06, 07, 08, 10, 11, 12, 13, 15, 16, 17, 18. A
 - **E** o código e o teste correspondente são ajustados ao valor lido,
 - **E** se o Figma estiver inacessível, vale US-PAR-11 e V-L14 e V-L19 continuam abertas.
 
-### US-PAR-03 — Tab bar e acesso ao Perfil
-**Cenário A — itens e ordem**
-- **Dado** a tab bar do arquivo novo, com 4 itens e sem Perfil,
+### US-PAR-03 — Tab bar de 4 itens desabilitados, sem Perfil (reescrito em 16/11, v3.1)
+
+Escrito sobre o que `MenuTabBar` (`apps/mobile/src/components/menu/menu-tab-bar.tsx`) renderiza hoje e sobre os frames do arquivo `FPdB8` (símbolos `20:1102` Ordens ativa e `20:1340` Clientes ativa; T1 `83:817` e T2 `83:844` aprovados). A tab bar só existe dentro de `MenuShell`, ou seja, **só na rota `/inicio`**; o Perfil (`app/perfil.tsx`) fica fora do grupo `(menu)` e não a mostra. Os valores do lado Figma vêm da planilha do ESQUADRO (`F41-valores-fpdb8.md` §4.4), não de leitura minha (ver §10).
+
+**Cenário A — itens, ordem e rótulos**
+- **Dado** um usuário autenticado que chega a `/inicio`,
+- **Quando** a tab bar é exibida,
+- **Então** há exatamente **4** abas (papel `tab`, dentro de um `tablist`), na ordem **Ordens, Clientes, Catálogo, Financeiro**,
+- **E** os rótulos visíveis vêm das chaves `menu.tabbar.ordens.rotulo`, `menu.tabbar.clientes.rotulo`, `menu.tabbar.catalogo.rotulo` e `menu.tabbar.financeiro.rotulo` ("Ordens", "Clientes", "Catálogo", "Financeiro"; **não** "Ordens de Serviço" nem "Clientes e Veículos"),
+- **E** a barra mede **62** de altura, o ícone **22**, o rótulo é Inter Medium **11** e há **4** entre ícone e rótulo,
+- **E** **não existe item Perfil** na barra.
+
+**Cenário B — desabilitado e anunciado**
+- **Dado** que nenhum módulo está programado,
+- **Quando** olho ou percorro a tab bar com leitor de tela,
+- **Então** os 4 itens estão com ícone e rótulo a **50%** de opacidade (T2 `83:844`), com `selected: false` e `disabled: true`,
+- **E** cada um é anunciado como "<nome>, indisponível nesta versão" (chaves `menu.tabbar.<item>.indisponivel`), de modo que o estado não depende só de opacidade ou cor,
+- **E** tocar num item não navega nem chama nenhum endpoint.
+
+**Cenário C — foco**
+- **Dado** o foco entrando num item,
+- **Quando** ele está focado,
+- **Então** aparece um anel **branco de 2 px, com respiro de 2 px e raio 10** (T1 `83:817`, anel `84:786`), só enquanto focado, e **não** o anel petro, que some sobre a barra petro,
+- **E** a prova é o teste de `TabBarItem` isolado; o foco real de teclado e de leitor de tela em aparelho continua em **US-MENU-06**, "não alcançável sem aparelho", sem prova inventada.
+
+**Cenário D — sem sessão (erro e borda)**
+- **Dado** sessão ausente, inválida ou expirada,
+- **Quando** o app tenta abrir `/inicio`,
+- **Então** a tab bar **não é renderizada** e o app vai ao Login (`(menu)/_layout.tsx` devolve `null` e chama `replace('/login')`),
+- **E** o logout confirmado também leva ao Login (US-PAR-18).
+
+**Cenário E — estado selecionado: fora do aceite até a pessoa decidir**
+- **Dado** que o frame tem item ativo (`20:1102`, `20:1340`; ícone e rótulo `#EE8279`, SemiBold 11, sem pílula) e que `menu-tab-bar.tsx:62` fixa `selected={false}` em todos os itens,
 - **Quando** o app roda,
-- **Então** os itens aparecem na ordem **Ordens, Clientes, Catálogo, Financeiro**, com rótulos vindos de `menu.tabbar.*.rotulo`, barra de 62, ícone de 22 e rótulo Inter de **11** (não 10,5),
-- **E** não existe item Perfil na barra.
+- **Então** o estado selecionado **nunca é renderizado**: ele existe só dentro de `TabBarItem`, travado por `tab-bar-item.test` isolado,
+- **E** este cenário **não é critério de aceite da F41** e **não é dado como "não se aplica"**: pelas premissas 5 e D-06, estado que existe só no frame é divergência real, salvo justificativa aprovada,
+- **E** a decisão é da pessoa, e eu não escolho por ela: **(a)** "não se aplica hoje", porque não há módulo navegável; ou **(b)** programar o selecionado, o que exige uma aba habilitada e vira feature própria (não cabe na F41 e não toca F35 nem F42). Registrada como **P-01 reaberta** (§7).
 
-**Cenário B — desabilitado e foco**
-- **Dado** que nenhum módulo existe nesta fase,
-- **Quando** olho a tab bar,
-- **Então** os 4 itens estão a **50%** de opacidade (T2 `83:844`), nenhum selecionado, cada um anunciado como "<nome>, indisponível nesta versão",
-- **E** o foco é um anel **branco de 2 px com respiro de 2 px** (T1 `83:817`).
-
-**Cenário C — selecionado**
-- **Dado** o estado selecionado (ícone e rótulo `#EE8279`, SemiBold 11, sem pílula, anunciado "selecionado"),
-- **Quando** o teste do `TabBarItem` isolado roda,
-- **Então** o estilo é travado pelo teste, e a prova é **só esse teste**, declarada como tal, porque nenhum item é navegável no app em execução.
-
-**Cenário D — botão de usuário**
+**Cenário F — cabeçalho com botão de usuário (fora da tab bar, mantido do v3)**
 - **Dado** uma sessão autenticada,
 - **Quando** olho o cabeçalho,
-- **Então** há botão de usuário 36 × 36, raio 8, fundo branco a 12%, ícone de pessoa 18, nome acessível "Perfil" (chave de i18n), papel de botão e área de toque ≥ 48 por `hitSlop`,
-- **E** tocá-lo abre o Perfil, que mostra a seta de voltar com nome acessível próprio,
+- **Então** há botão de usuário 36 × 36, raio 8, fundo branco a 12%, ícone de pessoa 18, nome acessível "Perfil" (`cabecalho.usuario.rotulo`), papel de botão e área de toque ≥ 48 por `hitSlop`,
+- **E** tocá-lo abre o Perfil, que mostra a seta de voltar com nome acessível próprio (`cabecalho.voltar.rotulo` = "Voltar"),
 - **E** a ordem de foco no cabeçalho é: título, botão de usuário, conteúdo, tab bar; no Perfil: seta de voltar, título, conteúdo.
 
-**Cenário E — foco em aparelho**
-- **Dado** o foco de teclado e o leitor de tela,
-- **Quando** a pendência é revisada,
-- **Então** ela permanece em US-MENU-06 como "não alcançável sem aparelho", sem prova inventada.
+**Sem cobertura (declarado):** pixel renderizado, área de toque real, Android e aparelho. Não localizei teste que trave a opacidade do **ícone** (o teste de 50% lê só o rótulo), a cor de fundo petro da barra (V-T04 "FALTA" na planilha) nem a largura máxima de 480; ficam como lacuna para o ORLA decidir se cobre.
 
 ### US-PAR-04 — Protocolo de captura (não se aplica ao aceite)
 - **Dado** que a pessoa dispensou captura e pares lado a lado (D-19) e não há aparelho físico,
@@ -303,11 +321,11 @@ Reescritos: US-PAR-01, 02, 03, 04, 06, 07, 08, 10, 11, 12, 13, 15, 16, 17, 18. A
 
 ## 7. Dúvidas em aberto
 
-**Nenhuma.** As dúvidas do PRD v2 estão fechadas:
+**Uma em aberto (P-01, reaberta na v3.1).** As demais dúvidas do PRD v2 estão fechadas:
 
 | # | Dúvida | Fechamento | Origem |
 |---|---|---|---|
-| P-01 | Tela inicial pós-login e como alcançar "selecionado" | Rota técnica `/inicio` (opção A) como destino; Início **sem paridade** (D-20); selecionado provado só pelo `TabBarItem` isolado (US-PAR-03 C) | pessoa (opção A implementada) + comandante (escopo) |
+| P-01 | Estado **selecionado** da tab bar | **ABERTA.** A rota `/inicio` é o destino pós-login e o Início segue **sem paridade** (D-20), mas o selecionado nunca renderiza (`menu-tab-bar.tsx:62`). A pessoa escolhe entre (a) "não se aplica hoje" e (b) programar em feature própria. Não escolhi por ela (US-PAR-03 E). | pessoa (pendente) |
 | P-02 | Aparelho e modo de execução | Sem aparelho físico; captura dispensada (D-19, US-PAR-04 não se aplica) | pessoa |
 | P-03 | Onde as capturas ficam e o limite | Ficam onde estão, como histórico, abaixo de 100 KB cada (D-22) | PO |
 | P-04 | Alturas 46/50/62 contra 48/52/64 | Segue o Figma, com `hitSlop` ≥ 48 (premissa 10) | pessoa (aprovação dos frames) |
@@ -343,7 +361,7 @@ A seção `62:1529` "Complementos de fluxo" **não** é referência da F41.
 | R1 | O Figma volta negado por sessão (já ocorreu com ORLA, CRIVO e comigo). US-PAR-07 B, P2, T1 e a releitura de L2 a L4 dependem dele. | Alto | US-PAR-11: saída real, feature aguardando; a pessoa roda `claude mcp login figma-remote`. |
 | R2 | D-20 e D-21 foram fixadas pelo comandante e retiram da lista de fechamento dois itens que a revisão humana ainda citava. | Médio | Rastro explícito em §2; se a pessoa discordar, v4 e a US-PAR-08 reabre. |
 | R3 | O Jest não mede pixel, toque nem Android: "um teste por linha" prova estilo declarado, não o renderizado. | Médio | Declarado em US-PAR-08 B e US-PAR-09. |
-| R4 | O estado "selecionado" da tab bar não aparece no app em execução. | Baixo | Provado só pelo `TabBarItem` isolado, declarado (US-PAR-03 C). |
+| R4 | O estado "selecionado" da tab bar não aparece no app em execução e o frame o desenha. | Médio | Fora do aceite até a decisão da pessoa (P-01, US-PAR-03 E); enquanto isso só o `TabBarItem` isolado o trava. |
 | R5 | Ionicons diferem do desenho do arquivo. | Baixo | Exceção registrada (D-10). |
 | R6 | Árvore de trabalho: há 4 arquivos `docs/product/F44-*.md` não rastreados, **de outra feature**. Podem sujar o `git status` no fechamento (US-PAR-14). | Baixo | Não são da F41 e não os toquei; o dono da F44 decide. |
 | R7 | O PRD da F33 e os testes de menu ainda descrevem a tab bar de 5 itens. | Médio | §6 item 1; o ORLA ajusta os testes. |
@@ -358,6 +376,8 @@ A seção `62:1529` "Complementos de fluxo" **não** é referência da F41.
 - `app/(menu)/inicio.tsx` existe.
 - `docs/design/f41-capturas/`: 18 arquivos, 864 KB, maior com 94.742 bytes.
 - `figma.md:4` e `F41-conferencia-paridade-referencias.md:4` apontam para o arquivo novo.
+
+**Verificado na v3.1 (leitura do código, 2026-11-16, ramo `feat/f41-paridade-fpdb8-codigo`):** `menu-tab-bar.tsx` tem 4 `ENTRIES` na ordem ordens, clientes, catalogo, financeiro, `selected={false}` na linha 62 e `unavailable`; `strings.ts` tem os 4 rótulos curtos e os 4 "indisponível nesta versão"; `tokens.ts` tem `tabBar` 62, `iconSize.tab` 22, `tabLabel` 11, `unavailable` 0,5; `MenuTabBar` só é usada por `MenuShell`, que só envolve o grupo `(menu)` (hoje só `inicio`); `(menu)/_layout.tsx` devolve `null` sem sessão autenticada. Li `menu-tab-bar.test.tsx` e `tab-bar-item.test.tsx` (não os executei). **Figma:** a ferramenta `mcp__figma-remote__*` não está no meu conjunto de ferramentas nesta sessão (ferramenta ausente, não login negado); nenhum nó foi lido por mim.
 
 **Não verificado por mim:**
 - Qualquer nó, variável ou medida do Figma (acesso negado). Tudo de §8 e a releitura de L2 a L4 vêm do ESQUADRO.
