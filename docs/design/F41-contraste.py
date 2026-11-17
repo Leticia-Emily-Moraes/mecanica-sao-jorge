@@ -8,6 +8,8 @@ Uso:  python3 docs/design/F41-contraste.py
 Saída: uma linha por par e código de saída 1 se algum par obrigatório ficar abaixo do alvo.
 Alvos: texto 4,5:1 (WCAG 1.4.3); ícone e borda de controle 3:1 (WCAG 1.4.11).
 Pares "isento" e "decorativo" são impressos para registro e não derrubam o script.
+Isentos: item desabilitado da tab bar (D1) e campo desabilitado em carregamento (D2 e D3, R-15, decisão de 16/11),
+por serem componentes inativos (WCAG 1.4.3 e 1.4.11).
 """
 
 import sys
@@ -55,6 +57,8 @@ POT = '#F6E7E5'
 PLACEHOLDER = FLINT
 FIELD_BORDER = '#8C8780'
 TAB_SELECTED = '#EE8279'
+# Campo desabilitado em carregamento (L2, decisão R-15 de 16/11): fundo `color.surface.skeleton` = slate100.
+SKELETON = '#F1F5F9'
 
 btn36 = blend(WHITE, PETRO, 0.12)  # botão de ícone 36x36 sobre o cabeçalho (branco a 12% sobre petro)
 tab_off_label = blend(TIDE, PETRO, 0.5)  # item desabilitado: 50% de opacidade sobre a barra petro (T2)
@@ -100,6 +104,10 @@ PARES = [
     ('B5', 'decorativo', 'Borda do botão "Sair da conta" (Westar) sobre Pampas; o texto Crail (T13) identifica o botão', WESTAR, PAMPAS),
     ('B6', 'decorativo', 'Borda do cartão (Westar) sobre Pampas; o conteúdo é texto e não depende da borda', WESTAR, PAMPAS),
     ('D1', 'isento', 'Item desabilitado da tab bar (Tide a 50% sobre petro): componente inativo, isento (WCAG 1.4.3 e 1.4.11)', tab_off_label, PETRO),
+    # R-15: o campo `editable={false}` (tela de Login em carregamento) usa o fundo do skeleton. Componente de interface
+    # inativo é isento de contraste mínimo (WCAG 1.4.3 e 1.4.11); as razões abaixo são só registro, não derrubam o script.
+    ('D2', 'isento', 'Campo desabilitado em carregamento (R-15): valor (petro) sobre o fundo skeleton #F1F5F9', PETRO, SKELETON),
+    ('D3', 'isento', 'Campo desabilitado em carregamento (R-15): borda #8C8780 contra o fundo skeleton #F1F5F9', FIELD_BORDER, SKELETON),
 ]
 
 ALVO = {'texto': 4.5, 'icone': 3.0, 'borda': 3.0}
