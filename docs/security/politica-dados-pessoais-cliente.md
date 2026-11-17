@@ -255,7 +255,7 @@ O que isso prova para o detalhe: a cadeia de segurança e os cabeçalhos que ele
 
 | ID | Severidade | OWASP | Achado | Impacto concreto | Correção específica | Dono |
 |---|---|---|---|---|---|---|
-| B1 | Baixa | A09 / LGPD | `ClienteDetalheResponse` será `record`, e o `toString()` gerado imprime os seis campos, CPF e endereço inclusive. O `ClienteListResponse` da `main` já imprime nome, telefone e email | Um `log.debug("{}", resposta)` ou o Spring MVC em DEBUG (que escreve o corpo com `toString()`) grava o CPF inteiro em log | Sobrescrever `toString()` no `ClienteDetalheResponse` devolvendo `ClienteDetalheResponse[id=7]`, com teste unitário que prova que a saída não contém CPF, telefone, email, nome nem endereço fictícios. Fazer o mesmo no `ClienteListResponse` na mesma PR (uma linha). Builder da entidade: seção 7 | ESPRESSO (F08) |
+| B1 | Baixa, **fechado** na revisão do código da F08 (8.2) | A09 / LGPD | `ClienteDetalheResponse` e `ClienteListResponse` são `record`, e o `toString()` gerado imprimia todos os campos (CPF e endereço no detalhe; nome, telefone e email na lista) | Um log em DEBUG do DTO, ou o Spring MVC em DEBUG, que escreve o corpo com `toString()`, gravaria o CPF inteiro em log | Feito: os dois `record` sobrescrevem `toString()` e mostram só o nome do tipo e o id, e o builder de `Cliente` devolve texto fixo. Testes: `ClienteDetalheResponseTest`, `ClienteListResponseTest` e `ClienteDetalheServiceTest.shouldHideCpfAndAddressFromBuilderToString` | ESPRESSO (F08, commits `598962e`, `b180f9b` e `c063e8c`) |
 | B2 | Média, risco a aceitar | A01 / A04 | Extensão do A3: com o detalhe, qualquer token válido (FUNCIONARIO ou ADMIN, até 7 dias, sem revogação) lê CPF e endereço inteiros, um id por vez; ids sequenciais permitem varrer a base | Token vazado ou de funcionário desligado extrai CPF e endereço de todos os clientes com CPF gravado (a partir da F09) | Aceite da pessoa registrado na PR da F08. Mitigação vigente: linhas 6.4 com `usuarioId` no 200 e no 404. Quando entrar permissão por perfil (backlog): CPF inteiro só para quem edita, e revisar a expiração do JWT (ADR-004) | Pessoa (aceite), CARTOGRAFO (ADR futuro) |
 | B3 | Baixa (já existia) | A05 | Requisição recusada pelo `StrictHttpFirewall` (`%2e%2e`, `;` no caminho) vira 401 em `/error`, mesmo com token válido, e a resposta sai sem `Cache-Control`, `X-Frame-Options` e `X-Content-Type-Options` | Status enganoso (devia ser 400) e resposta sem cabeçalho de segurança. O corpo não tem dado pessoal, por isso a severidade é baixa | Bean `RequestRejectedHandler` que responde 400 no formato do ADR-011, reaproveitando o escritor de JSON do `RestAuthenticationEntryPoint`, com teste MockMvc para os dois caminhos. Não bloqueia a F08 | ESPRESSO, numa fatia de hardening a decidir pela pessoa |
 | B4 | Baixa | A04 | O `CHECK` da V4 valida formato (11 dígitos), não o dígito verificador | Script direto no banco grava CPF inválido; a tela mostra um CPF que não existe | Validação de dígito verificador na API da F09 (Bean Validation própria) com teste. Nada a fazer na F08, que não escreve | ESPRESSO (F09) |
@@ -263,6 +263,34 @@ O que isso prova para o detalhe: a cadeia de segurança e os cabeçalhos que ele
 | B6 | Baixa | LGPD | Não havia prazo de retenção para log de aplicação; as linhas 6.3 e 6.4 têm `usuarioId` e `clienteId` | Log guardado sem prazo vira cópia de rastreio sem descarte | Prazo proposto na seção 7 (90 dias, acesso só ADMIN), pendência P7 | ANCORA, pessoa |
 
 Conferido sem achado: o `JwtDecoder` fixa HS256 e recusa `alg: none` (provado acima); o caminho do detalhe fica fora de `PUBLIC_PATHS`; o `@PathVariable Long` com `@Positive` só deixa passar número positivo, e o `findById` do Spring Data é consulta parametrizada pela chave (sem SQL montado à mão); a mensagem fixa do 404 do ADR-019 não repete o id; o 500 não loga `getMessage()`; `show-sql`, bind do Hibernate e access log continuam desligados no `application.yml`; o DDL da V4 recusa valor inválido sem ecoar o valor na mensagem do MySQL (prova do CARTOGRAFO no ADR-018, não refeita por mim).
+
+### 8.2 Revisão do código da F08 (2026-11-17)
+
+Ramo `feat/f03b-clientes-detalhe` no commit `eb62813`. A PR #22 aponta para `a1295e1`, e os commits `c063e8c`, `735d3e4`, `eb62813` e o desta revisão ainda estão sem push. Ambiente: imagem do `Dockerfile` da API, `mysql:8.4` em rede Docker isolada, `JWT_SECRET` aleatório descartável, usuário FUNCIONARIO e dois clientes fictícios, um com CPF `12345678900`, telefone `11912345678`, email e endereço, e outro só com nome. O token veio do login real.
+
+| Chamada | Resultado |
+|---|---|
+| `GET /api/v1/clientes/1` com token | 200 com os seis campos, CPF e telefone inteiros, `Cache-Control: no-cache, no-store, max-age=0, must-revalidate` |
+| `GET /api/v1/clientes/2` (sem opcionais) | 200 com `cpf`, `telefone`, `email` e `endereco` presentes como `null` |
+| `GET /api/v1/clientes/999999` | 404 "Cliente nao encontrado" no formato do ADR-011, com `no-store`, sem dado pessoal |
+| `GET /api/v1/clientes/%20` e `/abc` | 400 "Parametro invalido: id", sem o valor rejeitado (F-1 corrigido) |
+| `GET /api/v1/clientes/%2520` | 401 em `/error`, sem cabeçalhos de segurança: é o B3, que já existia, e não o 400 de corpo vazio que o MockMvc mostrou ao ESPRESSO |
+| Sem token e com token de assinatura inválida | 401 "Nao autenticado" |
+| Token do mesmo usuário depois de `ativo=0` no banco | **200 com o CPF inteiro**: o JWT não é revogado e vale até expirar (7 dias). Agrava o B2, e entra no aceite P8 |
+| Log depois das chamadas | cinco linhas de cliente, só com `clienteId`, `usuarioId` e `qLen`: `clientes.detalhar` no 200, `clientes.detalhar.naoEncontrado` no 404, `clientes.listar` na busca por telefone. O 400 e o 401 não geram linha. O `grep -c` de CPF, de telefone (completo, trecho e mascarado), de `***`, do nome, do email, do endereço e das credenciais fictícias deu 0 |
+| `git grep` das chamadas de log em `apps/api/src/main` | só as três do `ClienteService` e o erro inesperado do handler |
+| `osv-scanner` no `pom.xml` | igual à revisão 2: só o B5 (2 médias em `commons-compress` 1.24.0), e 15 pacotes sem versão no pom não foram resolvidos. O ramo não muda nenhuma dependência em relação à `main` |
+
+Achados novos desta revisão, já corrigidos pelo ESPRESSO a pedido do VIGIA, com teste:
+
+| ID | Severidade | OWASP | Achado | Impacto concreto | Correção | Commit |
+|---|---|---|---|---|---|---|
+| C1 | Baixa | A09 / LGPD | B1 incompleto: o `ClienteListResponse` seguia com o `toString()` gerado | Um log em DEBUG da lista gravaria nome, telefone e email de até 100 clientes por página | `toString()` só com o id e `ClienteListResponseTest` | `c063e8c` |
+| C2 | Baixa | A09 / A05 | O handler do F-1 transformava em 400 todo `MissingPathVariableException`, inclusive o do mapeamento de rota errado, que é defeito do servidor | Um erro de rota futuro sairia como 400 "Parametro invalido", sem log ERROR, e ninguém veria | Só `isMissingAfterConversion()` vira 400. O resto segue para o erro inesperado (500 com log da classe e do caminho). Teste novo no `GlobalExceptionHandlerTest`, e o IT do `%20` continua verde | `735d3e4` |
+
+Conferido sem achado: o caminho do detalhe fica fora de `PUBLIC_PATHS`, o `findById` é parametrizado, o 404 não repete o id, o exemplo de CPF do OpenAPI tem dígito verificador inválido e nenhuma linha de log tem `getMessage()`. O CPF completo no detalhe segue a decisão da seção 2 e o aceite P8.
+
+O critério US-CLI-DET-11 do card pede máscara no log. A política manda não logar, e o log real mostrou zero ocorrências, nem mascaradas. Confirmar esse desvio do card é decisão da pessoa (D-F do PRD), e não muda esta política.
 
 ## 9. Pendências e donos
 
@@ -275,7 +303,7 @@ Conferido sem achado: o `JwtDecoder` fixa HS256 e recusa `alg: none` (provado ac
 | P5 | Datas de OS e pagamento (A6) | CARTOGRAFO | Rotina automática de R1 |
 | P6 | ~~Merge do PR #14 na `main` (A0)~~. **Fechada** na revisão 2: a `main` b1f29fc está em Boot 4.1.2 | Pessoa | — |
 | P7 | Retenção de log de aplicação (seção 7, achado B6): validar os 90 dias e definir onde o log fica quando houver deploy | Pessoa, ANCORA | Primeiro deploy com coletor ou arquivo de log |
-| P8 | Aceite do risco B2 (CPF e endereço inteiros para qualquer token válido) registrado na PR da F08 | Pessoa | Merge da F08 |
+| P8 | Aceite do risco B2 (CPF e endereço inteiros para qualquer token válido, inclusive o de usuário já desativado até o JWT expirar, provado na 8.2) registrado na PR da F08 | Pessoa | Merge da F08 |
 
 ## 10. Como verificar esta política na F03a
 
@@ -304,4 +332,5 @@ Conferido sem achado: o `JwtDecoder` fixa HS256 e recusa `alg: none` (provado ac
 | 2026-11-14 | Criação, antes de qualquer código de Clientes | commit 2488c75 |
 | 2026-11-16 | Entrou na `main` junto com o ADR-017, mergeado pela pessoa (sem review formal registrado no GitHub) | PR #15, merge 348a43e |
 | 2026-11-17 | Revisão 1: A0 e P6 apontam para o PR #14 (o #13 foi mergeado no ramo do #14, e a `main` segue em Boot 4.1.0); local do utilitário de máscara fixado em `security.MascaraDadoPessoal`; contrato exato da máscara (6.2.1); A0 e A1 reconferidos abertos na `main` dfab787. Base legal e prazos seguem como proposta (P1) | PR #17, merge 20fb438 |
-| 2026-11-17 | Revisão 2 (F03b): linhas de `cpf` e `endereco` aprovadas para a V4 da F08; CPF e telefone completos no detalhe autenticado registrados na seção 2; linhas de log do detalhe (6.4), incluindo o 404; regras de `toString()`, `Cache-Control` e retenção de log (seção 7); regras do app para o detalhe; parecer, evidência executada e achados B1 a B6 (8.1); A0, A1, A5 e P6 fechados; P7 e P8 novas. Base legal e prazos seguem como proposta (P1) | esta revisão |
+| 2026-11-17 | Revisão 2 (F03b): linhas de `cpf` e `endereco` aprovadas para a V4 da F08; CPF e telefone completos no detalhe autenticado registrados na seção 2; linhas de log do detalhe (6.4), incluindo o 404; regras de `toString()`, `Cache-Control` e retenção de log (seção 7); regras do app para o detalhe; parecer, evidência executada e achados B1 a B6 (8.1); A0, A1, A5 e P6 fechados; P7 e P8 novas. Base legal e prazos seguem como proposta (P1) | commit `b42d71b` |
+| 2026-11-17 | Revisão do código da F08 (8.2): log real do 200 e do 404 sem CPF nem telefone; B1 fechado, com C1 (`toString` da lista) e C2 (500 preservado no `MissingPathVariableException` de rota) corrigidos; token de usuário desativado lendo CPF inteiro registrado no B2 e no P8. Nada muda em coleta, base legal ou retenção | esta revisão |
