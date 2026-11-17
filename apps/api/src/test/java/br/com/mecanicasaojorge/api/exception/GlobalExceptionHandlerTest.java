@@ -45,6 +45,38 @@ class GlobalExceptionHandlerTest {
   }
 
   @Test
+  void shouldReturnNotFoundWithFixedMessageWhenDomainResourceDoesNotExist() {
+    when(request.getRequestURI()).thenReturn("/api/v1/clientes/999999");
+
+    ResponseEntity<ErrorResponse> response =
+        handler.handleRecursoNaoEncontrado(new ClienteNaoEncontradoException(), request);
+
+    assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+    assertThat(response.getBody()).isNotNull();
+    assertThat(response.getBody().status()).isEqualTo(404);
+    assertThat(response.getBody().erro()).isEqualTo("Not Found");
+    assertThat(response.getBody().mensagem()).isEqualTo("Cliente nao encontrado");
+    assertThat(response.getBody().path()).isEqualTo("/api/v1/clientes/999999");
+    assertThat(response.getBody().timestamp()).isNotNull();
+  }
+
+  @Test
+  void shouldPickMoreSpecificHandlerWhenDomainNotFoundIsAlsoAnAppError() throws Exception {
+    var resolver =
+        new org.springframework.web.method.annotation.ExceptionHandlerMethodResolver(
+            GlobalExceptionHandler.class);
+
+    assertThat(resolver.resolveMethodByThrowable(new ClienteNaoEncontradoException()).getName())
+        .isEqualTo("handleRecursoNaoEncontrado");
+    assertThat(resolver.resolveMethodByThrowable(new ErroDeExemplo("x")).getName())
+        .isEqualTo("handleAppError");
+    assertThat(resolver.resolveMethodByThrowable(new CredenciaisInvalidasException()).getName())
+        .isEqualTo("handleCredenciaisInvalidas");
+    assertThat(resolver.resolveMethodByThrowable(new java.util.NoSuchElementException()).getName())
+        .isEqualTo("handleUnexpected");
+  }
+
+  @Test
   void shouldReturnNotFoundWithFixedMessageWhenResourceDoesNotExist() {
     when(request.getRequestURI()).thenReturn("/api/v1/rota-inexistente");
 

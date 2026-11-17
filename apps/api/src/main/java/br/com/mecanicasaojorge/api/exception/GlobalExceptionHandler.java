@@ -41,6 +41,13 @@ public class GlobalExceptionHandler {
     return buildResponse(HttpStatus.UNAUTHORIZED, ex.getMessage(), request);
   }
 
+  /** Recurso de dominio inexistente (ADR-019): mensagem fixa da subclasse, sem log. */
+  @ExceptionHandler(RecursoNaoEncontradoException.class)
+  public ResponseEntity<ErrorResponse> handleRecursoNaoEncontrado(
+      RecursoNaoEncontradoException ex, HttpServletRequest request) {
+    return buildResponse(HttpStatus.NOT_FOUND, ex.getMessage(), request);
+  }
+
   @ExceptionHandler(AppError.class)
   public ResponseEntity<ErrorResponse> handleAppError(AppError ex, HttpServletRequest request) {
     return buildResponse(HttpStatus.UNPROCESSABLE_ENTITY, ex.getMessage(), request);
