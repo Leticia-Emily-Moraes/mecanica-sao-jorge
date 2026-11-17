@@ -144,6 +144,18 @@ Detalhe completo em `docs/design/F41-valores-fpdb8.md` §19. Resumo:
 - **Achado novo, P2 `83:754`:** gaps 16 e 10 (código 24 e 8), botões ancorados na base com 12 entre eles (código 10, agrupados com a mensagem). R-12, R-13 e R-14, do lado do código.
 - Nenhum frame fora de Login, Perfil, diálogo, tab bar e Início foi editado.
 
+### Quarta sessão de 17/11 com acesso (ESQUADRO, US-PAR-07, US-PAR-11): R-15, O-1 a O-3, anotação da tab bar, escudo e capturas
+
+Detalhe completo, com valor lido e id por linha, em `docs/design/F41-valores-fpdb8.md` §20. Resumo:
+
+- **Acesso:** `whoami` passou (handle "Leticia Moraes", plano "Time Pessoal" `team::1274094162661077353`, e-mail omitido); `create_session` → `11c14d87-2e3a-4429-be87-0133cebb0a28`. `download_assets` foi **negado** ("Claude requested permissions to use mcp__figma-remote__download_assets, but you haven't granted it yet."); não repeti e usei `get_screenshot` e `exportAsync`. `figma-use` não pôde ser carregado.
+- **Achado de processo:** ao chegar, encontrei no arquivo, **sem registro** neste documento, a variável `color/surface/skeleton` `98:713` (alias de `primitive/slate100` `98:712` = `#F1F5F9`) ligada ao fundo dos campos do L2 (`82:2042`, `82:2047`), e o texto "Mostrar" `98:714` no campo Senha do `10:936`. A edição é de depois da sessão da §19 (que registrou só `94:712` e `94:713`); não sei quem fez. Registrei o estado lido por valor e **não alterei nenhum dos dois**.
+- **R-15 (L2) e O-2 (`10:936`):** lidos por valor, batem com o código; PNGs reexportados (L2 `2aa84cf0…`, `10:936` `edbf416b…`). A coleção `OP-002 Identidade v2` (`89:712`) tem hoje **18 variáveis** (lido por `use_figma`): as 16 da §19 mais `primitive/slate100` `98:712` (escopo "todos") e `color/surface/skeleton` `98:713` (escopo só preenchimento de quadro e de forma).
+- **Anotação nativa "estado futuro"** gravada em `20:1102` e `20:1340` (P-01: "não se aplica ainda"), lida de volta. Não aparece nos PNGs (hashes idênticos).
+- **Escudo:** nó `10:906` (`variant=1`, 84 × 96) exportado em PNG 1x, 2x e 3x (RGBA) e SVG para `docs/design/f41-ativos/escudo/`. Autoria e licença: **sem registro no arquivo**; S-2 segue sem resposta da pessoa.
+- **Capturas:** 15 frames aprovados reexportados em `docs/design/f41-capturas/final-2026-11-16/`; 13 com hash idêntico, 2 mudaram (L2 e `10:936`).
+- **Não feito:** ligar variável a `size/avatar` e `typography/dialogMessage`; restante da tabela do ADR-014; rótulos "proposto" dos frames L1 a L4, P1, P2, T1, T2 e I1 (o texto de cada frame ainda diz "proposto").
+
 ## Páginas
 
 ### `F24 · Wireframe baixa fidelidade`

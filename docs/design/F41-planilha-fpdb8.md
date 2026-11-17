@@ -297,12 +297,12 @@ Registro de produto. O lado Figma é do ESQUADRO e o lado código é do ORLA; o 
 
 | Linha | Decisão da pessoa (16/11) | Lado | Estado depois desta seção |
 |---|---|---|---|
-| T-06 (aba selecionada) e P-01 | **não se aplica ainda**: as 4 abas estão desabilitadas e nenhuma navega, então não há rota para ficar selecionada | nenhum | **fechada** como "não se aplica ainda". O ESQUADRO anota "estado futuro" em `20:1102` e `20:1340`. **Reabre quando uma aba for habilitada.** |
+| T-06 (aba selecionada) e P-01 | **não se aplica ainda**: as 4 abas estão desabilitadas e nenhuma navega, então não há rota para ficar selecionada | nenhum | **fechada** como "não se aplica ainda". Anotação "estado futuro" **gravada** em `20:1102` e `20:1340` pelo ESQUADRO em 17/11 (`F41-valores-fpdb8.md` §20.3). **Reabre quando uma aba for habilitada.** |
 | T-11 (Início) | o Início **entra no aceite, por valor** (D-20 cai) | código e Figma já alinhados | frame I1 `89:971` aprovado; conferido por valor em `F41-valores-fpdb8.md` §17.3 e §19.2; deixa de ser "aberta" |
-| L-02 (escudo 84 × 96) | **entra no aceite** (D-21 cai): o ESQUADRO exporta o nó e registra origem e licença; o ORLA programa em PNG 1x, 2x e 3x, com teste | código | **aberta**, dentro do aceite (US-PAR-19); depende da licença (dúvida S-2 do PRD) |
-| R-15 (L2, campo em carregamento cinza) | a favor do **código** | **Figma** | **aberta**: ESQUADRO atualiza o L2 `82:2024` para a cor do skeleton, ligada à variável, e reexporta o PNG; ORLA cria o teste da cor do campo desabilitado; `F41-contraste.py` registra que campo desabilitado é isento |
+| L-02 (escudo 84 × 96) | **entra no aceite** (D-21 cai): o ESQUADRO exporta o nó e registra origem e licença; o ORLA programa em PNG 1x, 2x e 3x, com teste | código | **aberta**, dentro do aceite (US-PAR-19). **Exportado em 17/11** (PNG 1x, 2x, 3x e SVG em `docs/design/f41-ativos/escudo/`); origem lida, **licença sem registro** (S-2 do PRD sem resposta); código e teste são do ORLA. Ver `F41-valores-fpdb8.md` §20.4 |
+| R-15 (L2, campo em carregamento cinza) | a favor do **código** | **Figma** | **lado Figma fechado em 17/11**: L2 `82:2024` com o fundo ligado a `color/surface/skeleton` (`#F1F5F9`, idêntico ao `tokens.ts`), PNG reexportado, e `F41-contraste.py` com o campo desabilitado isento (D2 e D3, saída 0). **Aberto, do ORLA:** o teste que trava a cor do campo desabilitado (`F41-valores-fpdb8.md` §20.1) |
 | O-1 (ícone do círculo do P2) | exceção D-10: Ionicons mantidos | nenhum | **decidida** |
-| O-2 (`10:936` sem "Mostrar") | a favor do **código** (o frame é antigo) | **Figma** | **aberta**: ESQUADRO atualiza `10:936` com "Mostrar" no campo Senha e reexporta o PNG |
+| O-2 (`10:936` sem "Mostrar") | a favor do **código** (o frame é antigo) | **Figma** | **fechada em 17/11, lado Figma**: `10:936` com "Mostrar" no campo Senha (nó `98:714`, Inter Medium 13, Flint), PNG reexportado (`F41-valores-fpdb8.md` §20.2) |
 | O-3 (spinner nativo do P1) | só de plataforma (ADR-014:216) | nenhum | **decidida** |
 | `f41-capturas` | os 6 `par-*.png` antigos enganam | repositório | **removidos** (histórico no git); referência = `final-2026-11-16` e `app-2026-11-16-orla`; `LEIA-ME.md` na pasta |
 

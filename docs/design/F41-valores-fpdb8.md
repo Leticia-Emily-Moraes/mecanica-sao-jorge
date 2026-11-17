@@ -1,7 +1,7 @@
 # F41 · Planilha de valores FPdB8 × código (linha de base, sem captura)
 
 Autor: ESQUADRO · Data: 2026-11-16 · Código conferido: ramo `feat/f41-paridade-fpdb8-codigo` em `937a3d1` · Arquivo de referência: `FPdB8RymAnN81pbKfizdzE`, página `20:2132`.
-**Atualização de 16/11, sessão com acesso ao Figma (ESQUADRO): a §15 substitui a §1 (acesso), a §7 (bloqueios) e as linhas de estado "aberta/bloqueada" que ela reclassifica.** As seções 1 a 14 ficam como histórico da sessão sem acesso.
+**Atualização de 16/11, sessão com acesso ao Figma (ESQUADRO): a §15 substitui a §1 (acesso), a §7 (bloqueios) e as linhas de estado "aberta/bloqueada" que ela reclassifica.** As seções 1 a 14 ficam como histórico da sessão sem acesso. **A §20 (17/11) é a leitura mais recente** e substitui a §19.7 e a §19.8; as marcas de lacuna da §4 foram reconciliadas nela (§20.7).
 Substitui, por decisão de 16/11, o critério dos "pares lado a lado" (US-PAR-01, 08, 12, 13). Cada tela e estado tem uma linha por valor do frame (nó, token, medida, texto), o valor no código e o teste que o trava. A planilha de divergências com a história das decisões continua em `docs/design/F41-planilha-fpdb8.md`.
 
 ## 1. O que eu li e o que não consegui ler (US-PAR-11)
@@ -21,7 +21,7 @@ Referência = **simulador iPhone 17, iOS 27.0, Expo Go, retrato, escala de fonte
 
 - **Token**: o teste compara com `color.x` / `size.x` do `tokens.ts`. Trava o **uso**; se alguém mudar o hex no `tokens.ts`, o teste continua verde. O hex só fica travado com o teste de tokens da §6 (**ainda não existe**: `src/theme/tokens.test.ts` não está no ramo).
 - **Texto**: o teste procura a string literal.
-- **FALTA**: nenhum teste lê esse valor hoje. Vai para a lista da §6.
+- **Sem trava**: nenhum teste lê esse valor; a lacuna fica listada na §20.3. (Reconciliado em 17/11: as marcas de lacuna da primeira leitura foram trocadas por evidência de teste ou por lacuna declarada.)
 - Estado da linha: **igual** (código = frame), **aberta** (código ≠ frame aprovado, correção é do ORLA), **bloqueada** (depende do Figma ou de ativo).
 
 ## 4. Valores por tela e estado
@@ -35,39 +35,39 @@ Referência = **simulador iPhone 17, iOS 27.0, Expo Go, retrato, escala de fonte
 | V-L03 | vazio | escudo 84 × 96, centralizado, acima do título (`10:895`) | **ausente** | — | **bloqueada**: ativo sem origem/licença (§7) |
 | V-L04 | vazio | título "MECÂNICA SÃO JORGE", Barlow Condensed Bold 30, espaçamento 0,6, petro (`10:895`) | `login.titulo`, `typography.brandTitle` | `brand-header.test` (família, 30, 0,6, `color.text.primary`); `login.test` (texto do subtítulo) | igual |
 | V-L05 | vazio | subtítulo "Gestão da oficina", Inter 13, Flint | `login.subtitulo`, `typography.subtitle` | `brand-header.test`, `login.test` (texto) | igual |
-| V-L06 | vazio | rótulo "Usuário", Inter Medium 13, Flint, 6 até o campo | `login.campoEmail.rotulo`, `typography.fieldLabel`, `spacing.s6` | `login.test` (texto "Usuário", e "E-mail" ausente); estilo do rótulo **FALTA** | igual (estilo sem trava) |
-| V-L07 | vazio | placeholders "Seu usuário" e "Sua senha", cor Flint (aprovado 16/11) | `login.campoEmail.placeholder`, `login.campoSenha.placeholder`, `color.text.placeholder` | `text-field.test` (token); textos **FALTA** | igual; hex depende do §6 (hoje já Flint) |
-| V-L08 | vazio | campo altura 46, raio 8, borda 1 px, margem interna 14, fundo branco, texto Inter 15 | `size.field`, `radius.sm`, `borderWidth.hairline`, `FIELD_PADDING` | `text-field.test` "46 of height… hitSlop 48" e "1 px at rest" (token); **raio, margem interna e Inter 15: FALTA** | igual |
+| V-L06 | vazio | rótulo "Usuário", Inter Medium 13, Flint, 6 até o campo | `login.campoEmail.rotulo`, `typography.fieldLabel`, `spacing.s6` | `login.test` (texto "Usuário", e "E-mail" ausente); estilo do rótulo (Inter Medium 13): sem trava, lacuna §20.3 | igual (estilo sem trava) |
+| V-L07 | vazio | placeholders "Seu usuário" e "Sua senha", cor Flint (aprovado 16/11) | `login.campoEmail.placeholder`, `login.campoSenha.placeholder`, `color.text.placeholder` | `text-field.test` (token); textos "Seu usuário" e "Sua senha" em `login.test` (linhas 84 e 85) | igual; hex Flint travado em `tokens.test` (linha 36) e variável no Figma (§15.1) |
+| V-L08 | vazio | campo altura 46, raio 8, borda 1 px, margem interna 14, fundo branco, texto Inter 15 | `size.field`, `radius.sm`, `borderWidth.hairline`, `FIELD_PADDING` | `text-field.test` "46 of height… hitSlop 48" e "1 px at rest" (token); raio 8 e margem interna 14 + 1 de borda em `text-field.test` (linha 191); Inter 15: sem trava, lacuna §20.3 | igual |
 | V-L09 | vazio | borda de repouso `#8C8780` (aprovado 16/11) | `color.border.default` = `slate500` `#64748B` | `text-field.test` (token) | **aberta**: trocar para `#8C8780` |
 | V-L10 | foco | borda de 2 px Crail `#B5453D` no campo (`10:895`, leitura do ESQUADRO) | `color.border.focusField`, `borderWidth.field` | `text-field.test` "2 px Crail border while focused" | igual |
-| V-L11 | vazio, preenchido | botão Entrar 50, raio 8, Crail, Inter SemiBold 15 branco, 304 de largura (`20:1073`) | `size.button`, `radius.sm`, `typography.button` | `button.test` "50 of height with radius 8" e "primary Crail with white text" (token); fonte e 304 em 320/430: **FALTA** | igual |
-| V-L12 | vazio | ritmo: 16 entre grupos, rótulo→campo 6, bloco do logo com 10 entre itens e 14 abaixo | `spacing.md`, `spacing.s6`, `brand-header.tsx` | **FALTA** | igual (sem trava) |
+| V-L11 | vazio, preenchido | botão Entrar 50, raio 8, Crail, Inter SemiBold 15 branco, 304 de largura (`20:1073`) | `size.button`, `radius.sm`, `typography.button` | `button.test` "50 of height with radius 8" e "primary Crail with white text" (token); sem `width` fixo em 320 e 430 em `login.test` (linhas 278 a 286); fonte Inter SemiBold 15 e os 304: sem trava, lacuna §20.3 | igual |
+| V-L12 | vazio | ritmo: 16 entre grupos, rótulo→campo 6, bloco do logo com 10 entre itens e 14 abaixo | `spacing.md`, `spacing.s6`, `brand-header.tsx` | sem trava, lacuna §20.3 | igual (sem trava) |
 | V-L13 | preenchido (L1 `82:1990`) | ação na senha com texto visível "**Mostrar**" | visível "Mostrar senha" (`login.campoSenha.mostrar`) | `login.test` "toggle password visibility" | **aberta** (texto): visível "Mostrar"/"Ocultar", nome acessível "Mostrar senha"/"Ocultar senha" (WCAG 2.5.3); duas chaves novas |
 | V-L14 | carregando (L2 `82:2024`) | "Entrando…" com indicador, campos preenchidos | `login.botaoEntrar.carregando` = "Entrando..." e `ActivityIndicator`; botão a opacidade 0,5 (`opacity.disabled`) | `button.test` "loading label, busy" | **aberta a conferir**: frame não lido hoje; sugestão da planilha é não esmaecer o botão. Texto com reticências: "…" do frame × "..." do código **não lido** |
-| V-L15 | erro de credencial (`10:936`) | caixa Pot Pourri `#F6E7E5`, borda Rose Fog `#E2B5B0` 1 px, raio 8, margem 13, ícone 18, texto El Salva `#923631` Inter 14 / 19,6, entre senha e botão | `InlineAlert`, `AlertIcon` | `inline-alert.test` (cores por token; sem altura fixa), `alert-icon.test` (círculo, 18, El Salva), `login.test` (posição entre senha e botão); **14/19,6, margem 13, gap 10, raio 8: FALTA** | igual |
+| V-L15 | erro de credencial (`10:936`) | caixa Pot Pourri `#F6E7E5`, borda Rose Fog `#E2B5B0` 1 px, raio 8, margem 13, ícone 18, texto El Salva `#923631` Inter 14 / 19,6, entre senha e botão | `InlineAlert`, `AlertIcon` | `inline-alert.test` (cores por token; sem altura fixa), `alert-icon.test` (círculo, 18, El Salva), `login.test` (posição entre senha e botão); 14/19,6, margem 13 e gap 10 em `inline-alert.test` (linhas 48 a 61); raio 8: sem trava, lacuna §20.3 | igual |
 | V-L16 | erro de credencial | texto "Usuário ou senha incorretos. Confira os dados e tente novamente." | `login.erroCredencial.mensagem` | `login.test` (texto) | igual |
 | V-L17 | erro de credencial | os **dois** campos com borda de 2 px Crail | `invalid` nos dois `TextField` | `login.test` "mark both fields with a 2 px error border" (token) | igual |
 | V-L18 | erro de conexão (L3 `82:2058`) | **caixa de erro** entre a senha e o botão, no estilo de `10:967`; redação proposta "Sem conexão. Verifique a internet da oficina e tente de novo." | popup `ErrorRetryModal` com "Não foi possível conectar." | `login.test` "network error modal" trava o **popup** | **aberta** (estrutura, texto): trocar o popup pela caixa. Texto exato do frame L3 **não lido hoje**, ler em `82:2058` |
-| V-L19 | sessão expirada (L4 `82:2098`) | aviso no topo do formulário, caixa do erro | `InlineAlert` "Sua sessão expirou. Faça login novamente." acima do e-mail | **FALTA** (nenhum teste de sessão expirada na tela) | **aberta a conferir**: texto do frame **não lido hoje** |
+| V-L19 | sessão expirada (L4 `82:2098`) | aviso no topo do formulário, caixa do erro | `InlineAlert` "Sua sessão expirou. Faça login novamente." acima do e-mail | `login.test` (linhas 40 e 227: texto e posição acima do campo Usuário) e `use-login.test` (linha 182) | **fechada**: texto e posição idênticos ao frame (§15.2, §17.2) |
 | V-L20 | validação de campo | "Informe seu usuário" / "Informe sua senha" abaixo do campo | `login.campoEmail.erroVazio`, `login.campoSenha.erroVazio` | `login.test` (texto) | **sem frame**: o texto é do código (não há frame de validação no FPdB8); registrado como "não se aplica ao frame", mantido |
 
 ### 4.2 Perfil (`10:3842`; P1 `83:712`, P2 `83:754` aprovados)
 
 | ID | Estado | Valor no FPdB8 (nó) | Código | Trava | Estado |
 |---|---|---|---|---|---|
-| V-P01 | preenchido | cabeçalho petro altura 56; título "Perfil" Barlow Condensed SemiBold 21, espaçamento 0,21, branco (`20:2083`) | `ScreenHeader`, `typography.appBarTitle` | `screen-header.test` (petro, branco, 56); família/21/0,21: **FALTA** | igual |
+| V-P01 | preenchido | cabeçalho petro altura 56; título "Perfil" Barlow Condensed SemiBold 21, espaçamento 0,21, branco (`20:2083`) | `ScreenHeader`, `typography.appBarTitle` | `screen-header.test` (petro, branco, 56); família, 21 e 0,21: sem trava, lacuna §20.3 | igual |
 | V-P02 | preenchido | seta de voltar em botão 36 × 36, raio 8, branco 12%, ícone 18 (`20:2083`) | `HeaderIconButton`, `size.iconButton`, `iconSize.appBar` | `header-icon-button.test` (36, raio, translúcido, hitSlop 48) | igual; ícone é Ionicons (D-10) |
 | V-P03 | preenchido | avatar círculo 84 Spectra `#33575D`, iniciais Barlow SemiBold 32 branco | `Avatar`, `size.avatar`, `color.surface.avatar` | `avatar.test` (84, raio 42, Spectra, branco) | igual |
-| V-P04 | preenchido | nome "João da Silva", Barlow SemiBold 24 petro, centralizado | `perfil.tsx` `styles.name` | `perfil.test` (texto); **estilo FALTA** | igual (estilo sem trava) |
+| V-P04 | preenchido | nome "João da Silva", Barlow SemiBold 24 petro, centralizado | `perfil.tsx` `styles.name` | `perfil.test` (texto); estilo em `perfil.test` (linhas 73 a 81) | igual |
 | V-P05 | preenchido | selo pill `999` petro, "ADMIN" Inter SemiBold 12 branco, sob o nome | `AccessProfileBadge` | `access-profile-badge.test` "petro pill with white text" | igual |
-| V-P06 | preenchido | cartão branco, borda 1 px Westar `#E2DEDA`, raio 8, margem 15, sombra `0 1 1 rgba(30,58,63,.06)` | `InfoCard`, `shadow.card` | `info-card.test` trava só conteúdo e ordem; **borda, raio, margem, sombra: FALTA** | igual (sem trava) |
+| V-P06 | preenchido | cartão branco, borda 1 px Westar `#E2DEDA`, raio 8, margem 15, sombra `0 1 1 rgba(30,58,63,.06)` | `InfoCard`, `shadow.card` | `info-card.test` (linhas 42 a 56) trava borda 1 px, raio 8, margem 15 e sombra | igual |
 | V-P07 | preenchido | 3 linhas: rótulo Flint 14, valor petro Inter Medium 14 à direita: "Usuário", "Perfil de acesso", "Versão do app" | `perfil.rotuloUsuario`, `rotuloPerfil`, `rotuloVersao`; `typography.rowLabel/rowValue` | `info-card.test` (rótulo+valor), `perfil.test` (e-mail sob "Usuário"; versão) | igual |
 | V-P08 | preenchido | valor de "Usuário" no frame: "joao.silva"; decisão 16/11: **e-mail sob o rótulo Usuário** | `usuario.email` | `perfil.test` "e-mail under the Usuário label" | igual (dado ≠, decidido) |
 | V-P09 | preenchido | "Versão do app" = "1.0.0" no frame; decisão 16/11: **versão real 0.1.0** | `getAppVersion()` de `app.config.ts` | `app-version.test`, `perfil.test` "reads the version from the Expo config" | igual (dado ≠, decidido) |
 | V-P10 | preenchido | "Administrador" (cartão) e "ADMIN" (selo); **Funcionário no estilo do selo ADMIN** (decisão 16/11) | `describeAccessProfile` | `access-profile.test`, `access-profile-badge.test`, `perfil.test` "FUNCIONARIO" | igual |
-| V-P11 | preenchido | "Sair da conta": contorno Westar 1 px, sem fundo, texto Crail Inter SemiBold 15, altura 50, raio 8, no rodapé | `Button variant="outlineAccent"`, `styles.footer` | `button.test` "outlineAccent… Westar outline and Crail text" (token); rodapé: **FALTA** | igual |
+| V-P11 | preenchido | "Sair da conta": contorno Westar 1 px, sem fundo, texto Crail Inter SemiBold 15, altura 50, raio 8, no rodapé | `Button variant="outlineAccent"`, `styles.footer` | `button.test` "outlineAccent… Westar outline and Crail text" (token); rodapé: sem trava, lacuna §20.3 | igual |
 | V-P12 | preenchido | **sem** tab bar | Perfil fora de `(menu)` | `perfil.test` "without a tab bar" | igual |
-| V-P13 | preenchido | fundo Pampas, margem 16, 12 entre blocos, 20 acima do avatar e 8 abaixo | `ScreenContainer`, `styles.identity` (36 acima, 20 entre selo e cartão, medido em 10:3842) | `screen-container.test`; ritmo **FALTA** | igual (sem trava) |
+| V-P13 | preenchido | fundo Pampas, margem 16, 12 entre blocos, 20 acima do avatar e 8 abaixo | `ScreenContainer`, `styles.identity` (36 acima, 20 entre selo e cartão, medido em 10:3842) | `screen-container.test`; ritmo: sem trava, lacuna §20.3 | igual (sem trava) |
 | V-P14 | carregando (P1 `83:712`) | fundo Pampas, indicador petro e texto **visível** "Carregando sessão…" abaixo | `StateView loading`: só o indicador; o texto existe só como nome acessível | `state-view.test` (progressbar, busy, anúncio) | **aberta** (estrutura, texto): mostrar o texto visível em Flint |
 | V-P15 | erro (P2 `83:754`) | **tela cheia** sem cabeçalho e sem tab bar: ícone de sem conexão em círculo, título "Não foi possível carregar" (Barlow, petro), mensagem "Verifique a internet da oficina e tente de novo. Se continuar, entre novamente.", **botão cheio Crail "Tentar novamente" e botão de contorno "Entrar novamente"** (ajuste de 16/11) | popup `ErrorRetryModal` com ⚠ sobre o conteúdo; "Tentar novamente" cheio e "Entrar novamente" contorno petro; mensagem "Verifique sua conexão e tente novamente." | `state-view.test` (popup), `index.test` "retry modal" | **aberta** (estrutura, ícone, texto). O frame `83:754` ainda desenha os **dois** botões em contorno: ajustar o frame (bloqueado, §7) e o código |
 
@@ -75,12 +75,12 @@ Referência = **simulador iPhone 17, iOS 27.0, Expo Go, retrato, escala de fonte
 
 | ID | Valor no FPdB8 | Código | Trava | Estado |
 |---|---|---|---|---|
-| V-D01 | título "Sair da conta?", Barlow Condensed Bold 22 petro, à esquerda | `perfil.dialogoLogout.titulo`, `typography.dialogTitle` | `perfil.test` (texto); fonte **FALTA** | igual |
-| V-D02 | mensagem "Você vai precisar do usuário e senha para entrar de novo." Inter 14 / 21 Flint | `perfil.dialogoLogout.mensagem`, `typography.dialogMessage` | `perfil.test` (texto), `confirm-dialog.test` (presença); 14/21 **FALTA** | igual |
+| V-D01 | título "Sair da conta?", Barlow Condensed Bold 22 petro, à esquerda | `perfil.dialogoLogout.titulo`, `typography.dialogTitle` | `perfil.test` (texto); fonte em `tokens.test` (linha 130) | igual |
+| V-D02 | mensagem "Você vai precisar do usuário e senha para entrar de novo." Inter 14 / 21 Flint | `perfil.dialogoLogout.mensagem`, `typography.dialogMessage` | `perfil.test` (texto), `confirm-dialog.test` (presença); 14/21 em `tokens.test` (linha 134) | igual |
 | V-D03 | botões lado a lado: Cancelar (contorno petro) e Sair (Crail), 50, raio 8, 10 entre eles | `ConfirmDialog`, `spacing.s10` | `confirm-dialog.test` "Cancelar before Sair, side by side"; `button.test` (variantes) | igual |
-| V-D04 | cartão branco, raio 10, margem 20, 14 entre blocos, 22 do lado da tela | `radius.dialog`, `spacing.s20`, `spacing.s14`, `spacing.s22` | **FALTA** | igual (sem trava) |
-| V-D05 | sombra `0 12 16 rgba(0,0,0,.25)` | `shadow.dialog` (iOS exato; Android `elevation` 8) | **FALTA** | igual no iOS; Android aproximado (D-16) |
-| V-D06 | scrim petro a 55% `rgba(30,58,63,.55)` | `color.surface.overlay` | **FALTA** | igual |
+| V-D04 | cartão branco, raio 10, margem 20, 14 entre blocos, 22 do lado da tela | `radius.dialog`, `spacing.s20`, `spacing.s14`, `spacing.s22` | `confirm-dialog.test` (linhas 73 a 86: raio 10, margem 20, 14 entre blocos; o lado de 22 não foi conferido no teste) | igual |
+| V-D05 | sombra `0 12 16 rgba(0,0,0,.25)` | `shadow.dialog` (iOS exato; Android `elevation` 8) | `confirm-dialog.test` (linhas 83 a 86: `0 12 16` a 25%, iOS) | igual no iOS; Android aproximado (D-16) |
+| V-D06 | scrim petro a 55% `rgba(30,58,63,.55)` | `color.surface.overlay` | `confirm-dialog.test` (linhas 94 a 96 travam o estilo do fundo; o literal do scrim não foi conferido na leitura) | igual |
 | V-D07 | rótulos "Cancelar" e "Sair" | `perfil.dialogoLogout.botaoCancelar`, `botaoConfirmar` | `perfil.test` (Cancelar mantém a sessão; Sair limpa o token) | igual |
 
 ### 4.4 Tab bar (`20:1102` Ordens, `20:1340` Clientes; T1 `83:817`, T2 `83:844` aprovados)
@@ -89,13 +89,13 @@ Referência = **simulador iPhone 17, iOS 27.0, Expo Go, retrato, escala de fonte
 |---|---|---|---|---|---|
 | V-T01 | padrão | 4 itens na ordem Ordens, Clientes, Catálogo, Financeiro, sem Perfil | `ENTRIES` em `menu-tab-bar.tsx` | `menu-tab-bar.test` "four Figma items… no Perfil" e "Figma order" | igual |
 | V-T02 | padrão | rótulos "Ordens", "Clientes", "Catálogo", "Financeiro" | `menu.tabbar.*.rotulo` | `menu-tab-bar.test` "short Figma labels" | igual |
-| V-T03 | padrão | barra 62, células 90 × 62, ícone 22, rótulo 11, 4 entre ícone e rótulo (`20:1102`) | `size.tabBar`, `iconSize.tab`, `spacing.xs` | `menu-tab-bar.test` "explicit height of 62"; ícone 22 e gap: **FALTA** | igual |
-| V-T04 | padrão | fundo petro, sem borda | `color.surface.brand` | **FALTA** | igual |
+| V-T03 | padrão | barra 62, células 90 × 62, ícone 22, rótulo 11, 4 entre ícone e rótulo (`20:1102`) | `size.tabBar`, `iconSize.tab`, `spacing.xs` | `menu-tab-bar.test` "explicit height of 62"; ícone 22 em `tokens.test` (linha 88; trava o token, não o uso) e gap 4 em `tab-bar-item.test` (linha 191) | igual |
+| V-T04 | padrão | fundo petro, sem borda | `color.surface.brand` | sem trava, lacuna §20.3 | igual |
 | V-T05 | inativo | ícone e rótulo Tide `#B7B2AC`, rótulo Inter Medium 11 | `color.text.onBrandMuted`, `typography.tabLabel` | `tab-bar-item.test` "11 label in Medium… Tide" (token) | igual |
 | V-T06 | selecionado | ícone e rótulo **`#EE8279`** (aprovado 16/11), Inter SemiBold 11, sem pílula, anúncio "selecionado" | `color.text.tabSelected` = **branco `#FFFFFF`** (PROVISÓRIO) | `tab-bar-item.test` "selected label in SemiBold", "no pill", `accessibilityState.selected` (token) | **aberta**: trocar para `#EE8279`. Nenhum item é selecionável no app; só o teste do componente isolado prova |
-| V-T07 | desabilitado (T2 `83:844`) | 4 itens a **50%** de opacidade, nenhum selecionado, anunciados como indisponíveis | `opacity.unavailable` = **0,6** | `menu-tab-bar.test` "every item disabled… none selected"; opacidade **FALTA** | **aberta**: 0,6 → 0,5 (valor lido na legenda do frame T2) |
+| V-T07 | desabilitado (T2 `83:844`) | 4 itens a **50%** de opacidade, nenhum selecionado, anunciados como indisponíveis | `opacity.unavailable` = 0,5 | `menu-tab-bar.test` "every item disabled… none selected"; opacidade 0,5 em `tokens.test` (linha 96) e `tab-bar-item.test` (linha 205) | **fechada** no código (§14) e lida no frame T2 (§19.4) |
 | V-T08 | foco (T1 `83:817`) | anel **branco** de 2 px com respiro de 2 px no item (legenda: 12,12:1 sobre petro) | `useFocusRing`: borda **petro** + halo branco | `tab-bar-item.test` "focus ring only while focused" (existência, não a cor) | **aberta**: sobre a barra petro o anel petro some; usar anel branco (token `focus.ringOnBrand`, hoje inexistente) |
-| V-T09 | todos | ícones de linha do arquivo (documento, pessoas, caixa, cartão) | Ionicons `document-text-outline`, `people-outline`, `cube-outline`, `card-outline` | **FALTA** | **exceção registrada** (D-10): Ionicons mantidos; desenho difere do arquivo |
+| V-T09 | todos | ícones de linha do arquivo (documento, pessoas, caixa, cartão) | Ionicons `document-text-outline`, `people-outline`, `cube-outline`, `card-outline` | sem trava dos nomes dos ícones; lacuna §20.3 | **exceção registrada** (D-10): Ionicons mantidos; desenho difere do arquivo |
 | V-T10 | não navega | desabilitado não chama `onPress` | `unavailable` + `disabled` | `menu-tab-bar.test` "not navigate when disabled item is pressed" | igual |
 
 ### 4.5 Cabeçalho com botão de usuário (`20:1079`, `10:981`)
@@ -595,3 +595,145 @@ Li a estrutura da tela `83:759` por valor (auto layout). Coluna `83:761`, margem
 | Zero divergência real aberta | **não**: R-12, R-13, R-14 (ORLA) e P-01 (pessoa) |
 
 **US-PAR-07 fecha** (lida no arquivo). **US-PAR-08 não fecha** até R-12 a R-14 serem corrigidas e P-01 decidida. O PR #16 deve continuar em rascunho.
+
+## 20. Quarta sessão com acesso ao Figma (ESQUADRO, 17/11): R-15, O-1 a O-3, anotação da tab bar, escudo e reconciliação das marcas de lacuna
+
+Autor: ESQUADRO · Sessão `11c14d87-2e3a-4429-be87-0133cebb0a28` · Arquivo `FPdB8RymAnN81pbKfizdzE` · Código lido no ramo `feat/f41-paridade-fpdb8-codigo` em `5e02e57`. **Esta seção substitui a §19.7 e a §19.8 no estado de R-15, O-2, P-01 e do escudo.** Li o arquivo hoje, nó por nó; a CRIVO pode conferir pelos ids. Não alterei código do app.
+
+**Acesso (US-PAR-11), saída real do `whoami` (e-mail omitido de propósito):**
+`{"whoami":{"user_id":"1126488233271433922","handle":"Leticia Moraes","plans":[{"name":"Time Pessoal","seat":"Full","tier":"student","key":"team::1274094162661077353","role":"admin","specs_enabled":true,"code_layers_enabled":true}]}}`
+`create_session` devolveu `11c14d87-2e3a-4429-be87-0133cebb0a28`. Sem erro de permissão em `use_figma`, `get_variable_defs`, `get_screenshot` e `get_metadata`. **Negado nesta sessão:** `download_assets` ("Claude requested permissions to use mcp__figma-remote__download_assets, but you haven't granted it yet."). Não repeti: troquei por `get_screenshot` (frames) e por `exportAsync` dentro do `use_figma` (escudo). A instrução `figma-use` não pôde ser carregada (não há `get_figma_skill` nem leitura de `skill://` nesta sessão); cada escrita foi um passo pequeno, com leitura antes e depois.
+
+### 20.1 R-15: campo em carregamento do L2 `82:2024` (decisão de 16/11: a favor do código, o Figma muda). Lado corrigido: **Figma**
+
+| Item | Figma (lido hoje) | Código (`5e02e57`) | Resultado |
+|---|---|---|---|
+| fundo do campo Usuário `82:2042` e Senha `82:2047` | preenchimento `#f1f5f9`, **ligado** à variável `color/surface/skeleton` (`VariableID:98:713`, alias de `primitive/slate100` `98:712` = `#f1f5f9`) | `color.surface.skeleton` = `primitiveColor.slate100` = `#F1F5F9` (`tokens.ts:35` e `:49`), aplicado por `inputRowDisabled` (`text-field.tsx:139-141`) quando `editable` é falso | **idêntico** |
+| borda dos mesmos campos | `#8c8780`, 1 px, ligada a `color/border/default` (`89:717`), raio 8 | `color.border.default` = `#8C8780`, `borderWidth.hairline`, `radius.sm`; a borda de repouso continua no campo desabilitado | **idêntico** |
+| texto digitado `82:2043` e `82:2048` | petro `#1e3a3f` (`color/cyan/18`), Inter Regular 15 | `typography.input` e `color.text.primary` | igual |
+| `get_variable_defs` do `82:2024` | devolve `color/surface/skeleton: #f1f5f9`, `color/border/default: #8c8780`, `size/loadingIndicator: 16` | , | confirma a ligação |
+
+**Achado de processo, declarado:** a variável `color/surface/skeleton` (`98:713`) e a ligação já estavam no arquivo quando cheguei, e o PNG do L2 já estava alterado na árvore de trabalho, **sem nenhum registro meu ou de outro agente**. Não sei quem fez nem quando (não li o histórico de versões). O que afirmo é só o estado de hoje, lido por valor. PNG reexportado hoje: `login-carregando-L2-82-2024.png`, md5 `2aa84cf0bdd4ddffee13f8912c972e71`, idêntico ao arquivo modificado na árvore (o commitado tinha `0afa468f…`, da §19.3). Abri a imagem: campos em cinza-azulado, botão "Entrando…" com indicador à esquerda.
+
+**Isenção do campo desabilitado:** registrada em `docs/design/F41-contraste.py` como pares `D2` (valor petro sobre skeleton, 11,07:1) e `D3` (borda `#8C8780` contra skeleton, 3,25:1), tipo `isento` (componente inativo, WCAG 1.4.3 e 1.4.11). `python3 -I docs/design/F41-contraste.py` → saída 0, "OK: todos os pares obrigatórios atingem o alvo". As razões passam sozinhas; a isenção só garante que um valor futuro não derrube o script por um campo inativo.
+
+**Aberto, do ORLA:** o teste que trava a cor do campo desabilitado **não existe**. `text-field.test.tsx` só cobre `editable={false}` e `accessibilityState` (linhas 92 a 98) e `tokens.test.ts` não tem `#F1F5F9`. Sugestão: asserção de `backgroundColor` = `#F1F5F9` no `text-field-box` com `editable={false}`, e `['skeleton', color.surface.skeleton, '#F1F5F9']` na tabela do `tokens.test`.
+
+### 20.2 O-1, O-2 e O-3: classificação e lado corrigido (US-PAR-05 e US-PAR-06)
+
+| # | Diferença | Classe | Decisão (16/11) | Lado corrigido | Evidência |
+|---|---|---|---|---|---|
+| O-1 | P2 `83:754`, ícone do círculo: o frame desenha um ícone de rede cortado; o app usa `cloud-offline-outline` (Ionicons) | **real, coberta pela exceção D-10** | Ionicons mantidos | **nenhum** (nem código, nem Figma) | par `app-2026-11-16-orla/lado-a-lado-perfil-erro.png` (ORLA); ver D-10 na §8 |
+| O-2 | `10:936` não tinha "Mostrar" no campo Senha; o app (e L1 a L4) tem | **real**, frame antigo | a favor do **código** | **Figma** | nó `98:714` lido hoje (abaixo) e PNG reexportado |
+| O-3 | P1 `83:712`: anel contínuo no frame; `ActivityIndicator` nativo no app | **só de plataforma** (ADR-014:216, D-16) | nada muda | **nenhum** | par `app-2026-11-16-orla/lado-a-lado-perfil-carregando.png` (ORLA) |
+
+**O-2, valor lido em `10:936`:** o campo Senha `10:965` (304 × 46, borda de erro de 2 px Crail, raio 8) já contém o texto `98:714` "Mostrar" (nome "Mostrar senha"): **Inter Medium 13**, linha 21, preenchimento `#6e6a66` **ligado** a `color/grey/42` (`1:41`, Flint), `x` 239, `y` 12,5, 49 × 21. Conferência da posição: 304 − 2 (borda de erro) − 14 (margem interna) − 49 = 239, que é a regra do código (`FIELD_PADDING` com a borda compensada, `text-field.tsx:102-133`); no L1 a borda é de 1 px e o texto fica em 240. O texto bate com `login.campoSenha.mostrarTexto`. PNG `login-erro-credencial-10-936.png` reexportado hoje: md5 `d8d823aa…` → `edbf416b5e4b6c2c0dc2a914172e1af5`, e conferido visualmente ("Mostrar" à direita da senha, caixa de erro abaixo, botão Entrar). **Mesmo achado de processo da §20.1:** o nó `98:714` (faixa de ids da sessão que criou `98:713`) já existia sem registro. **O par `lado-a-lado-login-credencial.png` foi montado pelo ORLA antes dessa edição**, então o lado Figma dele deve mostrar o frame sem "Mostrar": serve como prova da divergência de antes, **não** como prova do estado de hoje. Não abri esse par nesta sessão; a conclusão vem da ordem dos fatos, não de olhar a imagem.
+
+**R-15 e O-2 não mudam código.** O-1 e O-3 não mudam código nem Figma.
+
+### 20.3 Tab bar: anotação "estado futuro" em `20:1102` e `20:1340` (P-01, decidido: "não se aplica ainda")
+
+Antes: `annotations: []` nos dois nós (ambos `COMPONENT` 360 × 62, 4 itens). Agora, lido de volta, os dois têm **uma anotação nativa** com o texto: "Estado futuro (F41, P-01 decidido em 16/11: "não se aplica ainda"). Este frame desenha um item selecionado, mas hoje as 4 abas estão desabilitadas e nenhuma navega, então o app não renderiza item selecionado. Reabrir quando uma aba for habilitada. A referência de paridade atual da tab bar é T2 (83:844, tudo desabilitado a 50%) e T1 (83:817, foco)." Anotação nativa não aparece na exportação: os PNGs `tabbar-ordens-selecionado-20-1102.png` (md5 `35b51e76…`) e `tabbar-clientes-selecionado-20-1340.png` (md5 `7fdf5668…`) saíram **idênticos** aos já versionados. Reabrir quando a primeira aba for habilitada; a S-3 do PRD (anel de foco desenhado em item selecionado em T1) segue como dúvida da pessoa.
+
+### 20.4 Escudo 84 × 96 (D-21, US-PAR-19): exportado; **origem lida e licença sem registro**
+
+**O que o arquivo diz (lido hoje):**
+
+| Campo | Valor |
+|---|---|
+| Nó no estado vazio | `10:906`, instância "Component 1" em `10:895`, 84 × 96, `x` 110, `y` 0 |
+| Componente | `variant=1` (`10:9`) do conjunto `10:696` "Component 1" (175 variantes, quase todas ícones de 13 a 32 px) |
+| Onde cada variante é usada | `variant=1` em `10:895`, L1 `82:1990`, L2 `82:2024`, L3 `82:2058`, L4 `82:2098`; `variant=2` (`10:22`) só em `10:936`. **O SVG das duas é byte a byte igual** (conferido por `exportAsync`): é o mesmo desenho |
+| Desenho | 6 camadas vetoriais: escudo branco com contorno petro de 5 px, faixa vertical Crail, roda de leme com 8 raios e miolo petro. Cores só da paleta do projeto: `#1E3A3F`, `#B5453D`, branco |
+| Descrição do componente, links de documentação | vazios |
+| Autoria e licença | **sem registro no arquivo**: busca nos textos das 3 páginas por "licen", "crédit", "autor", "direitos", "copyright", "©", "fonte:", "source", "escudo", "brasão" não achou crédito algum |
+| Origem técnica (**inferência minha, não registro**) | os nomes "div", "span", "Component 1" e "variant=N" são de importação de HTML para o Figma; o desenho foi trazido por essa importação, não desenhado como componente de biblioteca. Não sei de onde veio o desenho antes disso |
+
+**Licença: SEM REGISTRO. A S-2 do PRD continua sem resposta da pessoa, e eu não preencho.** O que fica registrado é o estado: ativo vetorial simples, nas cores da marca do projeto, dentro do arquivo da conta da pessoa (`whoami`: plano "Time Pessoal"; **não verifiquei o dono do arquivo**). Para o portão jurídico fechar basta a pessoa responder por escrito: **"o escudo é da marca do projeto e pode ser usado no app"** (ou dizer de onde veio e sob que licença). Até lá, a exportação técnica está pronta e o **portão jurídico segue aberto**; a decisão de o ORLA programar antes ou depois dessa resposta é da pessoa/REGENTE (a D-21 da revisão de 16/11 já pôs o escudo no aceite).
+
+**Arquivos exportados (US-PAR-19 A), em `docs/design/f41-ativos/escudo/`:** convenção de nomes do React Native (`escudo-login.png`, `@2x`, `@3x`), fundo transparente (PNG RGBA, profundidade 8), tamanho lógico 84 × 96. Cada PNG foi gerado por `exportAsync` do nó `10:906` e validado depois de gravado (assinatura PNG, CRC de todos os blocos, dimensões e tamanho em bytes iguais aos do Figma).
+
+| Arquivo | Pixels | Bytes | md5 |
+|---|---|---|---|
+| `escudo-login.png` (1x) | 84 × 96 | 3 169 | `f012e3b0ecb2e11aee06bbccbae4985b` |
+| `escudo-login@2x.png` | 168 × 192 | 5 605 | `09a7b6573da837c9dba323a6c400bb06` |
+| `escudo-login@3x.png` | 252 × 288 | 8 367 | `c47497c58d980efce419b88052c81d3b` |
+| `escudo-login.svg` | 84 × 96 | 932 | `975c70032ab07094f7c7f4b3d55e8c3e` |
+
+Todos bem abaixo do limite de 50 KB que o PRD propôs. O SVG vai só como fonte e para conferência: o app **não tem** `react-native-svg` (PRD, §US-PAR-19), então o ORLA usa os PNGs. Uma camada do SVG (`fill="black"` num caminho de segmentos sem área) não aparece no desenho; é sobra da importação e foi mantida como o Figma exporta, sem edição manual. **Acessibilidade para o ORLA:** o título "MECÂNICA SÃO JORGE" logo abaixo já nomeia a marca, então o escudo é **decorativo**: fora da árvore de acessibilidade (`accessible={false}` e `importantForAccessibility="no"`), sem rótulo, sem foco. Tem 84 × 96 fixos no frame; os campos e o botão continuam sem largura fixa.
+
+### 20.5 Capturas dos frames aprovados, reexportadas hoje (só lado Figma)
+
+15 nós aprovados reexportados por `get_screenshot` em `docs/design/f41-capturas/final-2026-11-16/` (mesmos nomes). **13 saíram com hash idêntico ao já versionado; 2 mudaram, as duas por decisão de 16/11** (R-15 e O-2).
+
+| Frame (nó) | md5 de hoje | Em relação ao versionado |
+|---|---|---|
+| Login vazio `10:895` | `a4ade874308190ca1a5be3ceaaea1149` | idêntico |
+| Login preenchido L1 `82:1990` | `c3160c373559707389bf96f56ac4b7cc` | idêntico |
+| **Login carregando L2 `82:2024`** | `2aa84cf0bdd4ddffee13f8912c972e71` | **mudou (R-15)**; igual ao arquivo modificado na árvore |
+| **Login erro de credencial `10:936`** | `edbf416b5e4b6c2c0dc2a914172e1af5` | **mudou (O-2)** |
+| Login erro de conexão L3 `82:2058` | `843ae92dc1fb77198e072fa9a7a82ad8` | idêntico |
+| Login sessão expirada L4 `82:2098` | `c271673d0b4beaae22b2e073b4c90963` | idêntico |
+| Perfil carregando P1 `83:712` | `2faf569f5798c0c8d09c3c2b2f38bfd3` | idêntico |
+| Perfil erro P2 `83:754` | `f2b9703516e28f130b5cda84f118976e` | idêntico |
+| Perfil preenchido `10:3842` | `841354797578261fe078d255de7b0e91` | idêntico |
+| Diálogo de logout `10:3886` | `56caddde1bed560d963f1749a8f8e521` | idêntico |
+| Tab bar `20:1102` | `35b51e7687e29a46c61e6da24a5ca655` | idêntico |
+| Tab bar `20:1340` | `7fdf5668ca63091d93eed1af1b04827f` | idêntico |
+| Tab bar foco T1 `83:817` | `8c0bd4bcba3af29362e2fba19a1a6b09` | idêntico |
+| Tab bar desabilitada T2 `83:844` | `dde6610eb53b23d06d8f8cec775fbca9` | idêntico |
+| Início I1 `89:971` | `be50ec421f047c6f8d2d859745297c0a` | idêntico |
+
+Abri só os dois que mudaram (L2 e `10:936`); **os outros 13 conferi por hash, não por olho**. Só dados fictícios do próprio arquivo ("joao.silva", senha em pontos); nenhum token, senha ou dado real. Nenhuma captura do app foi feita por mim.
+
+### 20.6 Estado de I-1 a I-6, R-11 e R-15 (pedido do comandante)
+
+O pedido dizia "I-1 a I-6, R-11 e R-15 ainda abertos". **Não os encontrei abertos, exceto R-15 no lado do teste.** Estado real:
+
+| Item | Estado hoje | Base |
+|---|---|---|
+| I-1 a I-6 (Início) | **fechadas** em Figma e código | leitura por valor na §19.2 (16/11); código em `3c8df54`. **Não reli o I1 hoje**; o código do app não mudou desde `c242b6f` (`git diff --stat c242b6f HEAD -- apps` sem saída), então a leitura da §19.2 continua sendo a base |
+| R-11 (indicador do L2 a 6 do texto) | **fechada**, lado Figma | §19.3 (indicador movido para x 90,5); código em `7f9db9f` |
+| R-15 (campo do L2) | **fechada no Figma e no script de contraste** (§20.1); **teste do ORLA aberto** | §20.1 |
+| O-1, O-2, O-3 | **classificadas e registradas** (§20.2) | §20.2 |
+| P-01 (tab bar selecionada) | **"não se aplica ainda"**, anotado nos dois frames (§20.3) | §20.3 |
+| R-12 a R-14 (P2) | **corrigidas no código** em `c242b6f` | commit; **não reli o P2 por valor hoje** |
+
+### 20.7 Marcas de lacuna da planilha (T32): 22 reconciliadas
+
+As 22 marcas "FALTA" desta planilha (21 linhas de tabela mais a definição da §3) foram trocadas por **evidência de teste com número de linha** ou por **lacuna declarada**; a palavra não aparece mais no arquivo (conferido pelo script de troca, que parou se alguma linha não batesse). Antes de trocar, procurei a asserção em cada teste e rodei a suíte: `npm --prefix apps/mobile test -- --silent` → **37 suítes, 289 testes, todos passando** (leitura da saída final; só o aviso `DEP0040` do `punycode`). "Coberto" aqui quer dizer que a asserção existe no teste que passa; **não fiz mutação** para provar que o teste cai se o valor mudar.
+
+**Cobertas por teste (13):** V-L07 (textos), V-L08 (raio 8 e margem 14 + 1), V-L15 (14/19,6, margem 13, gap 10), V-L19 (texto e posição), V-P04, V-P06, V-D01, V-D02, V-D04, V-D05, V-D06 (só o estilo do fundo, o literal do scrim não foi conferido), V-T03 (ícone 22 só como token, gap 4 no uso), V-T07 (0,5).
+
+**Lacunas declaradas, sem teste (9), para o ORLA decidir se cobre:**
+
+| ID | O que não tem trava | Asserção sugerida |
+|---|---|---|
+| V-L06 | estilo do rótulo do campo (Inter Medium 13, Flint, 6 até o campo) | `text-field.test`: estilo do `Text` do rótulo |
+| V-L08 | Inter 15 do texto digitado | `text-field.test`: `fontFamily` e `fontSize` do `TextInput` |
+| V-L11 | Inter SemiBold 15 do botão e os 304 de largura | `button.test`: estilo do texto; a largura de 304 é layout e o Jest não mede |
+| V-L12 | ritmo 16 / 6 / 10 / 14 do bloco do logo e do formulário | `brand-header.test` e `login.test`: `gap` e `margin` declarados |
+| V-P01 | família, 21 e 0,21 do título do cabeçalho (`typography.appBarTitle`) | `screen-header.test` ou `tokens.test` |
+| V-P11 | posição do botão "Sair da conta" no rodapé | `perfil.test`: o botão vem depois do cartão, no contêiner do rodapé |
+| V-P13 | ritmo do Perfil (36, 20, 12) | `perfil.test`: margens declaradas |
+| V-T04 | fundo petro da tab bar, sem borda | `menu-tab-bar.test`: `backgroundColor` = `#1E3A3F` |
+| V-T09 | nomes dos ícones (`document-text-outline` etc.) | exceção D-10; teste só se a pessoa quiser travar o desenho |
+
+Nenhuma dessas lacunas é divergência com o frame: todas são "igual por leitura, sem trava de teste". Pelo desenho do critério do PRD (US-PAR-01, "uma linha por estado com nó, valor lido, valor do código e teste"), as 9 ficam como **lacuna aceita ou a cobrir**, decisão do BUSSOLA e do ORLA.
+
+### 20.8 Quadro de fechamento (US-PAR-08), depois desta sessão
+
+| Condição | Estado |
+|---|---|
+| L2 `82:2024` na cor do skeleton, ligada à variável, PNG reexportado (R-15) | **feito** (§20.1) |
+| `10:936` com "Mostrar", PNG reexportado (O-2) | **feito** (§20.2) |
+| Anotação "estado futuro" em `20:1102` e `20:1340` | **feito** (§20.3) |
+| O-1, O-2, O-3 registradas com lado e decisão | **feito** (§20.2) |
+| Isenção do campo desabilitado em `F41-contraste.py`, saída 0 | **feito** (§20.1) |
+| Escudo exportado, origem registrada | **feito** o lado técnico (§20.4); **licença sem registro**, depende da S-2 |
+| Escudo programado com teste | **não**: é do ORLA |
+| Teste que trava a cor do campo desabilitado | **não**: é do ORLA |
+| Marcas "FALTA" reconciliadas | **feito** (§20.7), com 9 lacunas declaradas |
+| Zero divergência real aberta | **não**: faltam o escudo no código (L-02) e a licença; as demais divergências reais conhecidas estão fechadas |
+
+**US-PAR-08 continua aberto** até o escudo estar programado e a S-2 respondida. Limite do que afirmo: "igual" é valor lido no Figma = valor lido no código-fonte; **não medi layout em aparelho nem em simulador** e não rodei fluxo contra a API.
