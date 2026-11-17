@@ -38,6 +38,17 @@ Rota temporária `apps/mobile/app/capture.tsx` (**apagada, nunca commitada**) qu
 
 Arquivos em `docs/design/f41-capturas/app-2026-11-16-orla/`: `app-<estado>.png` (captura crua) e `lado-a-lado-<estado>.png` (Figma à esquerda, app à direita, altura 900). Cada um tem no máximo 233 KB.
 
+## Atualização de 17/11 (ORLA): dois pares remontados, capturas do app mantidas
+
+Depois das edições do ESQUADRO em 17/11 (R-15 no L2 e O-2 no `10:936`, `F41-valores-fpdb8.md` §20), o lado Figma de dois pares estava desatualizado. Reexportei só o lado esquerdo com os PNGs novos de `final-2026-11-16/` e **mantive as capturas do app**: elas são de 16/11 às 22:02 (`12c5e78`) e o último commit que mexeu em código do app antes delas é `c242b6f` (21:55); depois delas só entrou teste (`c21436c`). Não refiz foto no simulador nesta rodada.
+
+| Par | Lado Figma | md5 do par novo | O que mostra |
+|---|---|---|---|
+| `lado-a-lado-login-carregando.png` | L2 `82:2024` (md5 `2aa84cf0…`) | `881180d700e226f0a72d1158c51f6603` | campos cinza-azulados (`#F1F5F9`) nos dois lados; indicador à esquerda do texto "Entrando…". Diferenças: escudo (L-02, aberto), indicador nativo (O-3, só de plataforma), barra de status e largura |
+| `lado-a-lado-login-credencial.png` | `10:936` (md5 `edbf416b…`) | `a9cf46b74f2586afeabc1798f664fbdb` | "Mostrar" no campo Senha nos dois lados (O-2 fechada a favor do código). Diferenças: escudo, barra de status e largura |
+
+Os outros 9 pares não foram remontados: o hash do PNG do Figma de cada um é idêntico ao já versionado (`F41-valores-fpdb8.md` §20.5). Abri os dois pares novos depois de gravar. **Escudo:** segue ausente no app; não foi programado porque a licença (S-2) está sem registro, ver a entrega do ORLA de 17/11.
+
 ## Não capturado (e por quê)
 
 - **Tab bar com item selecionado** (`20:1102`, `20:1340`): o código nunca renderiza (`menu-tab-bar.tsx:62`, `selected={false}`). É o P-01, aguarda a pessoa.
