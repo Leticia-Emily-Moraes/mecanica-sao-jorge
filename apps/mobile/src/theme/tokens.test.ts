@@ -82,6 +82,8 @@ describe('tokens (FPdB8 literal values)', () => {
         iconButton: 36,
         stateIcon: 72,
         loadingIndicator: 16,
+        brandShieldWidth: 84,
+        brandShieldHeight: 96,
       });
     });
 

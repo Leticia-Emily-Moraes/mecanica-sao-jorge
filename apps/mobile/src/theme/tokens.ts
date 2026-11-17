@@ -177,6 +177,9 @@ export const size = {
   stateIcon: 72,
   /** Caixa do indicador de carregamento dentro do botão (L2 `82:2137`). */
   loadingIndicator: 16,
+  /** Escudo da marca no Login (`10:906`, 84 × 96). */
+  brandShieldWidth: 84,
+  brandShieldHeight: 96,
 } as const;
 
 /**
