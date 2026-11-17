@@ -22,6 +22,7 @@ describe('tokens (FPdB8 literal values)', () => {
       ['brand', color.surface.brand, '#1E3A3F'],
       ['errorTint', color.surface.errorTint, '#F6E7E5'],
       ['neutral (P2 icon circle)', color.surface.neutral, '#EDE9E4'],
+      ['skeleton (disabled field, L2)', color.surface.skeleton, '#F1F5F9'],
       ['avatar', color.surface.avatar, '#33575D'],
       ['overlay', color.surface.overlay, 'rgba(30, 58, 63, 0.55)'],
       ['onBrandControl', color.surface.onBrandControl, 'rgba(255, 255, 255, 0.12)'],

@@ -98,6 +98,26 @@ describe('TextField', () => {
     expect(input.props.accessibilityState).toEqual({ disabled: true });
   });
 
+  it('should fill the box with the skeleton gray #F1F5F9 and keep the resting border when editable is false (R-15)', () => {
+    render(<TextField label="Usuário" value="" onChangeText={jest.fn()} editable={false} />);
+
+    expect(
+      StyleSheet.flatten(screen.getByTestId('text-field-box').props.style as TestStyle),
+    ).toMatchObject({
+      backgroundColor: '#F1F5F9',
+      borderWidth: borderWidth.hairline,
+      borderColor: '#8C8780',
+    });
+  });
+
+  it('should keep the white fill when the field is editable', () => {
+    render(<TextField label="Usuário" value="" onChangeText={jest.fn()} />);
+
+    expect(
+      StyleSheet.flatten(screen.getByTestId('text-field-box').props.style as TestStyle),
+    ).toMatchObject({ backgroundColor: '#FFFFFF' });
+  });
+
   it('should forward the ref to the underlying TextInput', () => {
     const ref = createRef<TextInput>();
     render(<TextField ref={ref} label="Usuário" value="" onChangeText={jest.fn()} />);
