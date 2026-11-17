@@ -77,6 +77,13 @@ describe('LoginScreen', () => {
     expect(screen.getByText('Gestão da oficina')).toBeTruthy();
   });
 
+  it('should draw the decorative shield above the brand title (US-PAR-19)', async () => {
+    await renderLoginScreen();
+
+    expect(screen.getByTestId('brand-shield', { includeHiddenElements: true })).toBeTruthy();
+    expect(screen.queryByTestId('brand-shield')).toBeNull();
+  });
+
   it('should label the first field "Usuário" and show both placeholders (US-PAR-16)', async () => {
     await renderLoginScreen();
 
@@ -283,7 +290,8 @@ describe('LoginScreen', () => {
         .mockReturnValue({ width: windowWidth, height: 800, scale: 2, fontScale: 1 });
       await renderLoginScreen();
 
-      expect(findFixedWidths(screen.toJSON())).toEqual([]);
+      // O escudo decorativo (84 × 96, US-PAR-19 D) é a única medida absoluta; campos e botão seguem fluidos.
+      expect(findFixedWidths(screen.toJSON())).toEqual([84]);
     },
   );
 });
