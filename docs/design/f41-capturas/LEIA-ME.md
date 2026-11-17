@@ -6,6 +6,7 @@ Decisão de 16/11 (REGENTE confirma a D-19; PRD v4, D-22). **Imagem não é a pr
 |---|---|---|
 | `final-2026-11-16/` | 15 PNGs exportados do Figma `FPdB8RymAnN81pbKfizdzE` (só lado Figma, ESQUADRO). Reexportados em 17/11: 13 idênticos, 2 mudaram por decisão de 16/11 (`login-carregando-L2-82-2024.png`, R-15, e `login-erro-credencial-10-936.png`, O-2); hashes em `docs/design/F41-valores-fpdb8.md` §20.5. Reexportados de novo em 17/11 à tarde (§21.2): os 15 hashes saíram idênticos, nenhum PNG mudou | **referência visual de apoio** |
 | `app-2026-11-16-orla/` | capturas do app no simulador (`app-*.png`) e pares com o Figma (`lado-a-lado-*.png`, ORLA); protocolo em `docs/design/F41-capturas-app-orla.md` | **referência visual de apoio**; vêm de uma rota temporária que compõe os componentes reais, não das telas de `app/*.tsx` |
+| `app-2026-11-17-orla-escudo/` | 6 capturas do Login no simulador com o escudo programado (`app-login-*.png`) e os pares com o Figma (`lado-a-lado-login-*.png`, ORLA); protocolo e md5 em `docs/design/F41-valores-fpdb8.md` §22.1 | **referência visual de apoio**; mesma rota temporária de 16/11, só Login |
 | `figma-fpdb8-*.png` (12 arquivos na raiz) | capturas "antes" de frames da primeira rodada | **histórico**, sem valor de prova |
 
 Os 6 `par-*.png` antigos foram removidos (o histórico do git os guarda): pareciam prova de paridade final e não eram.

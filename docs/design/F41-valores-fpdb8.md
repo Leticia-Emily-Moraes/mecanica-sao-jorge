@@ -824,3 +824,42 @@ Quando a S-2 abrir: copiar os 3 PNGs para `apps/mobile/assets`, `Image` 84 × 96
 | Zero divergência real aberta | **não**: L-02 |
 
 **US-PAR-08 continua aberto só pelo escudo (L-02).**
+
+## 22. Escudo programado no Login (ORLA, 17/11): L-02 fechada no código, S-2 segue aberta
+
+**Quem decidiu programar:** o REGENTE (comandante) instruiu programar o escudo antes da resposta da S-2. O registro do PRD (§7.2, linha "Ativo do escudo versionado sem licença") deixava essa escolha com a pessoa ou o REGENTE. **A licença continua sem registro**; o commit é local, sem push, e reversível. Se a pessoa negar a licença: `git rm -r apps/mobile/assets/brand docs/design/f41-ativos/escudo`, reverter o `Image` do `BrandHeader` e ajustar os 6 frames do Figma na mesma entrega.
+
+| Item | Resultado |
+|---|---|
+| Arquivos | `apps/mobile/assets/brand/escudo-login.png`, `@2x` e `@3x`; md5 idêntico ao de `docs/design/f41-ativos/escudo/` (conferido com `md5 -r`) |
+| Tamanho | 3,1 KB, 5,5 KB e 8,2 KB (limite de 50 KB, travado em teste) |
+| Componente | `Image` 84 × 96 como primeiro filho do `BrandHeader`; `accessible={false}`, `importantForAccessibility="no"`, `accessibilityElementsHidden`; sem texto fixo |
+| Tokens | **novos** `size.brandShieldWidth` = 84 e `size.brandShieldHeight` = 96 em `tokens.ts` (travados em `tokens.test.ts`). **Variáveis do Figma: não criadas**: esta sessão não tem ferramenta `figma-remote`; fica para o ESQUADRO (US-PAR-07) |
+| Testes | `brand-header.test.tsx` (+4), `login.test.tsx` (+1; o teste de largura fixa agora espera `[84]`, única medida absoluta, como o `[72]` do `state-view`), `tokens.test.ts` ajustado |
+| Mutação | trocar 84 por 80 em `tokens.ts` derrubou o teste de dimensão; revertido |
+
+### 22.1 Capturas
+
+Simulador iPhone 17, iOS 27.0, Expo Go, Metro 8082 com `CI=1` (mesmo protocolo de `F41-capturas-app-orla.md`). Pasta `docs/design/f41-capturas/app-2026-11-17-orla-escudo/`: `app-login-<estado>.png` e `lado-a-lado-login-<estado>.png` (Figma à esquerda, app à direita, altura 900). Abri as 6 fotos depois de gravar; as primeiras tentativas de "rede" e "expirada" saíram na tela de abertura do Expo Go e foram refeitas com 30 s de espera. Limite igual ao de 16/11: rota temporária `capture.tsx` (apagada, não commitada) que replica o JSX de `app/login.tsx` com props fixas; prova aparência dos componentes, não o fluxo contra a API. Dados fictícios (Maria Teste, `exemplo.invalid`, senha mascarada), sem notificação visível.
+
+| Estado | Frame | md5 da captura do app |
+|---|---|---|
+| vazio | `10:895` | `5557670fe14bf622418f79cba257bd7e` |
+| preenchido | L1 `82:1990` | `b10ad383cf4f9d4dcd0a076645afec10` |
+| carregando | L2 `82:2024` | `3e2e15a6112d89fbfdb4d07c35327250` |
+| erro de credencial | `10:936` | `2b75d9c26d179db42cd57ca39e7497fd` |
+| erro de conexão | L3 `82:2058` | `d0086aef594c65975194004feb6b44be` |
+| sessão expirada | L4 `82:2098` | `6b70a8f440b7a2f5285a43a64f2280bd` |
+
+**O que vi nos pares (abri vazio e credencial lado a lado):** escudo presente, centralizado, acima do título, com as mesmas proporções e cores do frame. Diferenças que não são do escudo: no `10:895` o campo Usuário aparece com borda Crail e a Senha sem "Mostrar" (o "Mostrar" foi decidido a favor do código em O-2; a borda do Usuário no `10:895` **não classifiquei**, fica para o ESQUADRO), valores de exemplo diferentes (`joao.silva` contra `maria.teste`), barra de status e proporção do aparelho. Sobre a inferência do ESQUADRO de que o bloco sobe em L3, L4 e `10:936`: no app o bloco também sobe quando há aviso, mas **não medi pixel contra o Figma**. Não abri os pares de preenchido, carregando, conexão e expirada lado a lado; abri as fotos do app desses estados.
+
+### 22.2 I-1 a I-6 e R-11
+
+Já estavam fechadas no código antes desta sessão (`3c8df54` e `7f9db9f`; §18, §19.3 e §20.6 desta planilha). Não alterei nada nelas. A suíte inteira, que as cobre, passa (abaixo).
+
+### 22.3 Verificações rodadas em `apps/mobile`
+
+- `npm test -- --silent`: 37 suítes, **297 testes** passando (antes: 292).
+- `npm run typecheck`: sem erro. `npm run lint`: sem erro.
+
+**US-PAR-08 segue aberto pela licença (S-2) e pelas variáveis do Figma do token novo.**
