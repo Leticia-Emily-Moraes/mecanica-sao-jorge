@@ -499,3 +499,99 @@ Os rótulos de cima dos frames `L1` a `L4`, `P1`, `P2`, `T1`, `T2` e `I1` ainda 
 Efeitos colaterais: o erro P2 passou a usar a mesma `StateIllustration` (24 sob o círculo, 8 sob o título, mensagem com `maxWidth` 289, o que fecha a R-7 que estava "não corrigida por falta de medida"). `iconSize.empty` (48) foi removido porque ficou sem uso.
 
 **Pendente para o ESQUADRO, com Figma:** criar `layout/stateMessageMaxWidth` (289) e `size/loadingIndicator` (16) com valor idêntico ao `tokens.ts` e ligar aos nós `83:769`, `89:985` e `82:2137`; reler o I1 e o L2 contra o código novo; decidir se 6 contra 6,5 passa. **Sem isso a US-PAR-07 e a US-PAR-08 não fecham.**
+
+## 19. Terceira sessão com acesso ao Figma (ESQUADRO, 16/11, noite): 2 variáveis, I1 e L2 relidos, R-11 decidida, lista fechada
+
+Autor: ESQUADRO · Sessão `82501eec-57a2-4d20-be22-fcb0a288a02d` · Arquivo `FPdB8RymAnN81pbKfizdzE` · Código lido no ramo `feat/f41-paridade-fpdb8-codigo` em `361989a` (`tokens.ts`, `button.tsx`, `state-illustration.tsx`, `state-view.tsx`, `error-state.tsx`, `menu-tab-bar.tsx`, `strings.ts`). **Não alterei código e não rodei a suíte do app.** Só toquei nos nós `83:769`, `89:985` e `82:2137` e criei 2 variáveis; nenhum frame fora de Login, Perfil, diálogo, tab bar e Início foi editado.
+
+**Acesso (US-PAR-11), saída real do `whoami` (e-mail omitido de propósito):**
+`{"whoami":{"user_id":"1126488233271433922","handle":"Leticia Moraes","plans":[{"name":"Time Pessoal","seat":"Full","tier":"student","key":"team::1274094162661077353","role":"admin","specs_enabled":true,"code_layers_enabled":true}]}}`
+Nenhum erro de permissão em `create_session`, `use_figma`, `get_variable_defs` e `get_screenshot`. A instrução `figma-use` não pôde ser carregada (não há `get_figma_skill` nem leitura de `skill://` nesta sessão); cada escrita foi um passo pequeno, com leitura antes e depois.
+
+### 19.1 US-PAR-07: as 2 variáveis que faltavam (valor lido de volta)
+
+Coleção `OP-002 Identidade v2` (`VariableCollectionId:89:712`): de 14 para **16 variáveis**. Escopo só `WIDTH_HEIGHT`, para não repetir o erro do raio da §17.1.
+
+| Token no código (`tokens.ts`) | Variável no Figma | Id | Valor no Figma | Valor no código | Nós ligados | Resultado |
+|---|---|---|---|---|---|---|
+| `layout.stateMessageMaxWidth` | `layout/stateMessageMaxWidth` | `94:712` | 289 | 289 (`tokens.ts:223`) | `83:769` (P2) e `89:985` (I1), largura | **idêntico** |
+| `size.loadingIndicator` | `size/loadingIndicator` | `94:713` | 16 | 16 (`tokens.ts:179`) | `82:2137` (L2), largura e altura | **idêntico** |
+
+Leitura de volta por dois caminhos: `use_figma` (`boundVariables` dos 3 nós) e `get_variable_defs` de `89:971` (devolve `layout/stateMessageMaxWidth: 289`), de `83:754` (idem, mais `layout/stateActionsMaxWidth: 328`) e de `82:2024` (devolve `size/loadingIndicator: 16`). Medidas dos nós antes e depois da ligação: iguais (289 × 42, 289 × 42, 16 × 16). Com isso, **todos os tokens que a F41 criou ou alterou têm variável (ou estilo) com o mesmo valor**: `placeholder`, `border/default`, `tabSelected`, `surface/neutral`, `icon/state`, `stateIcon`, `stateTitle` (estilo de texto), `tabFocus`, `stateActionsMaxWidth`, `stateMessageMaxWidth`, `loadingIndicator` e `iconSize/alert` (12 itens: 11 variáveis mais o estilo de texto `stateTitle`; com os 5 primitivos a coleção tem 16 variáveis). **Ainda não ligadas** (sem token novo, só valor igual): `size/avatar` e `typography/dialogMessage`. Não confirmei no arquivo se `spacing.s6` e `spacing.s10` têm variável própria; só vi `item spacing/6` e `item spacing/9`, `item spacing/12` na leitura.
+
+### 19.2 Releitura contra o código novo do ORLA (`3c8df54`, `7f9db9f`)
+
+**I1 `89:971` (tela `89:976`, 362 × 742):** posições relativas à tela, lidas hoje.
+
+| ID | Valor lido no Figma | Código | Resultado |
+|---|---|---|---|
+| V-I01 | cabeçalho 360 × 56, título "Início" SemiBold 21 (família não lida hoje; a V-P01 registra Barlow Condensed), botão de usuário 36 × 36 (`89:996`) | `ScreenHeader` com `inicio.titulo` = "Início" | igual (texto idêntico) |
+| V-I02, V-I03 | círculo `89:979` 72 × 72, y 286, centrado em x 145; ícone `89:980` 32 × 32 a 20 de margem | `StateIllustration`: `size.stateIcon` 72, `iconSize.alert` 32, `color.surface.neutral`, `color.icon.state` | igual (lido por valor; o desenho do ícone é Ionicons, D-10) |
+| V-I04 | título "Em breve", SemiBold 20, texto a y 374 = **16** abaixo do círculo (fim em 358) | `titleGap={spacing.md}` (16), `typography.stateTitle`, `inicio.vazio.titulo` = "Em breve" | igual |
+| V-I05 | mensagem 289 × 42 (duas linhas), Inter 14 / 21, a y 408 = **10** abaixo do texto do título (fim em 398) | `messageGap={spacing.s10}`, `layout.stateMessageMaxWidth`, `typography.dialogMessage`; texto "Os módulos da oficina chegam nas próximas versões." idêntico | igual |
+| V-I06 | bloco centrado entre cabeçalho (fim em 57) e tab bar (início em 679) | `flex: 1` + `justifyContent: center` | igual por leitura do estilo; **não medido no aparelho** |
+| V-I07 | tab bar 360 × 62, 4 células 90 × 62 a **50%** (`opacity` do pai 0,5), ícone 22, rótulo Inter Medium 11 | `opacity.unavailable` 0,5, `iconSize.tab` 22, `typography.tabLabel` | igual |
+
+I-1 a I-6 estão **fechadas** no lado Figma e no código, por leitura dos dois lados.
+
+**L2 `82:2024`:** botão `82:2049` 304 × 50, Crail `#B5453D`, opacidade 1, texto "Entrando…" (um `…`), Inter SemiBold 15, texto a x 112,5 (centro 152 = centro do botão), indicador `82:2137` 16 × 16 branco, arco 0 → 4,7 rad, centro vertical 25 = centro do botão e do texto. Código: `button.tsx` com `loadingSlot` de 16 (`size.loadingIndicator`), `gap: spacing.s6`, espelho de 16 do outro lado, sem esmaecer em `loading`. R-1, R-2 e R-11 (estrutura) batem.
+
+### 19.3 R-11 decidida (US-PAR-06): lado corrigido = **Figma**, código mantido
+
+Indicador a **6,5** do texto no frame, **6** no código. Decisão: **aceitar 6 e atualizar o Figma** (premissa 2). Motivo: 6 é o token `spacing.s6` e existe nos dois lados (`item spacing/6`); 6,5 não tem token em nenhum deles, e criar um token por meio pixel só para chegar a um valor sem uso é pior do que mover um círculo de 16.
+**Feito no Figma:** `82:2137` movido de x 102 para **102,5** (relativo ao pai `82:2031`), ou seja, de 90 para **90,5** relativo ao botão. Lido depois: indicador x 90,5 / y 17 / 16 × 16, texto x 112,5, **espaço indicador→texto = 6**, ainda ligado a `size/loadingIndicator` (largura e altura). PNG `docs/design/f41-capturas/final-2026-11-16/login-carregando-L2-82-2024.png` reexportado (md5 `11a60b76…` → `0afa468f…`, 59 032 bytes) e conferido visualmente. Nenhum outro frame mudou de aparência (as ligações de variável não alteram valor), então os outros 14 PNGs seguem válidos.
+**R-11: fechada.**
+
+### 19.4 Tab bar e Perfil: confirmações pedidas pelo BUSSOLA e pelo comandante
+
+| Pergunta | Leitura no Figma | Resultado |
+|---|---|---|
+| O frame do Perfil `10:3842` desenha tab bar? | busca por nome "navega" ou "tab" em toda a árvore: **nenhum nó**; filhos da tela: cabeçalho, bloco de identidade, cartão, botão "Sair da conta" | **não desenha** (igual a `perfil.test` "without a tab bar") |
+| T2 `83:844`: opacidade, rótulo | 4 itens, pai a **0,5**, rótulos Inter **Medium 11**, Tide `#B7B2AC` (183, 178, 172) | igual ao código (`opacity.unavailable` 0,5; `tabLabel`) |
+| T1 `83:817`: anel | `84:786` **86 × 58**, raio **10** (ligado a `radius/tabFocus`), traço **branco** de 2, alinhamento **dentro**; "Clientes" SemiBold `#EE8279`, os outros Medium Tide | igual (R-8, V-T06, V-T08) |
+| `20:1102` e `20:1340` | **desenham um item selecionado**: "Ordens" em `20:1102` e "Clientes" em `20:1340`, SemiBold `#EE8279`, os demais Tide | **divergência real aberta, depende da pessoa (P-01)**: o código nunca renderiza selecionado (`menu-tab-bar.tsx:62`, `selected={false}`) |
+| I1 `89:1003` | 4 itens a 50%, nenhum selecionado | igual ao código |
+
+Ou seja: **T1 e T2 e I1 batem com o código; só `20:1102` e `20:1340` (frames aprovados da tab bar, com item ativo) não têm equivalente em execução.** A pessoa escolhe entre (a) "não se aplica hoje", com justificativa na premissa 5, e (b) programar o selecionado numa feature própria; se (a), o frame é o único lugar onde o estado existe.
+
+### 19.5 Divergências novas que achei no P2 `83:754` (reais, do lado do código)
+
+Li a estrutura da tela `83:759` por valor (auto layout). Coluna `83:761`, margem 16, **gap 12**; filhos: bloco da ilustração `83:762` (328 × 584, centrado na vertical, gap 10), botão cheio `83:770` (y 613) e botão de contorno `83:815` (y 675), ambos 328 × 50. Os botões ficam **ancorados na base** (fim em y 725 de 742, ou seja 16 da borda interna), e a ilustração fica centrada **na área acima deles**. Círculo termina em 329; título (texto) a 345; mensagem a 379.
+
+| # | Elemento | Figma (nó) | Código hoje (arquivo) | O que fazer |
+|---|---|---|---|---|
+| R-12 | espaço círculo → título; título → mensagem | **16** e **10** (`83:763` → `83:767` → `83:769`), os mesmos do I1 | `titleGap={spacing.lg}` (**24**) e `messageGap={spacing.sm}` (**8**) em `error-state.tsx:37-38` | usar 16 (`spacing.md`) e 10 (`spacing.s10`), os mesmos do estado vazio em `state-view.tsx:77-78` |
+| R-13 | posição dos botões | ancorados na base, 16 da borda; ilustração centrada na área restante | `actions` dentro do mesmo grupo centrado, `marginTop: spacing.lg` (**24**) abaixo da mensagem (`error-state.tsx:63-68`) | separar: ilustração em `flex: 1` centrada; botões embaixo, com 12 entre a área e o primeiro botão |
+| R-14 | espaço entre os dois botões | **12** (`83:770` fim 663, `83:815` início 675) | `gap: spacing.s10` (**10**) | 12 (`spacing.s12` já existe em `tokens.ts`) |
+
+**Teste que o ORLA deve pedir:** `error-state.test`/`index.test` com os gaps 16 e 10, a coluna dos botões depois do bloco centrado e o gap 12. **Estas três não criam token novo** (todos os valores já existem em `spacing`). Não medi o app: a conclusão vem da leitura dos dois arquivos.
+
+### 19.6 Outras conferências, sem divergência encontrada
+
+- **P1 `83:712`:** indicador 36 em y 338,5, texto "Carregando sessão…" Inter 14 Regular a 12 abaixo (y 386,5), conjunto centrado na tela inteira (centro 371). Código: R-9 com `spacing.s12`. Igual por leitura.
+- **Diálogo `10:3886`:** cartão 316 × 186, raio 10, margem 20, gap 14, a 22 de cada lado, centrado (278 a 464); título Bold 22; mensagem Inter 14, 276 × 42; botões 133 × 50 com 10 entre eles; textos idênticos às chaves `perfil.dialogoLogout.*`. Igual por leitura. **Ponto a conferir (não é divergência provada):** o texto do frame traz quebra de linha depois de "senha" ("...usuário e senha⏎para entrar de novo."); a chave do código é uma frase corrida. Se a quebra natural do RN em 276 de largura cair em outro ponto, são duas linhas diferentes. Só se vê no aparelho; fica como risco declarado, não como divergência.
+- **Perfil preenchido `10:3842`:** ritmo de 36 do cabeçalho ao avatar, 20 entre selo e cartão, cartão a 12 do bloco, botão "Sair da conta" ancorado na base: bate com V-P13.
+- **Contraste (US-PAR-15):** nenhuma cor mudou nesta sessão. `python3 -I docs/design/F41-contraste.py` → saída 0, "OK: todos os pares obrigatórios atingem o alvo".
+
+### 19.7 Lista fechada para o ORLA (o que ainda diverge)
+
+| # | Divergência real | Lado a corrigir | Token novo? |
+|---|---|---|---|
+| R-12 | P2: gaps 24 e 8 devem ser 16 e 10 | código | não |
+| R-13 | P2: botões ancorados na base, ilustração centrada acima | código | não |
+| R-14 | P2: gap de 12 entre os botões (hoje 10) | código | não |
+| P-01 | tab bar: frames `20:1102` e `20:1340` têm item selecionado, o código nunca renderiza | **decisão da pessoa** (a ou b, §19.4) | não |
+
+**Declaração:** fora essas quatro linhas, **nada mais diverge** no que li em Login (L1 a L4 e `10:895`/`10:936`), Perfil (P1, `10:3842`, P2), diálogo, tab bar (T1, T2) e Início (I1). R-1 a R-11 e I-1 a I-6 estão fechadas. O escudo 84 × 96 fica fora do aceite (D-21), sem registro de origem e licença, e não foi inventado.
+**Limite do que afirmo:** "igual" significa valor lido no Figma = valor lido no código-fonte, travado por teste de estilo declarado. **Não medi layout em aparelho nem em simulador**, e a suíte do app não foi rodada por mim hoje.
+
+### 19.8 Fechamento (US-PAR-07, US-PAR-08)
+
+| Condição | Estado |
+|---|---|
+| Variáveis dos tokens da F41 no Figma com valor idêntico ao `tokens.ts` | **feito** (§17.1, §19.1) |
+| I1 e L2 relidos contra o código novo | **feito** (§19.2) |
+| R-11 | **fechada**, lado Figma (§19.3) |
+| Zero divergência real aberta | **não**: R-12, R-13, R-14 (ORLA) e P-01 (pessoa) |
+
+**US-PAR-07 fecha** (lida no arquivo). **US-PAR-08 não fecha** até R-12 a R-14 serem corrigidas e P-01 decidida. O PR #16 deve continuar em rascunho.

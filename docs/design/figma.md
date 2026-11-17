@@ -132,6 +132,18 @@ Detalhe completo, com valor lido e id por linha, em `docs/design/F41-valores-fpd
 - **Capturas:** 15 PNGs dos frames de Login, Perfil, diálogo, tab bar e Início em `docs/design/f41-capturas/final-2026-11-16/` (todas abaixo de 100 KB; só lado Figma, sem app).
 - **Não feito:** escudo (D-21), restante da tabela do ADR-014 (~70 linhas) e rótulos "proposto" dos frames L1 a L4, P1, P2, T1, T2 e I1, ainda no texto de cada frame.
 
+### Terceira sessão de 16/11 com acesso (ESQUADRO, US-PAR-07, US-PAR-11): 2 variáveis, R-11, I1 e L2 relidos, lista fechada
+
+Detalhe completo em `docs/design/F41-valores-fpdb8.md` §19. Resumo:
+
+- **Acesso:** `whoami` passou (handle "Leticia Moraes", plano "Time Pessoal" `team::1274094162661077353`, e-mail omitido); `create_session` → `82501eec-57a2-4d20-be22-fcb0a288a02d`. `figma-use` não pôde ser carregado; escrita em passos pequenos, com leitura antes e depois.
+- **Coleção `OP-002 Identidade v2` (`89:712`): de 14 para 16 variáveis.** Novas: `layout/stateMessageMaxWidth` `94:712` (289) e `size/loadingIndicator` `94:713` (16), escopo só largura e altura. Ligadas a `83:769` e `89:985` (largura) e a `82:2137` (largura e altura); lidas de volta por `get_variable_defs` em `89:971`, `83:754` e `82:2024`.
+- **R-11 decidida a favor do código (6 = `spacing.s6`):** o indicador `82:2137` do L2 foi movido de x 102 para 102,5, deixando 6 até o texto "Entrando…" (antes 6,5). PNG do L2 reexportado.
+- **Releitura:** I1 e L2 batem com o código `3c8df54` e `7f9db9f` (I-1 a I-6 fechadas).
+- **Confirmado no arquivo:** o Perfil `10:3842` não desenha tab bar; T2 a 50%, T1 com anel 86 × 58 raio 10 branco; `20:1102` e `20:1340` desenham um item selecionado, que o código não renderiza (P-01, aguarda a pessoa).
+- **Achado novo, P2 `83:754`:** gaps 16 e 10 (código 24 e 8), botões ancorados na base com 12 entre eles (código 10, agrupados com a mensagem). R-12, R-13 e R-14, do lado do código.
+- Nenhum frame fora de Login, Perfil, diálogo, tab bar e Início foi editado.
+
 ## Páginas
 
 ### `F24 · Wireframe baixa fidelidade`
