@@ -1,16 +1,20 @@
 package br.com.mecanicasaojorge.api.integration;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.hamcrest.Matchers.containsString;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.doThrow;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import br.com.mecanicasaojorge.api.exception.GlobalExceptionHandler;
 import br.com.mecanicasaojorge.api.service.ClienteService;
+import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.read.ListAppender;
@@ -140,6 +144,46 @@ class ClienteListagemIT {
     nomes("ana").containsExactly("Ana Paula");
   }
 
+  /**
+   * US-CLI-01a/01b: 20 telefones com o digito 5 e um email com 5; termo misto nao casa telefone.
+   */
+  @Test
+  void shouldReturnOnlyTheEmailOwnerWhenMixedTermHasDigitAndMatchesPhones() throws Exception {
+    for (int i = 0; i < 20; i++) {
+      inserir("Cliente %02d".formatted(i), "1198%03d5%02d".formatted(i, i), null);
+    }
+    for (int i = 20; i < 25; i++) {
+      inserir("Cliente %02d".formatted(i), "1198000%04d".formatted(i), null);
+    }
+    inserir("Zeta Cinco", null, "zeta5@example.org");
+
+    listar("zeta5@example.org")
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.totalItens").value(1))
+        .andExpect(jsonPath("$.itens.length()").value(1))
+        .andExpect(jsonPath("$.itens[0].email").value("zeta5@example.org"));
+    for (String termo : new String[] {"%", "_", "ana", "rua 7", "5a"}) {
+      nomes(termo).doesNotContain("Cliente 00", "Cliente 10");
+    }
+  }
+
+  /** US-CLI-01c: termo numerico busca telefone e tambem nome e email. */
+  @Test
+  void shouldFindPhoneAndNameOrEmailWhenTermIsNumeric() throws Exception {
+    inserir("Ana Lima", "11987654321", null);
+    inserir("Oficina 987", null, null);
+    inserir("Bruno Reis", "2133334444", "bruno987@example.com");
+    inserir("Carla Dias", "2155556666", null);
+
+    for (String termo :
+        new String[] {"11987654321", "(11) 98765-4321", "11.98765.4321", "+11 98765-4321"}) {
+      nomes(termo).containsExactly("Ana Lima");
+    }
+    nomes("987").containsExactly("Ana Lima", "Bruno Reis", "Oficina 987");
+    nomes("()-").isEmpty();
+    nomes("٥٥٥").isEmpty();
+  }
+
   @Test
   void shouldFindDecomposedAccentWhenTermIsInNfd() throws Exception {
     inserir("José Antônio", null, null);
@@ -206,6 +250,121 @@ class ClienteListagemIT {
         .andExpect(jsonPath("$.pagina").value(5))
         .andExpect(jsonPath("$.totalItens").value(25))
         .andExpect(jsonPath("$.totalPaginas").value(3));
+  }
+
+  /** US-CLI-03c: limiar de page*size > Integer.MAX_VALUE nao pode virar 500. */
+  @Test
+  void shouldReturnEmptyItemsWithRealTotalWhenOffsetExceedsIntegerMax() throws Exception {
+    for (int i = 1; i <= 25; i++) {
+      inserir("Cliente %02d".formatted(i), null, null);
+    }
+    String[][] casos = {
+      {"21474836", "100"},
+      {"21474837", "100"},
+      {"2147483647", "100"},
+      {"2147483647", "1"},
+      {"2147483647", "2"}
+    };
+
+    for (String[] caso : casos) {
+      mockMvc
+          .perform(get(URL).param("page", caso[0]).param("size", caso[1]).with(jwt()))
+          .andExpect(status().isOk())
+          .andExpect(jsonPath("$.itens").isEmpty())
+          .andExpect(jsonPath("$.pagina").value(Integer.parseInt(caso[0])))
+          .andExpect(jsonPath("$.tamanho").value(Integer.parseInt(caso[1])))
+          .andExpect(jsonPath("$.totalItens").value(25));
+    }
+  }
+
+  @Test
+  void shouldKeepSearchTotalWhenOffsetExceedsIntegerMaxWithTerm() throws Exception {
+    inserir("Ana Lima", null, null);
+    inserir("Ana Paula", null, null);
+    inserir("Ana Souza", null, null);
+    inserir("Bruno Reis", null, null);
+
+    mockMvc
+        .perform(
+            get(URL).param("q", "ana").param("page", "21474837").param("size", "100").with(jwt()))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.itens").isEmpty())
+        .andExpect(jsonPath("$.totalItens").value(3));
+  }
+
+  @Test
+  void shouldReturnBadRequestWhenPageDoesNotFitInInteger() throws Exception {
+    mockMvc
+        .perform(get(URL).param("page", "2147483648").with(jwt()))
+        .andExpect(status().isBadRequest())
+        .andExpect(jsonPath("$.mensagem").value("Parametro invalido: page"));
+  }
+
+  /** US-CLI-05a: 404 no formato do handler global, sem query string no path nem no log. */
+  @Test
+  void shouldReturnNotFoundWithoutLoggingQueryWhenRouteDoesNotExist() throws Exception {
+    Logger logger = (Logger) LoggerFactory.getLogger(GlobalExceptionHandler.class);
+    ListAppender<ILoggingEvent> logs = new ListAppender<>();
+    logs.start();
+    logger.addAppender(logs);
+    try {
+      String corpo =
+          mockMvc
+              .perform(get("/api/v1/rota-inexistente").param("q", "ana").with(jwt()))
+              .andExpect(status().isNotFound())
+              .andExpect(jsonPath("$.status").value(404))
+              .andExpect(jsonPath("$.erro").value("Not Found"))
+              .andExpect(jsonPath("$.mensagem").value("Recurso nao encontrado"))
+              .andExpect(jsonPath("$.path").value("/api/v1/rota-inexistente"))
+              .andReturn()
+              .getResponse()
+              .getContentAsString();
+
+      assertThat(corpo).doesNotContain("ana", "at br.com", "Exception");
+      assertThat(logs.list).noneMatch(e -> e.getLevel().isGreaterOrEqual(Level.ERROR));
+      assertThat(logs.list)
+          .allSatisfy(e -> assertThat(e.getFormattedMessage()).doesNotContain("ana", "q="));
+    } finally {
+      logger.detachAppender(logs);
+    }
+  }
+
+  /** US-CLI-05b: DELETE usado porque o POST passa a existir na F03c. */
+  @Test
+  void shouldReturnMethodNotAllowedWithAllowHeaderWhenMethodIsNotSupported() throws Exception {
+    Logger logger = (Logger) LoggerFactory.getLogger(GlobalExceptionHandler.class);
+    ListAppender<ILoggingEvent> logs = new ListAppender<>();
+    logs.start();
+    logger.addAppender(logs);
+    try {
+      String corpo =
+          mockMvc
+              .perform(delete(URL).param("q", "ana").with(jwt()))
+              .andExpect(status().isMethodNotAllowed())
+              .andExpect(header().string("Allow", containsString("GET")))
+              .andExpect(jsonPath("$.status").value(405))
+              .andExpect(jsonPath("$.erro").value("Method Not Allowed"))
+              .andExpect(jsonPath("$.mensagem").value("Metodo nao permitido"))
+              .andExpect(jsonPath("$.path").value(URL))
+              .andReturn()
+              .getResponse()
+              .getContentAsString();
+
+      assertThat(corpo).doesNotContain("ana", "at br.com", "Exception");
+      assertThat(logs.list).noneMatch(e -> e.getLevel().isGreaterOrEqual(Level.ERROR));
+      assertThat(logs.list)
+          .allSatisfy(e -> assertThat(e.getFormattedMessage()).doesNotContain("ana", "q="));
+    } finally {
+      logger.detachAppender(logs);
+    }
+  }
+
+  /** US-CLI-05c: sem token, 401 vem antes de 404 e 405 (nao revela quais rotas existem). */
+  @Test
+  void shouldReturnUnauthorizedBeforeNotFoundOrMethodNotAllowedWhenThereIsNoToken()
+      throws Exception {
+    mockMvc.perform(get("/api/v1/rota-inexistente")).andExpect(status().isUnauthorized());
+    mockMvc.perform(delete(URL)).andExpect(status().isUnauthorized());
   }
 
   @Test

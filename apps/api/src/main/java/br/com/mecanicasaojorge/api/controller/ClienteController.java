@@ -40,9 +40,11 @@ public class ClienteController {
   @Operation(
       summary = "Lista clientes com busca opcional",
       description =
-          "Busca por trecho em nome, email ou telefone (so digitos, com ou sem mascara), sem "
-              + "diferenciar maiusculas e acentos. O termo vale como texto literal. Ordenado por "
-              + "nome e id. Pagina alem do fim devolve 200 com lista vazia.")
+          "Busca por trecho em nome e email, sem diferenciar maiusculas e acentos. O telefone so "
+              + "e consultado quando o termo e numerico (digitos e simbolos de mascara: "
+              + "parenteses, espaco, hifen, ponto e +), com ou sem mascara. O termo vale como "
+              + "texto literal. Ordenado por nome e id. Pagina alem do fim devolve 200 com lista "
+              + "vazia e o total real.")
   @ApiResponse(responseCode = "200", description = "Pagina de clientes")
   @ApiResponse(
       responseCode = "400",
