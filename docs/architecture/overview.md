@@ -73,7 +73,7 @@ pela F00 (`usuarios`, PK `id`, snake_case). O script é referência de **estrutu
 | Entidade | Tabela | Migration | Observações |
 |---|---|---|---|
 | Usuario | `usuarios` | V1 (F00) | PK `id`; `perfil` VARCHAR+CHECK (enum STRING); `created_at`/`updated_at` |
-| Cliente | `clientes` | V2 (+ V3 na F03a; + V4 na F03b, especificada e ainda não aplicada) | nome, telefone, email, created_at; `cpf` e `endereco` opcionais pela V4 ([ADR-018](adr/ADR-018-guardar-cpf-e-endereco-do-cliente-como-colunas-opcionais.md)); collation `utf8mb4_0900_ai_ci` fixada pela V3 ([ADR-017](adr/ADR-017-padronizar-listagem-com-busca-e-paginacao.md)) |
+| Cliente | `clientes` | V2 (+ V3 na F03a; + V4 na F03b, aplicada no ramo `feat/f03b-clientes-detalhe`) | nome, telefone, email, created_at; `cpf` e `endereco` opcionais pela V4 ([ADR-018](adr/ADR-018-guardar-cpf-e-endereco-do-cliente-como-colunas-opcionais.md)); collation `utf8mb4_0900_ai_ci` fixada pela V3 ([ADR-017](adr/ADR-017-padronizar-listagem-com-busca-e-paginacao.md)) |
 | Veiculo | `veiculos` | V2 | FK `cliente_id`; placa, modelo, marca, ano, cor, quilometragem |
 | Servico | `servicos` | V2 | valor_padrao_mao_obra, tempo_estimado_horas, ativo |
 | Peca | `pecas` | V2 | codigo UNIQUE, custo, preco_venda, quantidade_estoque, estoque_minimo, ativo |
@@ -179,8 +179,9 @@ em campo único (DDL provado em MySQL 8.4 pelo CARTOGRAFO em 2026-11-17). A
 F08 só lê; a primeira escrita é da F09, que também decide `UNIQUE` em `cpf`.
 Condição: o VIGIA aprova as linhas de `cpf` e `endereco` da política (seção 2)
 e do registro LGPD antes do merge da V4, e a pessoa aceita o ADR-018 (D-B).
-**Estado da linha em 2026-11-17: especificada, não aplicada.** Fecha quando a
-V4 entrar na `main`.
+**Estado da linha em 2026-11-17: V4 escrita e aplicada do zero em MySQL 8.4 pelo
+`ClienteDetalheIT` (ESPRESSO), no ramo `feat/f03b-clientes-detalhe`.** Fecha de
+vez quando a V4 entrar na `main`.
 
 **Risco residual**: a matriz é documento, e nenhum teste a compara com o
 banco. Se uma feature esquecer a coluna ou não fechar a linha, só a revisão de
