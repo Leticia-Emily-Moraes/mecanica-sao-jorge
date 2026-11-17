@@ -247,9 +247,9 @@ mvn spotless:check     # verifica formatação (google-java-format)
 
 > **Evidência real (ESPRESSO, 2026-11-17, F03b):** `mvn -B verify`
 > em contêiner `maven:3.9-eclipse-temurin-21` com o socket do Docker (MySQL 8.4
-> via Testcontainers): 111 testes unitários (surefire) e 40 de integração
+> via Testcontainers): 112 testes unitários (surefire) e 41 de integração
 > (failsafe), 0 falhas; `checkstyle:check` e `spotless:check` isolados com
-> 0 violações. Inclui o `ClienteDetalheIT` (10). Abaixo, a evidência anterior
+> 0 violações. Inclui o `ClienteDetalheIT` (11, com o 400 de id só com espaço, F-1). Abaixo, a evidência anterior
 > da F03a: 93 testes unitários e 30 de integração — 123 no total. Os de integração são
 > `ClienteListagemIT` (24), `ClienteCollationLatin1IT` (3) e `FlywayMigrationIT`
 > (3). Esse número muda a cada feature: confira rodando `mvn verify`, não por
