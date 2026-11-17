@@ -307,7 +307,12 @@ npm run typecheck      # tsc --noEmit
       contra o `HEAD` atual (ver "Testes").
 - [x] `apps/mobile`: telas de Login e Perfil com logout (F30) e a tab bar do
       menu principal pós-login (F33), token e dados do usuário presos ao
-      `expo-secure-store`.
+      `expo-secure-store`. Desde a F41 essas telas seguem o Figma
+      `FPdB8RymAnN81pbKfizdzE`: o login aterrissa em uma tela inicial (`/inicio`)
+      com a tab bar de 4 itens desabilitados, e o Perfil abre pelo botão de
+      usuário do cabeçalho. Dependência nova: fontes `@expo-google-fonts/*`
+      (`npm install` basta). Pendências da F41 em
+      `docs/design/F41-planilha-fpdb8.md`.
 - [x] `docs/design/`: wireframe de baixa fidelidade das 24 telas (F24) e
       protótipo de alta fidelidade de Login/Perfil (F25) e da tab bar (F34)
       no Figma — **gate de "Aprovado" da F25 ainda aberto** (ver
