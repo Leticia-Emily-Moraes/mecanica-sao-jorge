@@ -4,7 +4,7 @@ import { StyleSheet } from 'react-native';
 
 import { findAncestorStyle } from '@/test-utils/find-ancestor-with-style';
 import type { TestStyle } from '@/test-utils/flat-style';
-import { color, fontFamily, layout } from '@/theme/tokens';
+import { color, fontFamily, layout, spacing } from '@/theme/tokens';
 
 import { ErrorState } from './error-state';
 
@@ -83,6 +83,64 @@ describe('ErrorState (P2)', () => {
 
     expect(actions).toMatchObject({ width: '100%', maxWidth: layout.stateActionsMaxWidth });
     expect(layout.stateActionsMaxWidth).toBe(328);
+  });
+
+  it('should space circle to title by 16 and title to message by 10 (R-12)', () => {
+    renderError();
+
+    expect(StyleSheet.flatten(screen.getByText(TITLE).props.style as TestStyle)).toMatchObject({
+      marginTop: 16,
+    });
+    expect(StyleSheet.flatten(screen.getByText(MESSAGE).props.style as TestStyle)).toMatchObject({
+      marginTop: 10,
+    });
+    expect(spacing.md).toBe(16);
+    expect(spacing.s10).toBe(10);
+  });
+
+  it('should center the illustration above and anchor the actions at the base (R-13)', () => {
+    renderError();
+
+    const root = screen.getByTestId('error-state');
+    const illustration = screen.getByTestId('error-state-illustration');
+    const actions = screen.getByTestId('error-state-actions');
+    const rootStyle = StyleSheet.flatten(root.props.style as TestStyle);
+
+    const order = (root.children as readonly (string | { props: { testID?: string } })[]).map(
+      (child) => (typeof child === 'string' ? child : child.props.testID),
+    );
+
+    expect(order).toEqual(['error-state-illustration', 'error-state-actions']);
+    expect(StyleSheet.flatten(illustration.props.style as TestStyle)).toMatchObject({
+      flex: 1,
+      justifyContent: 'center',
+    });
+    expect(StyleSheet.flatten(actions.props.style as TestStyle)).not.toHaveProperty('flex');
+    expect(StyleSheet.flatten(actions.props.style as TestStyle)).not.toHaveProperty('marginTop');
+    expect(rootStyle).toMatchObject({ gap: 12, paddingBottom: 16 });
+  });
+
+  it('should keep 12 between the two action buttons (R-14)', () => {
+    renderError();
+
+    expect(
+      StyleSheet.flatten(screen.getByTestId('error-state-actions').props.style as TestStyle),
+    ).toMatchObject({ gap: 12 });
+    expect(spacing.s12).toBe(12);
+  });
+
+  it('should draw only the primary action at the base when there is no secondary one', () => {
+    render(
+      <ErrorState
+        title={TITLE}
+        message={MESSAGE}
+        retryLabel="Tentar novamente"
+        onRetry={jest.fn()}
+      />,
+    );
+
+    expect(screen.getByText('Tentar novamente')).toBeTruthy();
+    expect(screen.queryByText('Entrar novamente')).toBeNull();
   });
 
   it('should keep the icon circle hidden from the screen reader', () => {

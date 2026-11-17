@@ -165,19 +165,19 @@ describe('StateView', () => {
       ).toBe(color.text.secondary);
     });
 
-    it('should keep 24 under the circle, 8 under the title and a 289 wide message (P2, R-7)', () => {
+    it('should keep 16 under the circle, 10 under the title and a 289 wide message (P2, R-12)', () => {
       render(<StateView {...baseProps} onRetry={jest.fn()} />);
 
       expect(
         StyleSheet.flatten(screen.getByText('Não foi possível carregar').props.style as TestStyle)
           .marginTop,
-      ).toBe(24);
+      ).toBe(16);
       expect(
         StyleSheet.flatten(
           screen.getByText('Verifique a internet da oficina e tente de novo.').props
             .style as TestStyle,
         ),
-      ).toMatchObject({ marginTop: 8, maxWidth: 289, fontSize: 14, lineHeight: 21 });
+      ).toMatchObject({ marginTop: 10, maxWidth: 289, fontSize: 14, lineHeight: 21 });
     });
 
     it('should call onRetry when the retry button is pressed', () => {

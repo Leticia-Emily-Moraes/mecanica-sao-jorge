@@ -16,8 +16,8 @@ export interface ErrorStateProps {
 
 /**
  * Erro de tela cheia (P2): sem cabeçalho nem tab bar, ícone de sem conexão em
- * círculo, título, mensagem, ação principal cheia e, se houver, ação
- * secundária de contorno. Substitui o popup antigo: a tela não tem conteúdo
+ * círculo, título, mensagem e, ancoradas na base, a ação principal cheia e, se
+ * houver, a secundária de contorno. Substitui o popup antigo: a tela não tem conteúdo
  * útil por baixo quando a sessão não carrega.
  */
 export function ErrorState({
@@ -29,16 +29,23 @@ export function ErrorState({
   onSecondaryPress,
 }: ErrorStateProps): ReactElement {
   return (
-    <View accessibilityRole="alert" accessibilityLiveRegion="assertive" style={styles.container}>
-      <StateIllustration
-        icon="cloud-offline-outline"
-        title={title}
-        message={message}
-        titleGap={spacing.lg}
-        messageGap={spacing.sm}
-        titleIsHeader
-      />
-      <View style={styles.actions}>
+    <View
+      testID="error-state"
+      accessibilityRole="alert"
+      accessibilityLiveRegion="assertive"
+      style={styles.container}
+    >
+      <View testID="error-state-illustration" style={styles.illustration}>
+        <StateIllustration
+          icon="cloud-offline-outline"
+          title={title}
+          message={message}
+          titleGap={spacing.md}
+          messageGap={spacing.s10}
+          titleIsHeader
+        />
+      </View>
+      <View testID="error-state-actions" style={styles.actions}>
         <View>
           <Button label={retryLabel} onPress={onRetry} variant="primary" />
         </View>
@@ -53,7 +60,15 @@ export function ErrorState({
 }
 
 const styles = StyleSheet.create({
+  // Frame P2 (83:759): coluna com gap 12 e 16 de margem na base; a ilustração
+  // centra na área acima e os botões ficam ancorados embaixo.
   container: {
+    flex: 1,
+    alignItems: 'center',
+    gap: spacing.s12,
+    paddingBottom: spacing.md,
+  },
+  illustration: {
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
@@ -61,7 +76,6 @@ const styles = StyleSheet.create({
   actions: {
     width: '100%',
     maxWidth: layout.stateActionsMaxWidth,
-    gap: spacing.s10,
-    marginTop: spacing.lg,
+    gap: spacing.s12,
   },
 });
