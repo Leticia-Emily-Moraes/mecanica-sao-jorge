@@ -737,3 +737,90 @@ Nenhuma dessas lacunas é divergência com o frame: todas são "igual por leitur
 | Zero divergência real aberta | **não**: faltam o escudo no código (L-02) e a licença; as demais divergências reais conhecidas estão fechadas |
 
 **US-PAR-08 continua aberto** até o escudo estar programado e a S-2 respondida. Limite do que afirmo: "igual" é valor lido no Figma = valor lido no código-fonte; **não medi layout em aparelho nem em simulador** e não rodei fluxo contra a API.
+
+## 21. Quinta sessão com acesso ao Figma (ESQUADRO, 17/11, tarde): exportação final, I1 relido, escudo registrado e lista para o ORLA
+
+Autor: ESQUADRO · Sessão `832c13c4-9343-493d-b0ff-0546cb9da51b` · Arquivo `FPdB8RymAnN81pbKfizdzE` · Código lido no ramo `feat/f41-paridade-fpdb8-codigo` em `db1c281`. Não alterei o Figma (só leitura) nem o código do app.
+
+### 21.1 Acesso (US-PAR-11): saída real do `whoami` (e-mail omitido de propósito)
+
+`{"whoami":{"user_id":"1126488233271433922","handle":"Leticia Moraes","plans":[{"name":"Time Pessoal","seat":"Full","tier":"student","key":"team::1274094162661077353","role":"admin","specs_enabled":true,"code_layers_enabled":true}]}}`
+
+Sem erro de permissão em `create_session`, `get_screenshot` e `use_figma` (só leitura). **Não tentei** `download_assets` (a sessão de 17/11 de manhã teve esse conector negado, §20): usei `get_screenshot` e baixei o PNG pela URL que ele devolve. A instrução `figma-use` não pôde ser carregada (sem `get_figma_skill` nem leitura de `skill://` nesta sessão); por isso só fiz leituras em `use_figma`, nenhuma escrita.
+
+### 21.2 Exportação final dos 15 frames aprovados (nomeados pelo nó)
+
+Exportei os 15 frames por `get_screenshot` (tamanho padrão do conector: 410 × 804 para telas, 360 × 62 para a tab bar e 470 × 180 para T1 e T2) e baixei para uma pasta nova fora do repositório. **Os 15 hashes são idênticos aos de `docs/design/f41-capturas/final-2026-11-16/`**, então **nenhum PNG foi alterado**: as capturas finais já versionadas são as de hoje. Comparei por `md5`, não por olho.
+
+| Tela | Estado | Nó | Arquivo em `final-2026-11-16/` | md5 (hoje = versionado) |
+|---|---|---|---|---|
+| Login | vazio | `10:895` | `login-vazio-10-895.png` | `a4ade874308190ca1a5be3ceaaea1149` |
+| Login | preenchido | `82:1990` | `login-preenchido-L1-82-1990.png` | `c3160c373559707389bf96f56ac4b7cc` |
+| Login | carregando | `82:2024` | `login-carregando-L2-82-2024.png` | `2aa84cf0bdd4ddffee13f8912c972e71` |
+| Login | erro de credencial | `10:936` | `login-erro-credencial-10-936.png` | `edbf416b5e4b6c2c0dc2a914172e1af5` |
+| Login | erro de conexão | `82:2058` | `login-erro-conexao-L3-82-2058.png` | `843ae92dc1fb77198e072fa9a7a82ad8` |
+| Login | sessão expirada (extra) | `82:2098` | `login-sessao-expirada-L4-82-2098.png` | `c271673d0b4beaae22b2e073b4c90963` |
+| Perfil | carregando | `83:712` | `perfil-carregando-P1-83-712.png` | `2faf569f5798c0c8d09c3c2b2f38bfd3` |
+| Perfil | erro | `83:754` | `perfil-erro-P2-83-754.png` | `f2b9703516e28f130b5cda84f118976e` |
+| Perfil | preenchido | `10:3842` | `perfil-preenchido-10-3842.png` | `841354797578261fe078d255de7b0e91` |
+| Diálogo de logout | aberto | `10:3886` | `dialogo-logout-10-3886.png` | `56caddde1bed560d963f1749a8f8e521` |
+| Tab bar | Ordens selecionado (estado futuro) | `20:1102` | `tabbar-ordens-selecionado-20-1102.png` | `35b51e7687e29a46c61e6da24a5ca655` |
+| Tab bar | Clientes selecionado (estado futuro) | `20:1340` | `tabbar-clientes-selecionado-20-1340.png` | `7fdf5668ca63091d93eed1af1b04827f` |
+| Tab bar | foco (T1) | `83:817` | `tabbar-foco-T1-83-817.png` | `8c0bd4bcba3af29362e2fba19a1a6b09` |
+| Tab bar | 4 abas desabilitadas (T2) | `83:844` | `tabbar-desabilitada-T2-83-844.png` | `dde6610eb53b23d06d8f8cec775fbca9` |
+| Início (com a tab bar) | vazio | `89:971` | `inicio-vazio-I1-89-971.png` | `be50ec421f047c6f8d2d859745297c0a` |
+
+**Não abri nenhuma das 15 imagens hoje**; a conferência é por hash contra arquivos que a §20.5 já tinha aberto (L2 e `10:936`) ou conferido por hash. A tab bar com Início aparece em I1 (`89:1003`, instância dentro da tela) e em T2 (as mesmas 4 abas a 50%). Só dado fictício do arquivo ("joao.silva", senha em pontos); nenhum token, senha ou dado real.
+
+### 21.3 I1 `89:971` relido por valor (ninguém o tinha relido em 17/11)
+
+Leitura por `use_figma`, sem escrita. Tudo bate com V-I01 a V-I07 (§17.3):
+
+| Elemento | Lido hoje | Código lido hoje (`db1c281`) |
+|---|---|---|
+| Tela `89:976` | 362 × 742, `#F7F5F2`, raio 10 | `ScreenContainer` |
+| Círculo `89:979` | 72 × 72, raio 36, `#EDE9E4`, `x` 145, `y` 286 | `size.stateIcon` = 72, `color.surface.neutral` (`state-illustration.tsx:57-60`) |
+| Ícone `89:980` | instância 32 × 32, dentro do círculo a 20 | `iconSize.alert` (valor numérico **não relido hoje**) |
+| Título `89:983` | "Em breve", Barlow Condensed SemiBold 20, `#1E3A3F`; caixa `89:981` a `y` 368 (6 de respiro) | `typography.stateTitle` 20 (`tokens.ts:140`), `inicio.vazio.titulo` = "Em breve" |
+| Mensagem `89:985` | "Os módulos da oficina chegam nas próximas versões.", Inter Regular 14, linha 21, `#6E6A66`, 289 × 42, `y` 408 (10 abaixo da caixa do título) | `typography.dialogMessage` 14 / 21 (`tokens.ts:155`), `inicio.vazio.mensagem` com o mesmo texto; `messageGap` 10, `titleGap` 16 em `state-view.tsx:75-78`; largura 289 por `layout.stateMessageMaxWidth` (**valor não relido hoje**) |
+| Cabeçalho `89:996` | 360 × 56, `#1E3A3F`, título "Início" Barlow SemiBold 21 branco, botão de usuário 36 × 36 | `inicio.titulo` = "Início", `ScreenHeader` |
+| Tab bar `89:1003` | 360 × 62, 4 itens de 90 a 50% de opacidade, rótulos Inter Medium 11 `#B7B2AC`: Ordens, Clientes, Catálogo, Financeiro | `size.tabBar` = 62, `opacity.unavailable` = 0.5, mesma ordem e rótulos (`menu-tab-bar.tsx:23-48`, `strings.ts:64-70`) |
+
+Quatro estados do Início: só "vazio" existe; carregando, erro e preenchido são **não se aplica** (tela estática, sem chamada de API), como na §17.3.
+
+### 21.4 Anotações da tab bar (P-01) confirmadas
+
+`20:1102` e `20:1340` (ambos `COMPONENT` 360 × 62) continuam com **uma anotação** cada, com o texto "Estado futuro (F41, P-01 decidido em 16/11: "não se aplica ainda") …" (lida de volta hoje). Referência atual de paridade da tab bar: T2 `83:844` e T1 `83:817`.
+
+### 21.5 Escudo: origem e licença registradas em arquivo próprio
+
+`docs/design/f41-ativos/escudo/ORIGEM-E-LICENCA.md`. Resumo: o componente `10:9` é **local ao arquivo** (`remote: false`), sem descrição nem links; o SVG de `10:906` reexportado hoje tem 932 bytes, igual ao versionado, e os 4 hashes dos arquivos batem com a §20.4. **Autor e licença: sem registro. A S-2 segue sem resposta literal da pessoa** e o campo de resposta no arquivo está vazio. Não preenchi.
+
+### 21.6 O que o código ainda diverge do Figma (lista objetiva para o ORLA)
+
+**Real e aberta: 1 linha.**
+
+| # | Divergência | Frames | Figma (lido) | Código (lido) | Lado a corrigir | Bloqueio |
+|---|---|---|---|---|---|---|
+| L-02 | Escudo ausente | `10:895`, L1 `82:1990`, L2 `82:2024`, `10:936`, L3 `82:2058`, L4 `82:2098` | 84 × 96, centrado, primeiro elemento do bloco da marca, 10 acima do título; medidas em `ORIGEM-E-LICENCA.md` §4 | `brand-header.tsx` só tem título e subtítulo (comentário nas linhas 12-15); `apps/mobile/assets` não existe; sem `Image` no app | código | **S-2 (licença) e a decisão da pessoa/REGENTE de programar antes dela** |
+
+Quando a S-2 abrir: copiar os 3 PNGs para `apps/mobile/assets`, `Image` 84 × 96 como primeiro filho do `BrandHeader` (o `gap` de 10 já existe), `accessible={false}` e `importantForAccessibility="no"`, teste em `brand-header.test.tsx` (existência, tamanho, fora da árvore de acessibilidade), e conferir se L3, L4 e `10:936` ficam com o bloco em y 126 como no Figma. Sem token novo. Se o par escudo + `ScreenContainer centered` empurrar o formulário em tela baixa, registrar como divergência de plataforma ou nova linha, não ajustar no olho.
+
+**Não são divergência, são lacunas de trava de teste (9, §20.7):** V-L06, V-L08, V-L11, V-L12, V-P01, V-P11, V-P13, V-T04, V-T09. Recomendação do BUSSOLA: V-T04, V-L06 e V-L08, de uma linha cada; V-T09 é exceção D-10.
+
+**Fora desta lista, por decisão registrada:** O-1 (D-10, Ionicons), O-3 (plataforma), P-01 (tab bar selecionada, "não se aplica ainda"), D-26 (sem captura nova).
+
+**Limite:** não encontrei outra divergência nos itens que li hoje (§21.3). Login, Perfil, diálogo e T1/T2 não foram relidos por valor hoje; para eles vale a leitura de §17 a §20 e o fato de `git diff --stat 5e02e57 HEAD -- apps` listar só `text-field.test.tsx` e `tokens.test.ts` (21 linhas de teste, nenhum estilo). Não medi layout em simulador nem rodei a suíte hoje.
+
+### 21.7 Quadro de fechamento (US-PAR-08), depois desta sessão
+
+| Condição | Estado |
+|---|---|
+| 15 frames aprovados exportados e nomeados pelo nó | **feito**, sem mudança de pixel (§21.2) |
+| I1 e anotações da tab bar relidos | **feito** (§21.3, §21.4) |
+| Origem do escudo registrada | **feito** (lida no arquivo) |
+| Licença do escudo | **sem registro**, aguarda a pessoa (S-2) |
+| Escudo programado | **não**, é do ORLA e depende da S-2 |
+| Zero divergência real aberta | **não**: L-02 |
+
+**US-PAR-08 continua aberto só pelo escudo (L-02).**
