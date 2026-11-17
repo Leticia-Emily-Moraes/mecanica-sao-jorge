@@ -162,6 +162,22 @@ class ClienteDetalheIT {
   }
 
   @Test
+  void shouldReturnBadRequestNotServerErrorWhenIdIsOnlyWhitespace() throws Exception {
+    // variavel de URI: o MockMvc codifica o espaco como %20 (get(String) codificaria %20 de novo)
+    for (String id : List.of(" ", "  ", "\t")) {
+      mockMvc
+          .perform(get(URL + "/{id}", id).with(jwt()))
+          .andExpect(status().isBadRequest())
+          .andExpect(jsonPath("$.status").value(400))
+          .andExpect(jsonPath("$.erro").value("Bad Request"))
+          .andExpect(jsonPath("$.mensagem").value("Parametro invalido: id"))
+          .andExpect(jsonPath("$.timestamp").exists())
+          .andExpect(jsonPath("$.path").exists());
+    }
+    assertThat(logs.list).noneMatch(e -> e.getLevel().toInt() >= 40000);
+  }
+
+  @Test
   void shouldReturnUnauthorizedWithoutQueryingWhenTokenIsMissingOrInvalid() throws Exception {
     long id = inserir("Ana Exemplo", TELEFONE, null, CPF, null);
 

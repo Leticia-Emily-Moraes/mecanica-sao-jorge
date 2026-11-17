@@ -77,6 +77,27 @@ class GlobalExceptionHandlerTest {
   }
 
   @Test
+  void shouldReturnBadRequestNamingOnlyTheParameterWhenPathVariableIsMissing() throws Exception {
+    when(request.getRequestURI()).thenReturn("/api/v1/clientes/ ");
+    var parametro =
+        new org.springframework.core.MethodParameter(
+            GlobalExceptionHandlerTest.class.getDeclaredMethod("alvo", Long.class), 0);
+
+    ResponseEntity<ErrorResponse> response =
+        handler.handleMissingPathVariable(
+            new org.springframework.web.bind.MissingPathVariableException("id", parametro),
+            request);
+
+    assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+    assertThat(response.getBody()).isNotNull();
+    assertThat(response.getBody().status()).isEqualTo(400);
+    assertThat(response.getBody().mensagem()).isEqualTo("Parametro invalido: id");
+  }
+
+  @SuppressWarnings("unused")
+  private void alvo(Long id) {}
+
+  @Test
   void shouldReturnNotFoundWithFixedMessageWhenResourceDoesNotExist() {
     when(request.getRequestURI()).thenReturn("/api/v1/rota-inexistente");
 

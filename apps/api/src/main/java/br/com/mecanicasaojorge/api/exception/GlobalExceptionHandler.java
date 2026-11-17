@@ -14,6 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.MissingPathVariableException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.HandlerMethodValidationException;
@@ -95,6 +96,16 @@ public class GlobalExceptionHandler {
   public ResponseEntity<ErrorResponse> handleTypeMismatch(
       MethodArgumentTypeMismatchException ex, HttpServletRequest request) {
     return buildResponse(HttpStatus.BAD_REQUEST, mensagemParametro(ex.getName()), request);
+  }
+
+  /**
+   * Variavel de rota vazia ou so com espacos (ex.: {@code /clientes/%20}): o Spring converte para
+   * {@code null} e sinaliza ausencia da variavel. E entrada invalida do cliente, logo 400 (F-1).
+   */
+  @ExceptionHandler(MissingPathVariableException.class)
+  public ResponseEntity<ErrorResponse> handleMissingPathVariable(
+      MissingPathVariableException ex, HttpServletRequest request) {
+    return buildResponse(HttpStatus.BAD_REQUEST, mensagemParametro(ex.getVariableName()), request);
   }
 
   /**
