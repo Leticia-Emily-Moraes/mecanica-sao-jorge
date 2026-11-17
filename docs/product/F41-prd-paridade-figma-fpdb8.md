@@ -19,6 +19,12 @@ Prioridade P1 · Frontend · Sprint 01.
 - **Conferido contra o repositório em 17/11** (§10): suíte e contraste rodados por mim; PNG do L2 alterado e não commitado na árvore; os 4 `F44-*.md` não rastreados.
 - **Dúvida nova S-3** (foco da tab bar: T1 desenha foco em item selecionado e o app só tem item desabilitado). Registrada, não bloqueia.
 
+**v4.2 (BUSSOLA, 2026-11-17, depois da revisão humana das 12:24 e da instrução do comandante):** aplica a decisão da pessoa sobre o protocolo e fecha o quadro de pendências, sem reabrir nada da v4.
+- **Protocolo de captura (critério 4):** a pessoa decidiu em 17/11 que **não precisa de captura em aparelho físico** e que o protocolo de **simulador (iPhone 17, iOS 27.0)** de `docs/design/F41-capturas-app-orla.md` vale como linha de base. Novo **D-26** (§2); a **premissa 13** (§4) reescreve a premissa 9 da feature; **US-PAR-04** reescrito (§5). As tarefas **5, 11 e 19** fecham como **dispensadas por decisão da pessoa**, sem refazer captura (§11).
+- **Critério 3 (US-PAR-03):** o "Texto para o quadro" ganhou a cláusula do Início (a tab bar vive em `/inicio`, que está no aceite por valor contra o frame I1, D-20) e a remissão ao escudo (US-PAR-19). Nenhum cenário novo, nenhuma decisão nova.
+- **S-1, S-2, S-3 e o destino dos 4 `F44-*.md` (R6): nenhuma resposta literal da pessoa chegou.** Os campos da §7.1 seguem vazios e nada foi preenchido por mim. A observação geral de 17/11 ("critério 8 segue aberto só pelo escudo (S-2) e o critério 14 pelos 4 arquivos `docs/product/F44-*`") é registrada como **indício favorável à leitura A da S-1**, não como resposta literal. O quadro **decidida × aberta** está na **§7.2**.
+- **Estado conferido hoje por mim, em `c721983`:** `npm --prefix apps/mobile test -- --silent` deu 37 suítes e **292 testes** passando (eram 289; entrou o teste da cor do campo desabilitado, `c21436c`); `python3 -I docs/design/F41-contraste.py` deu "OK: todos os pares obrigatórios atingem o alvo"; `git log main..HEAD --format=%B | grep -ci co-authored-by` deu 0; `git status --short` mostra só os 4 `F44-*.md` não rastreados. **Escudo:** exportado (PNG 1x, 2x e 3x e SVG em `docs/design/f41-ativos/escudo/`, commit `0c0f1b4`) e **não programado** (`apps/mobile` não tem pasta `assets`, e `brand-header.tsx` comenta que o escudo "ainda não entra"). Consequências no §5.1.
+
 **Conflito de instrução, exposto para o REGENTE:** a instrução desta etapa pedia "D-20 e D-21 fora do aceite, com o motivo". A revisão humana das 22:28 decidiu o contrário (critério 8 e observação geral). A decisão da pessoa é mais recente e prevalece; o motivo original **continua escrito** em §2 (linhas D-20 e D-21), para o rastro não se perder. A observação geral diz "D-20 confirmada" e o critério 8 diz "PRD v4 reverte a D-20": li como a mesma decisão (a D-20 cai e o Início entra por valor), o que bate com `docs/design/F41-valores-fpdb8.md` §17.3 ("aprovado pela pessoa em 16/11; D-20 cai"). Se a leitura estiver errada, é a dúvida **S-1** (§7), com o caminho de volta descrito.
 
 Base do documento: ramo `feat/f41-paridade-fpdb8-codigo`, código em `12c5e78`, sobre a `main` em `348a43e` (F40 já mergeada pela PR #10). A tab bar de 4 itens vem de `361989a`.
@@ -64,6 +70,7 @@ Nada foi corrigido em código nem no Figma nesta etapa. Só decisão, escopo e c
 | D-23 | **P-01, estado selecionado da tab bar: "não se aplica ainda".** As 4 abas estão desabilitadas e nenhuma navega, então não há rota para ficar selecionada. O ESQUADRO anota em `20:1102` e `20:1340` que o estado é futuro. **Reabre quando uma aba for habilitada.** É a única exceção à premissa 5 (estado só no frame normalmente é divergência real), por decisão da pessoa, e tem gatilho. | pessoa (revisão humana 16/11) |
 | D-24 | **R-15: campo em carregamento do L2 `82:2024`.** O código desenha o campo desabilitado em cinza (`inputRowDisabled`, `color.surface.skeleton`, `text-field.tsx`); a decisão é a favor do **código**, então o **Figma muda**: o ESQUADRO atualiza o L2 para a cor do skeleton, ligada à variável, reexporta o PNG e registra em `docs/design/F41-contraste.py` que campo desabilitado é isento. O ORLA adiciona o teste que trava a cor do campo desabilitado (hoje `text-field.test` só cobre `editable` e `accessibilityState`). | pessoa (revisão humana 16/11) |
 | D-25 | **O-1, O-2 e O-3.** **O-1** (ícone do círculo do P2: wifi cortado no frame, `cloud-offline-outline` no app): real, **coberta pela exceção D-10**; Ionicons mantidos, nada muda. **O-2** (frame `10:936` sem "Mostrar" no campo Senha): o frame é antigo; decidido a favor do **código**, então o ESQUADRO atualiza `10:936` com "Mostrar" e reexporta o PNG. **O-3** (anel do P1 `83:712` contra `ActivityIndicator` nativo): **só de plataforma** (ADR-014:216); nada muda. O ESQUADRO registra a classificação na planilha de valores com o par que prova. | pessoa (revisão humana 16/11) |
+| **D-26** | **Protocolo de captura = simulador, sem aparelho físico (v4.2).** O protocolo registrado em `docs/design/F41-capturas-app-orla.md` (simulador iPhone 17, iOS 27.0, Expo Go com Metro na 8082, tema claro, texto `large`, retrato, 1206 × 2622 px) **vale como linha de base**. **Nenhuma captura nova** é exigida; as tarefas 5, 11 e 19 ficam **dispensadas**. A D-19 continua valendo: a prova de aceite é a planilha mais os testes, e as capturas são a linha de base visual de apoio. Lacuna que o protocolo declara: a versão do Expo Go não foi lida. | pessoa (revisão humana 17/11, critério 4) |
 
 **Rastro das reversões (v4):** a D-20 e a D-21 nasceram na v3 como instrução do comandante (o risco R2 já previa que a discordância da pessoa viraria v4). A pessoa decidiu o contrário em 16/11, na revisão das 22:28, e esta versão a aplica. A instrução desta etapa pedia manter as duas fora do aceite; **não segui essa parte**, porque a decisão da pessoa é mais recente, e deixei os motivos originais escritos nas linhas D-20 e D-21. Se o REGENTE quiser o contrário, a decisão é dele com a pessoa, e o texto da v3.1 está no git em `361989a` (US-PAR-08 e US-PAR-18 voltam a ele).
 
@@ -107,10 +114,11 @@ Nada foi corrigido em código nem no Figma nesta etapa. Só decisão, escopo e c
 10. Alturas do Figma (campo 46, botão 50, tab bar 62) valem sobre os tokens da casa (48, 52, 64). A área de toque efetiva continua ≥ 48 por `hitSlop` (coberto por `header-icon-button.test` e `text-field.test`; o Jest não mede toque real, ver US-PAR-09).
 11. **Escudo (D-21).** Ativo de marca, sem dado pessoal; finalidade: identidade visual da tela de Login. Base legal e retenção: não se aplicam. O que pesa é a **licença**: sem registro de origem e de permissão de uso, o ativo não entra no repositório. Formato: o app não tem `react-native-svg` nem pasta `assets` (verificado), então o padrão é PNG 1x, 2x e 3x; vetor só se o ORLA justificar a dependência nova, e dependência nova atualiza o README.
 12. **Tamanho do escudo (proposta minha, sem resposta da pessoa):** cada PNG até 50 KB, dentro do padrão da casa de não versionar binário grande. Se o ESQUADRO exportar acima disso, ele registra o motivo.
+13. **Protocolo de captura (v4.2, reescreve a premissa 9 da feature, D-26).** Decisão da pessoa em 17/11: **sem aparelho físico**; vale o protocolo de **simulador iPhone 17, iOS 27.0** de `docs/design/F41-capturas-app-orla.md` (Expo Go, Metro na 8082, tema claro, texto `large`, retrato, 1206 × 2622 px, barra de status em 9:41), como **linha de base** das features de tela seguintes. Sem captura nova. Trocar de simulador ou de configuração obriga refazer as capturas afetadas. As capturas existentes usam só dado fictício (`Maria Teste`, `maria.teste@exemplo.invalid`, senha mascarada em 14 pontos, sem rede, sem token). **Limites declarados:** (a) a versão do Expo Go não foi lida; (b) as capturas vêm de uma rota temporária apagada que compõe os componentes reais, então provam aparência de componente, não a tela de `app/*.tsx` nem o fluxo contra a API; (c) o briefing chama esta linha de base de "da F40", mas a F40 já está na `main` (§1), então na prática ela serve às features seguintes (US-PAR-13). Finalidade e retenção: as da premissa 8.
 
 ## 5. Critérios de aceitação (Gherkin)
 
-Reescritos na v4: US-PAR-01 a 08 (todos ganham o bloco **Estado em 16/11 · Prova**; 02 C, 03 E, 05, 06, 07 e 08 têm conteúdo novo), 12, 13 e 18. Ajustados: 09, 10 e 15. **Novo: US-PAR-19.** Vale como na feature: US-PAR-14. Sem alteração: 11, 16 e 17. Os IDs `US-PAR-NN` rastreiam até teste. **Na v4 (16/11) nenhum teste foi rodado por mim**: os arquivos de teste citados tiveram a existência conferida por listagem, não a execução. **Na v4.1 (17/11) rodei a suíte inteira e o script de contraste (§10).** Os blocos "Estado em 16/11" são da v4; os "Estado em 17/11 · Prova esperada" são desta versão.
+Reescritos na v4: US-PAR-01 a 08 (todos ganham o bloco **Estado em 16/11 · Prova**; 02 C, 03 E, 05, 06, 07 e 08 têm conteúdo novo), 12, 13 e 18. Ajustados: 09, 10 e 15. **Novo: US-PAR-19.** Vale como na feature: US-PAR-14. Sem alteração: 11, 16 e 17. Os IDs `US-PAR-NN` rastreiam até teste. **Na v4 (16/11) nenhum teste foi rodado por mim**: os arquivos de teste citados tiveram a existência conferida por listagem, não a execução. **Na v4.1 (17/11) rodei a suíte inteira e o script de contraste (§10).** Os blocos "Estado em 16/11" são da v4; os "Estado em 17/11 · Prova esperada" são da v4.1. **Na v4.2 o estado vigente de cada critério é o do §5.1**, que é a leitura atual; onde um bloco antigo diz "aberto" e o §5.1 diz "feito", vale o §5.1 (o commit que fechou está citado lá).
 
 ### US-PAR-01 — Cobertura de telas e prova
 - **Dado** Login, Perfil, diálogo de confirmação de logout, cabeçalho com botão de usuário, tab bar e **Início** do arquivo `FPdB8RymAnN81pbKfizdzE`,
@@ -152,11 +160,11 @@ Reescritos na v4: US-PAR-01 a 08 (todos ganham o bloco **Estado em 16/11 · Prov
 - **C: aberto.** A atualização do L2 e do `10:936` é do ESQUADRO e o teste da cor é do ORLA; **nenhum dos dois foi feito até esta etapa** (tarefas T29 e T31).
 - **Prova de apoio:** `app-2026-11-16-orla/lado-a-lado-login-{vazio,preenchido,carregando,credencial,rede,expirada}.png`, `lado-a-lado-perfil-{carregando,erro}.png`, `lado-a-lado-perfil.png`, `lado-a-lado-inicio.png`; lado Figma em `final-2026-11-16/`.
 
-### US-PAR-03 — Tab bar de 4 itens desabilitados, sem Perfil (reescrito na v3.1; cenário E fechado na v4; texto para o quadro na v4.1)
+### US-PAR-03 — Tab bar de 4 itens desabilitados, sem Perfil (reescrito na v3.1; cenário E fechado na v4; texto para o quadro na v4.1; Início e escudo no texto na v4.2)
 
 **Texto para o quadro (substitui o enunciado antigo do critério 3 na feature):**
 
-> **US-PAR-03 Cenário cobertura da tab bar:** **Dado** a tab bar do arquivo `FPdB8RymAnN81pbKfizdzE` renderizada em `/inicio`, **Quando** reviso o código, os testes e os frames `20:1102`, `20:1340`, `83:817` e `83:844`, **Então** há 4 itens, sem Perfil, na ordem Ordens, Clientes, Catálogo, Financeiro, todos desabilitados a 50% de opacidade, anunciados como indisponíveis e sem navegação, **E** o anel de foco é branco de 2 px e vive no `TabBarItem`, provado por teste isolado, **E** o estado selecionado é "não se aplica ainda" (D-23) e reabre quando a primeira aba for habilitada, **E** o Perfil abre pelo botão de usuário do cabeçalho e não aparece na tab bar. A prova é a planilha de valores mais os testes, não captura (D-19).
+> **US-PAR-03 Cenário cobertura da tab bar:** **Dado** a tab bar do arquivo `FPdB8RymAnN81pbKfizdzE` renderizada em `/inicio`, **Quando** reviso o código, os testes e os frames `20:1102`, `20:1340`, `83:817` e `83:844`, **Então** há 4 itens, sem Perfil, na ordem Ordens, Clientes, Catálogo, Financeiro, todos desabilitados a 50% de opacidade, anunciados como indisponíveis e sem navegação, **E** o anel de foco é branco de 2 px e vive no `TabBarItem`, provado por teste isolado, **E** o estado selecionado é "não se aplica ainda" (D-23) e reabre quando a primeira aba for habilitada, **E** o Perfil abre pelo botão de usuário do cabeçalho e não aparece na tab bar, **E** a tab bar vive em `/inicio`, que **está no aceite da F41** por valor contra o frame I1 `89:971` (D-20, US-PAR-18), **E** o escudo do Login também **está no aceite**, pelo US-PAR-19 (D-21), fora deste cenário. A prova é a planilha de valores mais os testes, não captura (D-19).
 
 **O que mudou em relação ao enunciado antigo (e por quê):**
 
@@ -167,6 +175,7 @@ Reescritos na v4: US-PAR-01 a 08 (todos ganham o bloco **Estado em 16/11 · Prov
 | Perfil habilitado e 4 desabilitados (premissa 8 da feature, travada em 09/11) | 4 desabilitados e nenhum habilitado; a premissa 8 fica superada | D-05 (16/11, mais recente que o travamento de 09/11) |
 | Estado selecionado exigido nos dois lados | **Não se aplica ainda**: nenhuma aba navega, então não há rota para ficar selecionada; gatilho de reabertura no cenário E | D-23 (pessoa) |
 | Conferência "nos dois lados" por captura lado a lado | Conferência por valor (planilha) mais teste; captura é só apoio | D-19 (pessoa) |
+| Enunciado sem menção a Início nem a escudo | A tab bar é provada em `/inicio`, que está no aceite (US-PAR-18); o escudo está no aceite pelo US-PAR-19 | D-20 e D-21 (pessoa, v4) |
 
 Nenhuma linha da tabela abre escopo: cada uma só alinha o texto do critério a uma decisão já registrada em §2.
 
@@ -226,14 +235,18 @@ Escrito sobre o que `MenuTabBar` (`apps/mobile/src/components/menu/menu-tab-bar.
 - **Estado em 17/11 · Prova esperada (BUSSOLA).** `npm --prefix apps/mobile test -- --silent`, rodado por mim em `454a67b`: 37 suítes e 289 testes, todos verdes (inclui `menu-tab-bar.test`, `tab-bar-item.test`, `(menu)/_layout.test`, `perfil.test` e `integration/menu-routing.test`). `menu-tab-bar.tsx` tem 4 `ENTRIES` na ordem ordens, clientes, catalogo, financeiro e `selected={false}` na linha 62 (`grep`). O código em `apps/` não mudou desde `c242b6f` (`git diff --stat c242b6f HEAD -- apps` sem saída). **Para o critério fechar, a prova esperada é:** (1) a suíte acima verde na entrega final; (2) a anotação "estado futuro" em `20:1102` e `20:1340`, feita pelo ESQUADRO (T29, ainda não feita); (3) a linha V-T da planilha de valores sem "FALTA" (T32). **Estado: A, B, D, E e F sustentados por teste; falta só a anotação do Figma e a reconciliação das marcas.**
 - **Lacuna registrada, S-3 (§7, não bloqueia):** o frame T1 `83:817` desenha o anel de foco sobre item **selecionado** (instância de `20:1340`); o app só tem item **desabilitado**, e o teste do anel usa o item "Clientes" desabilitado. A paridade provada no cenário C é só a do **anel** (cor, 2 px, respiro, raio); não afirmo paridade de T1 inteiro nem que um item desabilitado receba foco em aparelho (US-MENU-06).
 
-### US-PAR-04 — Protocolo de captura (não se aplica ao aceite)
-- **Dado** que a pessoa dispensou captura e pares lado a lado como prova de aceite (D-19) e não há aparelho físico,
-- **Quando** a feature fecha,
-- **Então** o protocolo de aparelho **não é exigido** para o aceite e o item fica como "não se aplica", com a justificativa D-19,
-- **E** o que existir de captura é identificado como **conferência do ORLA em simulador** (iPhone 17, iOS 27.0, Expo Go, retrato), sem valor de prova.
+### US-PAR-04 — Protocolo de captura: simulador como linha de base (reescrito na v4.2, D-26)
+- **Dado** o protocolo de simulador registrado em `docs/design/F41-capturas-app-orla.md` (iPhone 17, iOS 27.0, Expo Go com Metro na 8082, tema claro, texto `large`, retrato, 1206 × 2622 px),
+- **Quando** as capturas do app em `docs/design/f41-capturas/app-2026-11-16-orla/` são consultadas,
+- **Então** todas foram tiradas nesse mesmo simulador e nessa configuração, só com dado fictício, senha mascarada e sem notificação, token ou dado real visível,
+- **E** o protocolo consta como **linha de base** das features de tela seguintes (US-PAR-13),
+- **E** **não há captura em aparelho físico** e **nenhuma captura nova é exigida**, por decisão da pessoa em 17/11 (D-26),
+- **E** trocar de simulador ou de configuração obriga refazer as capturas afetadas,
+- **E** as lacunas estão declaradas: a versão do Expo Go não foi lida; as capturas vêm de uma rota temporária que compõe os componentes reais, então provam aparência de componente e não a tela de `app/*.tsx` nem o fluxo contra a API.
 
-**Estado em 16/11 · Prova**
-- **Não se aplica ao aceite (D-19).** O protocolo de referência está em `docs/design/F41-capturas-app-orla.md`: simulador iPhone 17, iOS 27.0, Expo Go com Metro na 8082, tema claro, texto `large`, retrato, 1206 × 2622 px. **Lacuna declarada pelo ORLA:** a versão do Expo Go não foi lida.
+**Estado em 17/11 · Prova (v4.2)**
+- **Decidido (D-26).** Conferi o arquivo `F41-capturas-app-orla.md`: a tabela do protocolo tem dispositivo, modo do app, tema e texto, orientação e resolução, barra de status e versão do Expo Go ("não lida nesta sessão"). **Não abri as imagens e não repeti o simulador.** O código visual do app não mudou depois das capturas: de `454a67b` a `c721983` só entraram testes em `apps/` (`git diff --stat 454a67b HEAD` lista apenas `text-field.test.tsx` e `tokens.test.ts` em `apps/`).
+- **Prova esperada:** o CRIVO abre `F41-capturas-app-orla.md`, confirma os itens do protocolo e confere nas imagens só dado fictício (US-PAR-12). Tarefas 5, 11 e 19 dispensadas.
 
 ### US-PAR-05 — Classificação
 - **Dado** cada diferença entre frame e tela,
@@ -510,31 +523,31 @@ As demais diferenças dos pares (moldura de aparelho, barra de status, largura 4
 **Estado em 16/11 · Prova: ABERTO.** Nada exportado nem programado. Verificado hoje: `apps/mobile` não tem pasta `assets` nem `react-native-svg` no `package.json`. A licença depende da pessoa (S-2). Sem dado pessoal.
 
 
-### 5.1 Quadro de estado e prova esperada por critério (v4.1, 2026-11-17)
+### 5.1 Quadro de estado e prova esperada por critério (v4.1, atualizado na v4.2 em 2026-11-17)
 
 Resumo de uma linha por critério; o detalhe e a evidência estão no bloco "Estado" de cada US-PAR acima. "Prova esperada" é o que o CRIVO deve conseguir reexecutar ou abrir, sem tradução.
 
-| ID | Estado em 17/11 | Prova esperada | Quem |
+| ID | Estado em 17/11 (v4.2, `c721983`) | Prova esperada | Quem |
 |---|---|---|---|
-| US-PAR-01 | parcial: 22 marcas "FALTA" na planilha; escudo sem linha | planilha de valores sem "FALTA", uma linha por estado com nó, valor lido, valor do código e teste | ESQUADRO, ORLA (T32) |
-| US-PAR-02 | parcial: A sustentado por teste, B feito, C aberto | testes que travam texto, token e medida; L2 e `10:936` atualizados com PNG reexportado e commitado; teste da cor do campo desabilitado | ESQUADRO, ORLA |
-| US-PAR-03 | sustentado por teste; falta a anotação "estado futuro" no Figma | suíte verde; anotação em `20:1102` e `20:1340`; V-T sem "FALTA" | ESQUADRO, ORLA |
-| US-PAR-04 | não se aplica ao aceite (D-19) | nenhuma; o protocolo do simulador fica só como referência | nenhum |
-| US-PAR-05 | classificação decidida; registro na planilha aberto | linhas O-1, O-2 e O-3 em `F41-valores-fpdb8.md`, com o par que prova | ESQUADRO (T29) |
-| US-PAR-06 | parcial: R-15, O-2 e L-02 abertos | cada item com lado e decisão; R-15 e O-2 com PNG reexportado e commitado | ESQUADRO, ORLA |
-| US-PAR-07 | A, B e C feitos; D aberto | `get_variable_defs` do L2 devolvendo o hex de `color.surface.skeleton`; `tokens.test.ts` verde | ESQUADRO |
-| US-PAR-08 | aberto, 8 condições do cenário A | as 8 condições fechadas, suíte verde e PR #16 fora de rascunho | todos |
-| US-PAR-09 | parcial: faltam 2 testes novos | suíte com N maior ou igual a 37 e M maior que 289, mais typecheck e lint sem erro | ORLA, CRIVO |
-| US-PAR-10 | não repetido por mim; última prova é a rodada 8 do CRIVO | fluxo real depois do último commit de código, só `POST /api/v1/auth/login` | CRIVO (T28) |
-| US-PAR-11 | aplicável; BUSSOLA sem ferramenta Figma | saída real de `whoami` e `get_variable_defs` colada na entrega | ESQUADRO, CRIVO |
-| US-PAR-12 | não verificado por mim | CRIVO abre as imagens e confirma só dado fictício | CRIVO |
-| US-PAR-13 | imagens: feito em `454a67b`; a linha de base só vale após o US-PAR-08 | `ls` sem `par-*`, `LEIA-ME.md`, planilha e testes travados | CRIVO |
-| US-PAR-14 | aberto: 1 PNG modificado e 4 `??` de F44 | `git status --short` vazio e 0 trailers de coautor | ORLA, ESQUADRO, pessoa (R6) |
-| US-PAR-15 | passa hoje; falta registrar a isenção | script com "OK" e código 0, com a isenção do campo desabilitado escrita | ESQUADRO, CRIVO |
-| US-PAR-16 | sustentado por teste | testes citados verdes mais o fluxo real | CRIVO |
-| US-PAR-17 | sustentado por teste | testes citados verdes | CRIVO |
-| US-PAR-18 | feito por valor | `inicio.test`, `menu-tab-bar.test`, `(menu)/_layout.test` e o fluxo real; depende da leitura da S-1 | CRIVO, pessoa (S-1) |
-| US-PAR-19 | aberto, depende da S-2 | origem e licença registradas; PNG 1x, 2x e 3x até 50 KB; teste de 84 × 96, posição e alternativa de texto | ESQUADRO, ORLA, pessoa |
+| US-PAR-01 | **quase fechado**: as marcas "FALTA" foram reconciliadas (`F41-valores-fpdb8.md` §20.7: 13 cobertas por teste, 9 lacunas declaradas); a palavra só aparece hoje em prosa, nas linhas 704 e 736; escudo ainda sem linha de teste | planilha com uma linha por estado, nó, valor lido, valor do código e teste ou lacuna declarada; linha do escudo depois de programado | ESQUADRO, ORLA |
+| US-PAR-02 | A sustentado por teste; B feito; **C feito**: L2 e `10:936` atualizados no Figma (valores §20.1 e §20.2, `5b7858a`) e teste da cor do campo desabilitado em `text-field.test.tsx:101` (`c21436c`) | suíte verde; `get_variable_defs` do L2 colado pelo ESQUADRO; CRIVO confere | CRIVO |
+| US-PAR-03 | sustentado por teste; **anotação "estado futuro" feita** em `20:1102` e `20:1340` (valores §20.3); texto do critério reescrito com Início e escudo (v4.2) | suíte verde; CRIVO confere a anotação nos dois nós | CRIVO |
+| US-PAR-04 | **decidido (D-26)**: protocolo de simulador é a linha de base; sem captura nova; tarefas 5, 11 e 19 dispensadas | CRIVO abre `F41-capturas-app-orla.md` e confirma os itens do protocolo | CRIVO |
+| US-PAR-05 | **feito**: O-1, O-2 e O-3 registradas com classe, lado e par que prova (valores §20.2) | linhas O-1 a O-3 na planilha | CRIVO |
+| US-PAR-06 | R-1 a R-15, O-1 a O-3 e P-01 **fechados**; **só L-02 (escudo) aberto** | cada item com lado e decisão; L-02 fecha pelo US-PAR-19 | ORLA, pessoa |
+| US-PAR-07 | A, B, C e **D feitos** (`get_variable_defs` do L2 devolveu `color/surface/skeleton: #f1f5f9`, valores §20.1; `tokens.test.ts` com `#F1F5F9`) | `tokens.test.ts` verde; saída do ESQUADRO colada | CRIVO |
+| US-PAR-08 | **aberto só pelo escudo**: das 8 condições, 1, 2, 4, 5, 6, 7 e 8 estão feitas; falta a **3** (escudo exportado, mas **licença sem registro (S-2)** e **sem programação**). Coerente com a observação da pessoa em 17/11 ("segue aberto só pelo escudo (S-2)") | as 8 condições fechadas, suíte verde e PR #16 fora de rascunho | pessoa (S-2), ORLA |
+| US-PAR-09 | **parcial**: suíte atual 37 suítes e 292 testes passando (rodei); o teste da cor do campo existe; **falta o teste do escudo** (US-PAR-19 B); typecheck e lint não rodei | suíte com N maior ou igual a 37 e M maior que 292 depois do escudo, mais typecheck e lint sem erro | ORLA, CRIVO |
+| US-PAR-10 | não repetido por mim; última prova real é a rodada 8 do CRIVO; o escudo ainda vai mexer em `apps/mobile` | fluxo real depois do último commit de código, só `POST /api/v1/auth/login` | CRIVO |
+| US-PAR-11 | ESQUADRO registrou `whoami` real em 17/11 (valores §20); `download_assets` negado, contornado por `get_screenshot` e `exportAsync`. BUSSOLA segue sem ferramenta Figma | CRIVO declara se leu o Figma ou só a planilha | CRIVO |
+| US-PAR-12 | não verificado por mim; 2 pares remontados em 17/11 pelo ORLA | CRIVO abre as imagens e confirma só dado fictício | CRIVO |
+| US-PAR-13 | imagens e `LEIA-ME.md` feitos; linha de base vale depois do US-PAR-08 | `ls` sem `par-*`, planilha e testes travados | CRIVO |
+| US-PAR-14 | **aberto só pelos 4 `docs/product/F44-*.md`** (`git status --short` hoje; o PNG do L2 já está commitado em `5b7858a`); trailer de coautor: 0 | `git status --short` vazio e 0 trailers; os 4 arquivos dependem da decisão da pessoa (R6, §7.2) | pessoa, ORLA |
+| US-PAR-15 | **feito**: script com "OK" e código 0 rodado por mim hoje; isenção do campo desabilitado registrada em `F41-contraste.py` (`a5c4232`) | mesmo comando, CRIVO reexecuta | CRIVO |
+| US-PAR-16 | sustentado por teste (suíte verde hoje) | testes citados verdes mais o fluxo real | CRIVO |
+| US-PAR-17 | sustentado por teste (suíte verde hoje) | testes citados verdes | CRIVO |
+| US-PAR-18 | feito por valor; leitura A da S-1 adotada, com indício da pessoa em 17/11 | `inicio.test`, `menu-tab-bar.test`, `(menu)/_layout.test` e o fluxo real | CRIVO, pessoa (S-1) |
+| US-PAR-19 | **aberto**: A feita no lado técnico (PNG 1x, 2x, 3x de 3,1 KB, 5,5 KB e 8,2 KB e SVG, `0c0f1b4`), **licença sem registro (S-2)**; B a D não feitos | origem e licença registradas pela pessoa; escudo programado com teste de 84 × 96, posição e alternativa de texto | pessoa, ESQUADRO, ORLA |
 
 ## 6. Efeito sobre outras features e documentos
 
@@ -584,6 +597,24 @@ Resumo de uma linha por critério; o detalhe e a evidência estão no bloco "Est
 - **A.** Vale só o anel; o item desabilitado com foco no app é aceito até a primeira aba ser habilitada (D-23).
 - **B.** T1 passa a mostrar item desabilitado com foco, por decisão da pessoa a favor do código, e o ESQUADRO ajusta o frame (o código já desenha o anel no item desabilitado). Sem essa decisão, D-02 faz o Figma mandar.
 - **Resposta literal da pessoa:** _(vazio)_
+
+### 7.2 Quadro decidida × aberta (v4.2, 2026-11-17)
+
+Regra de leitura: **decidida** só quando há decisão registrada da pessoa; **aberta** quando falta a resposta dela, mesmo que eu tenha uma leitura. Nenhuma linha abaixo foi preenchida por suposição minha.
+
+| Pendência | Estado | Base | Efeito e quem |
+|---|---|---|---|
+| Protocolo de captura (critério 4) | **decidida** | D-26, revisão humana de 17/11 | simulador iPhone 17, iOS 27.0 é a linha de base; sem aparelho físico; US-PAR-04 e premissa 13 reescritos |
+| Tarefas 5, 11 e 19 | **decidida** (dispensadas) | D-26 | não se executam; nenhuma captura nova |
+| Início no aceite (D-20 revertida) | **decidida** | D-20 da v4, decisão da pessoa em 16/11 | I1 `89:971` por valor, US-PAR-18 |
+| S-1: confirmar a leitura "A" | **aberta, não bloqueia** | campo da §7.1 vazio; a observação de 17/11 ("critério 8 segue aberto só pelo escudo") é **compatível com A** mas **não é resposta literal** | pessoa responde A ou B; se B, caminho de volta descrito na S-1 |
+| Escudo no aceite (D-21 revertida) | **decidida** | D-21 da v4, decisão da pessoa em 16/11 | US-PAR-19 |
+| **S-2: origem e licença do escudo** | **ABERTA, bloqueia** | campo da §7.1 vazio; valores §20.4: "sem registro no arquivo" | sem resposta, US-PAR-19 A e US-PAR-08 não fecham; é o **único** item que segura o critério 8 |
+| S-3: paridade de T1 só no anel | **aberta, não bloqueia** | campo da §7.1 vazio | pessoa responde A ou B |
+| Destino dos 4 `docs/product/F44-*.md` (R6) | **ABERTA, bloqueia o critério 14** | R6 (§9); `git status --short` hoje lista os 4 | pessoa escolhe (a) apagar as cópias locais, (b) ignorar em `.git/info/exclude`, (c) comparar e levar a cópia local; eu não commitei nem apaguei nada |
+| 9 lacunas de teste da planilha (V-L06, V-L08, V-L11, V-L12, V-P01, V-P11, V-P13, V-T04, V-T09) | **decidida por mim (PO)** | a condição 7 da v4 diz "reconciliadas **ou justificadas**"; valores §20.7 as declara como "igual por leitura, sem trava de teste" | aceitas como lacuna declarada, sem bloquear. **Recomendação ao ORLA**, por valor: cobrir V-T04 (fundo petro da tab bar, ligada ao critério 3) e V-L06 e V-L08 (rótulo e texto digitado do campo), que são asserções de uma linha. V-L11 (largura 304) o Jest não mede; V-T09 é a exceção D-10 |
+| Ativo do escudo versionado sem licença | **aberta (aviso)** | `0c0f1b4` versionou os PNGs e o SVG em `docs/design/f41-ativos/escudo/`, e o US-PAR-19 A diz que sem registro "o ativo não entra no repositório" | **leitura minha:** o portão vale para entrar em `apps/mobile`; o que está em `docs/design` é exportação técnica. **O ORLA não deve copiar nada para `apps/mobile` antes da S-2.** Se a pessoa negar a licença, os 4 arquivos saem com `git rm`. Se a pessoa ou o REGENTE preferir outra leitura, a decisão é deles |
+| P-01, O-1, O-2, O-3, R-15 | **decididas e fechadas** | D-23 a D-25; valores §20.1 a §20.3 | nada a fazer |
 
 ## 8. Frames de referência
 
@@ -655,7 +686,15 @@ A seção `62:1529` "Complementos de fluxo" **não** é referência da F41.
 - Nenhuma ferramenta `mcp__figma-remote__*` neste conjunto; nada do Figma foi lido.
 - **Não rodei:** `typecheck`, `lint`, `format:check` nem o fluxo contra a API.
 
-**Não verificado por mim:**
+**Verificado na v4.2 (2026-11-17, ramo `feat/f41-paridade-fpdb8-codigo` em `c721983`; comandos rodados por mim):**
+- `npm --prefix apps/mobile test -- --silent`: `Test Suites: 37 passed, 37 total` e `Tests: 292 passed, 292 total`.
+- `python3 -I docs/design/F41-contraste.py`: "OK: todos os pares obrigatórios atingem o alvo".
+- `git log main..HEAD --format=%B | grep -ci co-authored-by`: 0. `git status --short`: só os 4 `docs/product/F44-*.md` com `??`.
+- `grep -n "F1F5F9"` em `text-field.test.tsx` (linhas 101 e 107) e `tokens.test.ts` (linha 25): o teste da cor do campo desabilitado existe.
+- `git diff --stat 454a67b HEAD`: em `apps/` só `text-field.test.tsx` e `tokens.test.ts` (código visual do app sem mudança desde as capturas de 16/11).
+- `apps/mobile/assets` não existe; `brand-header.tsx` linha 13 diz que o escudo "ainda não entra".
+- `F41-capturas-app-orla.md`: tabela do protocolo lida (simulador iPhone 17, iOS 27.0, Expo Go, Metro 8082, tema claro, texto `large`, retrato 1206 × 2622 px, barra de status 9:41, versão do Expo Go "não lida").
+- **Não rodei:** `typecheck`, `lint`, `format:check`, o fluxo contra a API. **Não abri nenhuma imagem.** Nenhuma ferramenta `mcp__figma-remote__*` neste conjunto; nada do Figma foi lido por mim, tudo vem de `F41-valores-fpdb8.md` §20 (ESQUADRO).
 
 **Não verificado por mim:**
 - Qualquer nó, variável ou medida do Figma (acesso negado). Tudo de §8 e a releitura de L2 a L4 vêm do ESQUADRO.
@@ -684,3 +723,4 @@ Mantêm-se as tarefas 1 a 22, com estes ajustes:
 - **T33** (BUSSOLA, **feito nesta etapa**): este PRD v4; registro do P-01 na planilha (`F41-planilha-fpdb8.md` §11); remoção dos 6 `par-*.png` e `LEIA-ME.md` da pasta de capturas.
 - **T5, T6 a T11, T19 e T20** seguem "não se aplicam ao aceite"; as capturas que existem são apoio (D-19, D-22).
 - **T34** (BUSSOLA, **feito na v4.1**): S-1 e S-2 levadas à pessoa como pergunta fechada (§7.1), **sem resposta recebida**; critério 3 reescrito com texto para o quadro; estado e prova esperada dos 19 critérios (§5.1). **Pendente da pessoa:** S-1, S-2, S-3 e o destino dos 4 `F44-*.md` (R6).
+- **T35** (BUSSOLA, **feito na v4.2**): D-26 e premissa 13; US-PAR-04 reescrito; texto do critério 3 com Início e escudo; §5.1 atualizado contra `c721983`; §7.2 com cada pendência marcada como decidida ou aberta. **Dispensadas por decisão da pessoa em 17/11 (D-26):** T5 (preparar usuário e aparelho em Não Perturbe), T11 (capturar a tab bar no aparelho) e T19 (refazer capturas finais no aparelho). **T12** está atendida pela planilha de valores (§20.2, classificação por item) e pelos pares existentes. **T14** está cumprida pelo registro das decisões em §2 e pela observação de 17/11. **T22** segue aberta só por R6 (os 4 `F44-*.md`). **Abertas e dependentes da pessoa:** S-1 (confirmação), **S-2 (bloqueia)**, S-3 e R6.
