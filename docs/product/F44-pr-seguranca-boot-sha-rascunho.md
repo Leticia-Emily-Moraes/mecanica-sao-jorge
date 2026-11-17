@@ -98,3 +98,7 @@ Sem dado pessoal neste PR: mexe só em versão de dependência e integridade do 
 - Lint do mobile e app não tocados.
 
 **Estimativa:** menos de 1 dia (2 commits, 4 arquivos).
+
+## Hipotese de CVE a confirmar (revisao humana 2026-11-16)
+
+A revisao apontou CVE real em `mysql-connector-j` e em DOMPurify empacotado no swagger-ui do springdoc. Nenhuma versao foi trocada: qualquer versao sugerida e hipotese ate o OWASP dependency-check rodar de novo apos a troca (sem NVD_API_KEY a carga leva mais de 60 min). Versoes atuais: springdoc 2.8.5; mysql-connector-j gerenciado pelo Boot 4.1.2.
