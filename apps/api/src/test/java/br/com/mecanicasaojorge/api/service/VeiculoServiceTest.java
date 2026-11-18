@@ -118,7 +118,8 @@ class VeiculoServiceTest {
   @Test
   void shouldRethrowOriginalErrorWhenViolatedConstraintIsNotThePlateIndex() {
     given(clienteRepository.findById(4L)).willReturn(Optional.of(cliente(4L)));
-    DataIntegrityViolationException original = violacaoDoIndice("veiculos.ck_veiculos_placa_formato");
+    DataIntegrityViolationException original =
+        violacaoDoIndice("veiculos.ck_veiculos_placa_formato");
     given(veiculoRepository.saveAndFlush(any(Veiculo.class))).willThrow(original);
 
     assertThatThrownBy(() -> service.criar(4L, requisicao(PLACA), "3")).isSameAs(original);
@@ -140,7 +141,8 @@ class VeiculoServiceTest {
     assertThat(existente.getModelo()).isEqualTo("Uno");
     assertThat(resposta.clienteId()).isEqualTo(4L);
     assertThat(mensagens())
-        .containsExactly("veiculos.editar veiculoId=9 usuarioId=3 placa=****D23 placaAlterada=true");
+        .containsExactly(
+            "veiculos.editar veiculoId=9 usuarioId=3 placa=****D23 placaAlterada=true");
   }
 
   @Test
@@ -178,7 +180,8 @@ class VeiculoServiceTest {
     assertThatThrownBy(() -> service.editar(9L, requisicao(PLACA), "3"))
         .isInstanceOf(VeiculoNaoEncontradoException.class);
 
-    assertThat(mensagens()).containsExactly("veiculos.editar.naoEncontrado veiculoId=9 usuarioId=3");
+    assertThat(mensagens())
+        .containsExactly("veiculos.editar.naoEncontrado veiculoId=9 usuarioId=3");
   }
 
   @Test

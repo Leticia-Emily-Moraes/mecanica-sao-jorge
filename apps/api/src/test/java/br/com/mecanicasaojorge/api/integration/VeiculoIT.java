@@ -172,9 +172,7 @@ class VeiculoIT {
   void shouldReturn400OnPlateFieldWhenPlateIsBlankOrAbsent() throws Exception {
     for (String corpo :
         new String[] {
-          corpo(""),
-          corpo("   "),
-          "{\"marca\":\"Fiat\",\"modelo\":\"Uno\",\"ano\":2015}"
+          corpo(""), corpo("   "), "{\"marca\":\"Fiat\",\"modelo\":\"Uno\",\"ano\":2015}"
         }) {
       criar(clienteId, corpo)
           .andExpect(status().isBadRequest())
@@ -207,7 +205,9 @@ class VeiculoIT {
         .noneMatch(e -> e.getFormattedMessage().contains(PLACA));
     assertThat(mensagens())
         .containsExactly(
-            "veiculos.criar.placaDuplicada clienteId=" + outroClienteId + " usuarioId=3 "
+            "veiculos.criar.placaDuplicada clienteId="
+                + outroClienteId
+                + " usuarioId=3 "
                 + "placa=****D23");
   }
 
@@ -218,10 +218,13 @@ class VeiculoIT {
     criar(clienteId, "{\"placa\":\"ABC1D23\",\"marca\":\" \",\"modelo\":\"\"}")
         .andExpect(status().isBadRequest())
         .andExpect(jsonPath("$.erros.length()").value(3))
-        .andExpect(jsonPath("$.erros[?(@.campo=='marca')].chave").value("veiculo.form.marca.obrigatoria"))
         .andExpect(
-            jsonPath("$.erros[?(@.campo=='modelo')].chave").value("veiculo.form.modelo.obrigatorio"))
-        .andExpect(jsonPath("$.erros[?(@.campo=='ano')].chave").value("veiculo.form.ano.obrigatorio"));
+            jsonPath("$.erros[?(@.campo=='marca')].chave").value("veiculo.form.marca.obrigatoria"))
+        .andExpect(
+            jsonPath("$.erros[?(@.campo=='modelo')].chave")
+                .value("veiculo.form.modelo.obrigatorio"))
+        .andExpect(
+            jsonPath("$.erros[?(@.campo=='ano')].chave").value("veiculo.form.ano.obrigatorio"));
 
     assertThat(totalVeiculos()).isZero();
   }
@@ -314,8 +317,13 @@ class VeiculoIT {
     MvcResult r =
         criar(
                 clienteId,
-                "{\"id\":" + existente + ",\"clienteId\":" + outroClienteId
-                    + ",\"cliente\":{\"id\":" + outroClienteId + "},\"quilometragem\":9,"
+                "{\"id\":"
+                    + existente
+                    + ",\"clienteId\":"
+                    + outroClienteId
+                    + ",\"cliente\":{\"id\":"
+                    + outroClienteId
+                    + "},\"quilometragem\":9,"
                     + "\"placa\":\"ABC1D23\",\"marca\":\"Fiat\",\"modelo\":\"Uno\",\"ano\":2015}")
             .andExpect(status().isCreated())
             .andExpect(jsonPath("$.clienteId").value(clienteId))
@@ -363,8 +371,11 @@ class VeiculoIT {
     logs.list.clear();
     editar(id, corpo("abc-1234").replace("Uno", "Palio")).andExpect(status().isOk());
     assertThat(mensagens())
-        .containsExactly("veiculos.editar veiculoId=" + id + " usuarioId=3 placa=****234 "
-            + "placaAlterada=false");
+        .containsExactly(
+            "veiculos.editar veiculoId="
+                + id
+                + " usuarioId=3 placa=****234 "
+                + "placaAlterada=false");
   }
 
   @Test
@@ -395,7 +406,9 @@ class VeiculoIT {
         .andExpect(jsonPath("$.erros.length()").value(3));
 
     assertThat(placaNoBanco(id)).isEqualTo(PLACA);
-    assertThat(jdbcTemplate.queryForObject("SELECT marca FROM veiculos WHERE id = ?", String.class, id))
+    assertThat(
+            jdbcTemplate.queryForObject(
+                "SELECT marca FROM veiculos WHERE id = ?", String.class, id))
         .isEqualTo("Fiat");
   }
 
@@ -407,8 +420,13 @@ class VeiculoIT {
 
     editar(
             id,
-            "{\"clienteId\":" + outroClienteId + ",\"cliente\":{\"id\":" + outroClienteId
-                + "},\"id\":" + outro + ",\"quilometragem\":1,\"placa\":\"ABC1D23\","
+            "{\"clienteId\":"
+                + outroClienteId
+                + ",\"cliente\":{\"id\":"
+                + outroClienteId
+                + "},\"id\":"
+                + outro
+                + ",\"quilometragem\":1,\"placa\":\"ABC1D23\","
                 + "\"marca\":\"Fiat\",\"modelo\":\"Palio\",\"ano\":2015}")
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.clienteId").value(clienteId))
@@ -521,8 +539,11 @@ class VeiculoIT {
     MvcResult r =
         criar(
                 clienteId,
-                "{\"placa\":\"XX-valor-secreto\",\"marca\":\"" + "m".repeat(101)
-                    + "\",\"modelo\":\"\",\"ano\":1800,\"cor\":\"" + "c".repeat(41) + "\"}")
+                "{\"placa\":\"XX-valor-secreto\",\"marca\":\""
+                    + "m".repeat(101)
+                    + "\",\"modelo\":\"\",\"ano\":1800,\"cor\":\""
+                    + "c".repeat(41)
+                    + "\"}")
             .andExpect(status().isBadRequest())
             .andExpect(jsonPath("$.erros.length()").value(5))
             .andReturn();
@@ -568,7 +589,8 @@ class VeiculoIT {
     for (String placa : new String[] {PLACA, "abc1d23", "ABC-1D2", "ANONIMO", "AB12345"}) {
       assertThatThrownBy(() -> inserirVeiculo(clienteId, placa))
           .isInstanceOfAny(DataIntegrityViolationException.class, UncategorizedSQLException.class)
-          .hasMessageMatching("(?s).*(uk_veiculos_placa|ck_veiculos_placa_formato|Duplicate entry).*");
+          .hasMessageMatching(
+              "(?s).*(uk_veiculos_placa|ck_veiculos_placa_formato|Duplicate entry).*");
     }
     assertThat(totalVeiculos()).isEqualTo(1);
   }
@@ -629,7 +651,10 @@ class VeiculoIT {
   }
 
   private static String corpo(String placa, int ano) {
-    return "{\"placa\":\"" + placa + "\",\"marca\":\"Fiat\",\"modelo\":\"Uno\",\"ano\":" + ano
+    return "{\"placa\":\""
+        + placa
+        + "\",\"marca\":\"Fiat\",\"modelo\":\"Uno\",\"ano\":"
+        + ano
         + ",\"cor\":\"Prata\"}";
   }
 

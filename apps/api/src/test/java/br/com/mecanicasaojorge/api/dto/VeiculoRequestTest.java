@@ -24,7 +24,8 @@ import org.junit.jupiter.params.provider.ValueSource;
 /** Validacao, normalizacao e privacidade do {@link VeiculoRequest}; relogio fixo em 2026. */
 class VeiculoRequestTest {
 
-  private static final Pattern FORMATO_CHAVE = Pattern.compile("^veiculo\\.[a-z]+\\.[a-z]+\\.[a-z]+$");
+  private static final Pattern FORMATO_CHAVE =
+      Pattern.compile("^veiculo\\.[a-z]+\\.[a-z]+\\.[a-z]+$");
 
   private static ValidatorFactory fabrica;
   private static Validator validator;
@@ -76,7 +77,9 @@ class VeiculoRequestTest {
   void shouldRejectPlateWhenNullOrLongerThan20Characters() {
     assertThat(chaves(validar(requisicao(null, "Fiat", "Uno", 2015, null))))
         .containsExactly("placa:" + VeiculoChaves.PLACA_OBRIGATORIA);
-    assertThat(chaves(validar(requisicao("A B C - 1 D 2 3     ".repeat(2), "Fiat", "Uno", 2015, null))))
+    assertThat(
+            chaves(
+                validar(requisicao("A B C - 1 D 2 3     ".repeat(2), "Fiat", "Uno", 2015, null))))
         .containsExactly("placa:" + VeiculoChaves.PLACA_ERRO);
   }
 
@@ -111,8 +114,7 @@ class VeiculoRequestTest {
 
   @Test
   void shouldLimitBrandAndModelTo100Characters() {
-    assertThat(
-            chaves(validar(requisicao("ABC1D23", "a".repeat(101), "b".repeat(101), 2015, null))))
+    assertThat(chaves(validar(requisicao("ABC1D23", "a".repeat(101), "b".repeat(101), 2015, null))))
         .containsExactlyInAnyOrder(
             "marca:" + VeiculoChaves.MARCA_TAMANHO, "modelo:" + VeiculoChaves.MODELO_TAMANHO);
   }
@@ -155,7 +157,8 @@ class VeiculoRequestTest {
     assertThat(new VeiculoListResponse(1L, placa, "Fiat", "Uno").toString())
         .doesNotContain(placa, "Fiat");
     assertThat(
-            new VeiculoDetalheResponse(1L, 2L, "Ana Exemplo", placa, "Fiat", "Uno", 2015, null, null)
+            new VeiculoDetalheResponse(
+                    1L, 2L, "Ana Exemplo", placa, "Fiat", "Uno", 2015, null, null)
                 .toString())
         .doesNotContain(placa, "Ana", "Fiat");
     assertThat(Veiculo.builder().placa(placa).marca("Fiat").toString()).doesNotContain(placa);

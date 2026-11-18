@@ -23,9 +23,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
- * Regras de negocio de veiculos (F04). Logs seguem a secao 6.6 da politica de dados: so ids,
- * {@code usuarioId} e a placa mascarada ({@link MascaraDadoPessoal#placa}); nunca marca, modelo,
- * ano, cor, nome do dono, DTO, entidade ou {@code getMessage()} de excecao de persistencia.
+ * Regras de negocio de veiculos (F04). Logs seguem a secao 6.6 da politica de dados: so ids, {@code
+ * usuarioId} e a placa mascarada ({@link MascaraDadoPessoal#placa}); nunca marca, modelo, ano, cor,
+ * nome do dono, DTO, entidade ou {@code getMessage()} de excecao de persistencia.
  */
 @Service
 public class VeiculoService {
@@ -91,7 +91,8 @@ public class VeiculoService {
             .findById(id)
             .orElseThrow(
                 () -> {
-                  LOG.info("veiculos.editar.naoEncontrado veiculoId={} usuarioId={}", id, usuarioId);
+                  LOG.info(
+                      "veiculos.editar.naoEncontrado veiculoId={} usuarioId={}", id, usuarioId);
                   return new VeiculoNaoEncontradoException();
                 });
     boolean placaAlterada = !request.placa().equals(veiculo.getPlaca());

@@ -103,9 +103,7 @@ public class VeiculoController {
       description = "Content-Type diferente de application/json",
       content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
   public ResponseEntity<VeiculoResponse> criar(
-      @Parameter(description = "Identificador do cliente, inteiro positivo")
-          @PathVariable
-          @Positive
+      @Parameter(description = "Identificador do cliente, inteiro positivo") @PathVariable @Positive
           Long clienteId,
       @Valid @RequestBody VeiculoRequest request,
       @AuthenticationPrincipal Jwt jwt) {
@@ -139,9 +137,7 @@ public class VeiculoController {
       description = "Cliente inexistente",
       content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
   public ResponseEntity<List<VeiculoListResponse>> listarPorCliente(
-      @Parameter(description = "Identificador do cliente, inteiro positivo")
-          @PathVariable
-          @Positive
+      @Parameter(description = "Identificador do cliente, inteiro positivo") @PathVariable @Positive
           Long clienteId,
       @AuthenticationPrincipal Jwt jwt) {
     return ResponseEntity.ok(veiculoService.listarPorCliente(clienteId, jwt.getSubject()));

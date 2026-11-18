@@ -40,7 +40,12 @@ import org.springframework.test.web.servlet.MockMvc;
 
 /** As quatro rotas de veiculo na camada web (F04): contrato HTTP com o service simulado. */
 @WebMvcTest(controllers = VeiculoController.class)
-@Import({SecurityConfig.class, JwtConfig.class, RestAuthenticationEntryPoint.class, ClockConfig.class})
+@Import({
+  SecurityConfig.class,
+  JwtConfig.class,
+  RestAuthenticationEntryPoint.class,
+  ClockConfig.class
+})
 @EnableConfigurationProperties(br.com.mecanicasaojorge.api.config.JwtProperties.class)
 @TestPropertySource(
     properties = {"jwt.secret=01234567890123456789012345678901", "jwt.expiration-minutes=10080"})
@@ -83,7 +88,8 @@ class VeiculoControllerTest {
             });
 
     mockMvc
-        .perform(post(POR_CLIENTE).with(jwt()).contentType(MediaType.APPLICATION_JSON).content(CORPO))
+        .perform(
+            post(POR_CLIENTE).with(jwt()).contentType(MediaType.APPLICATION_JSON).content(CORPO))
         .andExpect(status().isCreated())
         .andExpect(jsonPath("$.placa").value("ABC1D23"));
   }
@@ -132,7 +138,8 @@ class VeiculoControllerTest {
         .willThrow(new PlacaJaCadastradaException());
 
     mockMvc
-        .perform(post(POR_CLIENTE).with(jwt()).contentType(MediaType.APPLICATION_JSON).content(CORPO))
+        .perform(
+            post(POR_CLIENTE).with(jwt()).contentType(MediaType.APPLICATION_JSON).content(CORPO))
         .andExpect(status().isConflict())
         .andExpect(jsonPath("$.mensagem").value("Placa ja cadastrada"))
         .andExpect(jsonPath("$.erros[0].campo").value("placa"))
@@ -146,7 +153,8 @@ class VeiculoControllerTest {
         .willThrow(new ClienteNaoEncontradoException());
 
     mockMvc
-        .perform(post(POR_CLIENTE).with(jwt()).contentType(MediaType.APPLICATION_JSON).content(CORPO))
+        .perform(
+            post(POR_CLIENTE).with(jwt()).contentType(MediaType.APPLICATION_JSON).content(CORPO))
         .andExpect(status().isNotFound())
         .andExpect(jsonPath("$.mensagem").value("Cliente nao encontrado"));
   }
@@ -238,9 +246,7 @@ class VeiculoControllerTest {
   @Test
   void shouldReturn400WithoutCallingServiceWhenIdIsNotPositiveNumber() throws Exception {
     for (String id : new String[] {"abc", "0", "-1"}) {
-      mockMvc
-          .perform(get("/api/v1/veiculos/" + id).with(jwt()))
-          .andExpect(status().isBadRequest());
+      mockMvc.perform(get("/api/v1/veiculos/" + id).with(jwt())).andExpect(status().isBadRequest());
       mockMvc
           .perform(get("/api/v1/clientes/" + id + "/veiculos").with(jwt()))
           .andExpect(status().isBadRequest());
@@ -283,9 +289,11 @@ class VeiculoControllerTest {
 
   @Test
   void shouldReturn401WithoutCallingServiceOnAllFourRoutesWhenTokenIsMissing() throws Exception {
-    mockMvc.perform(post(POR_CLIENTE).contentType(MediaType.APPLICATION_JSON).content(CORPO))
+    mockMvc
+        .perform(post(POR_CLIENTE).contentType(MediaType.APPLICATION_JSON).content(CORPO))
         .andExpect(status().isUnauthorized());
-    mockMvc.perform(put(POR_ID).contentType(MediaType.APPLICATION_JSON).content(CORPO))
+    mockMvc
+        .perform(put(POR_ID).contentType(MediaType.APPLICATION_JSON).content(CORPO))
         .andExpect(status().isUnauthorized());
     mockMvc.perform(get(POR_ID)).andExpect(status().isUnauthorized());
     mockMvc.perform(get(POR_CLIENTE)).andExpect(status().isUnauthorized());
