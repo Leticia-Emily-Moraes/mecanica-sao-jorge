@@ -11,7 +11,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.validation.FieldError;
+import org.springframework.web.HttpMediaTypeNotSupportedException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingPathVariableException;
@@ -49,6 +51,13 @@ public class GlobalExceptionHandler {
     return buildResponse(HttpStatus.NOT_FOUND, ex.getMessage(), request);
   }
 
+  /** Conflito de estado (ADR-020): mensagem fixa da subclasse, sem causa e sem log. */
+  @ExceptionHandler(ConflitoException.class)
+  public ResponseEntity<ErrorResponse> handleConflito(
+      ConflitoException ex, HttpServletRequest request) {
+    return buildResponse(HttpStatus.CONFLICT, ex.getMessage(), request);
+  }
+
   @ExceptionHandler(AppError.class)
   public ResponseEntity<ErrorResponse> handleAppError(AppError ex, HttpServletRequest request) {
     return buildResponse(HttpStatus.UNPROCESSABLE_ENTITY, ex.getMessage(), request);
@@ -63,6 +72,24 @@ public class GlobalExceptionHandler {
             .reduce((primeira, segunda) -> primeira + "; " + segunda)
             .orElse("Dados invalidos");
     return buildResponse(HttpStatus.BAD_REQUEST, mensagem, request);
+  }
+
+  /**
+   * JSON malformado, corpo ausente ou tipo errado de campo (achado E2). Mensagem fixa: a do Jackson
+   * cita trecho do corpo, que pode ter dado pessoal.
+   */
+  @ExceptionHandler(HttpMessageNotReadableException.class)
+  public ResponseEntity<ErrorResponse> handleUnreadableBody(
+      HttpMessageNotReadableException ex, HttpServletRequest request) {
+    return buildResponse(HttpStatus.BAD_REQUEST, "Corpo da requisicao invalido", request);
+  }
+
+  /** Content-Type diferente de JSON (achado E2): 415 com mensagem fixa. */
+  @ExceptionHandler(HttpMediaTypeNotSupportedException.class)
+  public ResponseEntity<ErrorResponse> handleUnsupportedMediaType(
+      HttpMediaTypeNotSupportedException ex, HttpServletRequest request) {
+    return buildResponse(
+        HttpStatus.UNSUPPORTED_MEDIA_TYPE, "Tipo de conteudo nao suportado", request);
   }
 
   /**
