@@ -289,7 +289,7 @@ Decisões em [ADR-021](adr/ADR-021-compartilhar-dto-de-entrada-clienterequest-en
 
 `POST /api/v1/clientes`, autenticado (fora de `PUBLIC_PATHS`), `Content-Type: application/json`.
 
-* Corpo `dto.ClienteRequest` (record), 5 campos. Validação e normalização normativas na tabela do ADR-021. Em resumo: `nome` obrigatório, até 120; `telefone` obrigatório, 10 ou 11 dígitos, com ou sem máscara; `cpf` opcional (P9 em aberto), 11 dígitos, com ou sem máscara; `email` opcional, até 120, formato de e-mail; `endereco` opcional, até 255. Campo em branco vira `null` antes da validação. O banco recebe só dígitos em `cpf` e `telefone`.
+* Corpo `dto.ClienteRequest` (record), 5 campos. Validação e normalização normativas na tabela do ADR-021. Em resumo: `nome` obrigatório, até 120; `telefone` obrigatório, 10 ou 11 dígitos, com ou sem máscara; `cpf` **obrigatório** (implementado assim, conforme o critério 2 do card; a P9 segue aberta para a pessoa confirmar, verificado na F09 pelo QA: sem `cpf` a API responde 400 `cpf e obrigatorio`), 11 dígitos, com ou sem máscara; `email` opcional, até 120, formato de e-mail; `endereco` opcional, até 255. Campo em branco vira `null` antes da validação. O banco recebe só dígitos em `cpf` e `telefone`.
 * Campo desconhecido no JSON (ex.: `id`, `createdAt`) é ignorado, porque o record não o tem e o mapper não o lê (ADR-021, regra 4, achado E4). O id é sempre do `AUTO_INCREMENT`.
 * Resposta 201 com `dto.ClienteDetalheResponse` (os mesmos 6 campos do detalhe da F03b, valores já normalizados), cabeçalho `Location: /api/v1/clientes/{id}` **relativo** e `Cache-Control` com `no-store` (padrão do Spring Security, como na F03b). Relativo porque o URI absoluto seria montado a partir do `Host` da requisição, que o cliente controla.
 * CPF repetido: **409** com `mensagem` fixa `CPF ja cadastrado`, por decisão do VIGIA em 2026-11-18 (ADR-020, ainda "proposto" até o aceite da pessoa). Implementado na F03c com a `V6` (`uk_clientes_cpf`). Se a pessoa recusar o ADR-020, volta o 201 provisório: remover a V6, o `catch` do `ClienteService.gravar` e o handler do 409.
@@ -314,7 +314,7 @@ Erros, todos no formato do ADR-011:
 | 400 | campo inválido no `ClienteRequest` | `handleValidation` existente | mensagens fixas do ADR-021, unidas por "; ", sem ordem garantida e sem o valor rejeitado (ex.: "telefone deve ter 10 ou 11 digitos") |
 | 400 | corpo ausente, JSON malformado ou tipo errado num campo | **handler novo** de `HttpMessageNotReadableException`, sem log | "Corpo da requisicao invalido" (fixa: a mensagem do Jackson ecoa trecho do corpo) |
 | 401 | sem token, token malformado ou expirado | `RestAuthenticationEntryPoint`, antes do controller | a do entry point |
-| 409 | CPF já cadastrado, **só depois de D2/P10** | `CpfJaCadastradoException` (ADR-020), sem log | "CPF ja cadastrado" |
+| 409 | CPF já cadastrado (ativo desde a F03c, ADR-020; verificado contra a API real) | `CpfJaCadastradoException` (ADR-020), sem log | "CPF ja cadastrado" |
 | 415 | `Content-Type` diferente de JSON | **handler novo** de `HttpMediaTypeNotSupportedException`, sem log | "Tipo de conteudo nao suportado" |
 | 500 | falha inesperada, inclusive violação de `CHECK` que escapou da validação | handler genérico; loga só a classe e o `path` | "Erro interno inesperado" |
 
@@ -343,7 +343,7 @@ flowchart LR
   ctl --> svc["ClienteService.criar<br/>log: clienteId, usuarioId"]
   svc --> map["ClienteMapper.toEntity<br/>so digitos em cpf e telefone"]
   svc --> repo["ClienteRepository.saveAndFlush"]
-  repo --> db[("MySQL clientes<br/>CHECK cpf V4, CHECK telefone V5<br/>uk_clientes_cpf quando D2/P10")]
+  repo --> db[("MySQL clientes<br/>CHECK cpf V4, CHECK telefone V5<br/>UNIQUE uk_clientes_cpf V6")]
   svc -- "201 ClienteDetalheResponse<br/>Location relativo, no-store" --> app
 ```
 
@@ -354,7 +354,7 @@ flowchart LR
 | Repudiation | Negar ter cadastrado o cliente | Linha `clientes.criar clienteId usuarioId` | Log não é trilha de auditoria imutável nem persistida (fora de escopo); a tabela não tem `created_by` |
 | Information disclosure | Dado pessoal em log, `toString`, mensagem de validação, erro do MySQL (1062 e 3819 ecoam valor ou nome de constraint), `Location` absoluto, cache | Log só com ids; `toString` fixos; mensagens do ADR-021 sem valor; 500 sem `getMessage()`; 400 de corpo ilegível com mensagem fixa; 409 sem causa anexada (ADR-020); `Location` relativo; `no-store` | Com o 409 ligado, o 409 confirma que um CPF existe na base (enumeração por usuário autenticado; ADR-020, riscos); o 201 devolve CPF inteiro a quem acabou de digitá-lo |
 | Denial of service | Corpo enorme; criação em laço | `@Size` em todos os campos de texto; regex linear (200 mil caracteres em cerca de 10 ms, jshell) | O corpo é lido inteiro antes do `@Size`; limite de tamanho do corpo e rate limiting ficam fora de escopo (backlog, igual ao login), **não verificado** o limite padrão do Jackson 3 |
-| Integridade (duplicidade) | Toque duplo, rede lenta ou repetição criam o mesmo cliente duas vezes | Botão desabilitado e trava no hook (F35); índice `uk_clientes_cpf` quando ligado (ADR-020) | Até D2/P10, e para sempre quando o CPF vier vazio, a API aceita duplicata; limpeza manual |
+| Integridade (duplicidade) | Toque duplo, rede lenta ou repetição criam o mesmo cliente duas vezes | Botão desabilitado e trava no hook (F35); índice `uk_clientes_cpf` (V6, ADR-020) barra CPF repetido com 409 | Toque duplo com o mesmo CPF vira 409 na segunda chamada; resposta perdida depois do `INSERT` ainda leva a novo envio e a 409, sem duplicata |
 | Elevation of privilege | FUNCIONARIO criar cliente | Não se aplica: perfis sem diferença nesta fase | A3 aceito |
 
 ## Threat model — detalhe de cliente (STRIDE, F03b)
