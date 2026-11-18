@@ -150,6 +150,13 @@ Os grupos `[separadores]*[0-9]` não se sobrepõem (separador e dígito são cla
 * Por padrão o Jackson converte número em texto, então `"cpf": 12345678900` sem aspas passa como CPF válido. É aceitável, porque o valor é o mesmo. Objeto ou lista no lugar de texto cai no `HttpMessageNotReadableException`, que é o 400 do achado E2.
 * O `getFieldErrors()` do Spring não garante ordem. Com vários campos inválidos, a `mensagem` do ADR-011 junta os textos com `; ` numa ordem que pode variar. Teste e app procuram cada texto e não comparam a mensagem inteira.
 
+**Pendência B4 (dígito verificador do CPF), não decidida neste ADR.** A tabela acima valida só o formato. A política (seção 8.1, achado B4) atribui à F09 a validação do dígito verificador, com Bean Validation e teste, e o ESPRESSO como dono. Essa regra conflita com a regra de dado de teste da mesma política (seção 7, "Teste e ambiente local"), que manda usar CPF com dígito verificador **inválido** (`12345678900`), e com os exemplos do `overview.md` e da F26.
+
+* Opção 1: acrescentar `@CPF` do Hibernate Validator (`org.hibernate.validator.constraints.br.CPF`) ao `cpf`. Custo: uma anotação e uma mensagem fixa ("cpf invalido"). Mas todo teste de `POST` com CPF passa a precisar de CPF com dígito válido, que pode ser de uma pessoa real, e os exemplos com `123.456.789-00` passam a responder 400. **Não verificado:** se o `@CPF` da versão em uso aceita os mesmos separadores da regex e se recusa sequências repetidas como `11111111111`.
+* Opção 2: manter só o formato e fechar o B4 como risco aceito. O CPF digitado errado só aparece na emissão da nota, que ainda não existe no sistema.
+
+Recomendação do CARTOGRAFO: opção 1, porque o CPF só existe para a nota fiscal e o erro mais provável no balcão é a digitação. A condição é o VIGIA definir o conjunto de CPFs de teste com dígito válido (sem nenhum outro dado associado), que substitui a regra atual de dado de teste. Quem decide é o VIGIA com a pessoa, antes de o ESPRESSO escrever o `ClienteRequest`. Se for a opção 1, muda a linha `cpf` da tabela (mais uma anotação), a confirmação ganha casos de dígito inválido e o exemplo do contrato da F03c no `overview.md` troca de CPF.
+
 **Vínculos.** Card F09 (F03c): tarefas 3 a 6 e 9, US-CLI-15 a US-CLI-20.4. Card F10 (F03d). Política, seções 2, 2.2 e 7 (achados E1 a E5, pendência P9). Complementa o ADR-007 (DTO e nomes), o ADR-011 (formato do 400) e o ADR-018 (colunas). O ADR-020 usa o formato normalizado definido aqui.
 
 **Revisitar quando:** a edição precisar de campo que a criação não tem; a P9 for decidida; o endereço ficar estruturado (ADR-018); ou o app passar a editar um campo por vez.
@@ -159,3 +166,4 @@ Os grupos `[separadores]*[0-9]` não se sobrepõem (separador e dígito são cla
 | Data | Status | Mudança |
 |---|---|---|
 | 2026-11-17 | Proposto | Criação na F03c (CARTOGRAFO), com as regex provadas no JDK 21. Aguarda o aceite da pessoa e a P9 |
+| 2026-11-17 | Proposto | Pendência B4 registrada (dígito verificador do CPF, atribuído à F09 pela política e não tratado na criação), com duas opções e a recomendação do CARTOGRAFO. A decisão é do VIGIA com a pessoa |
