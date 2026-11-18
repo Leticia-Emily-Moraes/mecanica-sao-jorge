@@ -1,8 +1,8 @@
 # Política de dados pessoais de cliente: retenção, descarte e mascaramento
 
-Dono: VIGIA (AppSec/LGPD). Criada em 2026-11-14 na F03a, antes de qualquer código do módulo Clientes. Revisada em 2026-11-17 duas vezes: revisão 1 (contrato da máscara) e revisão 2 (detalhe de cliente da F03b e colunas `cpf` e `endereco` da V4). Ver seção 11.
+Dono: VIGIA (AppSec/LGPD). Criada em 2026-11-14 na F03a, antes de qualquer código do módulo Clientes. Revisada em 2026-11-17 três vezes: revisão 1 (contrato da máscara), revisão 2 (detalhe de cliente da F03b e colunas `cpf` e `endereco` da V4) e revisão 3 (criação de cliente da F03c, card F09: unicidade, CPF opcional, placa e log do POST). Ver seção 11.
 
-Vale para: F03a (listar), F03b (detalhe), F03c (criar), F03d (editar), F09 (CPF e endereço), F35 (tela de lista) e toda feature que leia ou grave `clientes` ou `veiculos`.
+Vale para: F03a (listar), F03b (detalhe, card F08), F03c (criar, card F09, primeira escrita de CPF e endereço), F03d (editar), F04 (veículos), F35 (telas de cliente) e toda feature que leia ou grave `clientes` ou `veiculos`.
 
 Status:
 
@@ -22,19 +22,49 @@ Relação com outros documentos: complementa `docs/security/lgpd-registro-dados-
 | Campo | Existe hoje? | Coleta | Finalidade | Base legal (art. 7º) | Onde aparece na API | Retenção | Descarte |
 |---|---|---|---|---|---|---|---|
 | `clientes.nome` | Sim (V2, NOT NULL) | Obrigatória | Identificar o cliente na OS e localizar o cadastro no balcão | V (execução de contrato e procedimentos preliminares, como orçamento) | Lista (F03a), detalhe (F03b), OS | Seção 3 | Substituir por texto fixo (seção 4) |
-| `clientes.telefone` | Sim (V2, NULL) | Opcional; só dígitos, 10 ou 11 (F03c) | Contato sobre orçamento, valor final e veículo pronto | V | Lista (F03a) e detalhe (F03b), **completo** (só dígitos, como gravado) e só com token válido. A tela também mostra completo, para contato direto. Em log, só pela máscara 6.2.1 | Seção 3 | NULL |
-| `clientes.email` | Sim (V2, NULL) | Opcional | Mesmo do telefone | V | Lista e detalhe | Seção 3 | NULL |
-| `clientes.cpf` | **Coluna criada pela V4 da F08 (F03b)**: `VARCHAR(11) NULL` com `CHECK` de 11 dígitos ASCII ([ADR-018](../architecture/adr/ADR-018-guardar-cpf-e-endereco-do-cliente-como-colunas-opcionais.md)). Nenhuma escrita antes da F09 (F03c). **Linha aprovada pelo VIGIA na revisão 2** | Opcional. Só quando o cliente pedir nota fiscal ou a emissão exigir. Proibido coletar "por garantia" | Emissão de documento fiscal | II (obrigação legal fiscal) quando houver nota; sem nota, não se coleta | Só no detalhe (`GET /api/v1/clientes/{id}`, F03b), **completo e sem máscara**, só com token válido, porque a edição (F03d) pré-preenche o valor. A máscara é da tela (seção 7). Nunca na lista, na OS resumida, em log (nem mascarado na linha 6.4), em mensagem de erro nem em exemplo do OpenAPI com dado real | Seção 3 (R4) | NULL |
+| `clientes.telefone` | Sim (V2, NULL) | **Obrigatória na API de criação** (F03c, revisão 3): 10 ou 11 dígitos ASCII, gravado só com dígitos. A coluna continua `NULL` de propósito, porque a anonimização grava NULL (seção 4): proibido `NOT NULL` em migration. Não é único (2.1) | Contato sobre orçamento, valor final e veículo pronto | V | Lista (F03a), detalhe (F03b) e resposta 201 da criação (F03c), **completo** (só dígitos, como gravado) e só com token válido. A tela também mostra completo, para contato direto. Em log, nunca na F03a a F03c (6.3 a 6.5); só a máscara 6.2.1 se uma linha futura precisar | Seção 3 | NULL |
+| `clientes.email` | Sim (V2, NULL) | Opcional (F03c: até 120 caracteres, formato de email; em branco grava NULL). Não é único (2.1) | Mesmo do telefone | V | Lista, detalhe e resposta 201 da criação. Nunca em log, nem mascarado | Seção 3 | NULL |
+| `clientes.cpf` | **Coluna criada pela V4 da F08 (F03b)**: `VARCHAR(11) NULL` com `CHECK` de 11 dígitos ASCII ([ADR-018](../architecture/adr/ADR-018-guardar-cpf-e-endereco-do-cliente-como-colunas-opcionais.md)). Nenhuma escrita antes da F09 (F03c). **Linha aprovada pelo VIGIA na revisão 2** | **Opcional também na API de criação** (revisão 3, seção 2.2). Só quando o cliente pedir nota fiscal ou a emissão exigir. Proibido coletar "por garantia" e proibido tornar obrigatório sem a decisão P9. **Único quando preenchido**, com entrada provisória sem checagem na F03c (2.1) | Emissão de documento fiscal | II (obrigação legal fiscal) quando houver nota; sem nota, não se coleta | Só no detalhe (`GET /api/v1/clientes/{id}`, F03b) e na resposta 201 da criação (F03c, eco do que o próprio usuário enviou), **completo e sem máscara**, só com token válido, porque a edição (F03d) pré-preenche o valor. A máscara é da tela (seção 7). Nunca na lista, na OS resumida, em log (nem mascarado na linha 6.4), em mensagem de erro nem em exemplo do OpenAPI com dado real | Seção 3 (R4) | NULL |
 | `clientes.endereco` | **Coluna criada pela V4 da F08 (F03b)**: `VARCHAR(255) NULL`, campo único (ADR-018, decisão D-B). Nenhuma escrita antes da F09. **Linha aprovada pelo VIGIA na revisão 2** | Opcional. Só quando a nota exigir ou para busca e entrega do veículo | Emissão fiscal ou logística combinada com o cliente | II (nota) ou V (busca e entrega) | Só no detalhe, completo, só com token válido. Nunca em log, nem mascarado | Seção 3 (R4) | NULL |
 | `clientes.created_at` | Sim | Automática | Contar o prazo da regra R2 | Acessória às linhas acima | Não exposta na F03a | Junto do cliente | Mantida (sozinha não identifica) |
-| `veiculos.placa` | Sim (V2, NOT NULL) | Obrigatória | Identificar o veículo atendido. Identifica o dono de forma indireta | V | Detalhe do cliente e do veículo | Igual ao cliente dono | Substituir por texto fixo |
+| `veiculos.placa` | Sim (V2, NOT NULL, sem índice único) | Obrigatória (F04). Não é única (2.1) | Identificar o veículo atendido. Identifica o dono de forma indireta (DETRAN e `cliente_id`) | V | Detalhe e lista de veículos do cliente (F04), só com token válido. Nunca em log (nem mascarada), em mensagem de erro nem em exemplo do OpenAPI com placa real | Igual ao cliente dono (R1 ou R2) | Substituir por texto fixo `ANONIMO` (seção 4). Regra de troca de dono na 2.1 |
 | `veiculos.modelo/marca/ano/cor/quilometragem` | Sim | Obrigatória ou opcional (V2) | Execução do serviço | V | Detalhe do veículo | Igual ao cliente | Mantidos: sem placa e sem dono não identificam a pessoa |
 
 Quem acessa: qualquer usuário autenticado (ADMIN ou FUNCIONARIO), porque o briefing não prevê diferença de permissão nesta fase. Esse acesso amplo é risco aceito e registrado no achado A3 (seção 8).
 
 Para onde vai: só da API para o app mobile, por HTTPS fora do ambiente local. Nenhum envio a terceiro. O app não grava a lista nem o detalhe em disco (seção 7).
 
-Regra de coleta: campo pessoal novo em `clientes` ou `veiculos` só entra com linha nesta tabela aprovada pelo VIGIA antes da migration. As linhas de CPF e endereço foram aprovadas na revisão 2 (2026-11-17), antes da V4 da F08. A aprovação cobre a **coluna** e a **leitura** no detalhe. A **coleta** continua presa à finalidade da linha (CPF só com nota fiscal); quem a implementa e prova é a F09, que também decide `UNIQUE` em `cpf`. Base legal e prazos seguem como proposta até a P1.
+Regra de coleta: campo pessoal novo em `clientes` ou `veiculos` só entra com linha nesta tabela aprovada pelo VIGIA antes da migration. As linhas de CPF e endereço foram aprovadas na revisão 2 (2026-11-17), antes da V4 da F08. A aprovação cobre a **coluna** e a **leitura** no detalhe. A **coleta** continua presa à finalidade da linha (CPF só com nota fiscal); quem a implementa e prova é a F09 (F03c). A unicidade foi decidida na revisão 3 (2.1). Base legal e prazos seguem como proposta até a P1.
+
+### 2.1 Unicidade (decisão do VIGIA, revisão 3)
+
+| Campo | Único? | Regra | Por quê |
+|---|---|---|---|
+| `clientes.cpf` | **Sim, quando preenchido** | Índice `UNIQUE` em `clientes.cpf`. O MySQL aceita vários NULL num índice único, então cliente sem CPF e cliente anonimizado não colidem. CPF repetido **bloqueia** com 409 e mensagem fixa `CPF ja cadastrado`, sem o valor e sem o id do cadastro existente. Não pede confirmação e não só alerta | Um CPF é uma pessoa. Dois cadastros da mesma pessoa fazem o pedido de acesso ou eliminação do titular (art. 18) achar só um, e a anonimização deixa uma cópia viva. Alerta ou confirmação pedem fluxo de dois passos na tela e ainda deixam o duplicado entrar |
+| `clientes.email` | Não | Sem índice e sem checagem | Opcional; família e empresa dividem email. Bloquear cadastro legítimo não protege o titular |
+| `clientes.telefone` | Não | Sem índice e sem checagem | Telefone de casa ou da empresa é dividido |
+| `veiculos.placa` | Não | Sem índice. A F04 pode avisar placa já cadastrada, sem bloquear | Veículo vendido volta com outro dono, e a anonimização grava `ANONIMO` em várias linhas |
+
+Como a regra do CPF entra:
+
+1. **A F03c segue o card**: sem índice e sem checagem, e dois POST com o mesmo CPF respondem 201 (US-CLI-20.6). É provisório e só vale com dado fictício, em ambiente local ou de teste.
+2. A regra entra numa fatia própria, ou na F03d, conforme BUSSOLA decidir com a pessoa, **antes do primeiro cliente real em produção**. É a mesma trava da P2 (pendência P10).
+3. Quem garante é o índice, não um `existsByCpf` antes do `save`: dois POST simultâneos passariam pela consulta. O service pode consultar antes para responder mais cedo, mas o 409 também tem de sair do `DataIntegrityViolationException` do índice, com mensagem fixa e sem `getMessage()`. O MySQL escreve `Duplicate entry '<cpf>' for key ...` nessa mensagem.
+4. Antes da migration do índice, procurar duplicados com uma consulta que só conta: `SELECT COUNT(*) FROM (SELECT cpf FROM clientes WHERE cpf IS NOT NULL GROUP BY cpf HAVING COUNT(*) > 1) d`. Nunca `SELECT cpf ...`. Se a migration falhar por duplicado, o Flyway escreve o CPF no log do boot. Duplicado se resolve caso a caso com a pessoa, antes da migration.
+5. A edição (F03d) segue a mesma regra no PUT.
+6. O 409 confirma que o CPF já está na base. Risco aceito: qualquer token válido já lê o CPF inteiro pelo detalhe (B2).
+
+Troca de dono de veículo (F04): **proibido alterar `veiculos.cliente_id` de um veículo que já tem OS.** O veículo do dono novo é um registro novo em `veiculos`. Se o `cliente_id` mudasse, as OS do dono antigo ficariam ligadas a uma placa que não é anonimizada junto com ele (seção 4, passo 3, só alcança os veículos dele). A placa e o histórico da OS reidentificariam a pessoa anonimizada. O histórico de OS por veículo (objetivo da Sprint 02) filtra pelo `veiculo_id`, então cada dono vê só o seu período (pendência P11).
+
+### 2.2 CPF obrigatório ou opcional na criação (parecer do VIGIA, revisão 3)
+
+O card da F09 põe o CPF entre os obrigatórios (tarefa 3 e exemplo `CPF` do US-CLI-16) e dá base legal V. A política diz outra coisa. **Parecer: o CPF continua opcional na API de criação.**
+
+* Necessidade (art. 6º, III): atendimento, OS e contato não usam CPF. Ele só serve à nota fiscal.
+* A base V não cobre CPF de quem não pediu nota, e a II só cobre quando a emissão exige. CPF obrigatório para todo cadastro é coleta "por garantia", e a seção 2 proíbe isso. Vale também para o cliente que só fez orçamento (R2).
+* Hipótese a validar com o contador (P1): a nota de serviço do município da oficina pode exigir CPF do tomador em toda emissão. Mesmo nesse caso, o CPF seria necessário quando a nota é emitida, não no cadastro.
+* Se a pessoa decidir pelo CPF obrigatório, contra este parecer, o fundamento escrito (norma da nota, com o contador) entra nesta seção antes do merge da F03c. A base do CPF passa a ser II para todos, e a retenção não muda.
+* Contrato enquanto a P9 não fecha: a validação de formato (US-CLI-17) é igual nos dois casos. Só muda a obrigatoriedade. Com CPF opcional, CPF ausente, `null`, `""` ou só espaços grava NULL e responde 201. Com CPF obrigatório, esses casos respondem 400. Dá para escrever o código, mas o aceite do exemplo `CPF` do US-CLI-16 espera a P9.
 
 ## 3. Retenção
 
@@ -48,6 +78,8 @@ Regra de coleta: campo pessoal novo em `clientes` ou `veiculos` só entra com li
 Bloqueio técnico de R1: na V2, `ordens_servico` e `pagamentos` **não têm coluna de data** (conferido em `V2__criar_schema_oficina.sql` na `main`, commit 11f35b3). Sem ela não dá para calcular o último evento. A feature de OS (Sprint 04) e a de pagamento (Sprint 05) precisam trazer a data em migration aditiva. Até lá, o último evento conhecido é só o `created_at` do cliente, e nenhum descarte automático por R1 pode rodar. Ver achado A6.
 
 Pendente: os prazos são hipótese. "Enquanto ativo" não se aplica porque não existe inativação de cliente (D2 da F03a). Validar com jurídico ou contador da oficina.
+
+Divergência do card da F09 (revisão 3): o card diz "enquanto o cliente estiver ativo; descartado sob pedido, exceto dado ligado a OS com obrigação fiscal (5 anos)". Vale R1 a R4 e a seção 5, que dizem o mesmo com prazo contável. A placa segue o dono (seção 2).
 
 ## 4. Descarte: anonimização, não exclusão
 
@@ -169,6 +201,24 @@ Regras da linha:
 
 Teste obrigatório: o do US-CLI-DET-11 do PRD, com `ListAppender` ou `OutputCaptureExtension`, cobrindo 200, 404, 400, 401 e 500. Além das strings já listadas no PRD, nenhuma linha pode conter `123.***.***-00` e as duas linhas acima têm de aparecer exatamente no formato da tabela.
 
+### 6.5 Linhas de log da criação (F03c, card F09, US-CLI-19, vigente)
+
+As seções 6.1 e 6.2 valem para `POST /api/v1/clientes` sem exceção. O corpo da requisição e o da resposta 201 nunca vão para log.
+
+| Situação | Linha exata | Por quê |
+|---|---|---|
+| 201 (cliente criado) | `clientes.criar clienteId={} usuarioId={}`, INFO, no service, depois do `save` | Rastrear quem criou cada cadastro e perceber criação em massa por um mesmo token (B2, E6) |
+
+Sem linha nos outros casos: 400 de validação, 400 ou 415 de corpo ilegível (E2), 401 (antes do controller), 409 futuro (2.1) e 405. O 500 segue a seção 7: classe da exceção e caminho, nada mais.
+
+Regras da linha:
+
+* `clienteId` é o id gerado pelo banco e `usuarioId` é o `sub` do JWT, como na 6.3. Base legal do `usuarioId`: art. 7º, IX.
+* Nunca nome, CPF, telefone, email ou endereço, **nem mascarados**, nem DTO, entidade, `BindingResult` ou exceção de validação. O `getMessage()` de `MethodArgumentNotValidException` e o `toString()` do `BindingResult` trazem `rejected value [...]`. Pelo mesmo motivo, toda exceção do POST tem de ser tratada no `GlobalExceptionHandler`: o `DefaultHandlerExceptionResolver` do Spring escreve um WARN `Resolved [...]` com a mensagem inteira quando nenhum handler da aplicação pega a exceção.
+* **Divergência do card** (US-CLI-19 e tarefa 11 pedem CPF e telefone mascarados no log): é o mesmo caso da D-F da F08, e vale a política, que manda não logar. O critério se cumpre provando que o dado não aparece no log de jeito nenhum: inteiro, com máscara de digitação ou com a máscara 6.2.1. A máscara 6.2.1 não tem uso na criação, porque o `clienteId` já liga a linha ao cadastro, e 3 dígitos do CPF mais 4 do telefone num log sem rotina de descarte (B6, P7) não servem a nenhuma finalidade.
+* Se mesmo assim a pessoa exigir a máscara no log, só vale este formato: `clientes.criar clienteId={} usuarioId={} cpf={} telefone={}`, com `MascaraDadoPessoal.cpf` e `MascaraDadoPessoal.telefone`. O email fica fora. Qualquer outra máscara reprova (6.4).
+* "Configurar mascaramento nos logs" (tarefa 11 da F09) **não** é conversor do Logback com regex. Ele está proibido: uma regex de 11 dígitos mascara id e horário e deixa passar CPF com ponto, espaço ou hífen, o que só dá falsa segurança. Quem controla é a regra de não logar, provada pelo teste de captura de log, pelo `git grep` e pelo log real (seção 10.2).
+
 ## 7. Configuração que protege a regra (vigente)
 
 API:
@@ -179,10 +229,21 @@ API:
 * Mensagens de Bean Validation sem `${validatedValue}`: o 400 nunca devolve o valor rejeitado.
 * Erro 500: logar só a classe da exceção, o caminho sem query string e um identificador da requisição. Sem `getMessage()` de causa de persistência e sem stack trace que carregue essa mensagem.
 * Exceção de persistência nunca vira texto de resposta: o handler global devolve mensagem fixa.
+* Corpo ilegível (`HttpMessageNotReadableException`, JSON malformado ou tipo errado) e `Content-Type` não suportado (`HttpMediaTypeNotSupportedException`) respondem 400 e 415 com mensagem fixa, sem log. Nunca usar o `getMessage()` do Jackson, que cita o valor (`from String "..."`). Achado E2.
 * `record` de DTO que carrega CPF ou endereço sobrescreve `toString()` para mostrar só o `id` (vigente desde a revisão 2; primeiro caso: `ClienteDetalheResponse` da F03b). O `toString()` gerado pelo Java imprime todos os campos, e o Spring MVC em DEBUG escreve o corpo da resposta com ele. Teste unitário prova que a saída não contém o CPF nem o endereço fictícios (achado B1).
 * Entidade `Cliente` continua sem `@ToString` e sem `@Data`. O `@Builder` do Lombok gera `toString()` no builder; com `cpf` e `endereco` na entidade, um builder logado por engano imprime os dois. Proibido logar builder; o teste de B1 cobre também `Cliente.builder()...toString()` e, se a saída trouxer o CPF, o campo leva `@ToString.Exclude` (comportamento do Lombok a provar no teste, não verificado nesta revisão).
 * Resposta de `/api/v1/clientes/**` sai com `Cache-Control: no-cache, no-store, max-age=0, must-revalidate` (cabeçalho padrão do Spring Security, que o `SecurityConfig` não desliga). Proibido desligar `headers()` ou sobrescrever o `Cache-Control` nessas rotas. O teste de controller do detalhe afirma o cabeçalho no 200.
 * Retenção de log de aplicação (proposta, entra na P1): hoje o log só existe na saída padrão do contêiner, sem coletor nem arquivo, e some quando o contêiner é recriado. Quando houver coletor ou arquivo (ANCORA), guardar no máximo 90 dias, com acesso restrito a ADMIN. As linhas 6.3 e 6.4 têm `usuarioId` e `clienteId`, que são dado pessoal por associação.
+
+API, criação (F03c, card F09, vigente):
+
+* Mensagem do 400: cita o campo pelo nome do JSON (`nome`, `cpf`, `telefone`, `email`, `endereco`) num texto fixo, escrito no `message` da anotação, como no `LoginRequest` (`"cpf deve ter 11 digitos"`). O handler de hoje usa só `getDefaultMessage()`, e a mensagem padrão do Bean Validation ("não deve estar em branco") não diz qual campo falhou. A do `@Pattern` ainda mostra a regex. Proibido usar `${validatedValue}`, `{regexp}`, `FieldError.getRejectedValue()` e `buildConstraintViolationWithTemplate` com texto que venha da entrada, porque isso abre injeção de Expression Language no Hibernate Validator (achado E5).
+* Caracteres aceitos antes de normalizar: no CPF, dígitos ASCII, `.`, `-` e espaço; no telefone, dígitos ASCII, `(`, `)`, `-`, `.` e espaço. Qualquer outro caractere dá 400: letra, dígito de outro alfabeto, dígito de largura total, `+`. Só depois se removem os separadores e se conferem 11 dígitos (CPF) ou 10 a 11 (telefone). Proibido "remover tudo que não é dígito e contar": `123abc45678901` sobraria com 11 dígitos e passaria, contra o US-CLI-17 (achado E3). A máscara de log da 6.2.1 remove tudo porque só precisa não vazar. A validação de entrada não pode fazer isso.
+* A normalização acontece no servidor (mapper ou service), mesmo que o app já mande só dígitos. O `CHECK` da V4 é a última barreira do CPF. O telefone ganha `CHECK` equivalente numa migration aditiva da F03c (achado A8, linha da matriz do `overview.md`), sem `NOT NULL` (seção 2).
+* Opcional em branco (`""` ou só espaços em `email`, `endereco` e, se a P9 mantiver opcional, `cpf`) grava NULL, nunca string vazia. O `nome` é gravado depois de `strip()`.
+* Atribuição em massa (A01/A08): o DTO de entrada não tem `id` nem `createdAt`. O mapper de criação ignora os dois de forma explícita e usa `unmappedTargetPolicy = ReportingPolicy.ERROR`. Teste do lado de quem ataca: POST com `"id"` de um cliente existente cria um cliente novo e não altera o existente. Se o `id` chegasse à entidade, o `save` faria `merge` e sobrescreveria o cadastro de outra pessoa (achado E4).
+* O `record` de entrada carrega CPF, telefone e endereço, então sobrescreve `toString()` e mostra só o nome do tipo. A regra do B1 também vale para DTO de entrada, com teste unitário.
+* A resposta 201 tem o formato do detalhe (`ClienteDetalheResponse`, que já tem o `toString()` do B1), com `Cache-Control: no-store` afirmado no teste. O CPF volta inteiro porque é o eco do que o próprio usuário acabou de enviar: nenhum dado novo sai. O `Location` é montado com o id gerado pelo banco (`/api/v1/clientes/{id}`), nunca com texto do corpo.
 
 App (F35):
 
@@ -196,9 +257,19 @@ App, detalhe (F03b ou F35, conforme a decisão D-A do PRD):
 * Rótulo acessível do CPF sem soletrar os dígitos ocultos e sem ler o CPF inteiro (o leitor de tela fala em voz alta). O texto exato é do ESQUADRO e precisa acompanhar o formato escolhido em D-C; o exemplo do card ("começa em 123 e termina em 00") só serve se a pessoa escolher o formato do card.
 * O CPF completo recebido da API fica só na memória do hook do detalhe. Não vai para estado global persistido, `AsyncStorage`, cache de arquivo, `console`, parâmetro de rota nem deep link. Sai da memória ao sair da tela e no logout.
 
+App, criação (F35, vinda da F03c; insumo do VIGIA para a tarefa 17 da F09):
+
+* O formulário não grava rascunho em disco (`AsyncStorage`, `SecureStore`, cache de arquivo). No erro 500 ou na queda de rede, os dados ficam só na memória da tela. É isso que "erro 500 mantendo dados" quer dizer. A memória é limpa ao sair da tela, depois do 201 e no logout.
+* Campos de CPF, telefone e email sem sugestão automática que guarde histórico (`autoComplete="off"`, `autoCorrect={false}`, `importantForAutofill="no"` no Android e `textContentType="none"` no iOS), quando a plataforma permitir.
+* Nada do formulário vai para `console`, ferramenta de erro, parâmetro de rota ou deep link. Depois do 201, a tela navega para o detalhe só com o `id` da resposta.
+* A tela mostra a mensagem do 400 por campo, como veio da API. Não monta mensagem com o valor digitado.
+* Enquanto o funcionário digita, o CPF aparece inteiro, porque precisa ser conferido com o cliente. Depois do 201 vale a máscara da D-C no detalhe. A máscara de digitação é do ESQUADRO (F26).
+* Aviso de privacidade (P4): quem usa o app é o funcionário, não o titular, então o aviso ao cliente vai no balcão (cartaz ou texto entregue) e, quando existir, na OS impressa (backlog). Conteúdo mínimo pelo art. 9º: quem é a controladora e o contato dela; para que serve cada dado (telefone e email para contato; CPF e endereço só para nota ou entrega); que CPF, email e endereço são opcionais; por quanto tempo o dado fica (seção 3); que não há compartilhamento; e como pedir acesso, correção ou eliminação (seção 5). O texto é do BUSSOLA. Um lembrete ao funcionário na tela é opcional e fica com o ESQUADRO.
+
 Teste e ambiente local:
 
 * Fixture só com dado fictício: nome inventado, telefone de 11 dígitos inventado, email em `@example.com`. Proibido copiar dado de produção para teste, seed ou captura de tela.
+* Prefira telefone com DDD que não existe (20, 23, 25, 26 ou 29, por exemplo `20912345678`) e CPF com dígito verificador inválido (`12345678900`). Um celular de 11 dígitos inventado pode ser de alguém, e um CPF com dígito válido pode existir. Isso pesa mais em captura de tela, demonstração e na futura integração com WhatsApp.
 
 ## 8. Achados AppSec do desenho da F03a
 
@@ -292,6 +363,31 @@ Conferido sem achado: o caminho do detalhe fica fora de `PUBLIC_PATHS`, o `findB
 
 O critério US-CLI-DET-11 do card pede máscara no log. A política manda não logar, e o log real mostrou zero ocorrências, nem mascaradas. Confirmar esse desvio do card é decisão da pessoa (D-F do PRD), e não muda esta política.
 
+### 8.3 Parecer e achados AppSec da criação (F03c, card F09, revisão 3)
+
+Escopo revisado por leitura, no ramo `feat/f03b-clientes-detalhe` (`e7cf509`, com o B1 e a C2 da F08): o card da F09 com os ajustes da revisão humana de 17/11, `V2` e `V4`, `GlobalExceptionHandler`, `SecurityConfig`, `ClienteController`, `Cliente`, `MascaraDadoPessoal`, `LoginRequest`, `application.yml` e a matriz de reconciliação do `overview.md`. **O endpoint de criação ainda não existe**: nenhum commit da F03c neste ramo nem em outro ramo local. Então nada foi executado contra o POST, e os achados abaixo são de desenho, para o ESPRESSO corrigir antes de escrever o código.
+
+Premissa 6 do card ("CPF e endereço não existem na V2", "migration com as colunas que faltam"): **desatualizada, conferido por leitura.** A V2 já tem `telefone VARCHAR(20) NULL` e `email VARCHAR(190) NULL`, e a V4 da F08 criou `cpf VARCHAR(11) NULL` com `CHECK` e `endereco VARCHAR(255) NULL`. Não falta coluna. A única migration nova da F03c é o `CHECK` do telefone (A8, E8), mais o índice único do CPF quando a P10 entrar. Provar que ela roda sobre V1 a V4 é do ESPRESSO, com Testcontainers, como no `ClienteDetalheIT`. As colunas aguentam os limites do card: `nome` 150 e `email` 190 no banco, contra 120 no DTO.
+
+| ID | Severidade | OWASP | Achado | Impacto concreto | Correção específica | Dono |
+|---|---|---|---|---|---|---|
+| E1 | Média | LGPD (art. 6º, III) | O card põe o CPF como obrigatório (tarefa 3, US-CLI-16), contra a política (opcional, base II) | CPF de todo cliente, inclusive de quem só pediu orçamento, sem finalidade. O dado mais sensível da tabela passaria a existir para todo cadastro e ficaria legível por qualquer token (B2) | CPF opcional na API e fora dos exemplos de obrigatório do US-CLI-16. Ou o fundamento fiscal escrito, se a pessoa decidir o contrário (2.2, P9) | Pessoa, BUSSOLA |
+| E2 | Média | A05 | `HttpMessageNotReadableException` e `HttpMediaTypeNotSupportedException` não têm handler e caem no 500 (achado da F44 no login e RH-A3 do ADR-017, conferido por leitura e não reexecutado aqui) | POST com JSON malformado ou com objeto no lugar de texto em `cpf` responde 500 e gera log ERROR. A F35 trataria como erro do servidor, e o 500 vira ruído fácil de provocar | Handlers de 400 e 415 com mensagem fixa (`Corpo da requisicao invalido` e `Tipo de conteudo nao suportado`), sem log e sem `getMessage()`, com teste MockMvc. Na F03c, porque o POST é a primeira rota com corpo depois do login | ESPRESSO |
+| E3 | Média | A03 / A04 | Risco de desenho: normalizar com "remove tudo que não é dígito", como faz a máscara de log, aceita letras | `123abc45678901` passa como CPF de 11 dígitos, contra o US-CLI-17, e grava um CPF que o titular não informou | Lista de caracteres aceitos antes de normalizar (seção 7, "API, criação"), com testes de letra no meio, dígito arábico-índico e dígito de largura total | ESPRESSO |
+| E4 | Alta se acontecer (preventivo) | A01 / A08 | Atribuição em massa: se o DTO ou o mapper deixar `id` chegar à entidade, `save` vira `merge` | Qualquer token sobrescreve nome, CPF e telefone de outro cliente mandando `"id"` no POST: acesso ao objeto de outra pessoa, que o teste de 401 não pega | DTO sem `id`, `@Mapping(target = "id", ignore = true)`, `unmappedTargetPolicy = ERROR` e teste de ataque (seção 7) | ESPRESSO |
+| E5 | Baixa | A04 / A09 | O 400 de corpo usa só `getDefaultMessage()`. A mensagem padrão não identifica o campo, e a do `@Pattern` expõe a regex | US-CLI-16 a 20.4 não conseguem identificar o campo, e a F35 não consegue apontar o erro | `message` explícito com o nome do campo em toda anotação do DTO de criação, sem mudar o handler (o login já segue esse padrão) | ESPRESSO |
+| E6 | Média, risco a aceitar | A01 / A07 | O B2 vale para escrita: o token de usuário com `ativo=0` continua válido até expirar (7 dias). A leitura foi provada na 8.2. A escrita passa pela mesma cadeia, mas é inferência, porque o POST não existe | Ex-funcionário cria cadastros falsos ou grava dado de terceiros por até 7 dias | Aceite junto com a P8. Correção de verdade: no conversor do JWT, conferir `usuarios.ativo` a cada requisição (uma consulta pela chave). ADR do CARTOGRAFO antes do primeiro cliente real. A linha 6.5 com `usuarioId` mitiga | Pessoa, CARTOGRAFO |
+| E7 | Baixa | LGPD | O CPF repetido é aceito de propósito na F03c (US-CLI-20.6, provisório) | Se for para produção assim, o pedido do titular acha um cadastro só e a anonimização deixa cópia viva | Índice único e 409 antes do primeiro cliente real (2.1, P10) | BUSSOLA, pessoa |
+| E8 | Baixa | A04 | Confirma o A8: `clientes.telefone` sem `CHECK` | Outro caminho (script, F03d) grava telefone com máscara, e a busca por dígitos da F03a não acha | `CHECK (CHAR_LENGTH(telefone) BETWEEN 10 AND 11 AND telefone NOT REGEXP '[^0-9]')`, que deixa passar NULL como o da V4. Antes, contar as linhas fora do formato sem mostrar o valor | ESPRESSO, CARTOGRAFO |
+
+Conferido sem achado, por leitura:
+
+* `SecurityConfig`: `/api/v1/clientes` fica fora de `PUBLIC_PATHS`, e `anyRequest().authenticated()` cobre o POST. A cadeia de 401 (sem token, outra chave, expirado, `alg: none`) foi provada com GET na revisão 2. A prova no POST é do CRIVO.
+* CSRF desligado está correto: o token vai no cabeçalho `Authorization`, sem cookie de sessão. Sem CORS configurado, navegador de outra origem é bloqueado, e o app nativo não é afetado.
+* `veiculos.placa` não tem índice único, então a anonimização pode repetir `ANONIMO`. `clientes.telefone` é NULL, então a anonimização pode gravar NULL.
+* Segredo: `gitleaks git --log-opts=main..HEAD` em 111 commits não achou vazamento.
+* Dependências: a F03c não precisa de dependência nova (Bean Validation, MapStruct e Flyway já estão no pom). Vale o `osv-scanner` da 8.2 (só o B5) enquanto o `pom.xml` não mudar. O `osv-scanner` não está instalado nesta máquina hoje: se o pom mudar, o CRIVO ou o ANCORA roda de novo.
+
 ## 9. Pendências e donos
 
 | ID | Pendência | Dono | Bloqueia |
@@ -299,11 +395,14 @@ O critério US-CLI-DET-11 do card pede máscara no log. A política manda não l
 | P1 | Validar base legal e prazos R1 e R2 (D2 da F03a) | Pessoa, com jurídico ou contador da oficina | Rotina automática de descarte. Não bloqueia a F03a (só leitura) |
 | P2 | Procedimento manual de anonimização (script SQL revisado pelo VIGIA) e tabela de auditoria | Pessoa decide a feature; ESPRESSO implementa; VIGIA revisa | Primeiro cliente real em produção |
 | P3 | Canal do titular e quem responde (seção 5, D3 da F03a) | Pessoa, com BUSSOLA | Primeiro cliente real em produção |
-| P4 | Aviso de privacidade ao cliente no cadastro (art. 9º) | BUSSOLA (texto), F03c e F35 (tela) | F03c |
+| P4 | Aviso de privacidade ao cliente no cadastro (art. 9º), com o conteúdo mínimo da seção 7 ("App, criação") | BUSSOLA (texto), pessoa (balcão), F35 | Primeiro cadastro real. Não bloqueia a F03c, que é só API (revisão 3) |
 | P5 | Datas de OS e pagamento (A6) | CARTOGRAFO | Rotina automática de R1 |
 | P6 | ~~Merge do PR #14 na `main` (A0)~~. **Fechada** na revisão 2: a `main` b1f29fc está em Boot 4.1.2 | Pessoa | — |
 | P7 | Retenção de log de aplicação (seção 7, achado B6): validar os 90 dias e definir onde o log fica quando houver deploy | Pessoa, ANCORA | Primeiro deploy com coletor ou arquivo de log |
-| P8 | Aceite do risco B2 (CPF e endereço inteiros para qualquer token válido, inclusive o de usuário já desativado até o JWT expirar, provado na 8.2) registrado na PR da F08 | Pessoa | Merge da F08 |
+| P8 | Aceite do risco B2 (CPF e endereço inteiros para qualquer token válido, inclusive o de usuário já desativado até o JWT expirar, provado na 8.2) registrado na PR da F08. Na revisão 3, estendido à escrita (E6) | Pessoa | Merge da F08; a parte de escrita, o merge da F03c |
+| P9 | CPF obrigatório ou opcional na criação (2.2, E1). Parecer do VIGIA: opcional | Pessoa, com BUSSOLA (e o contador, se for obrigatório) | Aceite do exemplo `CPF` do US-CLI-16 da F03c |
+| P10 | Índice único em `clientes.cpf` e 409 (2.1, E7): em fatia própria ou na F03d | BUSSOLA (onde entra), CARTOGRAFO (migration), ESPRESSO | Primeiro cliente real em produção |
+| P11 | Regra de troca de dono de veículo (2.1) no card da F04 | BUSSOLA, CARTOGRAFO | F04 |
 
 ## 10. Como verificar esta política na F03a
 
@@ -325,6 +424,20 @@ O critério US-CLI-DET-11 do card pede máscara no log. A política manda não l
 * Exemplo do OpenAPI só com dado fictício (CPF com dígito verificador inválido, como o do `overview.md`).
 * Linha de `cpf` e `endereco` no `lgpd-registro-dados-pessoais.md` igual à seção 2 desta política.
 
+### 10.2 Na F03c (criar, card F09)
+
+Cada item gera evidência executada, com comando e saída na entrega:
+
+* `git grep -nE "LOG\.(info|debug|warn|error|trace)" -- apps/api/src/main`: a única linha nova é a `clientes.criar` da 6.5.
+* Teste de captura de log (`ListAppender` ou `OutputCaptureExtension`) no 201, no 400 (CPF com letra, telefone de 9 dígitos, nome com 121 caracteres, email sem arroba), no 401 e no JSON malformado. No 201, a linha `clientes.criar clienteId=<n> usuarioId=<m>` aparece exatamente assim. Nenhuma linha contém o CPF enviado (só dígitos e com máscara), `***.*`, `*******`, o telefone enviado (só dígitos, com máscara e os 8 últimos), o nome, o email ou o endereço.
+* No corpo de cada 400, `mensagem` contém o nome do campo e não contém o valor enviado. Use valores fáceis de distinguir, como `98765abc432` e `209123456`, para o `not(containsString(...))` não passar por acaso.
+* Teste de integração com MySQL real (Testcontainers, como o `ClienteDetalheIT`): depois do POST com máscara, uma leitura direta pelo `JdbcTemplate` mostra `cpf` e `telefone` só com dígitos. Depois de cada 400 e 401, o `COUNT(*)` de `clientes` não muda. Os opcionais em branco ficam NULL.
+* Teste de ataque de atribuição em massa (E4), com o cliente existente intacto no banco.
+* 401 com token ausente, malformado, expirado, assinado com outra chave e `alg: none`, e o `COUNT(*)` sem mudar.
+* `Cache-Control: no-store` no 201, e `toString()` do DTO de entrada sem CPF, telefone e endereço fictícios.
+* Log real da API em contêiner depois de um 201 e de um 400, como na 8.2: `grep -c` dos valores fictícios igual a 0, e uma linha `clientes.criar`.
+* Exemplos do OpenAPI só com dado fictício (CPF `12345678900`, telefone com DDD que não existe, email `@example.com`), e os exemplos de 400 sem valor rejeitado.
+
 ## 11. Histórico
 
 | Data | Mudança | Onde |
@@ -333,4 +446,5 @@ O critério US-CLI-DET-11 do card pede máscara no log. A política manda não l
 | 2026-11-16 | Entrou na `main` junto com o ADR-017, mergeado pela pessoa (sem review formal registrado no GitHub) | PR #15, merge 348a43e |
 | 2026-11-17 | Revisão 1: A0 e P6 apontam para o PR #14 (o #13 foi mergeado no ramo do #14, e a `main` segue em Boot 4.1.0); local do utilitário de máscara fixado em `security.MascaraDadoPessoal`; contrato exato da máscara (6.2.1); A0 e A1 reconferidos abertos na `main` dfab787. Base legal e prazos seguem como proposta (P1) | PR #17, merge 20fb438 |
 | 2026-11-17 | Revisão 2 (F03b): linhas de `cpf` e `endereco` aprovadas para a V4 da F08; CPF e telefone completos no detalhe autenticado registrados na seção 2; linhas de log do detalhe (6.4), incluindo o 404; regras de `toString()`, `Cache-Control` e retenção de log (seção 7); regras do app para o detalhe; parecer, evidência executada e achados B1 a B6 (8.1); A0, A1, A5 e P6 fechados; P7 e P8 novas. Base legal e prazos seguem como proposta (P1) | commit `b42d71b` |
-| 2026-11-17 | Revisão do código da F08 (8.2): log real do 200 e do 404 sem CPF nem telefone; B1 fechado, com C1 (`toString` da lista) e C2 (500 preservado no `MissingPathVariableException` de rota) corrigidos; token de usuário desativado lendo CPF inteiro registrado no B2 e no P8. Nada muda em coleta, base legal ou retenção | esta revisão |
+| 2026-11-17 | Revisão do código da F08 (8.2): log real do 200 e do 404 sem CPF nem telefone; B1 fechado, com C1 (`toString` da lista) e C2 (500 preservado no `MissingPathVariableException` de rota) corrigidos; token de usuário desativado lendo CPF inteiro registrado no B2 e no P8. Nada muda em coleta, base legal ou retenção | commit `42d9193` |
+| 2026-11-17 | Revisão 3 (F03c, card F09): unicidade decidida (CPF único quando preenchido, com 409, entrando antes do primeiro cliente real; email, telefone e placa não únicos) e regra de troca de dono de veículo (2.1); parecer de CPF opcional na criação (2.2); telefone obrigatório na API com a coluna NULL; linha de log da criação sem dado, nem mascarado (6.5); regras de validação, normalização, atribuição em massa e corpo ilegível do POST (seção 7); insumo do app para a F35 e aviso de privacidade; achados E1 a E8 (8.3); P4 revista e P9 a P11 novas; roteiro de verificação da F03c (10.2). Base legal e prazos seguem como proposta (P1) | esta revisão |
