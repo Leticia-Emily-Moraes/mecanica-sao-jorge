@@ -25,6 +25,16 @@ novo para o aceite P8 da política: o token de um usuário com `ativo=0` continu
 lendo o CPF inteiro no detalhe, porque o JWT não é revogado e vale até expirar
 (7 dias, ADR-004).
 
+Revisão 3 da política em 2026-11-17 (F03c, card F09, criação de cliente), por
+leitura e antes de existir código da F03c: CPF **único quando preenchido**, com
+409, que entra antes do primeiro cliente real (a F03c segue provisória, sem
+checagem); email, telefone e placa **não únicos**; parecer de CPF **opcional**
+na criação, contra o card (pendência P9 da política); telefone obrigatório na
+API, com a coluna `NULL` mantida para a anonimização; o POST loga só
+`clientes.criar clienteId usuarioId`, sem CPF, telefone ou email, nem
+mascarados. Nenhuma coluna nova: a V2 e a V4 já têm todas as colunas da F03c.
+Detalhes nas seções 2.1, 2.2, 6.5 e 8.3 da política.
+
 Por que aqui e não no SQL: a V2 já está aplicada. Editar comentário de
 migration aplicada muda o checksum e o Flyway falha no `validate`
 (ADR-003/ADR-013).
@@ -35,9 +45,9 @@ migration aplicada muda o checksum e o Flyway falha no `validate`
 |---|---|---|---|---|---|---|---|
 | `usuarios` (V1) | nome, email, senha_hash (BCrypt), perfil, ativo, datas | Controle de acesso ao sistema interno | V (contrato de trabalho) e IX (legítimo interesse no controle de acesso) | Usuário autenticado; DBA | Resposta do login (`UsuarioResumo`: id, nome, email, perfil; nunca senha_hash). JWT leva só `sub`=id e `perfil` | Enquanto o vínculo estiver ativo; após desligamento, `ativo=false` e anonimizar/remover em até 90 dias | **Sem rotina hoje** (pendência P2) |
 | `clientes` (V2, V3) | nome, telefone, email, created_at | Identificar o cliente da OS e contatá-lo sobre orçamento, valor e veículo pronto | V (execução de contrato e procedimentos preliminares, como orçamento); II (obrigação legal fiscal) para o que compõe a OS faturada | Qualquer usuário autenticado (sem RBAC nesta fase, briefing; risco A3 da política) | Só para o app, por HTTPS fora do local: lista `GET /api/v1/clientes` (F03a: id, nome, telefone, email) e detalhe `GET /api/v1/clientes/{id}` (F03b, PR #22, fora da `main`: os mesmos e mais `cpf` e `endereco`). Nenhum terceiro. Nunca em log (política, seção 6) | R1: 5 anos após o último evento do cliente (prescrição do CDC art. 27, Código Civil art. 206, § 5º, I, e CTN arts. 173 e 174); R2: sem OS, 12 meses após o cadastro (política, seção 3). Proposta, P1 | Anonimizar (nome substituído, telefone e email NULL; política, seção 4). `DELETE` físico é inviável com OS ligada (FK sem `ON DELETE`), e a OS precisa ficar para o relatório |
-| `clientes.cpf` (V4 da F08, ADR-018 proposto; aplicada no ramo da PR #22, ainda fora da `main`) | CPF, só dígitos, `VARCHAR(11) NULL` com `CHECK` de 11 dígitos ASCII | Emissão de documento fiscal. Coletado só quando o cliente pedir nota ou a emissão exigir; proibido "por garantia" | II (obrigação legal fiscal). Sem nota, não se coleta | Qualquer usuário autenticado, só pelo detalhe, inclusive com token de usuário já desativado até o JWT expirar (risco B2 da política, aceite pendente P8) | Só no detalhe, completo, para o app, que mascara na tela e não grava em disco. Nunca na lista, em log, em erro nem em exemplo do OpenAPI com dado real | Segue o cliente (R1 ou R2; R4 da política). Proposta, P1 | NULL na anonimização. A F08 só lê; a primeira escrita é da F09 |
+| `clientes.cpf` (V4 da F08, ADR-018 proposto; aplicada no ramo da PR #22, ainda fora da `main`) | CPF, só dígitos, `VARCHAR(11) NULL` com `CHECK` de 11 dígitos ASCII | Emissão de documento fiscal. Coletado só quando o cliente pedir nota ou a emissão exigir; proibido "por garantia" | II (obrigação legal fiscal). Sem nota, não se coleta | Qualquer usuário autenticado, só pelo detalhe, inclusive com token de usuário já desativado até o JWT expirar (risco B2 da política, aceite pendente P8) | Só no detalhe e na resposta 201 da criação (F03c, eco do que o usuário enviou), completo, para o app, que mascara na tela e não grava em disco. Nunca na lista, em log (nem mascarado), em erro nem em exemplo do OpenAPI com dado real | Segue o cliente (R1 ou R2; R4 da política). Proposta, P1 | NULL na anonimização. A F08 só lê; a primeira escrita é da F09 (F03c), opcional (parecer, P9) e única quando preenchida (índice antes do primeiro cliente real, P10) |
 | `clientes.endereco` (V4 da F08, ADR-018 proposto; aplicada no ramo da PR #22, ainda fora da `main`) | Endereço em texto livre, campo único, `VARCHAR(255) NULL` | Emissão fiscal ou busca e entrega do veículo combinada com o cliente | II (nota) ou V (busca e entrega) | Igual a `clientes.cpf` | Igual a `clientes.cpf` | Segue o cliente (R1 ou R2). Proposta, P1 | NULL na anonimização |
-| `veiculos` (V2) | placa (identifica o dono via DETRAN e via `cliente_id`), modelo, marca, ano, cor, quilometragem | Identificar o veículo atendido | Igual a `clientes` | Igual a `clientes` | Ainda nenhum endpoint | Igual ao cliente dono | Anonimizar a placa junto com o cliente |
+| `veiculos` (V2) | placa (identifica o dono via DETRAN e via `cliente_id`), modelo, marca, ano, cor, quilometragem | Identificar o veículo atendido | Igual a `clientes` | Igual a `clientes` | Ainda nenhum endpoint (F04). Placa nunca em log, nem mascarada; não é única | Igual ao cliente dono | Anonimizar a placa (`ANONIMO`) junto com o cliente. Veículo com OS não troca de dono: o dono novo ganha registro novo (política, 2.1) |
 | `ordens_servico`, `parcelas`, `pagamentos`, `financeiro` (V2) | Nenhuma coluna pessoal direta; são dado pessoal por associação (histórico de consumo e pagamento ligado a `cliente_id`) | Execução do serviço, cobrança e controle financeiro | V e II (escrituração fiscal) | Igual a `clientes` | Relatórios internos (futuros) | 5 anos (fiscal) | Mantidos após anonimizar o cliente: deixam de identificar a pessoa |
 | `movimentacoes_estoque.motivo` (V2) | Texto livre: risco de alguém digitar nome ou placa | Auditoria de estoque | — | Igual a `clientes` | — | Igual à OS ligada | Orientar no app a não digitar dado pessoal (pendência P5) |
 
@@ -57,5 +67,6 @@ Não coletado hoje: CPF e endereço de cliente. As colunas nascem vazias pela V4
 * P1: aprovar base legal e prazos propostos para `clientes` e `veiculos` (e o prazo de 1 ano para cliente sem OS).
 * P2: rotina de anonimização (usuário desligado após 90 dias; cliente após o prazo). Hoje não existe. Precisa existir antes de a F03a gravar o primeiro cliente real.
 * P3: canal para o titular pedir acesso, correção ou eliminação (art. 18) e quem responde (encarregado, art. 41).
-* P4: aviso de privacidade ao cliente da oficina no momento do cadastro (art. 9º).
+* P4: aviso de privacidade ao cliente da oficina no momento do cadastro (art. 9º). Conteúdo mínimo na seção 7 da política; vai no balcão, porque o app é usado pelo funcionário. Bloqueia o primeiro cadastro real, não a F03c (só API).
+* P9 a P11 da política (revisão 3): CPF obrigatório ou opcional; índice único de CPF antes do primeiro cliente real; regra de troca de dono de veículo na F04.
 * P5: orientação no app para não digitar dado pessoal em `motivo` e em outros campos de texto livre.
