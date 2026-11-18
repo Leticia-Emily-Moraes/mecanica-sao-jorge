@@ -75,7 +75,7 @@ pela F00 (`usuarios`, PK `id`, snake_case). O script é referência de **estrutu
 | Entidade | Tabela | Migration | Observações |
 |---|---|---|---|
 | Usuario | `usuarios` | V1 (F00) | PK `id`; `perfil` VARCHAR+CHECK (enum STRING); `created_at`/`updated_at` |
-| Cliente | `clientes` | V2 (+ V3 na F03a; + V4 na F03b, aplicada no ramo `feat/f03b-clientes-detalhe`; + V5 na F03c, especificada, não escrita) | nome, telefone, email, created_at; `cpf` e `endereco` opcionais pela V4 ([ADR-018](adr/ADR-018-guardar-cpf-e-endereco-do-cliente-como-colunas-opcionais.md)); collation `utf8mb4_0900_ai_ci` fixada pela V3 ([ADR-017](adr/ADR-017-padronizar-listagem-com-busca-e-paginacao.md)); `CHECK` de telefone pela V5 da F03c; `UNIQUE` em `cpf` numa V6 ([ADR-020](adr/ADR-020-garantir-cpf-unico-por-indice-no-banco-com-409-no-service.md)), quando D2/P10 decidir o momento |
+| Cliente | `clientes` | V2 (+ V3 na F03a; + V4 na F03b, aplicada no ramo `feat/f03b-clientes-detalhe`; + V5 e V6 na F03c, aplicadas no ramo `feat/f03c-clientes-criar`) | nome, telefone, email, created_at; `cpf` e `endereco` opcionais pela V4 ([ADR-018](adr/ADR-018-guardar-cpf-e-endereco-do-cliente-como-colunas-opcionais.md)); collation `utf8mb4_0900_ai_ci` fixada pela V3 ([ADR-017](adr/ADR-017-padronizar-listagem-com-busca-e-paginacao.md)); `CHECK` de telefone pela V5 da F03c; `UNIQUE` em `cpf` numa V6 ([ADR-020](adr/ADR-020-garantir-cpf-unico-por-indice-no-banco-com-409-no-service.md)), quando D2/P10 decidir o momento |
 | Veiculo | `veiculos` | V2 | FK `cliente_id`; placa, modelo, marca, ano, cor, quilometragem |
 | Servico | `servicos` | V2 | valor_padrao_mao_obra, tempo_estimado_horas, ativo |
 | Peca | `pecas` | V2 | codigo UNIQUE, custo, preco_venda, quantidade_estoque, estoque_minimo, ativo |
@@ -292,7 +292,7 @@ Decisões em [ADR-021](adr/ADR-021-compartilhar-dto-de-entrada-clienterequest-en
 * Corpo `dto.ClienteRequest` (record), 5 campos. Validação e normalização normativas na tabela do ADR-021. Em resumo: `nome` obrigatório, até 120; `telefone` obrigatório, 10 ou 11 dígitos, com ou sem máscara; `cpf` opcional (P9 em aberto), 11 dígitos, com ou sem máscara; `email` opcional, até 120, formato de e-mail; `endereco` opcional, até 255. Campo em branco vira `null` antes da validação. O banco recebe só dígitos em `cpf` e `telefone`.
 * Campo desconhecido no JSON (ex.: `id`, `createdAt`) é ignorado, porque o record não o tem e o mapper não o lê (ADR-021, regra 4, achado E4). O id é sempre do `AUTO_INCREMENT`.
 * Resposta 201 com `dto.ClienteDetalheResponse` (os mesmos 6 campos do detalhe da F03b, valores já normalizados), cabeçalho `Location: /api/v1/clientes/{id}` **relativo** e `Cache-Control` com `no-store` (padrão do Spring Security, como na F03b). Relativo porque o URI absoluto seria montado a partir do `Host` da requisição, que o cliente controla.
-* CPF repetido: **201 provisório** na F03c, como pede a revisão humana (critério 9), até a pessoa decidir D2/P10. Quando decidir, o ADR-020 liga índice e 409 juntos, sem mudar este contrato além da linha 409 abaixo.
+* CPF repetido: **409** com `mensagem` fixa `CPF ja cadastrado`, por decisão do VIGIA em 2026-11-18 (ADR-020, ainda "proposto" até o aceite da pessoa). Implementado na F03c com a `V6` (`uk_clientes_cpf`). Se a pessoa recusar o ADR-020, volta o 201 provisório: remover a V6, o `catch` do `ClienteService.gravar` e o handler do 409.
 * Não idempotente: dois `POST` iguais criam dois clientes (com CPF vazio ou enquanto o índice não existir). A proteção contra toque duplo é da F35 (`docs/product/F35-recebido-da-F03c-criar-cliente.md`).
 
 Exemplo (dados fictícios; CPF com dígito verificador inválido de propósito):
@@ -324,12 +324,12 @@ Log (política, revisão 3): uma linha INFO no service, depois do `saveAndFlush`
 
 Pontos de integração da F03c (todos em pacotes já existentes, ADR-001):
 
-* `controller.ClienteController.criar(@Valid @RequestBody ClienteRequest, Jwt)`: fino; chama o service e devolve `ResponseEntity.created(URI.create("/api/v1/clientes/" + id)).body(...)`. OpenAPI com `@ApiResponse` para 201, 400, 401, 415 e 500 (409 entra com o ADR-020).
+* `controller.ClienteController.criar(@Valid @RequestBody ClienteRequest, Jwt)`: fino; chama o service e devolve `ResponseEntity.created(URI.create("/api/v1/clientes/" + id)).body(...)`. OpenAPI com `@ApiResponse` para 201, 400, 401, 409, 415 e 500.
 * `service.ClienteService.criar(ClienteRequest, String usuarioId)`: `@Transactional`; mapper, método privado de gravação com `saveAndFlush` (ADR-020, regra 3, compartilhado com a F10), mapper de saída e a linha de log.
 * `mapper.ClienteMapper.toEntity(ClienteRequest)`: com `unmappedTargetPolicy = ERROR`, ignora `id` e `createdAt`; métodos `@Named` `somenteDigitos` e `aparado` (ADR-021, regras 3 e 4).
 * `repository.ClienteRepository`: sem método novo (`saveAndFlush` vem do `JpaRepository`); sem `existsByCpf` nem `findByCpf` (ADR-020, regra 6).
 * `exception.GlobalExceptionHandler`: handlers de 400 (corpo ilegível) e 415; o de 409 (`ConflitoException`) só com o ADR-020.
-* Migration `V5__adicionar_check_telefone_em_clientes.sql` (matriz acima). Nada muda no diagrama C4 de contêineres: a F03c não cria contêiner, fila nem dependência externa.
+* Migrations `V5__adicionar_check_telefone_em_clientes.sql` e `V6__adicionar_indice_unico_cpf_em_clientes.sql` (matriz acima). O logger `org.hibernate.orm.jdbc.error` fica em `OFF` no `application.yml`, porque o Hibernate loga o `Duplicate entry '<cpf>'` do MySQL. Nada muda no diagrama C4 de contêineres: a F03c não cria contêiner, fila nem dependência externa.
 * App (F35): consome o contrato acima. Os pontos de tela que a F03c deixa para a F35 estão em `docs/product/F35-recebido-da-F03c-criar-cliente.md` (tarefa 17).
 
 ## Threat model — criação de cliente (STRIDE, F03c)
