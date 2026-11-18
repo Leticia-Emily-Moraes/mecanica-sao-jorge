@@ -115,7 +115,7 @@ coluna a coluna por CARTOGRAFO em 2026-11-12, lendo os três arquivos SQL.
 | Tabela | Colunas no script que faltam em V1/V2 | Feature dona |
 |---|---|---|
 | `clientes` | nenhuma (só nomes divergem, ver abaixo) | n/a |
-| `veiculos` | `data_cadastro` | F04 |
+| `veiculos` | `data_cadastro` — **fechada na F04: não adotada** (nenhuma tela ou regra da F04 usa; coluna nova só quando a feature de histórico pedir). Linha `veiculos.placa` (UNIQUE + CHECK) fechada pela V7 | F04 |
 | `servicos` | `nome VARCHAR(150) NOT NULL`, `descricao VARCHAR(255)` | F05 / F11 / F12 |
 | `pecas` | `nome VARCHAR(150) NOT NULL`, `categoria VARCHAR(80)`, `fabricante VARCHAR(100)`, `unidade VARCHAR(20) NOT NULL DEFAULT 'UN'` | F17 / F14 / F15 |
 | `ordens_servico` | `descricao_problema TEXT`, `diagnostico TEXT`, `data_abertura`, `data_previsao_entrega DATE`, `data_fechamento` | F18 / F19 / F20 |
@@ -134,8 +134,9 @@ copiadas do script às cegas: `CASCADE` apaga histórico.
 
 | Onde | Script | Migrations hoje | Feature dona |
 |---|---|---|---|
-| `veiculos.cliente_id` | `ON DELETE CASCADE` | sem ação (bloqueia o delete) | F04 |
-| `veiculos.modelo`, `veiculos.marca` | `NULL` | `NOT NULL` (mais restrito) | F04 |
+| `veiculos.cliente_id` | `ON DELETE CASCADE` | sem ação (bloqueia o delete) — **F04: `CASCADE` não adotado**, apagar cliente não apaga histórico; descarte de cliente anonimiza a placa (`ANON<id>`) | F04 |
+| `veiculos.modelo`, `veiculos.marca` | `NULL` | `NOT NULL` (mais restrito) — **F04: mantido**, o DTO exige os dois | F04 |
+| `veiculos.placa` | sem índice, sem formato | V7: `UNIQUE uk_veiculos_placa` + `CHECK ck_veiculos_placa_formato` (padrão antigo, Mercosul ou `ANON<1..6 dígitos>`, `REGEXP_LIKE` com `'c'`) | F04 |
 | `pecas.codigo` | `NULL`, `UNIQUE` | `NOT NULL`, `UNIQUE` | F14 |
 | `ordens_servico.status` | `VARCHAR(30) DEFAULT 'ABERTA'` | `VARCHAR(20)`, sem default | F18 / F20 |
 | `ordens_servico_servicos.ordem_id`, `ordens_servico_pecas.ordem_id` | `ON DELETE CASCADE` | sem ação | F19 |
