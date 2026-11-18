@@ -1,6 +1,6 @@
 # Política de dados pessoais de cliente: retenção, descarte e mascaramento
 
-Dono: VIGIA (AppSec/LGPD). Criada em 2026-11-14 na F03a, antes de qualquer código do módulo Clientes. Revisada em 2026-11-17 três vezes: revisão 1 (contrato da máscara), revisão 2 (detalhe de cliente da F03b e colunas `cpf` e `endereco` da V4) e revisão 3 (criação de cliente da F03c, card F09: unicidade, CPF opcional, placa e log do POST). Revisão 4 em 2026-11-18 (F09: a premissa 3 do card cai em favor do ADR-020, retenção e descarte consolidados por dado na seção 3.1 e recadastro de titular anonimizado na 2.3). Revisão 5 em 2026-11-18 (F04, Veículos: placa classificada como dado pessoal, placa única com marcador de anonimização por linha, descarte do veículo junto com o cliente e máscara de placa em log). Ver seção 11.
+Dono: VIGIA (AppSec/LGPD). Criada em 2026-11-14 na F03a, antes de qualquer código do módulo Clientes. Revisada em 2026-11-17 três vezes: revisão 1 (contrato da máscara), revisão 2 (detalhe de cliente da F03b e colunas `cpf` e `endereco` da V4) e revisão 3 (criação de cliente da F03c, card F09: unicidade, CPF opcional, placa e log do POST). Revisão 4 em 2026-11-18 (F09: a premissa 3 do card cai em favor do ADR-020, retenção e descarte consolidados por dado na seção 3.1 e recadastro de titular anonimizado na 2.3). Revisão 5 em 2026-11-18 (F04, Veículos: placa classificada como dado pessoal, placa única com marcador de anonimização por linha, descarte do veículo junto com o cliente e máscara de placa em log). Revisão 6 em 2026-11-18 (F10, F03d, edição de cliente: cobertura da edição confirmada, valor anterior nunca guardado, email único com 409 no POST e no PUT, normalização de email e linhas de log do PUT). Ver seção 11.
 
 Vale para: F03a (listar), F03b (detalhe, card F08), F03c (criar, card F09, primeira escrita de CPF e endereço), F03d (editar), F04 (veículos), F35 (telas de cliente) e toda feature que leia ou grave `clientes` ou `veiculos`.
 
@@ -23,7 +23,7 @@ Relação com outros documentos: complementa `docs/security/lgpd-registro-dados-
 |---|---|---|---|---|---|---|---|
 | `clientes.nome` | Sim (V2, NOT NULL) | Obrigatória | Identificar o cliente na OS e localizar o cadastro no balcão | V (execução de contrato e procedimentos preliminares, como orçamento) | Lista (F03a), detalhe (F03b), OS | Seção 3 | Substituir por texto fixo (seção 4) |
 | `clientes.telefone` | Sim (V2, NULL) | **Obrigatória na API de criação** (F03c, revisão 3): 10 ou 11 dígitos ASCII, gravado só com dígitos. A coluna continua `NULL` de propósito, porque a anonimização grava NULL (seção 4): proibido `NOT NULL` em migration. Não é único (2.1) | Contato sobre orçamento, valor final e veículo pronto | V | Lista (F03a), detalhe (F03b) e resposta 201 da criação (F03c), **completo** (só dígitos, como gravado) e só com token válido. A tela também mostra completo, para contato direto. Em log, nunca na F03a a F03c (6.3 a 6.5); só a máscara 6.2.1 se uma linha futura precisar | Seção 3 | NULL |
-| `clientes.email` | Sim (V2, NULL) | Opcional (F03c: até 120 caracteres, formato de email; em branco grava NULL). Não é único (2.1) | Mesmo do telefone | V | Lista, detalhe e resposta 201 da criação. Nunca em log, nem mascarado | Seção 3 | NULL |
+| `clientes.email` | Sim (V2, NULL) | Opcional (F03c: até 120 caracteres, formato de email; em branco grava NULL). **Único quando preenchido** a partir da revisão 6, no POST e no PUT, gravado com `strip()` e minúsculas só em ASCII (2.1 e 2.5) | Mesmo do telefone | V | Lista, detalhe, resposta 201 da criação e resposta 200 da edição (F03d). Nunca em log, nem mascarado, nem o valor anterior (6.7) | Seção 3 | NULL |
 | `clientes.cpf` | **Coluna criada pela V4 da F08 (F03b)**: `VARCHAR(11) NULL` com `CHECK` de 11 dígitos ASCII ([ADR-018](../architecture/adr/ADR-018-guardar-cpf-e-endereco-do-cliente-como-colunas-opcionais.md)). Nenhuma escrita antes da F09 (F03c). **Linha aprovada pelo VIGIA na revisão 2** | **Opcional também na API de criação** (revisão 3, seção 2.2). Só quando o cliente pedir nota fiscal ou a emissão exigir. Proibido coletar "por garantia" e proibido tornar obrigatório sem a decisão P9. **Único quando preenchido**, com índice `uk_clientes_cpf` e 409 já na F03c (2.1, revisão 4) | Emissão de documento fiscal | II (obrigação legal fiscal) quando houver nota; sem nota, não se coleta | Só no detalhe (`GET /api/v1/clientes/{id}`, F03b) e na resposta 201 da criação (F03c, eco do que o próprio usuário enviou), **completo e sem máscara**, só com token válido, porque a edição (F03d) pré-preenche o valor. A máscara é da tela (seção 7). Nunca na lista, na OS resumida, em log (nem mascarado na linha 6.4), em mensagem de erro nem em exemplo do OpenAPI com dado real | Seção 3 (R4) | NULL |
 | `clientes.endereco` | **Coluna criada pela V4 da F08 (F03b)**: `VARCHAR(255) NULL`, campo único (ADR-018, decisão D-B). Nenhuma escrita antes da F09. **Linha aprovada pelo VIGIA na revisão 2** | Opcional. Só quando a nota exigir ou para busca e entrega do veículo | Emissão fiscal ou logística combinada com o cliente | II (nota) ou V (busca e entrega) | Só no detalhe, completo, só com token válido. Nunca em log, nem mascarado | Seção 3 (R4) | NULL |
 | `clientes.created_at` | Sim | Automática | Contar o prazo da regra R2 | Acessória às linhas acima | Não exposta na F03a | Junto do cliente | Mantida (sozinha não identifica) |
@@ -41,7 +41,7 @@ Regra de coleta: campo pessoal novo em `clientes` ou `veiculos` só entra com li
 | Campo | Único? | Regra | Por quê |
 |---|---|---|---|
 | `clientes.cpf` | **Sim, quando preenchido** | Índice `UNIQUE` em `clientes.cpf`. O MySQL aceita vários NULL num índice único, então cliente sem CPF e cliente anonimizado não colidem. CPF repetido **bloqueia** com 409 e mensagem fixa `CPF ja cadastrado`, sem o valor e sem o id do cadastro existente. Não pede confirmação e não só alerta | Um CPF é uma pessoa. Dois cadastros da mesma pessoa fazem o pedido de acesso ou eliminação do titular (art. 18) achar só um, e a anonimização deixa uma cópia viva. Alerta ou confirmação pedem fluxo de dois passos na tela e ainda deixam o duplicado entrar |
-| `clientes.email` | Não | Sem índice e sem checagem | Opcional; família e empresa dividem email. Bloquear cadastro legítimo não protege o titular |
+| `clientes.email` | **Sim, quando preenchido** (revisão 6, revoga a linha da revisão 3) | Índice `UNIQUE` `uk_clientes_email` sobre o email gravado com `strip()` e minúsculas ASCII. Vários NULL não colidem (8.6). Email de outro cliente **bloqueia** com 409 e mensagem fixa `Email ja cadastrado`, sem o endereço e sem o id do outro cadastro, no POST e no PUT. Depende do aceite da P16 | Um email é a caixa de uma pessoa ou de uma empresa, e dois cadastros com o mesmo email repetem o problema do CPF no pedido do titular. O custo de família ou empresa que divide email é de produto e está no card F10: o segundo cadastro vai sem email (2.5, U7) |
 | `clientes.telefone` | Não | Sem índice e sem checagem | Telefone de casa ou da empresa é dividido |
 | `veiculos.placa` | **Sim** (revisão 5, revoga a linha da revisão 3) | Índice `UNIQUE` `uk_veiculos_placa` na V7, sobre a placa normalizada. Placa repetida **bloqueia** com 409 e mensagem fixa `Placa ja cadastrada` (chave `veiculo.form.placa.duplicada`), sem a placa, sem o id do veículo existente e sem o nome do dono. A anonimização grava `ANON<id>`, que é único por linha e não colide (seção 4, provado na 8.5) | Uma placa é um veículo. Dois registros da mesma placa dividem o histórico de OS entre cadastros e, se ficarem em clientes diferentes, a placa de uma pessoa aparece no cadastro de outra. O motivo antigo para não ser única (`ANONIMO` repetido) cai com o marcador por linha. O caso do veículo vendido fica na 2.4 |
 
@@ -133,6 +133,52 @@ Regras do marcador:
 
 **`clienteNome` no detalhe do veículo (D4 do PRD): parecer favorável**, com condições: só `clienteId` e `clienteNome` (nunca telefone, email, CPF ou endereço), nome nunca em log e `toString()` do DTO sem o nome (seção 7). O mesmo token já lê o nome pelo detalhe do cliente, então nada novo é exposto, e a tela evita uma segunda chamada.
 
+### 2.5 Edição de cliente (F03d, card F10, revisão 6)
+
+**Parecer: a política cobre a edição.** A finalidade, a base legal, os prazos e o descarte de nome, CPF, telefone, email e endereço já estão escritos (seções 2, 3, 3.1 e 4). A edição não coleta campo novo, não cria destino novo e não muda prazo. O que faltava era a regra do valor anterior, a unicidade de email pedida pelo card, as linhas de log do PUT (6.7) e as regras de API da edição (seção 7). Esta revisão fecha esses quatro pontos. O ESPRESSO pode começar, com as condições da 6.7, da seção 7 ("API, edição") e o aceite da P16 para os critérios de email.
+
+**Ciclo do dado na edição.**
+
+| Etapa | Regra |
+|---|---|
+| Coleta | `PUT /api/v1/clientes/{id}` com o mesmo `ClienteRequest` da criação (ADR-021). Os mesmos cinco campos, nada além. O pedido de correção do titular (art. 18, III) entra por aqui (seção 5) |
+| Finalidade e base legal | As da seção 2, campo a campo: nome, telefone e email com base V. CPF com base II (nota fiscal). Endereço com base II ou V. A correção também cumpre o dever de qualidade do dado (art. 6º, V) |
+| Quem acessa | Qualquer usuário autenticado, ADMIN ou FUNCIONARIO. Não existe dono por cliente: todo funcionário atende todo cliente. A escrita ampla é risco a aceitar (U5, P8) |
+| Para onde vai | Só da API para o app. A resposta 200 é o `ClienteDetalheResponse`, com os valores novos. Nenhum terceiro |
+| Valor anterior | **Sobrescrito e não guardado em lugar nenhum**: nem em log, nem em coluna, tabela de histórico, resposta, mensagem de erro ou registro de auditoria. Só o backup (backlog) o carrega, até expirar em 35 dias (3.1) |
+| Retenção | Não muda. A edição **não é evento** para R1 e R2 (seção 3): o prazo conta do cadastro, da OS e do pagamento. `created_at` é `updatable = false` na entidade e o PUT não o toca (conferido em `entity/Cliente.java`) |
+| Descarte | O da seção 4. Valor apagado pelo PUT (opcional omitido grava NULL, ADR-021) some na hora, sem cópia |
+
+Por que a edição não reinicia o prazo: se reiniciasse, qualquer correção de telefone manteria o cadastro para sempre, sem contrato novo. O titular que volta para um serviço novo reinicia o R1 pela OS nova (2.3), não pela edição.
+
+Por que o valor anterior não fica: histórico de alteração está fora do escopo do card e não tem finalidade escrita. Guardar o CPF ou o telefone antigos seria uma segunda cópia sem prazo e sem descarte, e o pedido de eliminação (seção 5) teria de achá-la. **R6.** Histórico de alteração de cliente ou veículo só entra com linha nesta política antes da migration, dizendo o que guarda, por quanto tempo e como a anonimização da seção 4 o alcança.
+
+**Unicidade de email (decisão do VIGIA na revisão 6, revoga a linha de email da revisão 3).** O card F10 pede 409 para email de outro cliente (US-CLI-31 e US-CLI-32) e, na premissa 6, a mesma regra na criação. Parecer favorável, com condições:
+
+* Pelo lado do titular, o argumento é o do CPF (2.1): um endereço de email é uma caixa de uma pessoa ou de uma empresa. Dois cadastros com o mesmo email fazem o pedido de acesso ou de eliminação achar um só, e o contato de um titular aparece no cadastro de outro.
+* O custo é de produto e já está no card: família ou empresa que divide email não cadastra o mesmo email em dois clientes. O segundo cadastro vai **sem email**, que é opcional, e o telefone continua obrigatório. Proibido inventar email para contornar o 409 (U7).
+* Regra: índice `UNIQUE` `uk_clientes_email` sobre o email gravado. Vários NULL não colidem (provado na 8.6), então o cliente sem email e o anonimizado passam. A anonimização já grava NULL no email (seção 4), então nada muda no descarte.
+* Vale para **POST e PUT juntos**, na mesma PR (premissa 6 do card). Se só o PUT checar, o POST grava o duplicado que o PUT recusa, e a migration do índice nem roda. A mudança no POST altera o contrato aprovado da F09: o POST passa a responder 409 `Email ja cadastrado`. É decisão da pessoa (P16).
+* Resposta 409 com `mensagem` exatamente `Email ja cadastrado`, sem o endereço, sem o id e sem o nome do outro cliente. O CPF continua `CPF ja cadastrado`. Quando os dois conflitam, a resposta aponta só o primeiro índice que o MySQL recusar. O card só pede que a mensagem indique um campo.
+* Se a pessoa recusar a P16, vale a revisão 3 para o email (não único). Os critérios 6 e 7 e a parte de email do 8 caem, e o PUT checa só o CPF.
+
+**Normalização do email e o que o banco compara (provado na 8.6).**
+
+* A coluna `clientes.email` está em `utf8mb4_0900_ai_ci` (V3). O índice único compara **sem caixa e sem acento**: `Ana@Example.com` colide com `ana@example.com`, e `joão@example.com` colide com `joao@example.com`. O sinal Kelvin (U+212A) colide com `k`. Espaço no fim **não** é ignorado (a collation é NO PAD).
+* Quem decide o conflito é o índice, não o Java. A edição não precisa de consulta prévia: um `UPDATE` da própria linha com o mesmo valor não viola o índice, então US-CLI-28 e US-CLI-32 passam sem código de exclusão do próprio id. Se o ESPRESSO quiser responder antes do `flush`, a consulta prévia roda no banco (`existsBy...AndIdNot`), com a mesma collation. Proibido comparar email em memória no Java, que discorda da collation nos casos acima.
+* Gravação: `strip()` (já faz, mapper da F03c) e minúsculas **só nas letras ASCII de `A` a `Z`**, como a placa (6.2.2). Proibido `String.toLowerCase`, inclusive com `Locale.ROOT`: no JDK 21 ele troca o Kelvin por `k` ASCII e transforma `İ` (U+0130) em dois caracteres (provado na 8.6), o que grava um email que o funcionário não digitou e pode passar das 190 posições da coluna (U4). Isso é normalização, não regra de formato nova (premissa 1 do card).
+* O `strip()` remove só espaço Unicode reconhecido pelo Java. O espaço não separável (U+00A0) fica (provado na 8.6). O `@Email` decide se aceita: comportamento a provar no teste (U4), não verificado nesta revisão.
+
+**Respostas às dúvidas do card.**
+
+1. "Cliente ativo" não existe e não vai existir nesta fase (D2 da F03a). O fim da retenção é o da seção 3: R1 (5 anos após o último evento, com OS) ou R2 (12 meses após o cadastro, sem OS), mais o pedido do titular (seção 5). A frase do card diz o mesmo sem prazo contável. Vale a política.
+2. Emails repetidos na base: não existe cliente real em nenhum ambiente, porque o primeiro cadastro real está bloqueado pelas P2, P3 e P4. Isso é o que os documentos dizem (não existe deploy registrado), não uma consulta a produção. Antes da migration do índice, em cada banco que já tenha dado: contar com `SELECT COUNT(*) FROM (SELECT TRIM(email) e FROM clientes WHERE email IS NOT NULL GROUP BY e HAVING COUNT(*) > 1) d`, nunca com `SELECT email`. Com a collation da V3, o `GROUP BY` já junta caixa e acento (provado na 8.6). Banco local ou de teste com duplicado tem só dado fictício e é recriado. Se um dia houver duplicado real, ele se resolve caso a caso com a pessoa, antes da migration: quem fica com o email é quem o titular confirmar, e o outro cadastro fica sem email. Se a migration falhar por duplicado, o Flyway escreve o email no log do boot (provado: o 1062 traz o valor).
+3. O email é opcional (ADR-021, `@Email` e `@Size` sem `@NotBlank`, e em branco vira NULL no construtor do `ClienteRequest`, conferido no código). O índice aceita vários NULL (provado na 8.6).
+
+**CPF na edição.** O PUT herda o `@NotBlank` do CPF da F03c (overview, contrato do POST). Com isso, o titular não consegue pedir a retirada do CPF pela correção, só pela eliminação (seção 5). Isso contraria o parecer da 2.2 e continua na P9. A F10 não decide a P9: se a pessoa a fechar como opcional, o mesmo DTO passa a aceitar CPF ausente no PUT, que grava NULL.
+
+**Cliente anonimizado.** Hoje não existe. Quando a P2 existir, o PUT de cliente anonimizado por completo tem de responder erro, porque religaria dado novo a um cadastro que deixou de identificar alguém. No cadastro anonimizado em parte (2.3), o PUT pode regravar o contato, mas não pode trocar nem apagar o CPF retido. Fica na P15, ampliada nesta revisão. A F10 não precisa tratar.
+
 ## 3. Retenção
 
 Último evento do cliente: a data mais recente entre o cadastro (`clientes.created_at`), a abertura ou entrega da última OS e o último pagamento ligado a ele.
@@ -166,7 +212,7 @@ O descarte tem dois gatilhos: (a) prazo vencido (R1 ou R2), contado do último e
 | Demais colunas de `veiculos` | V | Igual ao dono | Mantidas | Mantidas |
 | OS, junções, parcelas, pagamentos, financeiro | V e II (escrituração) | 5 anos (fiscal) | Mantidos: sem os campos acima, não identificam a pessoa | Mantidos |
 | Registro de auditoria da anonimização (`cliente_id`, data, motivo, `usuario_id`) | II (art. 37, registro das operações) | 5 anos após a anonimização (hipótese da P1) | `DELETE` da linha. Nunca guarda o valor antigo | Não se aplica |
-| Log de aplicação (linhas 6.3 a 6.5) | IX (`usuarioId`, controle de acesso) | 90 dias (P7) | Rotação do coletor. Hoje some quando o contêiner é recriado | Não se edita log: o `clienteId` passa a apontar para um cadastro anonimizado |
+| Log de aplicação (linhas 6.3 a 6.7) | IX (`usuarioId`, controle de acesso) | 90 dias (P7) | Rotação do coletor. Hoje some quando o contêiner é recriado | Não se edita log: o `clienteId` passa a apontar para um cadastro anonimizado |
 | Backup (backlog) | Igual à do dado de origem | 35 dias | Expira. Depois de qualquer restauração, reaplicar todas as anonimizações do registro de auditoria antes de abrir o sistema | Igual |
 | Dado de cliente no app | Igual à do dado de origem | Enquanto a tela está aberta | Sai da memória ao sair da tela, depois do 201 e no logout (seção 7). Nada em disco | Igual |
 | Banco de teste e banco local | Não se aplica: só dado fictício (seção 7) | Duração do teste | O contêiner do Testcontainers é removido no fim. O volume local é recriado, sem dado real | Não se aplica |
@@ -377,6 +423,27 @@ Regras:
 * `org.hibernate.orm.jdbc.error` e `org.hibernate.engine.jdbc.spi.SqlExceptionHelper` continuam `OFF` no `application.yml` (F03c). Sem isso, o Hibernate escreve o `Duplicate entry '<placa>'` antes de o service traduzir o 409. Proibido religar em perfil versionado.
 * Conversor do Logback com regex de mascaramento continua proibido (6.5).
 
+### 6.7 Linhas de log da edição (F03d, card F10, US-CLI-25, revisão 6, vigente)
+
+As seções 6.1 e 6.2 valem para `PUT /api/v1/clientes/{id}` sem exceção. O corpo da requisição e o da resposta 200 nunca vão para log, nem em parte. Linhas permitidas, todas INFO, emitidas pelo `ClienteService`, só com estes campos:
+
+| Situação | Linha exata | Por quê |
+|---|---|---|
+| 200 (cliente editado) | `clientes.editar clienteId={} usuarioId={}`, depois do `saveAndFlush` | Rastrear quem corrigiu cada cadastro (art. 37) e perceber troca em massa de contato por um mesmo token (U5) |
+| 404 (id numérico sem cliente) | `clientes.editar.naoEncontrado clienteId={} usuarioId={}` | Detectar varredura de ids, como na 6.4 |
+| 409 (CPF ou email de outro cliente, inclusive na corrida) | `clientes.editar.conflito clienteId={} usuarioId={} campo={}` | Detectar uso da edição como oráculo de CPF ou email (U8): o mesmo `usuarioId` com muitos 409 em sequência |
+
+Regras:
+
+* `clienteId` é o `Long` do caminho depois da conversão. `usuarioId` é o `sub` do JWT (art. 7º, IX).
+* `campo` é só o texto fixo `cpf` ou `email`, tirado do **tipo** da exceção (`CpfJaCadastradoException` ou a de email), nunca da mensagem do MySQL nem de `getConstraintName()` impresso.
+* **Valor anterior: nunca.** Nem o antigo, nem o novo, nem os dois juntos, nem mascarados, nem indicador de campo alterado (`cpfAlterado`, lista de campos). Saber qual campo mudou num cadastro identificado é um pedaço do histórico que a R6 (2.5) não autoriza.
+* Nunca nome, CPF, telefone, email ou endereço, **nem mascarados**, nem DTO, entidade, `BindingResult`, `getMessage()` de exceção de persistência ou `toString()` de nenhum deles. O erro 1062 do MySQL traz o email ou o CPF inteiro (provado na 8.6 e na 8.4).
+* Sem linha no 400 de validação, no 400 ou 415 de corpo ilegível, no 401 e no 405. O 500 segue a seção 7: classe da exceção e caminho, nada mais.
+* `org.hibernate.orm.jdbc.error` e `org.hibernate.engine.jdbc.spi.SqlExceptionHelper` continuam `OFF` (conferido no `application.yml`). Proibido religar em perfil versionado.
+* **Divergência do card** (US-CLI-25 e tarefa 7 pedem CPF, telefone e email mascarados no log): vale a política, pelo mesmo motivo da 6.5. O `clienteId` já liga a linha ao cadastro, e a máscara não tem finalidade. O critério se cumpre provando que nenhum dos três aparece no log, nem inteiro, nem com máscara de digitação, nem com a máscara 6.2.1. Email nunca vai para log, nem mascarado (6.2). Se mesmo assim a pessoa exigir máscara, só vale `clientes.editar clienteId={} usuarioId={} cpf={} telefone={}` com os valores **novos** e `MascaraDadoPessoal`, sem email e sem valor anterior.
+* A criação (6.5) continua sem linha no 409. Acrescentar `clientes.criar.conflito` é opcional e fica para quem mexer no POST pela P16, sem quebrar o teste da F03c que procura `clientes.criar`.
+
 ## 7. Configuração que protege a regra (vigente)
 
 API:
@@ -413,6 +480,16 @@ API, veículos (F04, revisão 5, vigente):
 * **Erro por campo (critérios 25 e 26).** O formato com `erros[]` é decisão do CARTOGRAFO (D2 do PRD). Condições do VIGIA: `campo` vem de `FieldError.getField()` de DTO sem `Map` e sem lista, para que o nome do campo não seja controlado por quem ataca; `chave` é texto fixo no `message` da anotação, sem `{}` e sem `${}`, o que evita interpolação de Expression Language (E5); nenhum `rejectedValue`; a `mensagem` atual continua sem valor. No corpo ilegível (`"ano": "abc"`), se o handler apontar o campo, usa só o nome da propriedade já mapeada no DTO, nunca o valor nem o `getMessage()` do Jackson.
 * **Respostas.** 409 com `mensagem` exatamente `Placa ja cadastrada` e chave `veiculo.form.placa.duplicada`; 404 com mensagem fixa (`Veiculo nao encontrado`, `Cliente nao encontrado`), sem repetir o id. O `Location` do 201 é montado com o id gerado (`/api/v1/veiculos/{id}`). `Cache-Control: no-store` nas quatro rotas, afirmado em teste.
 * **Exemplos do OpenAPI.** Placa inventada, marcada como fictícia (`ABC1D23` e `ABC1234`, as do card). Nunca placa vista na rua ou em foto.
+
+API, edição (F03d, card F10, revisão 6, vigente):
+
+* **Carregar e copiar, nunca montar (U1).** O service faz `findById(id)` primeiro: ausente dá 404 `Cliente nao encontrado`, com mensagem fixa e sem o id. Depois copia os campos para a entidade carregada com um método do `ClienteMapper` com `@MappingTarget`, ignorando `id` e `createdAt` de forma explícita e com `unmappedTargetPolicy = ReportingPolicy.ERROR`, com as mesmas normalizações do `toEntity` (sem copiar o código). Proibido `new Cliente` ou `toEntity(request)` com `setId(id)` seguido de `save`: no id inexistente o `merge` não dá 404, e no existente passa a depender do mapper para não zerar o que não veio.
+* **Id só do caminho (US-CLI-30).** `@PathVariable @Positive Long id`. O `ClienteRequest` não tem `id`, e o Jackson do Boot ignora propriedade desconhecida. Teste do lado de quem ataca: PUT no cliente A com `"id"` do cliente B, `"createdAt"` e `"cliente": {"id": ...}` no corpo responde 200, altera só A e, pelo `JdbcTemplate`, B fica intacto e o `created_at` de A não muda. Se alguém ligar `FAIL_ON_UNKNOWN_PROPERTIES`, esse teste quebra, e a decisão volta para o CARTOGRAFO.
+* **409 pelo índice (U2, U3, U6).** O mesmo ponto único de gravação do ADR-020 (`gravar`, com `saveAndFlush` dentro de `try`), agora traduzindo `uk_clientes_cpf` para `CpfJaCadastradoException` e `uk_clientes_email` para a exceção de email (subclasse de `ConflitoException`), pelo nome da restrição, com exceção sem causa e sem `getMessage()`. Violação de outra restrição segue como hoje. A transação faz rollback, e o cliente fica como estava (critérios 4 e 6), provado pelo `JdbcTemplate`.
+* **Corrida (critério 8, U6).** O IT dispara PUT simultâneos de clientes diferentes para o mesmo CPF, para o mesmo email e no caso cruzado (A recebe o CPF de B enquanto B recebe o email de A). Nenhum pode dar 500. Se aparecer deadlock (MySQL 1213, `CannotAcquireLockException`), ele é tratado no handler global com mensagem fixa e sem `getMessage()`. O status (409 ou nova tentativa no service) é decisão do CARTOGRAFO.
+* **Email gravado normalizado (U4).** `strip()` e minúsculas só em `A` a `Z` ASCII, no POST e no PUT, pelo mesmo método do mapper. Proibido `toLowerCase`.
+* **Respostas.** 200 com `ClienteDetalheResponse` (que já tem o `toString()` do B1) e `Cache-Control: no-store` afirmado no teste. 409 com `mensagem` exatamente `CPF ja cadastrado` ou `Email ja cadastrado`, corpo e cabeçalhos sem o valor nas duas formas (como enviado e como gravado) e sem o id do outro cliente. 400 com o campo pelo nome do JSON, sem valor rejeitado (E5). 401 antes do controller, sem linha de log.
+* **Exemplos do OpenAPI.** No `ClienteRequest`, o CPF (`123.456.789-00`, dígito verificador inválido) e o email (`@example.com`) já são fictícios. O telefone troca para DDD que não existe (U9). O exemplo de 409 usa só as mensagens fixas.
 
 App (F35):
 
@@ -636,6 +713,56 @@ Conferido sem achado, por leitura:
 * A F04 não precisa de dependência nova: Bean Validation, MapStruct e Flyway já estão no pom. Vale o `osv-scanner` da 8.2 enquanto o `pom.xml` não mudar. Não reexecutei.
 * Segredo: a F04 não cria configuração nova. Vale o ADR-009.
 
+### 8.6 Parecer e achados AppSec da edição (F03d, card F10, revisão 6)
+
+Escopo revisado por leitura no ramo `feat/f04-veiculos` (commit `7250be2`, que contém a F03c e a F04): `ClienteRequest`, `ClienteService`, `ClienteMapper`, `Cliente`, `ConflitoException`, `GlobalExceptionHandler` (só o ponto do 409), migrations V2, V3 e V6, `application.yml` (loggers de JDBC) e ADR-021. O PUT ainda não existe. Nada foi executado contra ele.
+
+#### Evidência executada (2026-11-18)
+
+MySQL 8.4 descartável em contêiner, com a tabela `clientes` da V2 (colunas `id`, `nome`, `email`) e o `CONVERT` da V3, e só emails fictícios em `@example.com`. Contêiner removido ao final.
+
+| Tentativa | Resultado observado |
+|---|---|
+| Inserir `ana@example.com` e `Ana@Example.com`, `joão@example.com` e `joao@example.com`, e dois NULL, e contar duplicados com `GROUP BY email HAVING COUNT(*) > 1` | 2 grupos: `A,B` e `E,F`. A collation junta caixa e acento |
+| `ADD CONSTRAINT uk_clientes_email UNIQUE (email)` com os duplicados | `ERROR 1062 (23000): Duplicate entry 'ana@example.com' for key 'clientes.uk_clientes_email'`. A mensagem traz o email inteiro |
+| Mesmo índice depois de remover os duplicados | Criado. Com 2 NULL, e depois com 3 |
+| Inserir `ana@example.com ` (espaço no fim) com o índice | Aceito como valor diferente (NO PAD) |
+| Inserir `kai@example.com` e depois o mesmo com U+212A (Kelvin) no lugar do `k` | `ERROR 1062`, com o valor na mensagem |
+
+JDK 21.0.10 (`jshell`):
+
+| Expressão | Resultado |
+|---|---|
+| `"  Ana@Example.COM ".strip().toLowerCase(Locale.ROOT)` | `ana@example.com` |
+| U+212A `.toLowerCase(Locale.ROOT)` | U+006B (`k` ASCII) |
+| U+0130 (`İ`) `.toLowerCase(Locale.ROOT)` | 2 caracteres |
+| `"a" + U+00A0`, `.strip()` | 2 caracteres (o espaço não separável fica) |
+
+Não executado: `osv-scanner` (não está instalado nesta máquina) e o comportamento do `@Email` do Hibernate Validator com caracteres fora do ASCII (o jar fica fora da pasta da operação). A F10 não acrescenta dependência, então vale a última varredura registrada (8.1).
+
+#### Achados
+
+| ID | Severidade | OWASP | Achado | Impacto concreto | Correção específica | Dono |
+|---|---|---|---|---|---|---|
+| U1 | Alta se acontecer (preventivo) | A01 / A08 | PUT montado como entidade nova com o id do caminho e `save` (`merge`), em vez de `findById` e `@MappingTarget` | No id inexistente, o `merge` não responde 404 (critério 3). No existente, qualquer campo que o mapper esquecer volta como `null` sem aviso | Seção 7, "API, edição": `findById` primeiro, `@MappingTarget` com `id` e `createdAt` ignorados e `ReportingPolicy.ERROR`. Teste de ataque com `"id"` de outro cliente, conferido pelo `JdbcTemplate` | ESPRESSO |
+| U2 | Média | A09 / LGPD | O erro 1062 traz o email inteiro (provado acima), como já trazia o CPF (8.4) | Se o 409 de email usar `getMessage()`, propagar a causa ou se o log do Hibernate for religado, o email vai para o log ou para a resposta, contra o critério 11 e a 6.1 | Tradução pelo nome `uk_clientes_email`, exceção sem causa, loggers JDBC `OFF`. Captura de log no 409 de email e na corrida: nenhuma ocorrência do email, nem com outra caixa | ESPRESSO |
+| U3 | Média | A04 | A collation `utf8mb4_0900_ai_ci` junta caixa e acento e não ignora o espaço final (provado). Uma checagem de unicidade feita em memória no Java discorda dela | O Java aprova, o índice recusa, e sem a tradução sai 500. Ou o Java recusa um email que o banco aceitaria | O índice decide, e a consulta prévia, se houver, roda no banco (2.5). Teste com `Ana@Example.com` contra `ana@example.com` (409) e com o próprio email em outra caixa (200). Risco aceito: dois emails que só diferem por acento contam como um, o que é raro e só faz o segundo cadastro ir sem email | ESPRESSO |
+| U4 | Baixa | A03 / A04 | `String.toLowerCase` troca o Kelvin por `k` e transforma `İ` em dois caracteres (provado no JDK 21) | Grava um email que ninguém digitou. Um email de 120 caracteres com `İ` pode passar das 190 posições da coluna e virar 500 (erro 1406), se o `@Email` aceitar `İ` (não verificado) | Minúsculas só em `A` a `Z` ASCII (2.5). Teste com U+212A, U+0130 e U+00A0 no email: o resultado é 400 ou 200 com o valor gravado igual ao enviado fora do ASCII, e nunca 500 | ESPRESSO |
+| U5 | Média, risco a aceitar | A01 / A04 | Extensão do B2 e do E6 à edição: qualquer token válido, inclusive o de usuário desativado até o JWT expirar (8.2), sobrescreve telefone, email, CPF e endereço de qualquer cliente. Não existe dono por objeto, por desenho | Token vazado troca o contato de clientes: orçamento e aviso de veículo pronto vão para o número de quem atacou (e, com o WhatsApp do backlog, sem ninguém perceber). Correção legítima do titular e sabotagem ficam iguais no banco | Aceite da pessoa na P8, estendido à escrita da edição. Mitigação vigente: linha `clientes.editar` com `usuarioId` (6.7). Quando entrar permissão por perfil, revisar quem edita CPF e a expiração do JWT (ADR-004). Teste do 401 com token ausente, malformado, expirado, de outra chave e `alg: none`, com os valores de A intactos pelo `JdbcTemplate` | Pessoa (aceite), CARTOGRAFO (ADR futuro) |
+| U6 | Média, a provar | A04 | Dois `UPDATE` concorrentes que gravam o mesmo valor em índice único, ou valores cruzados em dois índices, podem receber deadlock (1213) em vez de 1062. Hoje nada trata `CannotAcquireLockException` (conferido por `grep`). Não provei o deadlock nesta revisão | Um dos PUT da corrida responde 500, contra o critério 8 | IT da corrida com os três casos da seção 7. Se aparecer 1213, tratamento no handler com mensagem fixa | ESPRESSO, CARTOGRAFO (status) |
+| U7 | Baixa | LGPD | Email único (2.5) num público em que família e empresa dividem email | Pressão no balcão para inventar email (`ana2@...`), que é dado falso no cadastro e contato que não chega | Conduta: o segundo cadastro vai sem email. Texto do BUSSOLA na F35, junto com o do 409 de CPF (2.3) | BUSSOLA |
+| U8 | Baixa, risco a aceitar | A01 | O 409 confirma que um CPF ou email é de cliente da oficina | Nada novo: o mesmo token já lê email pela lista e CPF pelo detalhe (B2). É o mesmo caso do V7 | Aceite junto com a P8. Mitigação: linha `clientes.editar.conflito` com `usuarioId` e `campo` (6.7) | Pessoa |
+| U9 | Baixa | LGPD | O exemplo de telefone do `ClienteRequest` no OpenAPI é `(11) 91234-5678`, com DDD que existe (conferido no código) | Pode ser o celular de alguém, e o exemplo vai para captura de tela e demonstração | Trocar por DDD que não existe, como `(20) 91234-5678` (seção 7, teste e ambiente local), na PR da F10, que mexe no mesmo DTO por reuso | ESPRESSO |
+
+Conferido sem achado, por leitura:
+
+* `ClienteRequest` não tem `id`, e o `toString()` devolve só `ClienteRequest`. Em branco vira NULL no construtor, então email ausente grava NULL e não colide no índice.
+* `Cliente.createdAt` é `insertable = false, updatable = false`, e o builder tem `toString()` fixo.
+* `ClienteService.gravar` já é o ponto único do ADR-020, com `saveAndFlush` e tradução pelo nome da restrição, sem `getMessage()`. A F10 só acrescenta o índice de email.
+* `application.yml`: `org.hibernate.orm.jdbc.error` e `SqlExceptionHelper` em `OFF`.
+* CSRF: a API é stateless com JWT no cabeçalho, sem cookie de sessão, como na 8.1. Não reexecutei.
+* Segredo: a F10 não cria configuração nova. Vale o ADR-009.
+
 ## 9. Pendências e donos
 
 | ID | Pendência | Dono | Bloqueia |
@@ -647,14 +774,15 @@ Conferido sem achado, por leitura:
 | P5 | Datas de OS e pagamento (A6) | CARTOGRAFO | Rotina automática de R1 |
 | P6 | ~~Merge do PR #14 na `main` (A0)~~. **Fechada** na revisão 2: a `main` b1f29fc está em Boot 4.1.2 | Pessoa | — |
 | P7 | Retenção de log de aplicação (seção 7, achado B6): validar os 90 dias e definir onde o log fica quando houver deploy | Pessoa, ANCORA | Primeiro deploy com coletor ou arquivo de log |
-| P8 | Aceite do risco B2 (CPF e endereço inteiros para qualquer token válido, inclusive o de usuário já desativado até o JWT expirar, provado na 8.2) registrado na PR da F08. Na revisão 3, estendido à escrita (E6). Na revisão 5, estendido ao oráculo de placa do 409 (V7) | Pessoa | Merge da F08; a parte de escrita, o merge da F03c |
+| P8 | Aceite do risco B2 (CPF e endereço inteiros para qualquer token válido, inclusive o de usuário já desativado até o JWT expirar, provado na 8.2) registrado na PR da F08. Na revisão 3, estendido à escrita (E6). Na revisão 5, estendido ao oráculo de placa do 409 (V7). Na revisão 6, estendido à edição de qualquer cliente por qualquer token (U5) e ao oráculo de CPF e email do 409 (U8), com aceite antes do merge da F10 | Pessoa | Merge da F08; a parte de escrita, o merge da F03c |
 | P9 | CPF obrigatório ou opcional na criação (2.2, E1). Parecer do VIGIA: opcional | Pessoa, com BUSSOLA (e o contador, se for obrigatório) | Aceite do exemplo `CPF` do US-CLI-16 da F03c |
 | P10 | ~~Índice único em `clientes.cpf` e 409 em fatia própria ou na F03d~~. **Decidida na revisão 4**: entra na própria F03c (2.1, E7). Falta o aceite do ADR-020 pela pessoa. Se ela recusar, a P10 volta a valer como era, bloqueando o primeiro cliente real | ESPRESSO (código e IT), pessoa (aceite) | Merge da F03c |
 | P11 | ~~Regra de troca de dono de veículo (2.1) no card da F04~~. **Fechada na revisão 5**: `cliente_id` imutável depois da criação (2.1), como a premissa 6 do card | BUSSOLA, CARTOGRAFO | — |
 | P12 | Conduta de recadastro do titular anonimizado em parte (2.3, E9) no procedimento da P2 e no texto da F35 | BUSSOLA, ESPRESSO | Primeira anonimização parcial |
 | P13 | Troca de dono de veículo vendido com o dono antigo ativo (2.4, V9). Feature própria; direção recomendada: "baixa" do registro antigo com `ANON<id>` | BUSSOLA e CARTOGRAFO decidem; VIGIA revisa | Primeiro carro vendido entre clientes. Não bloqueia a F04 |
 | P14 | O marcador `ANON<id>` cabe até o veículo 999999 (2.4). Ampliar `placa` em migration aditiva antes disso | CARTOGRAFO | Nada hoje |
-| P15 | Marcador de cliente anonimizado e bloqueio do POST e do PUT de veículo desse cliente (2.4), dentro da feature da P2 | ESPRESSO, VIGIA | P2 |
+| P15 | Marcador de cliente anonimizado e bloqueio do POST e do PUT de veículo desse cliente (2.4), dentro da feature da P2. Na revisão 6, também o bloqueio do PUT de cliente anonimizado por completo e da troca ou retirada do CPF retido do anonimizado em parte (2.5) | ESPRESSO, VIGIA | P2 |
+| P16 | Aceite do email único com 409 no POST e no PUT (2.1 e 2.5). Muda o contrato aprovado da F09: o POST passa a responder 409 `Email ja cadastrado`. Parecer do VIGIA: favorável. Se a pessoa recusar, vale a revisão 3 para o email e os critérios 6, 7 e a parte de email do 8 da F10 caem | Pessoa, com BUSSOLA | Critérios de email da F10 e a migration do índice de email |
 
 ## 10. Como verificar esta política na F03a
 
@@ -714,6 +842,24 @@ Cada item gera evidência executada, com comando e saída na entrega:
 * Log real da API em contêiner depois de um 201 e de um 409, como na 8.2: `grep -c` da placa inteira igual a 0.
 * `git grep -n "ANONIMO" -- apps/api` sem uso como valor de anonimização.
 
+### 10.4 Na F03d (editar, card F10)
+
+Cada item gera evidência executada, com comando e saída na entrega:
+
+* O Flyway aplica V1 até a migration nova do índice de email com `ddl-auto: validate` (IT com Testcontainers). Antes dela, a contagem de duplicados da 2.5 (dúvida 2), sem `SELECT email`.
+* `git grep -nE "LOG\.(info|debug|warn|error|trace)" -- apps/api/src/main`: as linhas novas são só as três da 6.7.
+* Captura de log (`ListAppender` ou `OutputCaptureExtension`) no 200, no 404, no 409 de CPF, no 409 de email, na corrida, no 400 e no 401: as linhas da 6.7 aparecem exatamente no formato da tabela. Nenhuma linha contém o CPF, o telefone ou o email **novos nem os anteriores** (só dígitos, com máscara de digitação, com a máscara 6.2.1, em outra caixa), nem o nome ou o endereço. No 400 e no 401 não há linha `clientes.editar`. Use valores anteriores e novos fáceis de distinguir, para o `not(containsString(...))` não passar por acaso.
+* No corpo de cada 409, `mensagem` exatamente `CPF ja cadastrado` ou `Email ja cadastrado`, sem o valor nas duas formas e sem o id do outro cliente. Depois de cada 400, 401, 404 e 409, os cinco campos de A, lidos pelo `JdbcTemplate`, não mudam.
+* US-CLI-28 e US-CLI-32: o próprio CPF com outra pontuação e o próprio email com outra caixa e espaço nas pontas dão 200, e o email fica gravado em minúsculas.
+* Corrida (U6): os três casos da seção 7, sem nenhum 500.
+* Teste de ataque U1 e US-CLI-30, com B intacto e o `created_at` de A igual ao de antes.
+* Teste U4 com U+212A, U+0130 e U+00A0 no email: nunca 500 e nunca valor gravado diferente do enviado fora do ASCII.
+* POST com email de outro cliente dá 409 `Email ja cadastrado` (P16, premissa 6 do card), e dois POST sem email dão 201.
+* 401 com token ausente, malformado, expirado, de outra chave e `alg: none`.
+* `Cache-Control: no-store` no 200.
+* `git grep -nE "toLowerCase|equalsIgnoreCase" -- apps/api/src/main/java/br/com/mecanicasaojorge/api/mapper apps/api/src/main/java/br/com/mecanicasaojorge/api/service/ClienteService.java`: só o `toLowerCase(Locale.ROOT)` do nome da restrição, que já existe, e nenhum sobre email.
+* Exemplo do OpenAPI do telefone com DDD que não existe (U9).
+
 ## 11. Histórico
 
 | Data | Mudança | Onde |
@@ -725,4 +871,5 @@ Cada item gera evidência executada, com comando e saída na entrega:
 | 2026-11-17 | Revisão do código da F08 (8.2): log real do 200 e do 404 sem CPF nem telefone; B1 fechado, com C1 (`toString` da lista) e C2 (500 preservado no `MissingPathVariableException` de rota) corrigidos; token de usuário desativado lendo CPF inteiro registrado no B2 e no P8. Nada muda em coleta, base legal ou retenção | commit `42d9193` |
 | 2026-11-17 | Revisão 3 (F03c, card F09): unicidade decidida (CPF único quando preenchido, com 409, entrando antes do primeiro cliente real; email, telefone e placa não únicos) e regra de troca de dono de veículo (2.1); parecer de CPF opcional na criação (2.2); telefone obrigatório na API com a coluna NULL; linha de log da criação sem dado, nem mascarado (6.5); regras de validação, normalização, atribuição em massa e corpo ilegível do POST (seção 7); insumo do app para a F35 e aviso de privacidade; achados E1 a E8 (8.3); P4 revista e P9 a P11 novas; roteiro de verificação da F03c (10.2). Base legal e prazos seguem como proposta (P1) | commit `01af04f` |
 | 2026-11-18 | Revisão 4 (F09): a premissa 3 cai e o índice único de CPF com 409 entra na própria F03c (2.1; decisão do VIGIA registrada no ADR-020); resumo de retenção e descarte por dado, regra R5 de texto livre, o que o descarte não faz e o que a F09 entrega para ele (3.1); recadastro de titular anonimizado, provado em MySQL 8.4 (2.3 e 8.4); placa anonimizada na hora no pedido do titular dentro de R1 (seção 5); E7 decidido, E9 novo, P10 decidida, P12 nova e roteiro da 10.2 ampliado. Base legal e prazos seguem como proposta (P1) | commits `1cfecdb` e `ec8de65` |
-| 2026-11-18 | Revisão 5 (F04, Veículos): placa classificada como dado pessoal, e marca, modelo, ano e cor como dado pessoal por associação, com o ciclo do dado (2.4); placa única com 409 e `CHECK` de formato na V7, revogando a linha da revisão 3 (2.1); descarte do veículo junto com o cliente pelo marcador `ANON<id>` no lugar de `ANONIMO`, provado em MySQL 8.4 (2.4, 3.1, seção 4 e 8.5); `cliente_id` imutável depois da criação; máscara de placa `****D23` (6.2.2) e linhas de log da F04 (6.6); regras de API e de app para veículos (seção 7); achados V1 a V10 (8.5); P11 fechada, P13 a P15 novas; roteiro da 10.3. Base legal e prazos seguem como proposta (P1) | esta revisão |
+| 2026-11-18 | Revisão 5 (F04, Veículos): placa classificada como dado pessoal, e marca, modelo, ano e cor como dado pessoal por associação, com o ciclo do dado (2.4); placa única com 409 e `CHECK` de formato na V7, revogando a linha da revisão 3 (2.1); descarte do veículo junto com o cliente pelo marcador `ANON<id>` no lugar de `ANONIMO`, provado em MySQL 8.4 (2.4, 3.1, seção 4 e 8.5); `cliente_id` imutável depois da criação; máscara de placa `****D23` (6.2.2) e linhas de log da F04 (6.6); regras de API e de app para veículos (seção 7); achados V1 a V10 (8.5); P11 fechada, P13 a P15 novas; roteiro da 10.3. Base legal e prazos seguem como proposta (P1) | commits `6886e61` e `d253503` |
+| 2026-11-18 | Revisão 6 (F10, F03d, edição de cliente): cobertura da edição confirmada, com o ciclo do dado no PUT, valor anterior nunca guardado, edição que não reinicia R1 nem R2 e regra R6 de histórico de alteração (2.5). Email único quando preenchido, com 409 no POST e no PUT, revogando a linha de email da revisão 3 (2.1 e 2.5, aceite na P16). Normalização do email só em ASCII. Respostas às três dúvidas do card. Linhas de log do PUT sem valor, nem mascarado, nem anterior (6.7). Regras de API da edição (seção 7). Evidência em MySQL 8.4 e JDK 21 e achados U1 a U9 (8.6). P8 e P15 ampliadas, P16 nova e roteiro da 10.4. Base legal e prazos seguem como proposta (P1) | esta revisão |
