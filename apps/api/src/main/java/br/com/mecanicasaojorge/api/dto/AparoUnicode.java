@@ -1,10 +1,9 @@
 package br.com.mecanicasaojorge.api.dto;
 
 /**
- * Aparo de espacos nas pontas que cobre tambem os espacos Unicode que {@link String#strip()}
- * deixa passar (NBSP U+00A0, U+2007 e U+202F). Usado no email, onde o valor aparado e a chave de
- * unicidade (F03d, achado A1): sem isso, "ana@x.com" e "ana@x.com " seriam clientes
- * diferentes.
+ * Aparo de espacos nas pontas que cobre tambem os espacos Unicode que {@link String#strip()} deixa
+ * passar (NBSP U+00A0, U+2007 e U+202F). Usado no email, onde o valor aparado e a chave de
+ * unicidade (F03d, achado A1): sem isso, "ana@x.com" e "ana@x.com " seriam clientes diferentes.
  */
 public final class AparoUnicode {
 
