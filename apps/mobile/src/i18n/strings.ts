@@ -98,6 +98,8 @@ const strings = {
   'clientes.lista.carregarMais': 'Carregar mais',
   'clientes.lista.carregandoMais': 'Carregando mais clientes…',
   'clientes.lista.erroCarregarMais': 'Não foi possível carregar mais clientes. Tente de novo.',
+  'clientes.lista.falhaAtualizar':
+    'Não foi possível atualizar. Você está vendo a última lista carregada.',
   'clientes.lista.semContato': 'Sem contato cadastrado',
   'clientes.lista.item.dica': 'Abre os dados do cliente',
 
@@ -108,7 +110,8 @@ const strings = {
   'clientes.detalhe.cpf': 'CPF',
   'clientes.detalhe.endereco': 'Endereço',
   'clientes.detalhe.naoInformado': 'Não informado',
-  'clientes.detalhe.cpf.rotuloAcessivel': 'CPF, parcialmente oculto, dígitos visíveis: {digitos}',
+  /** Lido depois do rótulo "CPF:", sem soletrar os asteriscos da máscara. */
+  'clientes.detalhe.cpf.valorAcessivel': 'parcialmente oculto, dígitos visíveis: {digitos}',
   'clientes.detalhe.veiculos.titulo': 'Veículos ({quantidade})',
   'clientes.detalhe.veiculos.vazio.titulo': 'Nenhum veículo cadastrado',
   'clientes.detalhe.veiculos.vazio.mensagem': 'Cadastre o primeiro veículo deste cliente.',
@@ -134,6 +137,9 @@ const strings = {
   'clientes.detalhe.sucesso.veiculoCriado': 'Veículo cadastrado.',
 
   'veiculos.item.dica': 'Abre os dados do veículo',
+  /** A lista do cliente traz só placa, marca e modelo; ano e cor ficam para o detalhe. */
+  'veiculos.item.marcaModelo': '{marca} {modelo}',
+  'veiculos.item.rotulo': '{placa}, {marca} {modelo}',
 } as const;
 
 export type ChaveTexto = keyof typeof strings;
