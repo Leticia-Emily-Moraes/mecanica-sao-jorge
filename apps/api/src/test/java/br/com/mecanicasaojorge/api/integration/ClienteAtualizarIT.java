@@ -295,12 +295,26 @@ class ClienteAtualizarIT {
 
   // W5: caracterizacao do U+200B (nao e aparado pelo codigo; o indice do MySQL o ignora)
 
-  @Test
-  void shouldCharacterizeZeroWidthSpaceAtEmailEndWhenEmailBelongsToAnother() throws Exception {
-    enviar(idA, json("Ana Nova", "99999999999", "11900000000", "beto@example.com\\u200B", "X"))
-        .andExpect(status().isConflict());
+  @ParameterizedTest
+  @ValueSource(
+      strings = {"beto@example.com\\u200B", "\\u200Bbeto@example.com", "beto@exam\\u200Bple.com"})
+  void shouldReturn409AndChangeNothingWhenEmailOfAnotherHasZeroWidthSpace(String email)
+      throws Exception {
+    enviar(idA, json("Ana Nova", CPF_C, "20912345678", email, "X"))
+        .andExpect(status().isConflict())
+        .andExpect(jsonPath("$.mensagem").value("Email ja cadastrado"));
 
     assertThatClienteAIsUnchanged();
+  }
+
+  @Test
+  void shouldCharacterizeZeroWidthSpaceInNewEmailAsStoredWithTheInvisibleCharacter()
+      throws Exception {
+    // Risco aceito do W5 (politica 8.7): sem conflito, o U+200B chega ao banco.
+    enviar(idA, json("Ana Nova", CPF_A, "20912345678", "ana.nova@example.com\\u200B", null))
+        .andExpect(status().isOk());
+
+    assertThat(linha(idA)).containsEntry("email", "ana.nova@example.com\u200B");
   }
 
   // US-CLI-32
@@ -398,6 +412,7 @@ class ClienteAtualizarIT {
         .andExpect(jsonPath("$.status").value(401));
 
     assertThatClienteAIsUnchanged();
+    assertThatNoCustomerEditLog();
   }
 
   @Test
@@ -411,6 +426,7 @@ class ClienteAtualizarIT {
         .andExpect(jsonPath("$.status").value(401));
 
     assertThatClienteAIsUnchanged();
+    assertThatNoCustomerEditLog();
   }
 
   @Test
@@ -430,6 +446,22 @@ class ClienteAtualizarIT {
         .andExpect(jsonPath("$.status").value(401));
 
     assertThatClienteAIsUnchanged();
+    assertThatNoCustomerEditLog();
+  }
+
+  @Test
+  void shouldReturn200WhenTokenFromSameHelperIsValidSoThe401TestsIsolateExpiryAndKey()
+      throws Exception {
+    // Controle positivo do W3: sem ele, os 401 acima poderiam vir de outro defeito do token.
+    Instant agora = Instant.now();
+
+    enviarComToken(tokenHs256(SEGREDO_IT, agora, agora.plusSeconds(600)))
+        .andExpect(status().isOk());
+
+    assertThat(linha(idA)).containsEntry("nome", "Ana Nova");
+    assertThat(logs.list)
+        .extracting(ILoggingEvent::getFormattedMessage)
+        .contains("clientes.editar clienteId=" + idA + " usuarioId=1");
   }
 
   // US-CLI-30
@@ -552,6 +584,12 @@ class ClienteAtualizarIT {
     return Base64.getUrlEncoder()
         .withoutPadding()
         .encodeToString(texto.getBytes(StandardCharsets.UTF_8));
+  }
+
+  private void assertThatNoCustomerEditLog() {
+    assertThat(logs.list)
+        .extracting(ILoggingEvent::getFormattedMessage)
+        .noneMatch(m -> m.startsWith("clientes.editar"));
   }
 
   private void assertThatClienteAIsUnchanged() {
