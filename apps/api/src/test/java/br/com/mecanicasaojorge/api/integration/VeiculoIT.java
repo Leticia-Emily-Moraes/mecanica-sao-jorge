@@ -534,6 +534,43 @@ class VeiculoIT {
   }
 
   @Test
+  void shouldStoreBrandModelAndColorWithoutEdgeSpacesWhenPutComesWithSpaces() throws Exception {
+    long id = inserirVeiculo(clienteId, PLACA);
+
+    editar(
+            id,
+            "{\"placa\":\"ABC1D23\",\"marca\":\" Fiat \",\"modelo\":\"\\tPalio \",\"ano\":2015,"
+                + "\"cor\":\"  Preto\"}")
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.marca").value("Fiat"))
+        .andExpect(jsonPath("$.modelo").value("Palio"))
+        .andExpect(jsonPath("$.cor").value("Preto"));
+
+    assertThat(
+            jdbcTemplate.queryForObject(
+                "SELECT CONCAT(marca, '|', modelo, '|', cor) FROM veiculos WHERE id = ?",
+                String.class,
+                id))
+        .isEqualTo("Fiat|Palio|Preto");
+  }
+
+  @Test
+  void shouldReturn400AndKeepBrandWhenPutBrandHasOnlySpaces() throws Exception {
+    long id = inserirVeiculo(clienteId, PLACA);
+
+    editar(id, "{\"placa\":\"ABC1D23\",\"marca\":\"   \",\"modelo\":\"Uno\",\"ano\":2015}")
+        .andExpect(status().isBadRequest())
+        .andExpect(jsonPath("$.erros.length()").value(1))
+        .andExpect(jsonPath("$.erros[0].campo").value("marca"))
+        .andExpect(jsonPath("$.erros[0].chave").value("veiculo.form.marca.obrigatoria"));
+
+    assertThat(
+            jdbcTemplate.queryForObject(
+                "SELECT marca FROM veiculos WHERE id = ?", String.class, id))
+        .isEqualTo("Fiat");
+  }
+
+  @Test
   void shouldReturn404WhenEditingMissingVehicle() throws Exception {
     editar(999999L, corpo(PLACA))
         .andExpect(status().isNotFound())
