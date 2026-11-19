@@ -26,20 +26,27 @@ public record VeiculoRequest(
         @NotBlank(message = VeiculoChaves.PLACA_OBRIGATORIA)
         @Pattern(regexp = PlacaVeiculo.REGEX, message = VeiculoChaves.PLACA_ERRO)
         String placa,
-    @Schema(description = "Ate 100 caracteres", example = "Fiat")
+    @Schema(description = "Ate 100 caracteres; espacos nas pontas sao removidos", example = "Fiat")
         @NotBlank(message = VeiculoChaves.MARCA_OBRIGATORIA)
         @Size(max = 100, message = VeiculoChaves.MARCA_TAMANHO)
         String marca,
-    @Schema(description = "Ate 100 caracteres", example = "Uno")
+    @Schema(description = "Ate 100 caracteres; espacos nas pontas sao removidos", example = "Uno")
         @NotBlank(message = VeiculoChaves.MODELO_OBRIGATORIO)
         @Size(max = 100, message = VeiculoChaves.MODELO_TAMANHO)
         String modelo,
-    @Schema(description = "De 1900 ate o ano corrente + 1", example = "2015")
+    @Schema(
+            description =
+                "Inteiro JSON de 1900 ate o ano corrente + 1. Decimal (2015.9) ou texto (\"2015\")"
+                    + " respondem 400 com a chave veiculo.form.ano.tipo",
+            example = "2015")
         @NotNull(message = VeiculoChaves.ANO_OBRIGATORIO)
         @AnoModelo
         @JsonDeserialize(using = AnoInteiroDeserializer.class)
         Integer ano,
-    @Schema(description = "Opcional, ate 40 caracteres", example = "Prata")
+    @Schema(
+            description =
+                "Opcional, ate 40 caracteres. Omitida ou em branco no PUT, a cor fica vazia",
+            example = "Prata")
         @Size(max = 40, message = VeiculoChaves.COR_TAMANHO)
         String cor) {
 
