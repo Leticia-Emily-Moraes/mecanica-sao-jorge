@@ -9,8 +9,7 @@ import org.junit.jupiter.params.provider.ValueSource;
 class AparoUnicodeTest {
 
   @ParameterizedTest
-  @ValueSource(
-      strings = {" a@b.com", "a@b.com ", " a@b.com ", " \t a@b.com \n"})
+  @ValueSource(strings = {" a@b.com", "a@b.com ", " a@b.com ", " \t a@b.com \n"})
   void shouldRemoveWhitespaceAndUnicodeSpacesFromTheEdges(String valor) {
     assertThat(AparoUnicode.aparar(valor)).isEqualTo("a@b.com");
   }
@@ -28,8 +27,7 @@ class AparoUnicodeTest {
 
   @Test
   void shouldTurnEmailMadeOnlyOfNbspIntoNullInRequest() {
-    ClienteRequest request =
-        new ClienteRequest("Ana", "12345678900", "11988887777", " ", null);
+    ClienteRequest request = new ClienteRequest("Ana", "12345678900", "11988887777", " ", null);
     assertThat(request.email()).isNull();
   }
 }
