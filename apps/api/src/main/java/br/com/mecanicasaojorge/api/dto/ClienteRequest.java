@@ -51,7 +51,7 @@ public record ClienteRequest(
     telefone = emBrancoParaNulo(telefone);
     // Espaco nas pontas do email e ruido de digitacao, nao formato invalido: aparar antes do @Email
     // deixa o 409 de email repetido valer igual com ou sem espaco (F03d, US-CLI-31).
-    email = emBrancoParaNulo(email == null ? null : email.strip());
+    email = emBrancoParaNulo(AparoUnicode.aparar(email));
     endereco = emBrancoParaNulo(endereco);
   }
 
