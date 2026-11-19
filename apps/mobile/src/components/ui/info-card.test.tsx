@@ -1,5 +1,5 @@
 import { render, screen } from '@testing-library/react-native';
-import { StyleSheet } from 'react-native';
+import { StyleSheet, Text } from 'react-native';
 
 import { findAncestorStyle } from '@/test-utils/find-ancestor-with-style';
 import type { TestStyle } from '@/test-utils/flat-style';
@@ -73,6 +73,40 @@ describe('InfoCard', () => {
       color: '#1E3A3F',
       textAlign: 'right',
     });
+  });
+
+  it('should read the accessible value instead of the shown one when it is given', () => {
+    render(
+      <InfoCard
+        rows={[{ label: 'CPF', value: '***.*56.7**-**', accessibleValue: 'dígitos 5, 6, 7' }]}
+      />,
+    );
+
+    expect(screen.getByLabelText('CPF: dígitos 5, 6, 7')).toBeTruthy();
+    expect(screen.queryByLabelText(/\*/)).toBeNull();
+  });
+
+  it('should draw a row without data in the secondary color and regular weight', () => {
+    render(<InfoCard rows={[{ label: 'E-mail', value: 'Não informado', muted: true }]} />);
+
+    expect(
+      StyleSheet.flatten(screen.getByText('Não informado').props.style as TestStyle),
+    ).toMatchObject({ fontFamily: 'Inter_400Regular', color: '#6E6A66' });
+  });
+
+  it('should show the header with its leading element and the title as a header', () => {
+    render(
+      <InfoCard rows={LINHAS} header={{ leading: <Text>ícone</Text>, title: 'Fulano de Teste' }} />,
+    );
+
+    expect(screen.getByText('ícone')).toBeTruthy();
+    expect(screen.getByRole('header', { name: 'Fulano de Teste' })).toBeTruthy();
+  });
+
+  it('should not draw a header when none is given', () => {
+    render(<InfoCard rows={LINHAS} />);
+
+    expect(screen.queryByRole('header')).toBeNull();
   });
 
   it('should render an empty card when there are no rows', () => {

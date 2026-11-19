@@ -1,3 +1,4 @@
+import { Ionicons } from '@expo/vector-icons';
 import { fireEvent, render, screen } from '@testing-library/react-native';
 import { AccessibilityInfo, ActivityIndicator, Modal, StyleSheet } from 'react-native';
 
@@ -93,6 +94,18 @@ describe('StateView', () => {
 
       expect(screen.getByText('Nenhum cliente cadastrado ainda')).toBeTruthy();
       expect(screen.getByText('Cadastre o primeiro cliente para começar.')).toBeTruthy();
+    });
+
+    it('should draw the document icon by default', () => {
+      render(<StateView state="empty" title="Nenhum cliente cadastrado ainda" />);
+
+      expect(screen.UNSAFE_getByType(Ionicons).props.name).toBe('document-text-outline');
+    });
+
+    it('should draw the icon given by the screen', () => {
+      render(<StateView state="empty" title="Nenhum cliente" icon="people-outline" />);
+
+      expect(screen.UNSAFE_getByType(Ionicons).props.name).toBe('people-outline');
     });
 
     it('should render no action button when no action is given', () => {

@@ -1,7 +1,7 @@
 import { render, screen } from '@testing-library/react-native';
 import { StyleSheet, Text, type ViewStyle } from 'react-native';
 
-import { color, spacing } from '@/theme/tokens';
+import { color, layout, spacing } from '@/theme/tokens';
 
 import { ScreenContainer } from './screen-container';
 
@@ -56,6 +56,30 @@ describe('ScreenContainer', () => {
     );
 
     expect(rootStyle().justifyContent).toBeUndefined();
+  });
+
+  it('should not limit the width by default', () => {
+    render(
+      <ScreenContainer>
+        <Text>conteúdo</Text>
+      </ScreenContainer>,
+    );
+
+    expect(rootStyle().maxWidth).toBeUndefined();
+  });
+
+  it('should limit the content to a centered column when constrained is set', () => {
+    render(
+      <ScreenContainer constrained>
+        <Text>conteúdo</Text>
+      </ScreenContainer>,
+    );
+
+    expect(rootStyle()).toMatchObject({
+      width: '100%',
+      maxWidth: layout.contentMaxWidth,
+      alignSelf: 'center',
+    });
   });
 
   it('should center vertically when centered is set', () => {

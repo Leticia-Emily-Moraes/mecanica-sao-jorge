@@ -4,10 +4,10 @@ import { StyleSheet, Text, View } from 'react-native';
 
 import { color, iconSize, layout, size, typography } from '@/theme/tokens';
 
-type IconName = ComponentProps<typeof Ionicons>['name'];
+export type StateIconName = ComponentProps<typeof Ionicons>['name'];
 
 export interface StateIllustrationProps {
-  readonly icon: IconName;
+  readonly icon: StateIconName;
   readonly title: string;
   readonly message?: string;
   /** Espaço entre o círculo e o título (16 no Início I1, 24 no erro P2). */

@@ -72,6 +72,30 @@ describe('ScreenHeader', () => {
     expect(onPress).toHaveBeenCalledTimes(1);
   });
 
+  it('should show the icon action with its accessible name and call its handler', () => {
+    const onPress = jest.fn();
+    renderHeader({
+      title: 'Maria Souza',
+      back: { label: 'Voltar', onPress: jest.fn() },
+      action: { label: 'Editar cliente', icon: 'create-outline', onPress },
+    });
+
+    fireEvent.press(screen.getByRole('button', { name: 'Editar cliente' }));
+
+    expect(onPress).toHaveBeenCalledTimes(1);
+  });
+
+  it('should show a single trailing button when both user and action are given', () => {
+    renderHeader({
+      title: 'Maria Souza',
+      user: { label: 'Perfil', onPress: jest.fn() },
+      action: { label: 'Editar cliente', icon: 'create-outline', onPress: jest.fn() },
+    });
+
+    expect(screen.getAllByRole('button')).toHaveLength(1);
+    expect(screen.getByRole('button', { name: 'Editar cliente' })).toBeTruthy();
+  });
+
   it('should keep the focus order back button, title, user button', () => {
     renderHeader({
       title: 'Meio',
