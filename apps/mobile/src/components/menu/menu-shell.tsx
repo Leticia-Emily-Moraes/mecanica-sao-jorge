@@ -10,14 +10,21 @@ export interface MenuShellProps {
   readonly children: ReactNode;
   readonly selectedTab?: MenuTabKey | null;
   readonly onSelectTab?: (key: MenuTabKey) => void;
+  /** Falso em detalhe e formulários, que não têm barra inferior no desenho. */
+  readonly showTabBar?: boolean;
 }
 
 /** Casca do menu principal: área de conteúdo acima e a tab bar fixa embaixo. */
-export function MenuShell({ children, selectedTab, onSelectTab }: MenuShellProps): ReactElement {
+export function MenuShell({
+  children,
+  selectedTab,
+  onSelectTab,
+  showTabBar = true,
+}: MenuShellProps): ReactElement {
   return (
     <View style={styles.container}>
       <View style={styles.content}>{children}</View>
-      <MenuTabBar selectedKey={selectedTab} onSelect={onSelectTab} />
+      {showTabBar ? <MenuTabBar selectedKey={selectedTab} onSelect={onSelectTab} /> : null}
     </View>
   );
 }

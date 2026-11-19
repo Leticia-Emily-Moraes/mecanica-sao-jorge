@@ -16,7 +16,7 @@ import { useMenuTabs } from '@/hooks/use-menu-tabs';
 export default function MenuLayout(): ReactElement | null {
   const { status } = useAuth();
   const router = useRouter();
-  const { selectedTab, selectTab } = useMenuTabs();
+  const { selectedTab, showTabBar, selectTab } = useMenuTabs();
 
   useEffect(() => {
     if (status.tipo !== 'autenticado' && status.tipo !== 'carregando') {
@@ -29,7 +29,7 @@ export default function MenuLayout(): ReactElement | null {
   }
 
   return (
-    <MenuShell selectedTab={selectedTab} onSelectTab={selectTab}>
+    <MenuShell selectedTab={selectedTab} onSelectTab={selectTab} showTabBar={showTabBar}>
       <Slot />
     </MenuShell>
   );
