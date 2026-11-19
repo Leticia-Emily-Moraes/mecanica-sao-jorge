@@ -16,6 +16,7 @@ import org.hibernate.exception.ConstraintViolationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.dao.PessimisticLockingFailureException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -32,6 +33,7 @@ public class ClienteService {
 
   private static final String INDICE_CPF = "uk_clientes_cpf";
   private static final String INDICE_EMAIL = "uk_clientes_email";
+  private static final String CAMPO_CONCORRENCIA = "concorrencia";
 
   private static final Sort ORDEM_PADRAO = Sort.by(Sort.Order.asc("nome"), Sort.Order.asc("id"));
 
@@ -134,6 +136,10 @@ public class ClienteService {
       throw ex;
     } catch (EmailJaCadastradoException ex) {
       logarConflito(id, usuarioId, "email");
+      throw ex;
+    } catch (PessimisticLockingFailureException ex) {
+      // Deadlock ou espera de lock (ADR-027, regra 3): so o rastro; o handler global responde 409.
+      logarConflito(id, usuarioId, CAMPO_CONCORRENCIA);
       throw ex;
     }
     LOG.info("clientes.editar clienteId={} usuarioId={}", id, usuarioId);
