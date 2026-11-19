@@ -190,5 +190,5 @@ Conferi o `/v3/api-docs` da execução:
 - **P16 (pessoa):** aceite do email único no `POST` e no `PUT`. Sem ele, o 409 de email e a normalização caem.
 - **Base com dados:** a V8 falha se já houver email repetido (ver o `CHANGELOG.md`). Não testei contra base com dados.
 - **Verificado só por teste (2026-11-19):** `AparoUnicodeTest` (7 testes) e `ClienteAtualizarIT` (25) e `ClienteCriarIT` (30), com MySQL 8.4 em Testcontainers: 0 falhas. Cobrem NBSP nas pontas do email no `PUT` e no `POST`. Não há chamada `curl` com NBSP.
-- **U+200B (largura zero):** não é aparado, mas agora tem teste de caracterização no `ClienteAtualizarIT`: no fim de um email que já é de outro cliente, o `PUT` responde `409`, porque o índice do MySQL o ignora.
+- **U+200B (largura zero):** não é aparado, mas agora tem teste de caracterização no `ClienteAtualizarIT`: no início, no fim ou no meio do domínio de um email que já é de outro cliente, o `PUT` responde `409`, porque o índice do MySQL o ignora. Sem conflito, o `PUT` responde `200` e o email é gravado com o U+200B (risco aceito).
 - **Não verificado:** comportamento do `@Email` com caracteres fora do ASCII e o 500 do `PUT`.

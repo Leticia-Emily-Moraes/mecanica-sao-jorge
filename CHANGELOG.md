@@ -81,9 +81,11 @@ Só API e contrato. A tela de edição é da F35. Referência com exemplos reais
 - Deadlock real do MySQL: não consegui provocá-lo nos testes de corrida. O
   `409` de deadlock está testado só com exceção simulada.
 - U+200B (largura zero) no email não é aparado pelo código. Teste de
-  caracterização (`ClienteAtualizarIT`): `U+200B` no fim de um email que já
-  pertence a outro cliente responde `409`, porque o índice único do MySQL o
-  ignora na comparação. Não passa na unicidade.
+  caracterização (`ClienteAtualizarIT`): `U+200B` no início, no fim ou no
+  meio do domínio de um email que já pertence a outro cliente responde `409`,
+  porque o índice único do MySQL o ignora na comparação. Não passa na
+  unicidade. Sem conflito, o `PUT` responde `200` e grava o email com o
+  `U+200B` (risco aceito, W5 e X3 da política de dados do cliente).
 - A linha de log `campo=concorrencia` (conflito por gravação simultânea) estava
   não implementada na entrega anterior; agora está no `ClienteService` e
   coberta por teste unitário (`ClienteAtualizarServiceTest`). Vista rodando só
