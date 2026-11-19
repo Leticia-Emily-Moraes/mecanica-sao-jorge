@@ -135,8 +135,20 @@ class VeiculoRequestTest {
   }
 
   @Test
-  void shouldPublishTenDistinctKeysInTheAgreedFormat() {
-    assertThat(VeiculoChaves.TODAS).hasSize(10).doesNotHaveDuplicates();
+  void shouldStripBrandModelAndColorEdgesInConstructor() {
+    VeiculoRequest request = requisicao("ABC1D23", " Fiat ", "\tUno  ", 2015, " Prata ");
+
+    assertThat(request.marca()).isEqualTo("Fiat");
+    assertThat(request.modelo()).isEqualTo("Uno");
+    assertThat(request.cor()).isEqualTo("Prata");
+    assertThat(requisicao("ABC1D23", "Fiat", "Grand Siena", 2015, null).modelo())
+        .isEqualTo("Grand Siena");
+  }
+
+  @Test
+  void shouldPublishElevenDistinctKeysInTheAgreedFormat() {
+    assertThat(VeiculoChaves.TODAS).hasSize(11).contains(VeiculoChaves.ANO_TIPO);
+    assertThat(VeiculoChaves.TODAS).doesNotHaveDuplicates();
     assertThat(VeiculoChaves.TODAS).allMatch(chave -> FORMATO_CHAVE.matcher(chave).matches());
   }
 

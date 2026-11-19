@@ -6,6 +6,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
+import tools.jackson.databind.annotation.JsonDeserialize;
 
 /**
  * Entrada de criacao e edicao de veiculo (F04, ADR-022 e ADR-024). Tem so placa, marca, modelo, ano
@@ -36,6 +37,7 @@ public record VeiculoRequest(
     @Schema(description = "De 1900 ate o ano corrente + 1", example = "2015")
         @NotNull(message = VeiculoChaves.ANO_OBRIGATORIO)
         @AnoModelo
+        @JsonDeserialize(using = AnoInteiroDeserializer.class)
         Integer ano,
     @Schema(description = "Opcional, ate 40 caracteres", example = "Prata")
         @Size(max = 40, message = VeiculoChaves.COR_TAMANHO)
@@ -43,9 +45,14 @@ public record VeiculoRequest(
 
   public VeiculoRequest {
     placa = emBrancoParaNulo(PlacaVeiculo.normalizar(placa));
-    marca = emBrancoParaNulo(marca);
-    modelo = emBrancoParaNulo(modelo);
-    cor = emBrancoParaNulo(cor);
+    marca = aparadoOuNulo(marca);
+    modelo = aparadoOuNulo(modelo);
+    cor = aparadoOuNulo(cor);
+  }
+
+  /** Apara as pontas (ADR-024, regra 6); em branco vira nulo, entao {@code cor} grava NULL. */
+  private static String aparadoOuNulo(String valor) {
+    return valor == null || valor.isBlank() ? null : valor.strip();
   }
 
   private static String emBrancoParaNulo(String valor) {
