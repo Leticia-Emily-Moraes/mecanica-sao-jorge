@@ -6,9 +6,9 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { AccessProfileBadge } from '@/components/perfil/access-profile-badge';
 import { describeAccessProfile } from '@/components/perfil/access-profile';
-import { Avatar } from '@/components/perfil/avatar';
-import { getInitials } from '@/components/perfil/get-initials';
-import { InfoCard } from '@/components/perfil/info-card';
+import { Avatar } from '@/components/ui/avatar';
+import { InfoCard } from '@/components/ui/info-card';
+import { getInitials } from '@/formatters/get-initials';
 import { Button } from '@/components/ui/button';
 import { ConfirmDialog } from '@/components/ui/confirm-dialog';
 import { ScreenContainer } from '@/components/ui/screen-container';
