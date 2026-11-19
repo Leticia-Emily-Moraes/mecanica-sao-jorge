@@ -12,13 +12,18 @@ import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.read.ListAppender;
+import com.nimbusds.jose.jwk.source.ImmutableSecret;
+import java.nio.charset.StandardCharsets;
+import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import javax.crypto.spec.SecretKeySpec;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -31,6 +36,12 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.http.MediaType;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.security.oauth2.jose.jws.MacAlgorithm;
+import org.springframework.security.oauth2.jwt.JwsHeader;
+import org.springframework.security.oauth2.jwt.JwtClaimsSet;
+import org.springframework.security.oauth2.jwt.JwtEncoder;
+import org.springframework.security.oauth2.jwt.JwtEncoderParameters;
+import org.springframework.security.oauth2.jwt.NimbusJwtEncoder;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
@@ -55,6 +66,7 @@ class ClienteAtualizarIT {
   private static final String CPF_B = "22222222222";
   private static final String CPF_C = "33333333333";
   private static final String TEL = "11912345678";
+  private static final String SEGREDO_IT = "it-test-secret-nao-usar-em-producao-0123456789";
 
   @Container
   static final MySQLContainer<?> MYSQL =
@@ -68,7 +80,7 @@ class ClienteAtualizarIT {
     registry.add("spring.datasource.url", MYSQL::getJdbcUrl);
     registry.add("spring.datasource.username", MYSQL::getUsername);
     registry.add("spring.datasource.password", MYSQL::getPassword);
-    registry.add("jwt.secret", () -> "it-test-secret-nao-usar-em-producao-0123456789");
+    registry.add("jwt.secret", () -> SEGREDO_IT);
   }
 
   @Autowired private MockMvc mockMvc;
@@ -263,8 +275,8 @@ class ClienteAtualizarIT {
         "beto@example.com\\u00A0",
         "\\u2007beto@example.com\\u202F"
       })
-  void shouldReturn409NamingEmailWhenEmailBelongsToAnotherAndHasUnicodeSpaceAtTheEdges(
-      String email) throws Exception {
+  void shouldReturn409NamingEmailWhenEmailBelongsToAnotherAndHasUnicodeSpaceAtTheEdges(String email)
+      throws Exception {
     enviar(idA, json("Ana Nova", "99999999999", "11900000000", email, "X"))
         .andExpect(status().isConflict())
         .andExpect(jsonPath("$.mensagem").value("Email ja cadastrado"));
@@ -279,6 +291,16 @@ class ClienteAtualizarIT {
         .andExpect(jsonPath("$.email").value("ana@example.com"));
 
     assertThat(linha(idA)).containsEntry("email", "ana@example.com");
+  }
+
+  // W5: caracterizacao do U+200B (nao e aparado pelo codigo; o indice do MySQL o ignora)
+
+  @Test
+  void shouldCharacterizeZeroWidthSpaceAtEmailEndWhenEmailBelongsToAnother() throws Exception {
+    enviar(idA, json("Ana Nova", "99999999999", "11900000000", "beto@example.com\\u200B", "X"))
+        .andExpect(status().isConflict());
+
+    assertThatClienteAIsUnchanged();
   }
 
   // US-CLI-32
@@ -360,6 +382,50 @@ class ClienteAtualizarIT {
                 .header("Authorization", "Bearer abc.def.ghi")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(corpo))
+        .andExpect(status().isUnauthorized())
+        .andExpect(jsonPath("$.status").value(401));
+
+    assertThatClienteAIsUnchanged();
+  }
+
+  @Test
+  void shouldReturn401AndChangeNothingWhenTokenIsExpiredWithCorrectKey() throws Exception {
+    Instant agora = Instant.now();
+    String token = tokenHs256(SEGREDO_IT, agora.minusSeconds(3600), agora.minusSeconds(600));
+
+    enviarComToken(token)
+        .andExpect(status().isUnauthorized())
+        .andExpect(jsonPath("$.status").value(401));
+
+    assertThatClienteAIsUnchanged();
+  }
+
+  @Test
+  void shouldReturn401AndChangeNothingWhenTokenIsSignedWithAnotherKey() throws Exception {
+    Instant agora = Instant.now();
+    String token =
+        tokenHs256("outra-chave-nao-usar-em-producao-0123456789ab", agora, agora.plusSeconds(600));
+
+    enviarComToken(token)
+        .andExpect(status().isUnauthorized())
+        .andExpect(jsonPath("$.status").value(401));
+
+    assertThatClienteAIsUnchanged();
+  }
+
+  @Test
+  void shouldReturn401AndChangeNothingWhenTokenUsesAlgNone() throws Exception {
+    Instant agora = Instant.now();
+    String cabecalho = base64Url("{\"alg\":\"none\",\"typ\":\"JWT\"}");
+    String corpoToken =
+        base64Url(
+            "{\"sub\":\"1\",\"iat\":"
+                + agora.getEpochSecond()
+                + ",\"exp\":"
+                + agora.plusSeconds(600).getEpochSecond()
+                + "}");
+
+    enviarComToken(cabecalho + "." + corpoToken + ".")
         .andExpect(status().isUnauthorized())
         .andExpect(jsonPath("$.status").value(401));
 
@@ -463,6 +529,29 @@ class ClienteAtualizarIT {
                 org.springframework.dao.DuplicateKeyException.class,
                 () -> inserir("Repetido", "60000000003", "ana@example.com", null)))
         .isNotNull();
+  }
+
+  private ResultActions enviarComToken(String token) throws Exception {
+    return mockMvc.perform(
+        put(URL + "/" + idA)
+            .header("Authorization", "Bearer " + token)
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(json("Ana Nova", CPF_A, TEL, null, null)));
+  }
+
+  private static String tokenHs256(String segredo, Instant emitidoEm, Instant expiraEm) {
+    SecretKeySpec chave = new SecretKeySpec(segredo.getBytes(StandardCharsets.UTF_8), "HmacSHA256");
+    JwtEncoder encoder = new NimbusJwtEncoder(new ImmutableSecret<>(chave));
+    JwtClaimsSet claims =
+        JwtClaimsSet.builder().subject("1").issuedAt(emitidoEm).expiresAt(expiraEm).build();
+    JwsHeader cabecalho = JwsHeader.with(MacAlgorithm.HS256).build();
+    return encoder.encode(JwtEncoderParameters.from(cabecalho, claims)).getTokenValue();
+  }
+
+  private static String base64Url(String texto) {
+    return Base64.getUrlEncoder()
+        .withoutPadding()
+        .encodeToString(texto.getBytes(StandardCharsets.UTF_8));
   }
 
   private void assertThatClienteAIsUnchanged() {
