@@ -30,7 +30,7 @@ Peça o token em `POST /api/v1/auth/login` e envie `Authorization: Bearer <token
 - **O `id` vem só do caminho.** `id`, `createdAt` ou qualquer campo desconhecido no corpo é ignorado.
 - **Mesmas validações do `POST`.** O corpo é o mesmo `ClienteRequest`.
 - **CPF** vale com ou sem máscara e é gravado só com dígitos. **Telefone** idem.
-- **Email** perde os espaços das pontas e as letras `A` a `Z` viram minúsculas. Outras letras (acentos, por exemplo) não mudam. "Espaço" inclui o espaço sem quebra (NBSP, U+00A0), U+2007 e U+202F. **Caractere de largura zero (U+200B) não é aparado**: `"beto@example.com​"` é tratado como outro email.
+- **Email** perde os espaços das pontas e as letras `A` a `Z` viram minúsculas. Outras letras (acentos, por exemplo) não mudam. "Espaço" inclui o espaço sem quebra (NBSP, U+00A0), U+2007 e U+202F. **Caractere de largura zero (U+200B) não é aparado**, mas o índice único do MySQL o ignora na comparação: `"beto@example.com​"` colide com `beto@example.com` e responde `409`.
 - **CPF e email são únicos entre clientes.** A comparação ignora o próprio cliente: reenviar o seu CPF ou email, com outra pontuação ou caixa, não gera conflito.
 - **Última gravação vence.** Não há controle de concorrência otimista: duas edições do mesmo cliente não se avisam.
 - **Nada do valor antigo é guardado** (log, coluna ou histórico).
@@ -190,5 +190,5 @@ Conferi o `/v3/api-docs` da execução:
 - **P16 (pessoa):** aceite do email único no `POST` e no `PUT`. Sem ele, o 409 de email e a normalização caem.
 - **Base com dados:** a V8 falha se já houver email repetido (ver o `CHANGELOG.md`). Não testei contra base com dados.
 - **Verificado só por teste (2026-11-19):** `AparoUnicodeTest` (7 testes) e `ClienteAtualizarIT` (25) e `ClienteCriarIT` (30), com MySQL 8.4 em Testcontainers: 0 falhas. Cobrem NBSP nas pontas do email no `PUT` e no `POST`. Não há chamada `curl` com NBSP.
-- **Não coberto:** U+200B (largura zero) não é aparado nem testado.
+- **U+200B (largura zero):** não é aparado, mas agora tem teste de caracterização no `ClienteAtualizarIT`: no fim de um email que já é de outro cliente, o `PUT` responde `409`, porque o índice do MySQL o ignora.
 - **Não verificado:** comportamento do `@Email` com caracteres fora do ASCII e o 500 do `PUT`.
