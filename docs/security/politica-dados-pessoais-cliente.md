@@ -827,6 +827,50 @@ Conferido sem achado, por leitura em `738f04b`:
 * `SecurityConfig`: `PUBLIC_PATHS` continua só com o login e a documentação.
 * Segredo: a F10 não cria configuração nova, e os testes usam segredo fictício de teste (ADR-009).
 
+### 8.8 Revisão do código da segunda rodada da F10 (2026-11-19)
+
+Escopo: os commits `4f7a127` a `bd7962d` do ESPRESSO (W2, W3, W4, W5, CHANGELOG e evidência das 100 rodadas), revisados no ramo `feat/f03d-clientes-editar`. Os testes e o estilo que acrescentei estão em `8fa0d3c` e `3caf42c`. Coleta, base legal, retenção e descarte não mudam, por isso esta seção não abre revisão nova da política.
+
+#### Evidência executada (2026-11-19)
+
+| Comando | Resultado observado |
+|---|---|
+| `apps/api/mvnw -f apps/api/pom.xml verify -Dtest=NONE -Dsurefire.failIfNoSpecifiedTests=false -Dit.test=ClienteAtualizarIT` | `Tests run: 33, Failures: 0, Errors: 0, Skipped: 0`, `BUILD SUCCESS` (MySQL 8.4 via Testcontainers) |
+| `apps/api/mvnw -f apps/api/pom.xml checkstyle:check` | `You have 0 Checkstyle violations.`, `BUILD SUCCESS` |
+| `apps/api/mvnw -f apps/api/pom.xml spotless:check`, antes de `3caf42c` | `BUILD FAILURE`: a única violação é `AparoUnicodeTest.java`, criado na F10 (`4b680c8`) |
+| O mesmo comando, depois de `3caf42c` | `BUILD SUCCESS`. U+00A0, U+2007 e U+202F do arquivo contados antes e depois: 4, 2 e 1 nos dois casos |
+| `apps/api/mvnw -f apps/api/pom.xml clean verify` | 249 testes unitários e 142 de integração, 0 falhas, `BUILD SUCCESS` |
+| `gitleaks git --log-opts="7250be2..HEAD" --config .gitleaks.toml --redact .` | `15 commits scanned`, `no leaks found` (antes dos meus dois commits, que só mexem em teste) |
+| `git diff --stat 7250be2..HEAD -- apps/api/pom.xml apps/mobile/package.json apps/mobile/package-lock.json` | vazio: a F10 não acrescenta dependência |
+| `git grep -n "PessimisticLockingFailureException" -- apps/api/src/main` | só o `GlobalExceptionHandler` e o `ClienteService` (Confirmação do ADR-027) |
+| `git merge-base --is-ancestor 03e7646 <base>` | `03e7646` está no ramo e em `origin/feat/f03c-clientes-criar` e em `feat/f04-veiculos`. Não está na `main` |
+
+Não executado: `osv-scanner`, que não está instalado (vale a última varredura registrada, 8.1); deadlock real do MySQL, que continua não provado.
+
+#### Conferido sem achado
+
+* **W2.** O `catch (PessimisticLockingFailureException ex)` em `ClienteService.atualizar` vem depois dos catches de CPF e de email, que são `ConflitoException`, e por isso não esconde nenhum deles. A linha logada é só `clientes.editar.conflito clienteId= usuarioId= campo=concorrencia`, sem `ex` nem `getMessage()`, e a mesma instância é relançada para o handler, que responde 409 com mensagem fixa e sem log. O teste unitário cobre o roteiro da 10.4: mesma instância, linha exata, nenhum `Deadlock` nem email e nenhuma linha de sucesso. Limite: um deadlock que estourasse só no commit, fora do `saveAndFlush`, teria 409, mas não teria essa linha. Com o `saveAndFlush`, o `UPDATE` roda dentro do `try`. Isso não foi provado com deadlock real.
+* **Critério 11.** Nenhuma linha do PUT carrega valor, nem mascarado. É mais restritivo que o card, que pede CPF, telefone e email mascarados. Parecer do VIGIA: manter. A divergência vai para a PR, para o aceite da pessoa.
+* **W4.** Nenhum exemplo do OpenAPI em `apps/api/src/main` usa DDD 11.
+* **W1.** Nenhum `SELECT` lista email em código ou doc versionado. As únicas ocorrências são a contagem do ADR-026 e as consultas de teste com dado fictício.
+* **Evidência das 100 rodadas.** O arquivo `docs/product/F10-evidencia-corrida-100-rodadas.md` só tem códigos HTTP e contagens, sem dado pessoal nem segredo.
+
+#### Achados
+
+| ID | Severidade | OWASP | Achado | Impacto concreto | Correção específica | Dono |
+|---|---|---|---|---|---|---|
+| X1 | Média (processo, bloqueia a PR pela regra da pessoa) | — | O handoff diz que o `03e7646` (com `Co-Authored-By`) "não entrou", mas ele é ancestral do `HEAD`: dos 167 commits do ramo sobre a `main`, 101 descendem dele. Também está em `feat/f03c-clientes-criar` e em `feat/f04-veiculos`, mas não na `main` | Uma PR deste ramo para a `main` leva o commit. Uma PR empilhada sobre a F03c ou a F04 não o mostra no diff, mas ele entra na `main` quando a base entrar | A pessoa escolhe: reescrever o histórico desde o `03e7646` (rebase que muda o hash dos 101 commits posteriores neste ramo, e dos 73 de `origin/feat/f03c-clientes-criar`, e exige force-push de ramos já publicados) ou levar o commit sabendo disso. Ninguém reescreve o histórico sem a decisão dela | Pessoa |
+| X2 | Baixa | A07 | Os três 401 do W3 não tinham controle positivo. Com o decoder HS256 do `JwtConfig` (só os validadores padrão de tempo), um 401 por qualquer outro defeito do token feito pelo teste também passaria | O teste de "expirado" podia passar sem provar o vencimento | **Corrigido em `8fa0d3c`**: o mesmo `tokenHs256`, com data válida e a chave do teste, dá 200 e grava a linha `clientes.editar clienteId=<A> usuarioId=1`. Os três 401 afirmam também que não há linha `clientes.editar` (10.4) | VIGIA |
+| X3 | Baixa, risco aceito (W5) | A04 / qualidade do dado | O W5 só cobria o U+200B no fim. Agora, no conflito, ele no início, no fim e no meio do domínio dá 409 `Email ja cadastrado`. **Sem conflito, o PUT responde 200 e grava o email com o U+200B** (status real, `8fa0d3c`). O `@Email` aceita o caractere | Confirma o risco do W5: o email parece certo na tela e não recebe mensagem. Não há vazamento e não há quebra de unicidade | Na F10, nada no código (premissa 1). Na entrada do envio por email ou WhatsApp: recusar com 400 os caracteres da categoria Cf no email, no `ClienteRequest` | BUSSOLA (revisita) |
+| X4 | Baixa | — | O `spotless:check` estava vermelho no `AparoUnicodeTest`. O handoff tratou o arquivo como de fora da feature, mas ele é da F10 | Lint isolado vermelho na PR | **Corrigido em `3caf42c`**, só com formatação. O lint isolado agora está verde (tabela acima) | VIGIA |
+| X5 | Informativo | LGPD (seção 7) | As fixtures de teste ainda usam telefone com DDD 11 (`11912345678`, `(11) 3456-7890`) em 16 arquivos de `apps/api/src/test`. A seção 7 diz "prefira" DDD que não existe | Um número inventado pode ser de alguém, e as fixtures aparecem em log de CI e em captura de tela | Trocar por DDD 20 numa fatia de limpeza, sem misturar com a F10. Os testes novos desta seção já usam `20912345678` | ESPRESSO |
+| X6 | Informativo | A09 | A evidência das 100 rodadas é a saída do log, mas o teste temporário não foi versionado. A execução não se reproduz a partir do repositório | O CRIVO não consegue reexecutar o mesmo teste | Anexar o código do teste temporário ao arquivo de evidência, ou versioná-lo com `@Tag("corrida")` e fora da execução padrão | ESPRESSO, CRIVO |
+
+#### Parecer sobre as perguntas da pessoa
+
+* **Email só com NBSP virar `null`.** Recomendo manter. É o mesmo tratamento que o email só com espaço ASCII já recebe (`emBrancoParaNulo`). Como o PUT substitui tudo, `null` já quer dizer "apagar o email". Recusar com 400 só o NBSP criaria uma regra diferente para cada tipo de espaço. O efeito colateral é que a F35, ao reenviar um campo que só tem NBSP, apaga o email, exatamente como faria com o campo vazio. Não há impacto em LGPD: apagar reduz dado. A decisão é da pessoa.
+* **Qual corpo vale.** O rascunho do ESPRESSO não está versionado, então não consigo conferir nele o W1 nem o W6. Recomendo o corpo consolidado e versionado em `docs/product/F10-pr-rascunho-corpo.md`, que traz a contagem do W1 e o tipo certo da resposta (W6). A confirmação é da pessoa.
+
 ## 9. Pendências e donos
 
 | ID | Pendência | Dono | Bloqueia |
@@ -944,3 +988,4 @@ Cada item gera evidência executada, com comando e saída na entrega:
 | 2026-11-18 | Revisão 5 (F04, Veículos): placa classificada como dado pessoal, e marca, modelo, ano e cor como dado pessoal por associação, com o ciclo do dado (2.4); placa única com 409 e `CHECK` de formato na V7, revogando a linha da revisão 3 (2.1); descarte do veículo junto com o cliente pelo marcador `ANON<id>` no lugar de `ANONIMO`, provado em MySQL 8.4 (2.4, 3.1, seção 4 e 8.5); `cliente_id` imutável depois da criação; máscara de placa `****D23` (6.2.2) e linhas de log da F04 (6.6); regras de API e de app para veículos (seção 7); achados V1 a V10 (8.5); P11 fechada, P13 a P15 novas; roteiro da 10.3. Base legal e prazos seguem como proposta (P1) | commits `6886e61` e `d253503` |
 | 2026-11-18 | Revisão 6 (F10, F03d, edição de cliente): cobertura da edição confirmada, com o ciclo do dado no PUT, valor anterior nunca guardado, edição que não reinicia R1 nem R2 e regra R6 de histórico de alteração (2.5). Email único quando preenchido, com 409 no POST e no PUT, revogando a linha de email da revisão 3 (2.1 e 2.5, aceite na P16). Normalização do email só em ASCII. Respostas às três dúvidas do card. Linhas de log do PUT sem valor, nem mascarado, nem anterior (6.7). Regras de API da edição (seção 7). Evidência em MySQL 8.4 e JDK 21 e achados U1 a U9 (8.6). P8 e P15 ampliadas, P16 nova e roteiro da 10.4. Base legal e prazos seguem como proposta (P1) | commits `1161f9a` e `c4d112e` |
 | 2026-11-19 | Revisão 7 (F10, depois da revisão humana): a linha `campo=concorrencia` foi aprovada e vira condição de merge, porque não existe no código (6.7). Provado em MySQL 8.4.13 que o índice de email ignora U+200B, U+200D, U+FEFF e U+00AD (2.5 e 8.7). O aparo Unicode do email (`AparoUnicode`) substitui o `strip()` da revisão 6 (2.5). Revisão do código em `738f04b`, com a autorização conferida pelo lado de quem ataca (por leitura e pelos testes existentes) e os achados W1 a W6 (8.7). Roteiro da 10.4 ampliado. Coleta, base legal, retenção e descarte não mudam. Base legal e prazos seguem como proposta (P1) | esta revisão |
+| 2026-11-19 | Revisão do código da segunda rodada da F10 (8.8), sem revisão nova da política: W2 conferido; controle positivo de token e U+200B em três posições e sem conflito (200, gravado) acrescentados; lint isolado verde; achados X1 a X6; parecer sobre o NBSP e sobre o corpo da PR. Coleta, base legal, retenção e descarte não mudam | commits `8fa0d3c`, `3caf42c` e este |
