@@ -24,6 +24,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -251,6 +252,33 @@ class ClienteAtualizarIT {
     assertThat(corpo.toLowerCase()).doesNotContain("beto", "\"id\"");
     assertThatClienteAIsUnchanged();
     assertThat(logs.list).noneMatch(e -> e.getLevel().isGreaterOrEqual(Level.ERROR));
+  }
+
+  // A1: espaco Unicode nas pontas do email (String.strip nao remove NBSP)
+
+  @ParameterizedTest
+  @ValueSource(
+      strings = {
+        "\\u00A0beto@example.com",
+        "beto@example.com\\u00A0",
+        "\\u2007beto@example.com\\u202F"
+      })
+  void shouldReturn409NamingEmailWhenEmailBelongsToAnotherAndHasUnicodeSpaceAtTheEdges(
+      String email) throws Exception {
+    enviar(idA, json("Ana Nova", "99999999999", "11900000000", email, "X"))
+        .andExpect(status().isConflict())
+        .andExpect(jsonPath("$.mensagem").value("Email ja cadastrado"));
+
+    assertThatClienteAIsUnchanged();
+  }
+
+  @Test
+  void shouldStoreEmailWithoutUnicodeSpaceWhenSameEmailIsSentWithNbspAtTheEdges() throws Exception {
+    enviar(idA, json("Ana Antiga", CPF_A, "11988887777", "\\u00A0ANA@Example.COM\\u00A0", null))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.email").value("ana@example.com"));
+
+    assertThat(linha(idA)).containsEntry("email", "ana@example.com");
   }
 
   // US-CLI-32

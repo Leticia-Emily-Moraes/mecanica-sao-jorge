@@ -341,6 +341,22 @@ class ClienteCriarIT {
         .noneMatch(e -> e.getFormattedMessage().contains(CPF));
   }
 
+  // A1: espaco Unicode nas pontas do email (String.strip nao remove NBSP)
+
+  @Test
+  void shouldStoreTrimmedEmailAndReturn409WhenSameEmailComesBackWithNbspAtTheEdges()
+      throws Exception {
+    enviar(json("Ana Exemplo", CPF, TELEFONE, "\\u00A0Ana@Example.com\\u00A0", null))
+        .andExpect(status().isCreated())
+        .andExpect(jsonPath("$.email").value("ana@example.com"));
+
+    enviar(json("Outra Ana", "52998224725", TELEFONE, "ana@example.com\\u202F", null))
+        .andExpect(status().isConflict())
+        .andExpect(jsonPath("$.mensagem").value("Email ja cadastrado"));
+
+    assertThat(totalClientes()).isEqualTo(1);
+  }
+
   @Test
   void shouldCreateExactlyOneWhenTenRequestsWithSameCpfRunConcurrently() throws Exception {
     ExecutorService pool = Executors.newFixedThreadPool(10);
