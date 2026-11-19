@@ -1,6 +1,7 @@
 package br.com.mecanicasaojorge.api.controller;
 
 import br.com.mecanicasaojorge.api.config.OpenApiConfig;
+import br.com.mecanicasaojorge.api.dto.ClienteDetalheResponse;
 import br.com.mecanicasaojorge.api.dto.ClienteListResponse;
 import br.com.mecanicasaojorge.api.dto.PaginaResponse;
 import br.com.mecanicasaojorge.api.exception.ErrorResponse;
@@ -14,11 +15,13 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.Size;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -71,5 +74,38 @@ public class ClienteController {
           int size,
       @AuthenticationPrincipal Jwt jwt) {
     return ResponseEntity.ok(clienteService.listar(q, page, size, jwt.getSubject()));
+  }
+
+  @GetMapping("/{id}")
+  @Operation(
+      summary = "Detalha um cliente",
+      description =
+          "Unica rota que devolve o CPF inteiro (11 digitos, sem mascara; a mascara e da tela). "
+              + "Campos sem valor saem como null. A resposta nao e guardada em cache.")
+  @ApiResponse(
+      responseCode = "200",
+      description = "Detalhe do cliente",
+      content = @Content(schema = @Schema(implementation = ClienteDetalheResponse.class)))
+  @ApiResponse(
+      responseCode = "400",
+      description = "id nao numerico, zero, negativo ou acima de Long.MAX_VALUE",
+      content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+  @ApiResponse(
+      responseCode = "401",
+      description = "Token ausente, invalido ou expirado",
+      content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+  @ApiResponse(
+      responseCode = "404",
+      description = "Nao existe cliente com o id",
+      content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+  @ApiResponse(
+      responseCode = "500",
+      description = "Erro interno inesperado",
+      content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+  public ResponseEntity<ClienteDetalheResponse> detalhar(
+      @Parameter(description = "Identificador do cliente, inteiro positivo") @PathVariable @Positive
+          Long id,
+      @AuthenticationPrincipal Jwt jwt) {
+    return ResponseEntity.ok(clienteService.detalhar(id, jwt.getSubject()));
   }
 }

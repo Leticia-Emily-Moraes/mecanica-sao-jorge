@@ -1,8 +1,10 @@
 package br.com.mecanicasaojorge.api.service;
 
+import br.com.mecanicasaojorge.api.dto.ClienteDetalheResponse;
 import br.com.mecanicasaojorge.api.dto.ClienteListResponse;
 import br.com.mecanicasaojorge.api.dto.PaginaResponse;
 import br.com.mecanicasaojorge.api.entity.Cliente;
+import br.com.mecanicasaojorge.api.exception.ClienteNaoEncontradoException;
 import br.com.mecanicasaojorge.api.mapper.ClienteMapper;
 import br.com.mecanicasaojorge.api.repository.ClienteRepository;
 import java.util.List;
@@ -16,7 +18,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-/** Regras de negocio de clientes. Esta fatia (F03a) so lista com busca. */
+/** Regras de negocio de clientes: lista com busca (F03a) e detalhe (F03b). */
 @Service
 public class ClienteService {
 
@@ -58,6 +60,27 @@ public class ClienteService {
         resultado.getTotalElements(),
         usuarioId);
     return PaginaResponse.de(resultado.map(clienteMapper::toListResponse));
+  }
+
+  /**
+   * Detalhe de um cliente (F03b). Loga so {@code clienteId} e {@code usuarioId} (politica de dados
+   * do cliente, secao 6.4): nunca nome, CPF, telefone, email, endereco, DTO ou entidade.
+   *
+   * @throws ClienteNaoEncontradoException quando nao existe cliente com o id (404, ADR-019)
+   */
+  @Transactional(readOnly = true)
+  public ClienteDetalheResponse detalhar(Long id, String usuarioId) {
+    Cliente cliente =
+        clienteRepository
+            .findById(id)
+            .orElseThrow(
+                () -> {
+                  LOG.info(
+                      "clientes.detalhar.naoEncontrado clienteId={} usuarioId={}", id, usuarioId);
+                  return new ClienteNaoEncontradoException();
+                });
+    LOG.info("clientes.detalhar clienteId={} usuarioId={}", id, usuarioId);
+    return clienteMapper.toDetalheResponse(cliente);
   }
 
   private Page<Cliente> consultar(TermoBusca termo, Pageable pageable) {

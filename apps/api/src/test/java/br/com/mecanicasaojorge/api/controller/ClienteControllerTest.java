@@ -1,6 +1,8 @@
 package br.com.mecanicasaojorge.api.controller;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.nullValue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.eq;
@@ -9,11 +11,14 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import br.com.mecanicasaojorge.api.dto.ClienteDetalheResponse;
 import br.com.mecanicasaojorge.api.dto.ClienteListResponse;
 import br.com.mecanicasaojorge.api.dto.PaginaResponse;
+import br.com.mecanicasaojorge.api.exception.ClienteNaoEncontradoException;
 import br.com.mecanicasaojorge.api.security.JwtConfig;
 import br.com.mecanicasaojorge.api.security.RestAuthenticationEntryPoint;
 import br.com.mecanicasaojorge.api.security.SecurityConfig;
@@ -26,6 +31,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
@@ -138,6 +144,104 @@ class ClienteControllerTest {
         Arguments.of("page", "abc"),
         Arguments.of("q", "x".repeat(101)),
         Arguments.of("q", " ".repeat(101)));
+  }
+
+  @Test
+  void shouldReturnDetailWithSixFieldsAndNoStoreWhenAuthenticated() throws Exception {
+    given(clienteService.detalhar(eq(7L), any()))
+        .willReturn(
+            new ClienteDetalheResponse(
+                7L,
+                "Ana Exemplo",
+                "12345678900",
+                "11912345678",
+                "ana@example.com",
+                "Rua Modelo, 100"));
+
+    mockMvc
+        .perform(get(URL + "/7").with(jwt().jwt(j -> j.subject("3"))))
+        .andExpect(status().isOk())
+        .andExpect(header().string("Cache-Control", containsString("no-store")))
+        .andExpect(jsonPath("$.id").value(7))
+        .andExpect(jsonPath("$.nome").value("Ana Exemplo"))
+        .andExpect(jsonPath("$.cpf").value("12345678900"))
+        .andExpect(jsonPath("$.telefone").value("11912345678"))
+        .andExpect(jsonPath("$.email").value("ana@example.com"))
+        .andExpect(jsonPath("$.endereco").value("Rua Modelo, 100"))
+        .andExpect(jsonPath("$.createdAt").doesNotExist())
+        .andExpect(jsonPath("$.length()").value(6));
+    verify(clienteService).detalhar(7L, "3");
+  }
+
+  @Test
+  void shouldReturnNullFieldsPresentInJsonWhenOptionalDataIsMissing() throws Exception {
+    given(clienteService.detalhar(eq(8L), any()))
+        .willReturn(new ClienteDetalheResponse(8L, "Bia Exemplo", null, null, null, null));
+
+    mockMvc
+        .perform(get(URL + "/8").with(jwt()))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.length()").value(6))
+        .andExpect(jsonPath("$.cpf").value(nullValue()))
+        .andExpect(jsonPath("$.telefone").value(nullValue()))
+        .andExpect(jsonPath("$.email").value(nullValue()))
+        .andExpect(jsonPath("$.endereco").value(nullValue()));
+  }
+
+  @Test
+  void shouldReturnNotFoundInStandardFormatWhenClientDoesNotExist() throws Exception {
+    given(clienteService.detalhar(eq(999999L), any()))
+        .willThrow(new ClienteNaoEncontradoException());
+
+    String corpo =
+        mockMvc
+            .perform(get(URL + "/999999").with(jwt()))
+            .andExpect(status().isNotFound())
+            .andExpect(jsonPath("$.status").value(404))
+            .andExpect(jsonPath("$.erro").value("Not Found"))
+            .andExpect(jsonPath("$.mensagem").value("Cliente nao encontrado"))
+            .andExpect(jsonPath("$.path").value(URL + "/999999"))
+            .andExpect(jsonPath("$.timestamp").exists())
+            .andReturn()
+            .getResponse()
+            .getContentAsString();
+
+    assertThat(corpo).doesNotContain("Exception", "at br.com");
+  }
+
+  @ParameterizedTest(name = "id={0}")
+  @ValueSource(strings = {"abc", "0", "-1", "99999999999999999999", "1.5"})
+  void shouldReturnBadRequestWithoutEchoingValueWhenIdIsInvalid(String id) throws Exception {
+    String corpo =
+        mockMvc
+            .perform(get(URL + "/" + id).with(jwt()))
+            .andExpect(status().isBadRequest())
+            .andExpect(jsonPath("$.status").value(400))
+            .andExpect(jsonPath("$.erro").value("Bad Request"))
+            .andExpect(jsonPath("$.mensagem").value("Parametro invalido: id"))
+            .andExpect(jsonPath("$.path").value(URL + "/" + id))
+            .andReturn()
+            .getResponse()
+            .getContentAsString();
+
+    assertThat(corpo).doesNotContain("Exception", "at br.com");
+    verifyNoInteractions(clienteService);
+  }
+
+  @Test
+  void shouldReturnUnauthorizedWithoutQueryingWhenDetailHasNoOrInvalidToken() throws Exception {
+    mockMvc
+        .perform(get(URL + "/7"))
+        .andExpect(status().isUnauthorized())
+        .andExpect(jsonPath("$.status").value(401))
+        .andExpect(jsonPath("$.erro").value("Unauthorized"))
+        .andExpect(jsonPath("$.path").value(URL + "/7"))
+        .andExpect(jsonPath("$.cpf").doesNotExist());
+    mockMvc
+        .perform(get(URL + "/7").header(HttpHeaders.AUTHORIZATION, "Bearer token.invalido.x"))
+        .andExpect(status().isUnauthorized())
+        .andExpect(jsonPath("$.status").value(401));
+    verifyNoInteractions(clienteService);
   }
 
   @Test

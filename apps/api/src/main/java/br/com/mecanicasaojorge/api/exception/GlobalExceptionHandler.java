@@ -14,6 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.MissingPathVariableException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.HandlerMethodValidationException;
@@ -39,6 +40,13 @@ public class GlobalExceptionHandler {
   public ResponseEntity<ErrorResponse> handleCredenciaisInvalidas(
       CredenciaisInvalidasException ex, HttpServletRequest request) {
     return buildResponse(HttpStatus.UNAUTHORIZED, ex.getMessage(), request);
+  }
+
+  /** Recurso de dominio inexistente (ADR-019): mensagem fixa da subclasse, sem log. */
+  @ExceptionHandler(RecursoNaoEncontradoException.class)
+  public ResponseEntity<ErrorResponse> handleRecursoNaoEncontrado(
+      RecursoNaoEncontradoException ex, HttpServletRequest request) {
+    return buildResponse(HttpStatus.NOT_FOUND, ex.getMessage(), request);
   }
 
   @ExceptionHandler(AppError.class)
@@ -88,6 +96,21 @@ public class GlobalExceptionHandler {
   public ResponseEntity<ErrorResponse> handleTypeMismatch(
       MethodArgumentTypeMismatchException ex, HttpServletRequest request) {
     return buildResponse(HttpStatus.BAD_REQUEST, mensagemParametro(ex.getName()), request);
+  }
+
+  /**
+   * Variavel de rota vazia ou so com espacos (ex.: {@code /clientes/%20}): o Spring converte para
+   * {@code null} e sinaliza ausencia da variavel apos a conversao. E entrada invalida do cliente,
+   * logo 400 (F-1). Sem conversao, a variavel falta no mapeamento da rota: defeito do servidor, que
+   * segue como erro inesperado (500 com log).
+   */
+  @ExceptionHandler(MissingPathVariableException.class)
+  public ResponseEntity<ErrorResponse> handleMissingPathVariable(
+      MissingPathVariableException ex, HttpServletRequest request) {
+    if (!ex.isMissingAfterConversion()) {
+      return handleUnexpected(ex, request);
+    }
+    return buildResponse(HttpStatus.BAD_REQUEST, mensagemParametro(ex.getVariableName()), request);
   }
 
   /**

@@ -245,10 +245,12 @@ mvn checkstyle:check   # lint
 mvn spotless:check     # verifica formatação (google-java-format)
 ```
 
-> **Evidência real (ESPRESSO, 2026-11-17, F03a):** `mvn -B spotless:apply verify`
+> **Evidência real (ESPRESSO, 2026-11-17, F03b):** `mvn -B verify`
 > em contêiner `maven:3.9-eclipse-temurin-21` com o socket do Docker (MySQL 8.4
-> via Testcontainers): 93 testes unitários (surefire) e 30 de integração
-> (failsafe), 0 falhas, `BUILD SUCCESS` — 123 no total. Os de integração são
+> via Testcontainers): 114 testes unitários (surefire) e 41 de integração
+> (failsafe), 0 falhas; `checkstyle:check` e `spotless:check` isolados com
+> 0 violações. Inclui o `ClienteDetalheIT` (11, com o 400 de id só com espaço, F-1). Abaixo, a evidência anterior
+> da F03a: 93 testes unitários e 30 de integração — 123 no total. Os de integração são
 > `ClienteListagemIT` (24), `ClienteCollationLatin1IT` (3) e `FlywayMigrationIT`
 > (3). Esse número muda a cada feature: confira rodando `mvn verify`, não por
 > este texto.
@@ -304,7 +306,9 @@ npm run typecheck      # tsc --noEmit
       `Usuario`); migrations `V1` (`usuarios`) e `V2` (demais 11 tabelas);
       `POST /api/v1/auth/login` emitindo JWT HS256 via OAuth2 Resource
       Server; `GET /api/v1/clientes` (F03a: lista paginada com busca, migration
-      `V3`, detalhes em `apps/api/README.md`); `RestAuthenticationEntryPoint`
+      `V3`, detalhes em `apps/api/README.md`); `GET /api/v1/clientes/{id}`
+      (F03b: detalhe com CPF e endereço, migration `V4`, 404 por exceção de
+      domínio); `RestAuthenticationEntryPoint`
       customizado. Testes automatizados + checkstyle/spotless (contagem e
       comando em "Testes").
 - [x] `apps/mobile`: telas de Login e Perfil com logout (F30) e a tab bar do

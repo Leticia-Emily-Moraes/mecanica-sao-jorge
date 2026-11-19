@@ -1,5 +1,6 @@
 package br.com.mecanicasaojorge.api.mapper;
 
+import br.com.mecanicasaojorge.api.dto.ClienteDetalheResponse;
 import br.com.mecanicasaojorge.api.dto.ClienteListResponse;
 import br.com.mecanicasaojorge.api.entity.Cliente;
 import org.mapstruct.Mapper;
@@ -9,4 +10,7 @@ import org.mapstruct.Mapper;
 public interface ClienteMapper {
 
   ClienteListResponse toListResponse(Cliente cliente);
+
+  /** Unico mapeamento que leva CPF e endereco (ADR-018). */
+  ClienteDetalheResponse toDetalheResponse(Cliente cliente);
 }
