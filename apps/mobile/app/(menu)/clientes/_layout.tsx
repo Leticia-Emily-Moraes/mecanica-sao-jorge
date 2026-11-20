@@ -13,6 +13,8 @@ export default function ClientesLayout(): ReactElement {
     <Stack screenOptions={{ headerShown: false }}>
       <Stack.Screen name="novo" options={{ gestureEnabled: false }} />
       <Stack.Screen name="[clienteId]/editar" options={{ gestureEnabled: false }} />
+      <Stack.Screen name="[clienteId]/veiculos/novo" options={{ gestureEnabled: false }} />
+      <Stack.Screen name="veiculos/[veiculoId]/editar" options={{ gestureEnabled: false }} />
     </Stack>
   );
 }
