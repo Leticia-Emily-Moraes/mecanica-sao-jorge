@@ -185,6 +185,76 @@ const strings = {
   /** A lista do cliente traz só placa, marca e modelo; ano e cor ficam para o detalhe. */
   'veiculos.item.marcaModelo': '{marca} {modelo}',
   'veiculos.item.rotulo': '{placa}, {marca} {modelo}',
+
+  'veiculos.formulario.tituloNovo': 'Novo veículo',
+  'veiculos.formulario.tituloEditar': 'Editar veículo',
+  'veiculos.formulario.voltar.rotulo': 'Voltar',
+  'veiculos.formulario.carregando': 'Carregando veículo…',
+  'veiculos.formulario.cliente.rotulo': 'Cliente:',
+  'veiculos.formulario.cliente.acessivel': 'Cliente: {nome}',
+  'veiculos.formulario.placa.rotulo': 'Placa *',
+  'veiculos.formulario.placa.placeholder': 'AAA0A00',
+  'veiculos.formulario.marca.rotulo': 'Marca *',
+  'veiculos.formulario.marca.placeholder': 'Ex.: Fiat',
+  'veiculos.formulario.modelo.rotulo': 'Modelo *',
+  'veiculos.formulario.modelo.placeholder': 'Ex.: Uno',
+  'veiculos.formulario.ano.rotulo': 'Ano (opcional)',
+  'veiculos.formulario.ano.placeholder': '2020',
+  'veiculos.formulario.cor.rotulo': 'Cor (opcional)',
+  'veiculos.formulario.cor.placeholder': 'Ex.: Prata',
+  'veiculos.formulario.salvarNovo': 'Salvar veículo',
+  'veiculos.formulario.salvarEdicao': 'Salvar alterações',
+  'veiculos.formulario.cancelar': 'Cancelar',
+  'veiculos.formulario.salvando': 'Salvando…',
+  'veiculos.formulario.erro.faixaPlural': 'Corrija os {quantidade} campos destacados para salvar.',
+  'veiculos.formulario.erro.faixaSingular': 'Corrija o campo destacado para salvar.',
+  'veiculos.formulario.erro.envio':
+    'Não foi possível salvar. Verifique a internet da oficina e tente de novo.',
+  'veiculos.formulario.erro.conflito':
+    'Não foi possível salvar: os dados conflitam com outro cadastro. Confira e tente de novo.',
+  'veiculos.formulario.naoEncontrado.titulo': 'Veículo não encontrado',
+  'veiculos.formulario.naoEncontrado.mensagem':
+    'Este veículo não existe mais ou foi removido. Volte para o cliente.',
+  'veiculos.formulario.naoEncontrado.voltar': 'Voltar para o cliente',
+
+  /**
+   * Erros de campo de veículo. Só `placa.erro` e `placa.duplicada` estão no contrato
+   * da API (ADR-030); as demais chaves locais seguem o mesmo padrão, por suposição.
+   */
+  'veiculo.form.placa.erro': 'Placa inválida. Use ABC1D23 ou ABC1234.',
+  'veiculo.form.placa.duplicada': 'Esta placa já está cadastrada.',
+  'veiculo.form.marca.invalido': 'Informe a marca.',
+  'veiculo.form.modelo.invalido': 'Informe o modelo.',
+  'veiculo.form.ano.invalido': 'Ano inválido.',
+  'veiculo.form.cor.invalido': 'Cor inválida. Confira o que foi digitado.',
+
+  'veiculos.detalhe.titulo': 'Veículo',
+  'veiculos.detalhe.editar.rotulo': 'Editar veículo',
+  'veiculos.detalhe.editar.rotuloComPlaca': 'Editar veículo {placa}',
+  'veiculos.detalhe.voltar.rotulo': 'Voltar para o cliente',
+  'veiculos.detalhe.placa': 'Placa',
+  'veiculos.detalhe.ano': 'Ano',
+  'veiculos.detalhe.cor': 'Cor',
+  'veiculos.detalhe.naoInformado': 'Não informado',
+  'veiculos.detalhe.historico.titulo': 'Histórico de OS ({quantidade})',
+  'veiculos.detalhe.historico.vazio.titulo': 'Nenhuma OS neste veículo',
+  'veiculos.detalhe.historico.vazio.mensagem':
+    'As ordens de serviço deste veículo vão aparecer aqui.',
+  'veiculos.detalhe.historico.item.titulo': 'OS #{id}',
+  'veiculos.detalhe.historico.item.rotulo': 'OS #{id}, {status}, {valor}',
+  'veiculos.detalhe.carregando': 'Carregando veículo…',
+  'veiculos.detalhe.erro.titulo': 'Não foi possível carregar',
+  'veiculos.detalhe.erro.mensagem':
+    'Não foi possível abrir este veículo. Verifique a internet da oficina e tente de novo.',
+  'veiculos.detalhe.erro.tentar': 'Tentar novamente',
+  'veiculos.detalhe.erro.voltar': 'Voltar',
+  'veiculos.detalhe.naoEncontrado.titulo': 'Veículo não encontrado',
+  'veiculos.detalhe.naoEncontrado.mensagem':
+    'Este veículo não existe mais ou foi removido. Volte para o cliente.',
+  'veiculos.detalhe.naoEncontrado.voltar': 'Voltar para o cliente',
+  'veiculos.detalhe.falhaAtualizar':
+    'Não foi possível atualizar. Você está vendo a última versão carregada.',
+  'veiculos.detalhe.sucesso.editado': 'Alterações salvas.',
 } as const;
 
 export type ChaveTexto = keyof typeof strings;
