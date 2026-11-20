@@ -12,6 +12,12 @@ export interface ConfirmDialogProps {
   readonly confirmLabel: string;
   readonly onCancel: () => void;
   readonly onConfirm: () => void;
+  /**
+   * Botões um sobre o outro, o seguro primeiro e em destaque (Cancelar vira o
+   * primário) e o que descarta em contorno, como no frame X1 da F35. Sem isso,
+   * o desenho lado a lado do diálogo de sair.
+   */
+  readonly stacked?: boolean;
 }
 
 /**
@@ -27,6 +33,7 @@ export function ConfirmDialog({
   confirmLabel,
   onCancel,
   onConfirm,
+  stacked = false,
 }: ConfirmDialogProps): ReactElement {
   return (
     <Modal visible={visible} transparent animationType="fade" onRequestClose={onCancel}>
@@ -41,12 +48,20 @@ export function ConfirmDialog({
             {title}
           </Text>
           {message ? <Text style={styles.message}>{message}</Text> : null}
-          <View style={styles.actions}>
-            <View style={styles.action}>
-              <Button label={cancelLabel} onPress={onCancel} variant="secondary" />
+          <View style={stacked ? styles.actionsStacked : styles.actions}>
+            <View style={stacked ? undefined : styles.action}>
+              <Button
+                label={cancelLabel}
+                onPress={onCancel}
+                variant={stacked ? 'primary' : 'secondary'}
+              />
             </View>
-            <View style={styles.action}>
-              <Button label={confirmLabel} onPress={onConfirm} variant="primary" />
+            <View style={stacked ? undefined : styles.action}>
+              <Button
+                label={confirmLabel}
+                onPress={onConfirm}
+                variant={stacked ? 'secondary' : 'primary'}
+              />
             </View>
           </View>
         </View>
@@ -85,6 +100,9 @@ const styles = StyleSheet.create({
   },
   actions: {
     flexDirection: 'row',
+    gap: spacing.s10,
+  },
+  actionsStacked: {
     gap: spacing.s10,
   },
   action: {
