@@ -1,4 +1,4 @@
-import { lerAviso, lerIdDaRota } from './route-params';
+import { lerAviso, lerAvisoId, lerIdDaRota, parametrosDeAviso } from './route-params';
 
 describe('lerIdDaRota', () => {
   it.each([
@@ -53,5 +53,34 @@ describe('lerAviso', () => {
   it('should return null when the parameter is missing or repeated', () => {
     expect(lerAviso(undefined)).toBeNull();
     expect(lerAviso(['criado', 'editado'])).toBeNull();
+  });
+});
+
+describe('lerAvisoId', () => {
+  it('should read a numeric identifier', () => {
+    expect(lerAvisoId('1763600000000')).toBe('1763600000000');
+  });
+
+  it.each([
+    ['empty text', ''],
+    ['letters', 'abc'],
+    ['digits followed by text', '12a'],
+    ['17 digits', '12345678901234567'],
+  ])('should return null for %s', (_descricao, parametro) => {
+    expect(lerAvisoId(parametro)).toBeNull();
+  });
+
+  it('should return null when missing or repeated', () => {
+    expect(lerAvisoId(undefined)).toBeNull();
+    expect(lerAvisoId(['1', '2'])).toBeNull();
+  });
+});
+
+describe('parametrosDeAviso', () => {
+  it('should carry the fixed notice and a numeric id', () => {
+    const parametros = parametrosDeAviso('editado');
+
+    expect(parametros.aviso).toBe('editado');
+    expect(lerAvisoId(parametros.avisoId)).toBe(parametros.avisoId);
   });
 });
