@@ -82,3 +82,23 @@ Todos **[não confirmados]**, só inferidos por captura (seção 13.3 da especif
 2. P-03 e P-04: o que o contrato de API entrega (ano e cor no veículo, título e data na OS).
 3. P-07: qual medida vale nos estados de tela (P2 ou F26).
 4. Aprovação do F26 e dos frames D6, D7, D8, V6, L8; mensagens de campo obrigatório (F-1, F-2); lint em `use-menu-tabs.ts` (F-5).
+
+## 5. Resolução no código (ORLA, 2026-11-20)
+
+Verificação: testes de Jest (react-native-testing-library) por arquivo alterado. Nada foi visto em simulador ou aparelho; as sombras e o ícone "+" **não foram comparados com o Figma renderizado**, só com os valores lidos na seção 2.
+
+| ID | Situação | O que mudou |
+|---|---|---|
+| P-05 | Corrigido | O leitor de tela lê "CPF parcialmente oculto" (`InfoRow.accessibilityLabel`, chave `clientes.detalhe.cpf.rotuloAcessivel`). Removidos `digitosVisiveisDoCpf` e `accessibleValue`, que ficaram sem uso |
+| P-08 | Corrigido na lista (L1) | `Button` ganhou a prop `icon` (decorativa, escondida do leitor). "Novo cliente" da lista preenchida usa `add`. Os botões "Novo cliente" dos estados vazio e de busca sem resultado não levam ícone: o ESQUADRO só mediu o L1 |
+| P-09 | Corrigido | `ListRow` e o cartão de OS não têm mais sombra |
+| P-10 | Corrigido | Token `shadow.detail` (raio 2) e `InfoCard elevation="detail"` nos detalhes de cliente e veículo. O Perfil segue em `shadow.card` (raio 1, V-P06) |
+| P-01 | Implementado, decisão do PO é recomendação | A busca sem resultado mostra `Cadastrar "termo"` e leva o termo ao formulário, preenchido e editável. Termo com "@" ou só dígitos e pontuação de telefone mantém "Novo cliente" e formulário vazio. O termo passa por variável em memória (`navigation/new-client-name.ts`), nunca por rota ou log, cortado em 100 caracteres. O nome sugerido não conta como alteração para o diálogo de descarte |
+| P-02 | **Sem mudança, aguarda aprovação escrita** | BUSSOLA recomenda manter o app: criar leva ao detalhe com "Cliente cadastrado." (critério 7). Contraria o L6 aprovado: o dono do Figma e o comandante precisam aprovar e o ESQUADRO ajusta o L6 |
+| P-06 | **Sem mudança, aguarda aprovação escrita** | BUSSOLA recomenda aviso no topo do scroll (risco de cobrir "+ Veículo" na base, WCAG 2.4.11) |
+| P-07 | **Sem mudança, aguarda aprovação escrita** | BUSSOLA recomenda a medida do P2 (328, base). Precisa de aprovação do dono do Figma e de conferir qual documento é mais recente |
+| P-03, P-04 | **Fora do front** | Ano, cor, título e data da OS dependem do contrato da API. BUSSOLA recomenda aceitar a divergência até o contrato existir. Mínimo do histórico para o critério 12 (recomendação): número de exibição, status em selo com texto e `valorTotal`; data só quando a API trouxer |
+| P-11 a P-13 | Sem mudança | Desenho que falta é do ESQUADRO, depois da aprovação do F26 |
+| P-14, P-16 | Sem mudança | Intencionais |
+
+Critério 1 (revisão humana): BUSSOLA recomenda **ajustar o critério**: a lista mostra o nome e **uma** linha de contato (telefone; sem telefone, e-mail; sem nenhum, "Sem contato cadastrado"), como no L1/L7 aprovado e com menos dado pessoal na lista. O e-mail segue na busca e no detalhe. O teste que só caracterizava o comportamento virou asserção (`client-row.test.tsx`: com telefone e e-mail, o e-mail não aparece). Falta a confirmação escrita de quem pediu a revisão.
