@@ -1,6 +1,8 @@
 import { render, screen } from '@testing-library/react-native';
+import { StyleSheet } from 'react-native';
 
 import type { HistoricoOsItem } from '@/services/vehicles-types';
+import type { TestStyle } from '@/test-utils/flat-style';
 
 import { VehicleHistorySection } from './vehicle-history-section';
 
@@ -39,6 +41,15 @@ describe('VehicleHistorySection', () => {
     expect(screen.getByText('EM ANALISE')).toBeTruthy();
     expect(screen.getByText(/455,00/)).toBeTruthy();
     expect(screen.getByText(/1\.200,50/)).toBeTruthy();
+  });
+
+  it('should draw the OS card without a shadow, as in the F26 frame (P-09)', () => {
+    render(<VehicleHistorySection historico={[HISTORICO[0]]} />);
+
+    const style = StyleSheet.flatten(screen.getByTestId('os-card').props.style as TestStyle);
+
+    expect(style.shadowOpacity).toBeUndefined();
+    expect(style.elevation).toBeUndefined();
   });
 
   it('should read each card as one phrase with number, status and total', () => {

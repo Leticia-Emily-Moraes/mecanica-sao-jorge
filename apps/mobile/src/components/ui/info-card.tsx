@@ -14,6 +14,8 @@ export interface InfoRow {
 
 export interface InfoCardProps {
   readonly rows: readonly InfoRow[];
+  /** `card` (Perfil, raio 1) ou `detail` (detalhes de cliente e veículo no F26, raio 2). */
+  readonly elevation?: 'card' | 'detail';
   /** Cabeçalho do cartão: avatar ou ícone à esquerda e o nome em destaque. */
   readonly header?: {
     readonly leading: ReactNode;
@@ -28,9 +30,9 @@ export interface InfoCardProps {
  * rótulo (Flint) à esquerda e valor (petro) à direita. Cada linha é lida de
  * uma vez ("Usuário: joao.silva"); o título do cabeçalho é um cabeçalho.
  */
-export function InfoCard({ rows, header }: InfoCardProps): ReactElement {
+export function InfoCard({ rows, header, elevation = 'card' }: InfoCardProps): ReactElement {
   return (
-    <View style={styles.card}>
+    <View style={[styles.card, shadow[elevation]]}>
       {header ? (
         <View style={styles.header}>
           {header.leading}
@@ -67,7 +69,6 @@ const styles = StyleSheet.create({
     borderRadius: radius.sm,
     padding: spacing.md - borderWidth.hairline,
     gap: spacing.s10,
-    ...shadow.card,
   },
   header: {
     flexDirection: 'row',

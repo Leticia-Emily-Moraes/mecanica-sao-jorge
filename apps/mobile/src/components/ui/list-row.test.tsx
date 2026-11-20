@@ -71,6 +71,16 @@ describe('ListRow', () => {
     expect(style.minHeight).toBeGreaterThanOrEqual(minTouchTarget);
   });
 
+  it('should draw the card without a shadow, as in the F26 list frames (P-09)', () => {
+    renderRow();
+
+    const style = StyleSheet.flatten(screen.getByRole('button').props.style as TestStyle);
+
+    expect(style.shadowOpacity).toBeUndefined();
+    expect(style.shadowRadius).toBeUndefined();
+    expect(style.elevation).toBeUndefined();
+  });
+
   it('should hide the decorative chevron from the screen reader', () => {
     renderRow();
 

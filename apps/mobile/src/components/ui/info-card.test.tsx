@@ -57,6 +57,19 @@ describe('InfoCard', () => {
     });
   });
 
+  it('should draw the detail shadow with radius 2 when the elevation is detail (P-10)', () => {
+    render(<InfoCard rows={LINHAS} elevation="detail" />);
+
+    const card = findAncestorStyle(screen.getByLabelText('Usuário: joao.silva'), 'borderWidth');
+
+    expect(card).toMatchObject({
+      shadowColor: '#1E3A3F',
+      shadowOffset: { width: 0, height: 1 },
+      shadowOpacity: 0.06,
+      shadowRadius: 2,
+    });
+  });
+
   it('should draw the label in Flint 14 and the value in petro Inter Medium 14 on the right (V-P07)', () => {
     render(<InfoCard rows={LINHAS} />);
 

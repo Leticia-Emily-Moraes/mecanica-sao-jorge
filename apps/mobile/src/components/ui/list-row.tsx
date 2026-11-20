@@ -12,7 +12,6 @@ import {
   minTouchTarget,
   opacity,
   radius,
-  shadow,
   size,
   spacing,
   typography,
@@ -90,7 +89,6 @@ const styles = StyleSheet.create({
     borderWidth: borderWidth.hairline,
     borderColor: color.border.divider,
     borderRadius: radius.sm,
-    ...shadow.card,
   },
   pressed: {
     opacity: opacity.pressed,

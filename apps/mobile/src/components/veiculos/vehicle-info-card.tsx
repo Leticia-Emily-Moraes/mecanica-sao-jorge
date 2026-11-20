@@ -23,6 +23,7 @@ function linha(rotulo: string, valor: string | null): InfoRow {
 export function VehicleInfoCard({ veiculo }: VehicleInfoCardProps): ReactElement {
   return (
     <InfoCard
+      elevation="detail"
       header={{
         leading: <VehicleTile />,
         title: t('veiculos.item.marcaModelo', { marca: veiculo.marca, modelo: veiculo.modelo }),

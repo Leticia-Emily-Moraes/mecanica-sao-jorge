@@ -38,6 +38,7 @@ export function ClientInfoCard({ cliente }: ClientInfoCardProps): ReactElement {
 
   return (
     <InfoCard
+      elevation="detail"
       header={{
         leading: <Avatar variant="small" initials={getInitials(cliente.nome)} />,
         title: cliente.nome,

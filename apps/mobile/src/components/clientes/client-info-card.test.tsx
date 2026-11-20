@@ -1,6 +1,7 @@
 import { render, screen, within } from '@testing-library/react-native';
 
 import type { ClienteDetalhe } from '@/services/clients-types';
+import { findAncestorStyle } from '@/test-utils/find-ancestor-with-style';
 
 import { ClientInfoCard } from './client-info-card';
 
@@ -31,6 +32,14 @@ describe('ClientInfoCard', () => {
     expect(screen.getByText('teodoro@example.com')).toBeTruthy();
     expect(screen.getByText('***.*56.7**-**')).toBeTruthy();
     expect(screen.getByText('Rua das Flores, 10, Centro, Campinas')).toBeTruthy();
+  });
+
+  it('should draw the data card with the detail shadow of radius 2 (P-10)', () => {
+    render(<ClientInfoCard cliente={COMPLETO} />);
+
+    const cartao = findAncestorStyle(screen.getByLabelText('CPF parcialmente oculto'), 'borderWidth');
+
+    expect(cartao).toMatchObject({ shadowRadius: 2, shadowOpacity: 0.06 });
   });
 
   it('should never render the raw CPF', () => {

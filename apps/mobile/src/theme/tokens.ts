@@ -264,8 +264,10 @@ export const layout = {
 } as const;
 
 /**
- * Sombras do Figma: cartão `0 1 1 rgba(30,58,63,.06)` e diálogo
- * `0 12 16 rgba(0,0,0,.25)`. No Android `elevation` só aproxima (P-08 do ADR-014).
+ * Sombras do Figma: cartão do Perfil `0 1 1 rgba(30,58,63,.06)`, cartão de dados dos
+ * detalhes (F26) `0 1 2 rgba(30,58,63,.06)` e diálogo `0 12 16 rgba(0,0,0,.25)`.
+ * Cartões de lista e de OS do F26 não têm sombra. No Android `elevation` só aproxima
+ * (P-08 do ADR-014).
  */
 export const shadow = {
   card: {
@@ -273,6 +275,13 @@ export const shadow = {
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.06,
     shadowRadius: 1,
+    elevation: 1,
+  },
+  detail: {
+    shadowColor: primitiveColor.petro900,
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.06,
+    shadowRadius: 2,
     elevation: 1,
   },
   dialog: {

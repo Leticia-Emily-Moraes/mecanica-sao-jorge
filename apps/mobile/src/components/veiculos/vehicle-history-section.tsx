@@ -8,7 +8,7 @@ import { formatarMoeda } from '@/formatters/currency';
 import { formatarStatusDaOs, tomDoStatusDaOs } from '@/formatters/os-status';
 import { t } from '@/i18n/strings';
 import type { HistoricoOsItem } from '@/services/vehicles-types';
-import { borderWidth, color, radius, shadow, spacing, typography } from '@/theme/tokens';
+import { borderWidth, color, radius, spacing, typography } from '@/theme/tokens';
 
 export interface VehicleHistorySectionProps {
   readonly historico: readonly HistoricoOsItem[];
@@ -71,7 +71,6 @@ const styles = StyleSheet.create({
     borderWidth: borderWidth.hairline,
     borderColor: color.border.divider,
     borderRadius: radius.sm,
-    ...shadow.card,
   },
   title: {
     fontFamily: typography.cardTitle.fontFamily,
