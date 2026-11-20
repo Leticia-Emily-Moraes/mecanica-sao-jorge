@@ -137,6 +137,50 @@ const strings = {
   'clientes.detalhe.sucesso.editado': 'Alterações salvas.',
   'clientes.detalhe.sucesso.veiculoCriado': 'Veículo cadastrado.',
 
+  'clientes.formulario.tituloNovo': 'Novo cliente',
+  'clientes.formulario.tituloEditar': 'Editar cliente',
+  'clientes.formulario.voltar.rotulo': 'Voltar',
+  'clientes.formulario.carregando': 'Carregando cliente…',
+  'clientes.formulario.nome.rotulo': 'Nome completo *',
+  'clientes.formulario.nome.placeholder': 'Ex.: João da Silva',
+  'clientes.formulario.telefone.rotulo': 'Telefone (opcional)',
+  'clientes.formulario.telefone.placeholder': '(11) 90000-0000',
+  'clientes.formulario.email.rotulo': 'E-mail (opcional)',
+  'clientes.formulario.email.placeholder': 'nome@example.com',
+  'clientes.formulario.cpf.rotulo': 'CPF (opcional)',
+  'clientes.formulario.cpf.placeholder': '000.000.000-00',
+  'clientes.formulario.cpf.ajuda': 'Só preencha se o cliente pedir nota fiscal.',
+  'clientes.formulario.endereco.rotulo': 'Endereço (opcional)',
+  'clientes.formulario.endereco.placeholder': 'Rua, número, bairro, cidade',
+  'clientes.formulario.privacidade':
+    'Usamos seu nome, telefone e e-mail só para atender seu veículo e avisar sobre orçamento e serviço. CPF e endereço só se você pedir nota fiscal. Para corrigir ou apagar seus dados, fale com a oficina.',
+  'clientes.formulario.salvarNovo': 'Salvar cliente',
+  'clientes.formulario.salvarEdicao': 'Salvar alterações',
+  'clientes.formulario.cancelar': 'Cancelar',
+  'clientes.formulario.salvando': 'Salvando…',
+  'clientes.formulario.erro.faixaPlural': 'Corrija os {quantidade} campos destacados para salvar.',
+  'clientes.formulario.erro.faixaSingular': 'Corrija o campo destacado para salvar.',
+  'clientes.formulario.erro.envio':
+    'Não foi possível salvar. Verifique a internet da oficina e tente de novo.',
+  'clientes.formulario.erro.conflito':
+    'Não foi possível salvar: os dados conflitam com outro cadastro. Confira e tente de novo.',
+
+  /** Erros de campo de cliente: chave local ou devolvida pela API (ADR-030, D3). */
+  'cliente.form.nome.invalido': 'Informe o nome do cliente.',
+  'cliente.form.telefone.invalido': 'Telefone incompleto. Use (11) 90000-0000.',
+  'cliente.form.email.invalido': 'Informe um e-mail válido.',
+  'cliente.form.cpf.invalido': 'CPF inválido. Confira os 11 números.',
+  'cliente.form.endereco.invalido': 'Endereço inválido. Confira o que foi digitado.',
+  'cliente.form.cpf.duplicado': 'Já existe um cliente com este CPF.',
+  'cliente.form.email.duplicado': 'Já existe um cliente com este e-mail.',
+  'formulario.campo.invalido': 'Confira este campo.',
+
+  /** Diálogo de descarte dos formulários de cliente e de veículo (ADR-029, D3). */
+  'comum.descartar.titulo': 'Descartar alterações?',
+  'comum.descartar.mensagem': 'O que você digitou neste formulário será perdido.',
+  'comum.descartar.continuar': 'Continuar editando',
+  'comum.descartar.confirmar': 'Descartar',
+
   'veiculos.item.dica': 'Abre os dados do veículo',
   /** A lista do cliente traz só placa, marca e modelo; ano e cor ficam para o detalhe. */
   'veiculos.item.marcaModelo': '{marca} {modelo}',
@@ -146,6 +190,11 @@ const strings = {
 export type ChaveTexto = keyof typeof strings;
 
 export type ParametrosTexto = Readonly<Record<string, string | number>>;
+
+/** Chave que veio de fora (resposta da API) só vira texto se for uma das conhecidas. */
+export function isChaveTexto(chave: string): chave is ChaveTexto {
+  return Object.prototype.hasOwnProperty.call(strings, chave);
+}
 
 /**
  * Texto da interface por chave. Marcadores `{nome}` são trocados pelos
