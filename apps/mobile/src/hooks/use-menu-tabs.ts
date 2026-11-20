@@ -1,6 +1,6 @@
 import { usePathname, useRouter } from 'expo-router';
 
-import type { MenuTabKey } from '@/components/menu/menu-tab-bar';
+import type { MenuTabKey } from '@/navigation/menu-tab-key';
 
 export interface MenuTabs {
   readonly selectedTab: MenuTabKey | null;

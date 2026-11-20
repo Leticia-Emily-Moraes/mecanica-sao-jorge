@@ -2,7 +2,7 @@ import type { ReactElement, ReactNode } from 'react';
 import { StyleSheet, View } from 'react-native';
 
 import { MenuTabBar } from '@/components/menu/menu-tab-bar';
-import type { MenuTabKey } from '@/components/menu/menu-tab-bar';
+import type { MenuTabKey } from '@/navigation/menu-tab-key';
 import { color } from '@/theme/tokens';
 
 export interface MenuShellProps {

@@ -5,9 +5,10 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { TabBarItem } from '@/components/ui/tab-bar-item';
 import type { TabBarIconName } from '@/components/ui/tab-bar-item';
 import { t } from '@/i18n/strings';
+import type { MenuTabKey } from '@/navigation/menu-tab-key';
 import { color, layout, size } from '@/theme/tokens';
 
-export type MenuTabKey = 'ordens' | 'clientes' | 'catalogo' | 'financeiro';
+export type { MenuTabKey };
 
 interface TabBarEntry {
   readonly key: MenuTabKey;
