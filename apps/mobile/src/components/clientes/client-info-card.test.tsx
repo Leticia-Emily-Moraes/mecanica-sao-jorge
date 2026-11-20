@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react-native';
+import { render, screen, within } from '@testing-library/react-native';
 
 import type { ClienteDetalhe } from '@/services/clients-types';
 
@@ -40,12 +40,23 @@ describe('ClientInfoCard', () => {
     expect(screen.queryByText(/123\.456\.789/)).toBeNull();
   });
 
-  it('should read the CPF by its visible digits, without spelling the asterisks', () => {
+  it('should read the CPF row as "CPF parcialmente oculto", without asterisks or digits', () => {
     render(<ClientInfoCard cliente={COMPLETO} />);
 
-    expect(
-      screen.getByLabelText('CPF: parcialmente oculto, dígitos visíveis: 5, 6, 7'),
-    ).toBeTruthy();
+    const linha = screen.getByLabelText('CPF parcialmente oculto');
+
+    expect(linha.props.accessible).toBe(true);
+    expect(screen.queryByLabelText(/\*/)).toBeNull();
+    expect(screen.queryByLabelText(/567/)).toBeNull();
+  });
+
+  it('should keep the visible "CPF" label next to the masked value in the same row', () => {
+    render(<ClientInfoCard cliente={COMPLETO} />);
+
+    const linha = screen.getByLabelText('CPF parcialmente oculto');
+
+    expect(within(linha).getByText('CPF')).toBeTruthy();
+    expect(within(linha).getByText('***.*56.7**-**')).toBeTruthy();
   });
 
   it('should show "Não informado" in every field when the API sends null', () => {

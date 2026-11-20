@@ -2,7 +2,7 @@ import type { ReactElement } from 'react';
 
 import { Avatar } from '@/components/ui/avatar';
 import { InfoCard, type InfoRow } from '@/components/ui/info-card';
-import { digitosVisiveisDoCpf, mascararCpf } from '@/formatters/cpf-mask';
+import { mascararCpf } from '@/formatters/cpf-mask';
 import { getInitials } from '@/formatters/get-initials';
 import { formatarTelefone } from '@/formatters/phone-format';
 import { t } from '@/i18n/strings';
@@ -17,24 +17,24 @@ function textoOuNulo(valor: string | null): string | null {
   return aparado === '' ? null : aparado;
 }
 
-function linha(rotulo: string, valor: string | null, valorAcessivel?: string | null): InfoRow {
+function linha(rotulo: string, valor: string | null, frase?: string): InfoRow {
   if (valor === null) {
     return { label: rotulo, value: t('clientes.detalhe.naoInformado'), muted: true };
   }
-  return valorAcessivel
-    ? { label: rotulo, value: valor, accessibleValue: valorAcessivel }
-    : { label: rotulo, value: valor };
+  return frase === undefined
+    ? { label: rotulo, value: valor }
+    : { label: rotulo, value: valor, accessibilityLabel: frase };
 }
 
 /**
  * Dados do cliente, somente leitura (D1/D7). Campo ausente mostra "Não informado".
- * O CPF só aparece mascarado e é lido pelos dígitos visíveis, nunca pelo valor
- * cru (critérios 28 e 29); CPF vazio, nulo ou incompleto vira "Não informado".
+ * O CPF só aparece mascarado e o leitor de tela lê "CPF parcialmente oculto" (como
+ * no Figma), sem asteriscos nem dígitos; CPF vazio, nulo ou incompleto vira
+ * "Não informado" (critérios 28 e 29).
  */
 export function ClientInfoCard({ cliente }: ClientInfoCardProps): ReactElement {
   const telefone = textoOuNulo(cliente.telefone);
   const cpfMascarado = mascararCpf(cliente.cpf);
-  const digitos = digitosVisiveisDoCpf(cliente.cpf);
 
   return (
     <InfoCard
@@ -51,7 +51,7 @@ export function ClientInfoCard({ cliente }: ClientInfoCardProps): ReactElement {
         linha(
           t('clientes.detalhe.cpf'),
           cpfMascarado,
-          digitos === null ? null : t('clientes.detalhe.cpf.valorAcessivel', { digitos }),
+          t('clientes.detalhe.cpf.rotuloAcessivel'),
         ),
         linha(t('clientes.detalhe.endereco'), textoOuNulo(cliente.endereco)),
       ]}

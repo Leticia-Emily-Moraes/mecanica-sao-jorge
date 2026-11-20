@@ -1,4 +1,4 @@
-import { digitosVisiveisDoCpf, mascararCpf } from './cpf-mask';
+import { mascararCpf } from './cpf-mask';
 
 // CPF fictício, só para formato (não pertence a ninguém).
 const CPF_FICTICIO = '12345678909';
@@ -35,26 +35,5 @@ describe('mascararCpf', () => {
     const mascara = mascararCpf(CPF_FICTICIO) ?? '';
 
     expect(mascara.replace(/\D/g, '')).toBe('567');
-  });
-});
-
-describe('digitosVisiveisDoCpf', () => {
-  it('should list the three visible digits separated by commas', () => {
-    expect(digitosVisiveisDoCpf(CPF_FICTICIO)).toBe('5, 6, 7');
-  });
-
-  it('should accept punctuation', () => {
-    expect(digitosVisiveisDoCpf('123.456.789-09')).toBe('5, 6, 7');
-  });
-
-  it.each([[null], [undefined], [''], ['1234567890'], ['123456789012']])(
-    'should return null when the CPF is %p',
-    (valor) => {
-      expect(digitosVisiveisDoCpf(valor)).toBeNull();
-    },
-  );
-
-  it('should not contain asterisks, so the screen reader never spells them', () => {
-    expect(digitosVisiveisDoCpf(CPF_FICTICIO)).not.toContain('*');
   });
 });

@@ -113,7 +113,7 @@ const strings = {
   'clientes.detalhe.endereco': 'Endereço',
   'clientes.detalhe.naoInformado': 'Não informado',
   /** Lido depois do rótulo "CPF:", sem soletrar os asteriscos da máscara. */
-  'clientes.detalhe.cpf.valorAcessivel': 'parcialmente oculto, dígitos visíveis: {digitos}',
+  'clientes.detalhe.cpf.rotuloAcessivel': 'CPF parcialmente oculto',
   'clientes.detalhe.veiculos.titulo': 'Veículos ({quantidade})',
   'clientes.detalhe.veiculos.vazio.titulo': 'Nenhum veículo cadastrado',
   'clientes.detalhe.veiculos.vazio.mensagem': 'Cadastre o primeiro veículo deste cliente.',

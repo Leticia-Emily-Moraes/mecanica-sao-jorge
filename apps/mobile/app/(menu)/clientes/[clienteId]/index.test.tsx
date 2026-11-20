@@ -108,6 +108,17 @@ describe('ClienteDetalheScreen', () => {
     expect(screen.queryByText(CPF_FICTICIO)).toBeNull();
   });
 
+  it('should read the CPF field of the detail as "CPF parcialmente oculto" (criterion 29)', async () => {
+    simularApi({ cliente: fakeResponse(200, CLIENTE), veiculos: fakeResponse(200, VEICULOS) });
+
+    renderTela();
+
+    const campo = await screen.findByLabelText('CPF parcialmente oculto');
+
+    expect(campo.props.accessible).toBe(true);
+    expect(screen.queryByLabelText(/\*/)).toBeNull();
+  });
+
   it('should show "Não informado" for missing fields without breaking the screen', async () => {
     simularApi({
       cliente: fakeResponse(200, {

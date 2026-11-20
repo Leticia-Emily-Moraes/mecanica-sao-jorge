@@ -8,8 +8,8 @@ export interface InfoRow {
   readonly value: string;
   /** Valor sem dado (ex.: "Não informado"): sai em cinza e à esquerda não muda nada. */
   readonly muted?: boolean;
-  /** O que o leitor de tela lê no lugar do valor (ex.: CPF mascarado, sem ler asteriscos). */
-  readonly accessibleValue?: string;
+  /** Frase inteira que o leitor de tela lê no lugar de "rótulo: valor" (ex.: "CPF parcialmente oculto"). */
+  readonly accessibilityLabel?: string;
 }
 
 export interface InfoCardProps {
@@ -48,7 +48,7 @@ export function InfoCard({ rows, header }: InfoCardProps): ReactElement {
         <View
           key={row.label}
           accessible
-          accessibilityLabel={`${row.label}: ${row.accessibleValue ?? row.value}`}
+          accessibilityLabel={row.accessibilityLabel ?? `${row.label}: ${row.value}`}
           style={styles.row}
         >
           <Text style={styles.label}>{row.label}</Text>

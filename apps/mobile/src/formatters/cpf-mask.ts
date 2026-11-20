@@ -28,15 +28,3 @@ export function mascararCpf(valor: string | null | undefined): string | null {
   const visiveis = digitos.slice(VISIBLE_START, VISIBLE_END);
   return `***.*${visiveis.slice(0, 2)}.${visiveis.slice(2)}**-**`;
 }
-
-/**
- * Dígitos que a máscara deixa à mostra, separados por vírgula ("5, 6, 7"),
- * para o rótulo do leitor de tela. Evita soletrar asteriscos (critério 29).
- */
-export function digitosVisiveisDoCpf(valor: string | null | undefined): string | null {
-  const digitos = lerCpfCompleto(valor);
-  if (digitos === null) {
-    return null;
-  }
-  return Array.from(digitos.slice(VISIBLE_START, VISIBLE_END)).join(', ');
-}

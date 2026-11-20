@@ -75,14 +75,20 @@ describe('InfoCard', () => {
     });
   });
 
-  it('should read the accessible value instead of the shown one when it is given', () => {
+  it('should read the given accessibility phrase instead of "label: value" when it is given', () => {
     render(
       <InfoCard
-        rows={[{ label: 'CPF', value: '***.*56.7**-**', accessibleValue: 'dígitos 5, 6, 7' }]}
+        rows={[
+          {
+            label: 'CPF',
+            value: '***.*56.7**-**',
+            accessibilityLabel: 'CPF parcialmente oculto',
+          },
+        ]}
       />,
     );
 
-    expect(screen.getByLabelText('CPF: dígitos 5, 6, 7')).toBeTruthy();
+    expect(screen.getByLabelText('CPF parcialmente oculto')).toBeTruthy();
     expect(screen.queryByLabelText(/\*/)).toBeNull();
   });
 
