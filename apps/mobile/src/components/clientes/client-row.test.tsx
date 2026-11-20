@@ -33,6 +33,13 @@ describe('ClientRow', () => {
     expect(button.props.accessibilityHint).toBe('Abre os dados do cliente');
   });
 
+  it('should show one contact line only: the phone, not the e-mail, when both exist (L1/L7)', () => {
+    render(<ClientRow cliente={MARIA} onPress={jest.fn()} />);
+
+    expect(screen.getByText('(11) 90000-0001')).toBeTruthy();
+    expect(screen.queryByText('maria@example.com')).toBeNull();
+  });
+
   it('should show the e-mail when there is no phone', () => {
     render(<ClientRow cliente={{ ...MARIA, telefone: null }} onPress={jest.fn()} />);
 
