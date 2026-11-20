@@ -2,7 +2,7 @@ import { fireEvent, render, screen } from '@testing-library/react-native';
 import { AccessibilityInfo, StyleSheet } from 'react-native';
 
 import type { TestStyle } from '@/test-utils/flat-style';
-import { color, size } from '@/theme/tokens';
+import { color, iconSize, size } from '@/theme/tokens';
 
 import { InlineNotice } from './inline-notice';
 
@@ -61,6 +61,22 @@ describe('InlineNotice', () => {
     fireEvent.press(screen.getByRole('button', { name: 'Dispensar' }));
 
     expect(onDismiss).toHaveBeenCalledTimes(1);
+  });
+
+  it('should give the dismiss button a 48 x 48 touch area around its icon (F45 N-06)', () => {
+    render(
+      <InlineNotice message="Cliente cadastrado." onDismiss={jest.fn()} dismissLabel="Dispensar" />,
+    );
+
+    const slop = screen.getByRole('button', { name: 'Dispensar' }).props.hitSlop as {
+      top: number;
+      bottom: number;
+      left: number;
+      right: number;
+    };
+
+    expect(iconSize.appBar + slop.top + slop.bottom).toBeGreaterThanOrEqual(48);
+    expect(iconSize.appBar + slop.left + slop.right).toBeGreaterThanOrEqual(48);
   });
 
   it('should extend the dismiss touch area to 48 high', () => {

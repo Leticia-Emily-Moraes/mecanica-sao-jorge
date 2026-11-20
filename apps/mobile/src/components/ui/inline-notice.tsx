@@ -58,11 +58,13 @@ export function InlineNotice({
   );
 }
 
+/** O botão mede só o ícone: o `hitSlop` completa os dois lados até `minTouchTarget`. */
+const DISMISS_SLOP_SIDE = (minTouchTarget - iconSize.appBar) / 2;
 const DISMISS_SLOP = {
-  top: (minTouchTarget - size.notice) / 2,
-  bottom: (minTouchTarget - size.notice) / 2,
-  left: spacing.sm,
-  right: spacing.sm,
+  top: DISMISS_SLOP_SIDE,
+  bottom: DISMISS_SLOP_SIDE,
+  left: DISMISS_SLOP_SIDE,
+  right: DISMISS_SLOP_SIDE,
 };
 
 const styles = StyleSheet.create({
