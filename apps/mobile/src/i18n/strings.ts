@@ -105,6 +105,8 @@ const strings = {
 
   'clientes.detalhe.titulo': 'Cliente',
   'clientes.detalhe.editar.rotulo': 'Editar cliente',
+  'clientes.detalhe.editar.rotuloComNome': 'Editar cliente {nome}',
+  'clientes.detalhe.voltar.rotulo': 'Voltar para clientes',
   'clientes.detalhe.telefone': 'Telefone',
   'clientes.detalhe.email': 'E-mail',
   'clientes.detalhe.cpf': 'CPF',
@@ -116,7 +118,6 @@ const strings = {
   'clientes.detalhe.veiculos.vazio.titulo': 'Nenhum veículo cadastrado',
   'clientes.detalhe.veiculos.vazio.mensagem': 'Cadastre o primeiro veículo deste cliente.',
   'clientes.detalhe.veiculos.novo': '+ Veículo',
-  'clientes.detalhe.veiculos.novo.rotulo': 'Cadastrar veículo',
   'clientes.detalhe.veiculos.carregando': 'Carregando veículos…',
   'clientes.detalhe.veiculos.erro': 'Não foi possível carregar os veículos.',
   'clientes.detalhe.veiculos.tentar': 'Tentar novamente',

@@ -155,7 +155,9 @@ function ListaDeClientes({
 }: ListaDeClientesProps): ReactElement {
   return (
     <>
-      {estado.falhaAoAtualizar ? <InlineAlert message={t('clientes.lista.falhaAtualizar')} /> : null}
+      {estado.falhaAoAtualizar ? (
+        <InlineAlert message={t('clientes.lista.falhaAtualizar')} />
+      ) : null}
       <FlatList
         style={styles.list}
         contentContainerStyle={styles.listContent}
@@ -166,9 +168,7 @@ function ListaDeClientes({
         keyboardShouldPersistTaps="handled"
         refreshing={estado.atualizando}
         onRefresh={onAtualizar}
-        ListFooterComponent={
-          <RodapeDaLista estado={estado} onCarregarMais={onCarregarMais} />
-        }
+        ListFooterComponent={<RodapeDaLista estado={estado} onCarregarMais={onCarregarMais} />}
       />
       <View style={styles.newAction}>
         <Button label={t('clientes.lista.novo')} onPress={onNovo} />
