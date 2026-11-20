@@ -3,6 +3,7 @@ import type { ReactElement } from 'react';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import { useAuth } from '@/hooks/use-auth';
+import { limparNomeSugerido, lerNomeSugerido } from '@/navigation/new-client-name';
 import { fakeResponse, mockFetch } from '@/test-utils/fake-response';
 
 import ClientesScreen from './index';
@@ -51,6 +52,7 @@ describe('ClientesScreen', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
+    limparNomeSugerido();
     (useAuth as jest.MockedFunction<typeof useAuth>).mockReturnValue({
       tokenAtual: 'token-de-teste',
       tratarSessaoExpirada,
@@ -124,6 +126,50 @@ describe('ClientesScreen', () => {
     expect(screen.queryByText('Nenhum cliente cadastrado')).toBeNull();
     expect(screen.getByRole('button', { name: 'Limpar busca' })).toBeTruthy();
     jest.useRealTimers();
+  });
+
+  async function buscarSemResultado(termo: string): Promise<void> {
+    jest.useFakeTimers();
+    fetchMock.mockResolvedValueOnce(fakeResponse(200, pagina([CLIENTE_A])));
+    fetchMock.mockResolvedValueOnce(fakeResponse(200, pagina([], 0)));
+
+    renderTela();
+    await screen.findByText('Teodoro Lemos');
+    fireEvent.changeText(screen.getByLabelText('Buscar clientes'), termo);
+    await act(async () => {
+      jest.advanceTimersByTime(400);
+    });
+    await waitFor(() => expect(screen.getByText('Nenhum resultado')).toBeTruthy());
+  }
+
+  it('should offer to register the searched name and carry it to the new client form (P-01)', async () => {
+    await buscarSemResultado('Lauro');
+
+    fireEvent.press(screen.getByRole('button', { name: 'Cadastrar "Lauro"' }));
+
+    expect(mockPush).toHaveBeenCalledWith('/clientes/novo');
+    expect(lerNomeSugerido()).toBe('Lauro');
+    jest.useRealTimers();
+  });
+
+  it('should keep "Novo cliente" with an empty form when the searched term looks like a phone', async () => {
+    await buscarSemResultado('11900000001');
+
+    fireEvent.press(screen.getByRole('button', { name: 'Novo cliente' }));
+
+    expect(mockPush).toHaveBeenCalledWith('/clientes/novo');
+    expect(lerNomeSugerido()).toBe('');
+    jest.useRealTimers();
+  });
+
+  it('should draw the plus icon on the "Novo cliente" button of the filled list (P-08)', async () => {
+    fetchMock.mockResolvedValue(fakeResponse(200, pagina([CLIENTE_A])));
+
+    renderTela();
+    await screen.findByText('Teodoro Lemos');
+
+    expect(screen.getByTestId('button-icon', { includeHiddenElements: true })).toBeTruthy();
+    expect(screen.getByRole('button', { name: 'Novo cliente' })).toBeTruthy();
   });
 
   it('should send a single request for a burst of keystrokes', async () => {

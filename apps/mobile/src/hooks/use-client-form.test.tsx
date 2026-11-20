@@ -85,6 +85,21 @@ describe('useClientForm (novo)', () => {
     expect(fetchMock).not.toHaveBeenCalled();
   });
 
+  it('should start with the suggested name and without counting it as a change', () => {
+    const { result } = renderHook(() => useClientForm({ modo: 'novo', nomeInicial: 'Lauro' }));
+
+    expect(result.current.valores.nome).toBe('Lauro');
+    expect(result.current.temAlteracao).toBe(false);
+  });
+
+  it('should flag a change when the suggested name is edited', () => {
+    const { result } = renderHook(() => useClientForm({ modo: 'novo', nomeInicial: 'Lauro' }));
+
+    act(() => result.current.alterar('nome', 'Lauro Teste'));
+
+    expect(result.current.temAlteracao).toBe(true);
+  });
+
   it('should mask phone and CPF while typing and flag the change', () => {
     const { result } = renderHook(() => useClientForm(NOVO));
 

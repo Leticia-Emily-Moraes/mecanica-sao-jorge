@@ -14,6 +14,11 @@ import { SEARCH_MAX_LENGTH } from '@/config/search';
 import { useAnnounce } from '@/hooks/use-announce';
 import { type EstadoLista, useClientList } from '@/hooks/use-client-list';
 import { t } from '@/i18n/strings';
+import {
+  limparNomeSugerido,
+  nomeSugeridoDoTermo,
+  sugerirNomeParaNovoCliente,
+} from '@/navigation/new-client-name';
 import { color, spacing, typography } from '@/theme/tokens';
 
 type EstadoComLista = Extract<EstadoLista, { tipo: 'sucesso' }>;
@@ -51,6 +56,14 @@ export default function ClientesScreen(): ReactElement {
   }
 
   function novoCliente(): void {
+    limparNomeSugerido();
+    router.push('/clientes/novo');
+  }
+
+  const nomeSugerido = nomeSugeridoDoTermo(termoAplicado);
+
+  function cadastrarDaBusca(): void {
+    sugerirNomeParaNovoCliente(termoAplicado);
     router.push('/clientes/novo');
   }
 
@@ -119,8 +132,12 @@ export default function ClientesScreen(): ReactElement {
             icon="search-outline"
             title={t('clientes.lista.semResultado.titulo')}
             message={t('clientes.lista.semResultado.mensagem', { termo: termoAplicado })}
-            actionLabel={t('clientes.lista.novo')}
-            onAction={novoCliente}
+            actionLabel={
+              nomeSugerido === ''
+                ? t('clientes.lista.novo')
+                : t('clientes.lista.semResultado.cadastrar', { termo: nomeSugerido })
+            }
+            onAction={nomeSugerido === '' ? novoCliente : cadastrarDaBusca}
           />
         ) : null}
 
@@ -171,7 +188,7 @@ function ListaDeClientes({
         ListFooterComponent={<RodapeDaLista estado={estado} onCarregarMais={onCarregarMais} />}
       />
       <View style={styles.newAction}>
-        <Button label={t('clientes.lista.novo')} onPress={onNovo} />
+        <Button label={t('clientes.lista.novo')} icon="add" onPress={onNovo} />
       </View>
     </>
   );

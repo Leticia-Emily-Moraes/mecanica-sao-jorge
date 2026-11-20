@@ -87,6 +87,7 @@ const strings = {
   'clientes.lista.novo': 'Novo cliente',
   'clientes.lista.semResultado.titulo': 'Nenhum resultado',
   'clientes.lista.semResultado.mensagem': 'Nenhum cliente encontrado para "{termo}".',
+  'clientes.lista.semResultado.cadastrar': 'Cadastrar "{termo}"',
   'clientes.lista.semResultado.anuncio': 'Nenhum resultado para a busca.',
   'clientes.lista.resultados.um': '1 cliente encontrado',
   'clientes.lista.resultados.varios': '{quantidade} clientes encontrados',

@@ -128,7 +128,8 @@ export interface ClientForm {
 }
 
 export type AlvoDoFormulario =
-  | { readonly modo: 'novo' }
+  /** `nomeInicial` vem da busca sem resultado e não conta como alteração para o descarte. */
+  | { readonly modo: 'novo'; readonly nomeInicial?: string }
   /** `clienteId` nulo é parâmetro de rota inválido: "não encontrado", sem chamada à API. */
   | { readonly modo: 'editar'; readonly clienteId: number | null };
 
@@ -144,8 +145,15 @@ export function useClientForm(alvo: AlvoDoFormulario): ClientForm {
   const { executar } = useAuthenticatedRequest();
   const leitura = useResource<ClienteDetalhe>(clienteId, obterCliente);
 
-  const [valores, setValores] = useState<ValoresDoCliente>(VALORES_VAZIOS);
-  const [iniciais, setIniciais] = useState<ValoresDoCliente>(VALORES_VAZIOS);
+  const nomeInicial = alvo.modo === 'novo' ? (alvo.nomeInicial ?? '') : '';
+  const [valores, setValores] = useState<ValoresDoCliente>(() => ({
+    ...VALORES_VAZIOS,
+    nome: nomeInicial,
+  }));
+  const [iniciais, setIniciais] = useState<ValoresDoCliente>(() => ({
+    ...VALORES_VAZIOS,
+    nome: nomeInicial,
+  }));
   const [carregou, setCarregou] = useState(!modoEdicao);
   const [estadoEnvio, setEstadoEnvio] = useState<EstadoEnvio>('idle');
   const [errosDeCampo, setErrosDeCampo] = useState<ErrosDeCampo>({});

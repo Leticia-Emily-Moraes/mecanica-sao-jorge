@@ -2,6 +2,7 @@ import { act, fireEvent, render, screen, waitFor } from '@testing-library/react-
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import { useAuth } from '@/hooks/use-auth';
+import { lerNomeSugerido, sugerirNomeParaNovoCliente } from '@/navigation/new-client-name';
 import { fakeResponse, mockFetch } from '@/test-utils/fake-response';
 
 import NovoClienteScreen from './novo';
@@ -86,6 +87,24 @@ describe('NovoClienteScreen', () => {
     expect(screen.getByRole('header', { name: 'Novo cliente' })).toBeTruthy();
     expect(screen.getByLabelText(ROTULO_NOME)).toBeTruthy();
     expect(screen.getByRole('button', { name: 'Salvar cliente' })).toBeTruthy();
+  });
+
+  it('should open with the name suggested by the empty search, editable, then forget it', () => {
+    mockFetch();
+    sugerirNomeParaNovoCliente('Lauro');
+
+    const { unmount } = render(
+      <SafeAreaProvider initialMetrics={METRICAS}>
+        <NovoClienteScreen />
+      </SafeAreaProvider>,
+    );
+
+    expect(screen.getByLabelText(ROTULO_NOME).props.value).toBe('Lauro');
+    digitar(ROTULO_NOME, 'Lauro Teste');
+    expect(screen.getByLabelText(ROTULO_NOME).props.value).toBe('Lauro Teste');
+
+    unmount();
+    expect(lerNomeSugerido()).toBe('');
   });
 
   it('should refuse an empty name without calling the API', () => {
