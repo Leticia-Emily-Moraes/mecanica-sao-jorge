@@ -34,6 +34,8 @@ export interface TextFieldProps {
   readonly multiline?: boolean;
   readonly maxLength?: number;
   readonly autoComplete?: TextInputProps['autoComplete'];
+  /** Android: `no` tira o campo do serviço de preenchimento automático. */
+  readonly importantForAutofill?: TextInputProps['importantForAutofill'];
   readonly autoCorrect?: boolean;
   readonly returnKeyType?: TextInputProps['returnKeyType'];
   readonly onSubmitEditing?: () => void;
@@ -63,6 +65,7 @@ export const TextField = forwardRef<TextInput, TextFieldProps>(function TextFiel
     multiline = false,
     maxLength,
     autoComplete,
+    importantForAutofill,
     autoCorrect,
     returnKeyType,
     onSubmitEditing,
@@ -101,6 +104,7 @@ export const TextField = forwardRef<TextInput, TextFieldProps>(function TextFiel
           autoCapitalize={autoCapitalize}
           textContentType={textContentType}
           autoComplete={autoComplete}
+          importantForAutofill={importantForAutofill}
           autoCorrect={autoCorrect}
           maxLength={maxLength}
           multiline={multiline}
