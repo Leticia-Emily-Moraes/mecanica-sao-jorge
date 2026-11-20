@@ -11,7 +11,7 @@ import type {
   ValoresDoVeiculo,
 } from '@/hooks/use-vehicle-form';
 import { isChaveTexto, t } from '@/i18n/strings';
-import { color, spacing, typography } from '@/theme/tokens';
+import { color, fontFamily, spacing, typography } from '@/theme/tokens';
 
 export interface VehicleFormFieldsProps {
   readonly modo: 'novo' | 'editar';
@@ -178,7 +178,7 @@ const styles = StyleSheet.create({
   },
   ownerName: {
     color: color.text.primary,
-    fontWeight: '600',
+    fontFamily: fontFamily.bodySemiBold,
   },
   pair: {
     flexDirection: 'row',

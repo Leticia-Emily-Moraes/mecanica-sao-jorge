@@ -1,8 +1,10 @@
 import { fireEvent, render, screen } from '@testing-library/react-native';
-import { TextInput } from 'react-native';
+import { StyleSheet, TextInput } from 'react-native';
 
 import type { EstadoEnvio } from '@/hooks/use-client-form';
 import type { ValoresDoVeiculo } from '@/hooks/use-vehicle-form';
+import type { TestStyle } from '@/test-utils/flat-style';
+import { fontFamily } from '@/theme/tokens';
 
 import { VehicleFormFields, type VehicleFormFieldsProps } from './vehicle-form-fields';
 
@@ -37,6 +39,15 @@ describe('VehicleFormFields', () => {
     expect(screen.getByLabelText('Modelo *')).toBeTruthy();
     expect(screen.getByLabelText('Ano (opcional)')).toBeTruthy();
     expect(screen.getByLabelText('Cor (opcional)')).toBeTruthy();
+  });
+
+  it('should set the owner name weight by font family token, not by fontWeight (F45 N-09)', () => {
+    renderForm();
+
+    const style = StyleSheet.flatten(screen.getByText('Teodoro Lemos').props.style as TestStyle);
+
+    expect(style.fontFamily).toBe(fontFamily.bodySemiBold);
+    expect(style).not.toHaveProperty('fontWeight');
   });
 
   it('should use the right keyboard and limits for plate and year', () => {
