@@ -250,6 +250,8 @@ export const iconSize = {
   /** Seta do cartão de lista. */
   chevron: 18,
   search: 18,
+  /** Ícone à esquerda do texto do botão ("+" de "Novo cliente", L1 do F26). */
+  button: 18,
 } as const;
 
 export const layout = {

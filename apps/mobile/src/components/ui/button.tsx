@@ -1,4 +1,5 @@
-import type { ReactElement } from 'react';
+import { Ionicons } from '@expo/vector-icons';
+import type { ComponentProps, ReactElement } from 'react';
 import { ActivityIndicator, Pressable, StyleSheet, Text, View } from 'react-native';
 
 import {
@@ -7,6 +8,7 @@ import {
   focusRingOffset,
   focusRingRadius,
   focusRingWidth,
+  iconSize,
   minTouchTarget,
   opacity,
   radius,
@@ -30,6 +32,8 @@ export interface ButtonProps {
   readonly loadingLabel?: string;
   readonly disabled?: boolean;
   readonly accessibilityLabel?: string;
+  /** Ícone decorativo antes do texto; o nome acessível continua sendo só o texto. */
+  readonly icon?: ComponentProps<typeof Ionicons>['name'];
 }
 
 /**
@@ -47,6 +51,7 @@ export function Button({
   loadingLabel,
   disabled = false,
   accessibilityLabel,
+  icon,
 }: ButtonProps): ReactElement {
   const { focusRingStyle, onFocus, onBlur } = useFocusRing();
   const isDisabled = disabled || loading;
@@ -83,7 +88,22 @@ export function Button({
             <View testID="button-loading-balance" style={styles.loadingSlot} />
           </View>
         ) : (
-          <Text style={labelStyle}>{label}</Text>
+          <View style={styles.content}>
+            {icon === undefined ? null : (
+              <View
+                testID="button-icon"
+                accessibilityElementsHidden
+                importantForAccessibility="no-hide-descendants"
+              >
+                <Ionicons
+                  name={icon}
+                  size={iconSize.button}
+                  color={iconColorByVariant[variant]}
+                />
+              </View>
+            )}
+            <Text style={labelStyle}>{label}</Text>
+          </View>
         )}
       </Pressable>
     </View>
@@ -124,6 +144,11 @@ const styles = StyleSheet.create({
   disabled: {
     opacity: opacity.disabled,
   },
+  content: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.s6,
+  },
   loadingRow: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -155,6 +180,12 @@ const variantStyle = {
   primary: styles.primary,
   secondary: styles.secondary,
   outlineAccent: styles.outlineAccent,
+} as const;
+
+const iconColorByVariant = {
+  primary: color.text.onPrimaryAction,
+  secondary: color.text.primary,
+  outlineAccent: color.text.error,
 } as const;
 
 const labelColorByVariant = {
