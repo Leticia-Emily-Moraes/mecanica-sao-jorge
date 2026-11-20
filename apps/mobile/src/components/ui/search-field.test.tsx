@@ -31,6 +31,15 @@ function boxStyle(): TestStyle {
 }
 
 describe('SearchField', () => {
+  it('should turn off keyboard suggestions so searched names are not remembered (F45 LG-04)', () => {
+    renderField();
+
+    const input = screen.getByLabelText('Buscar cliente');
+
+    expect(input.props.autoComplete).toBe('off');
+    expect(input.props.autoCorrect).toBe(false);
+  });
+
   it('should expose the field with its accessible name inside a search region', () => {
     renderField();
 

@@ -65,6 +65,7 @@ export function SearchField({
         maxLength={maxLength}
         returnKeyType="search"
         autoCapitalize="none"
+        autoComplete="off"
         autoCorrect={false}
         style={styles.input}
       />
