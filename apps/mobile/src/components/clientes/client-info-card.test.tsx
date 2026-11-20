@@ -37,7 +37,10 @@ describe('ClientInfoCard', () => {
   it('should draw the data card with the detail shadow of radius 2 (P-10)', () => {
     render(<ClientInfoCard cliente={COMPLETO} />);
 
-    const cartao = findAncestorStyle(screen.getByLabelText('CPF parcialmente oculto'), 'borderWidth');
+    const cartao = findAncestorStyle(
+      screen.getByLabelText('CPF parcialmente oculto'),
+      'borderWidth',
+    );
 
     expect(cartao).toMatchObject({ shadowRadius: 2, shadowOpacity: 0.06 });
   });

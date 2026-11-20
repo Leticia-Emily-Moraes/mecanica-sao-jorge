@@ -95,11 +95,7 @@ export function Button({
                 accessibilityElementsHidden
                 importantForAccessibility="no-hide-descendants"
               >
-                <Ionicons
-                  name={icon}
-                  size={iconSize.button}
-                  color={iconColorByVariant[variant]}
-                />
+                <Ionicons name={icon} size={iconSize.button} color={iconColorByVariant[variant]} />
               </View>
             )}
             <Text style={labelStyle}>{label}</Text>

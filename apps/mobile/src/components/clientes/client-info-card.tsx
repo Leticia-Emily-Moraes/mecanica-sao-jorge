@@ -49,11 +49,7 @@ export function ClientInfoCard({ cliente }: ClientInfoCardProps): ReactElement {
           telefone === null ? null : formatarTelefone(telefone),
         ),
         linha(t('clientes.detalhe.email'), textoOuNulo(cliente.email)),
-        linha(
-          t('clientes.detalhe.cpf'),
-          cpfMascarado,
-          t('clientes.detalhe.cpf.rotuloAcessivel'),
-        ),
+        linha(t('clientes.detalhe.cpf'), cpfMascarado, t('clientes.detalhe.cpf.rotuloAcessivel')),
         linha(t('clientes.detalhe.endereco'), textoOuNulo(cliente.endereco)),
       ]}
     />
