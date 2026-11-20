@@ -103,6 +103,26 @@ describe('InfoCard', () => {
     expect(screen.getByRole('header', { name: 'Fulano de Teste' })).toBeTruthy();
   });
 
+  it('should show the header subtitle under the title in the secondary color', () => {
+    render(
+      <InfoCard
+        rows={LINHAS}
+        header={{ leading: <Text>ícone</Text>, title: 'Honda Civic', subtitle: 'Fulano de Teste' }}
+      />,
+    );
+
+    expect(screen.getByRole('header', { name: 'Honda Civic' })).toBeTruthy();
+    expect(
+      StyleSheet.flatten(screen.getByText('Fulano de Teste').props.style as TestStyle),
+    ).toMatchObject({ color: '#6E6A66' });
+  });
+
+  it('should not draw a subtitle when none is given', () => {
+    render(<InfoCard rows={LINHAS} header={{ leading: <Text>ícone</Text>, title: 'Fulano' }} />);
+
+    expect(screen.getAllByText(/./)).toHaveLength(2 + LINHAS.length * 2);
+  });
+
   it('should not draw a header when none is given', () => {
     render(<InfoCard rows={LINHAS} />);
 

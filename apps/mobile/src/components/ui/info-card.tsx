@@ -18,6 +18,8 @@ export interface InfoCardProps {
   readonly header?: {
     readonly leading: ReactNode;
     readonly title: string;
+    /** Linha de apoio sob o título (ex.: nome do dono do veículo); lida logo após o título. */
+    readonly subtitle?: string;
   };
 }
 
@@ -32,9 +34,14 @@ export function InfoCard({ rows, header }: InfoCardProps): ReactElement {
       {header ? (
         <View style={styles.header}>
           {header.leading}
-          <Text accessibilityRole="header" style={styles.title}>
-            {header.title}
-          </Text>
+          <View style={styles.headerTexts}>
+            <Text accessibilityRole="header" style={styles.title}>
+              {header.title}
+            </Text>
+            {header.subtitle === undefined ? null : (
+              <Text style={styles.subtitle}>{header.subtitle}</Text>
+            )}
+          </View>
         </View>
       ) : null}
       {rows.map((row) => (
@@ -68,11 +75,19 @@ const styles = StyleSheet.create({
     gap: spacing.s12,
     marginBottom: spacing.xs,
   },
-  title: {
+  headerTexts: {
     flex: 1,
+    gap: spacing.xs,
+  },
+  title: {
     fontFamily: typography.detailName.fontFamily,
     fontSize: typography.detailName.fontSize,
     color: color.text.primary,
+  },
+  subtitle: {
+    fontFamily: typography.subtitle.fontFamily,
+    fontSize: typography.subtitle.fontSize,
+    color: color.text.secondary,
   },
   row: {
     flexDirection: 'row',
