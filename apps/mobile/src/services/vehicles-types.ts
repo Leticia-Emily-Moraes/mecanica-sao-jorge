@@ -32,6 +32,30 @@ export interface VeiculoDetalhe {
   readonly historicoOs: ReadonlyArray<HistoricoOsItem>;
 }
 
+/** Resposta de `POST /clientes/{id}/veiculos` e `PUT /veiculos/{id}` (ADR-030): sem nome nem histórico. */
+export interface VeiculoSalvo {
+  readonly id: number;
+  readonly clienteId: number;
+  readonly placa: string;
+  readonly marca: string;
+  readonly modelo: string;
+  readonly ano: number | null;
+  readonly cor: string | null;
+}
+
+export function isVeiculoSalvo(valor: unknown): valor is VeiculoSalvo {
+  return (
+    isRecord(valor) &&
+    isId(valor.id) &&
+    isId(valor.clienteId) &&
+    typeof valor.placa === 'string' &&
+    typeof valor.marca === 'string' &&
+    typeof valor.modelo === 'string' &&
+    isInteiroOuNulo(valor.ano) &&
+    isTextoOuNulo(valor.cor)
+  );
+}
+
 export function isVeiculoResumo(valor: unknown): valor is VeiculoResumo {
   return (
     isRecord(valor) &&
