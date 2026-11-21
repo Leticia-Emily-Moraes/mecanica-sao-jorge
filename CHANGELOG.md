@@ -24,6 +24,57 @@ não corta a primeira tag, as entregas ficam em `[Não lançado]`.
 > para quem usa". Detalhe completo da auditoria, por feature, PR e teste:
 > `docs/product/F37-auditoria-sprint-01.md`.
 
+### F04 — Veículos (API) — branch `feat/f04-veiculos`
+
+Só API e contrato. As telas de Veículos são da F35.
+
+#### Adicionado
+
+- Cadastro de veículo do cliente: `POST /api/v1/clientes/{clienteId}/veiculos`
+  (`201` com `Location`).
+- Lista de veículos do cliente: `GET /api/v1/clientes/{clienteId}/veiculos`,
+  ordenada por placa, sem paginação (`[]` quando o cliente não tem veículo).
+- Detalhe do veículo: `GET /api/v1/veiculos/{id}`, com o dono (`clienteId`,
+  `clienteNome`) e `historicoOs`, que vem sempre `[]` até existir a feature
+  de Ordens de Serviço.
+- Edição do veículo: `PUT /api/v1/veiculos/{id}`. É edição total (sem
+  `PATCH`); o dono nunca muda e `clienteId` no corpo é ignorado.
+- Placa aceita no padrão antigo (`ABC1234`) e no Mercosul (`ABC1D23`). A API
+  normaliza antes de validar: `abc-1d23` e `" ABC1D23 "` viram `ABC1D23`.
+- Placa única entre todos os clientes. Placa repetida responde `409` com
+  `Placa ja cadastrada`, sem repetir a placa.
+- Chaves de mensagem para o app, no formato `veiculo.form.<campo>.<erro>`
+  (10 chaves; lista em `docs/api/veiculos.md`).
+- Referência de API com exemplos reais: `docs/api/veiculos.md`. Repasse de
+  contrato para a F35: `docs/product/F35-recebido-da-F04-veiculos.md`.
+
+#### Alterado
+
+- **Todo erro da API passa a trazer `erros[]`**, uma lista de
+  `{campo, chave}`. Fica `[]` quando não há erro por campo. `mensagem`
+  continua como antes, então quem lê `mensagem` não precisa mudar nada.
+  Ação para o app: ao mostrar erro de campo, use `chave`, não `mensagem`.
+  Nas mensagens de cliente (F03a a F03c) a `chave` pode vir nula até a F10.
+- No log, a placa aparece só com os 3 últimos caracteres (`****D23`).
+
+#### Banco de dados (ação necessária)
+
+- Migration `V7__adicionar_indice_unico_e_check_de_placa_em_veiculos.sql`:
+  índice único `uk_veiculos_placa` e `CHECK` de formato na placa. **Se a
+  tabela `veiculos` de algum ambiente já tiver placa repetida ou fora do
+  formato, a V7 falha ao subir a API.** Antes de atualizar um ambiente com
+  dados, confira duplicatas. Não testei a V7 contra dados sujos; os testes
+  rodam em banco vazio.
+
+#### Não verificado
+
+- Telas de Veículos: não existem; a F35 as entrega.
+- Descarte de dado pessoal (placa vira `ANON<id>` quando o cliente é
+  descartado): é regra da política do VIGIA, **sem código nesta feature**.
+- Lint e formatação: `mvn checkstyle:check` falha em 2 linhas com mais de
+  100 caracteres (`ClockConfig.java:7`, `VeiculoService.java:94`) e
+  `mvn spotless:check` aponta 7 arquivos da F04. Pendência do ESPRESSO.
+
 ### Adicionado (commitado no histórico git)
 
 - Fundação do backend (`apps/api`): scaffold Maven em Java 21 + Spring Boot
