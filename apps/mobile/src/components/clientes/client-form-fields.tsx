@@ -105,6 +105,10 @@ export function ClientFormFields({
         onChangeText={(valor) => onChange(nome, valor)}
         errorMessage={erro === undefined ? undefined : textoDoErro(erro)}
         editable={!enviando}
+        // Dado de terceiro: o serviço de preenchimento não pode oferecer salvar na conta de quem digita.
+        autoComplete="off"
+        textContentType="none"
+        importantForAutofill="no"
         {...extras}
       />
     );
@@ -115,27 +119,19 @@ export function ClientFormFields({
       {faixa === null ? null : <InlineAlert message={faixa} />}
       {campo('nome', {
         autoCapitalize: 'words',
-        autoComplete: 'name',
         returnKeyType: 'next',
       })}
-      {campo('telefone', {
-        keyboardType: 'phone-pad',
-        autoComplete: 'tel',
-        textContentType: 'telephoneNumber',
-      })}
+      {campo('telefone', { keyboardType: 'phone-pad' })}
       {campo('email', {
         keyboardType: 'email-address',
         autoCapitalize: 'none',
-        autoComplete: 'email',
         autoCorrect: false,
-        textContentType: 'emailAddress',
       })}
       {campo('cpf', {
         keyboardType: 'number-pad',
-        autoComplete: 'off',
         helperText: t('clientes.formulario.cpf.ajuda'),
       })}
-      {campo('endereco', { multiline: true, autoComplete: 'street-address' })}
+      {campo('endereco', { multiline: true })}
 
       {modo === 'novo' ? (
         <Text style={styles.privacy}>{t('clientes.formulario.privacidade')}</Text>

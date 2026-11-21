@@ -49,6 +49,22 @@ describe('ClientFormFields', () => {
     expect(screen.getByLabelText('Endereço (opcional)').props.multiline).toBe(true);
   });
 
+  it.each([
+    'Nome completo *',
+    'Telefone (opcional)',
+    'E-mail (opcional)',
+    'CPF (opcional), Só preencha se o cliente pedir nota fiscal.',
+    'Endereço (opcional)',
+  ])('should keep the autofill service away from the client field "%s" (F45 LG-03)', (label) => {
+    renderForm();
+
+    const input = screen.getByLabelText(label);
+
+    expect(input.props.autoComplete).toBe('off');
+    expect(input.props.textContentType).toBe('none');
+    expect(input.props.importantForAutofill).toBe('no');
+  });
+
   it('should report the typed text with the field name', () => {
     const { onChange } = renderForm();
 

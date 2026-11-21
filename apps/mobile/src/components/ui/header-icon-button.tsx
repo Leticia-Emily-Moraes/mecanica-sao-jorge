@@ -3,6 +3,7 @@ import type { ComponentProps, ReactElement } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 
 import { color, iconSize, minTouchTarget, radius, size } from '@/theme/tokens';
+import { useFocusRing } from '@/theme/use-focus-ring';
 
 export type HeaderIconName = ComponentProps<typeof Ionicons>['name'];
 
@@ -23,6 +24,7 @@ export function HeaderIconButton({
   onPress,
 }: HeaderIconButtonProps): ReactElement {
   const slop = (minTouchTarget - size.iconButton) / 2;
+  const { focusRingStyle, onFocus, onBlur } = useFocusRing({ onBrand: true });
 
   return (
     <Pressable
@@ -30,7 +32,9 @@ export function HeaderIconButton({
       accessibilityLabel={accessibilityLabel}
       hitSlop={{ top: slop, bottom: slop, left: slop, right: slop }}
       onPress={onPress}
-      style={styles.button}
+      onFocus={onFocus}
+      onBlur={onBlur}
+      style={[focusRingStyle, styles.button]}
     >
       <View accessibilityElementsHidden importantForAccessibility="no-hide-descendants">
         <Ionicons name={icon} size={iconSize.appBar} color={color.text.onBrand} />

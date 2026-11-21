@@ -592,3 +592,9 @@ Leitura (somente) dos frames F26 da seção `106:2097` (página `20:2132`) por `
 Durante a exportação das capturas, a camada "Foco por controle" dos frames F26 ficou oculta e foi **restaurada** na mesma sessão (39 de 39 visíveis, conferido por contagem, não por screenshot).
 
 Achados: o F26 já tinha a lista de veículos no detalhe do cliente (D1); a borda do campo Endereço no E1 `106:2300` usa `#E2DEDA` (1,34:1, reprova 1.4.11) em vez de `border/default`; `#3E6E4A` e `#2C5258` (aviso de sucesso e selos) não têm variável. Especificação completa, mapa de componentes, divergências e o que não foi lido: `docs/design/F35-especificacao-telas-clientes-veiculos.md`. Capturas de referência: `docs/design/f35-capturas/` (44 PNGs).
+
+### F45 · Conferência de paridade e WCAG da Sprint 02 (2026-11-20, ESQUADRO)
+
+Sessão Figma `6d02d9a3-9142-4fde-841c-c791263c3366`, arquivo `FPdB8RymAnN81pbKfizdzE`. **Somente leitura (`get_metadata` e `use_figma` sem escrita): nenhum nó foi criado, movido ou alterado.** Comparação estática do Figma contra o código; não há captura do app dessas telas. Resultado, divergências N-01 a N-09 e auditoria: `docs/design/F45-conferencia-paridade-wcag-sprint-02.md`.
+
+Correção de registro (N-07): os frames propostos D6 `135:937`, D7 `135:1022`, D8 `135:1107`, V6 `135:1144`, L8 `135:1182` (x 60, 502, 944, 1386, 1828; y 8900) e as anotações `136:888` a `136:897` estão na página `20:2131` "01 — Wireframes", e **não** na seção F26 `106:2097` da página `20:2132`, como o parágrafo da F35 acima diz. A seção F26 tem 130 filhos e nenhum id `135:*` ou `136:*`. Não movi; aguarda decisão da pessoa.
