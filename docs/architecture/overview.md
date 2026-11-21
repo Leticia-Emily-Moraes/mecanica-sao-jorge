@@ -48,8 +48,13 @@ evitar fluxo órfão) em [`diagrams/navegacao-wireframe-f24.md`](diagrams/navega
 | [ADR-017](adr/ADR-017-padronizar-listagem-com-busca-e-paginacao.md) | Padronizar a listagem com busca: termo literal, collation ai_ci fixada por migration e página própria | Proposto | 2026-11-14 |
 | [ADR-018](adr/ADR-018-guardar-cpf-e-endereco-do-cliente-como-colunas-opcionais.md) | Guardar CPF e endereço do cliente como colunas opcionais, com endereço em campo único (V4 da F03b) | Proposto | 2026-11-17 |
 | [ADR-019](adr/ADR-019-mapear-recurso-nao-encontrado-para-404-por-excecao-de-dominio.md) | Mapear recurso de domínio não encontrado para 404 com exceção dedicada no handler global | Proposto | 2026-11-17 |
+| [ADR-029](adr/ADR-029-navegar-clientes-e-veiculos-em-stack-aninhado-na-aba-clientes.md) | Navegar Clientes e Veículos num Stack aninhado na aba Clientes, com rota que carrega só id (F35) | Proposto | 2026-11-19 |
+| [ADR-030](adr/ADR-030-contratar-servico-e-hooks-de-clientes-e-veiculos-sobre-fetch-com-estado-discriminado.md) | Contratar serviço e hooks de Clientes e Veículos sobre `fetch`, com erro tipado e estado de tela discriminado (F35) | Proposto | 2026-11-19 |
+| [ADR-031](adr/ADR-031-buscar-clientes-apos-pausa-de-400-ms-com-hook-proprio-e-cancelamento.md) | Buscar clientes depois de uma pausa de 400 ms, com hook próprio e cancelamento da busca anterior (F35) | Proposto | 2026-11-19 |
 
 ADR-014 foi trazido de `docs/f39-wireframe-redesenho` (`18efb4e`) pela branch `docs/f41-adr014-referencia-aprovada`, aceito em 2026-11-16 na F41 e levado à `main` pela #16. O ADR-016 chega com a #14 (a F44 usa o número 016; o ADR-012 é a remoção do template, da F38). O ADR-015 continua fora da `main` (`refactor/f40-estrutura-ui-sobre-f41`); a numeração dele está reservada e ele entra nesta tabela no próprio merge.
+
+Os ADR-020 a ADR-028 (F03c, F03d e F04) estão em ramos ainda fora da `main` (por exemplo `docs/f04-cartografo-adrs`, `c7e9baa`); a numeração deles está reservada e eles entram nesta tabela no próprio merge. Os ADR-029 a ADR-031 (F35) foram numerados depois de conferir os nomes de ADR no histórico de todos os ramos locais em 2026-11-19.
 
 > Nota de materialização: a F00 referenciou ADR-004/006/010/011 em código mas
 > não gravou os arquivos (ver `README.md`). Esta entrega da F02 materializa todo
