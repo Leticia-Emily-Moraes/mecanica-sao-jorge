@@ -2,6 +2,8 @@
 
 Dono: VIGIA (AppSec/LGPD). Criada em 2026-11-14 na F03a, antes de qualquer código do módulo Clientes. Revisada em 2026-11-17 três vezes: revisão 1 (contrato da máscara), revisão 2 (detalhe de cliente da F03b e colunas `cpf` e `endereco` da V4) e revisão 3 (criação de cliente da F03c, card F09: unicidade, CPF opcional, placa e log do POST). Revisão 4 em 2026-11-18 (F09: a premissa 3 do card cai em favor do ADR-020, retenção e descarte consolidados por dado na seção 3.1 e recadastro de titular anonimizado na 2.3). Revisão 5 em 2026-11-18 (F04, Veículos: placa classificada como dado pessoal, placa única com marcador de anonimização por linha, descarte do veículo junto com o cliente e máscara de placa em log). Revisão 6 em 2026-11-18 (F10, F03d, edição de cliente: cobertura da edição confirmada, valor anterior nunca guardado, email único com 409 no POST e no PUT, normalização de email e linhas de log do PUT). Ver seção 11.
 
+Revisão 7 em 2026-11-19 (F10, depois da revisão humana): linha `campo=concorrencia` aprovada como condição de merge, U+200B provado no índice de email, aparo Unicode do email registrado e revisão do código com achados W1 a W6. Ver seção 11.
+
 Vale para: F03a (listar), F03b (detalhe, card F08), F03c (criar, card F09, primeira escrita de CPF e endereço), F03d (editar), F04 (veículos), F35 (telas de cliente) e toda feature que leia ou grave `clientes` ou `veiculos`.
 
 Status:
@@ -168,6 +170,8 @@ Por que o valor anterior não fica: histórico de alteração está fora do esco
 * Quem decide o conflito é o índice, não o Java. A edição não precisa de consulta prévia: um `UPDATE` da própria linha com o mesmo valor não viola o índice, então US-CLI-28 e US-CLI-32 passam sem código de exclusão do próprio id. Se o ESPRESSO quiser responder antes do `flush`, a consulta prévia roda no banco (`existsBy...AndIdNot`), com a mesma collation. Proibido comparar email em memória no Java, que discorda da collation nos casos acima.
 * Gravação: `strip()` (já faz, mapper da F03c) e minúsculas **só nas letras ASCII de `A` a `Z`**, como a placa (6.2.2). Proibido `String.toLowerCase`, inclusive com `Locale.ROOT`: no JDK 21 ele troca o Kelvin por `k` ASCII e transforma `İ` (U+0130) em dois caracteres (provado na 8.6), o que grava um email que o funcionário não digitou e pode passar das 190 posições da coluna (U4). Isso é normalização, não regra de formato nova (premissa 1 do card).
 * O `strip()` remove só espaço Unicode reconhecido pelo Java. O espaço não separável (U+00A0) fica (provado na 8.6). O `@Email` decide se aceita: comportamento a provar no teste (U4), não verificado nesta revisão.
+* **Revisão 7 (2026-11-19): o aparo do email mudou depois da revisão 6.** O commit `0c78365` trocou o `strip()` do email por `AparoUnicode.aparar`, que remove das pontas todo caractere com `Character.isWhitespace` ou `Character.isSpaceChar`, inclusive U+00A0, U+2007 e U+202F. O aparo roda no construtor do `ClienteRequest`, antes do `@Email`, e de novo no mapper. Vale só para as pontas e só para o email; `nome` e `endereco` seguem com `strip()`. O item acima ("o espaço não separável fica") descreve o `strip()` e não vale mais para o email. Emails gravados pela F03c antes da V8 não são regravados: só existe dado fictício (conferido por leitura em `dto/AparoUnicode.java`, `dto/ClienteRequest.java` e `mapper/ClienteMapper.java` no commit `738f04b`).
+* **Caracteres de largura zero (revisão 7, provado na 8.7).** O aparo não remove U+200B, porque ele não é espaço para o Java. Mesmo assim, o índice `uk_clientes_email` **ignora** U+200B, U+200D, U+FEFF e U+00AD em qualquer posição: o email de outro cliente com um desses caracteres dá erro 1062, e o PUT responde 409 `Email ja cadastrado`. A frase "`x@y.com` + U+200B vira outro email e passa na unicidade" está errada. O risco que sobra é de qualidade do dado: um email novo com caractere invisível, se o `@Email` aceitar (não verificado), fica gravado assim e não recebe mensagem. Risco aceito na F10 (W5); a premissa 1 do card proíbe regra de formato nova.
 
 **Respostas às dúvidas do card.**
 
@@ -432,11 +436,13 @@ As seções 6.1 e 6.2 valem para `PUT /api/v1/clientes/{id}` sem exceção. O co
 | 200 (cliente editado) | `clientes.editar clienteId={} usuarioId={}`, depois do `saveAndFlush` | Rastrear quem corrigiu cada cadastro (art. 37) e perceber troca em massa de contato por um mesmo token (U5) |
 | 404 (id numérico sem cliente) | `clientes.editar.naoEncontrado clienteId={} usuarioId={}` | Detectar varredura de ids, como na 6.4 |
 | 409 (CPF ou email de outro cliente, inclusive na corrida) | `clientes.editar.conflito clienteId={} usuarioId={} campo={}` | Detectar uso da edição como oráculo de CPF ou email (U8): o mesmo `usuarioId` com muitos 409 em sequência |
+| 409 (deadlock ou espera de lock na gravação, ADR-027; revisão 7) | `clientes.editar.conflito clienteId={} usuarioId={} campo=concorrencia` | Tornar observável o gatilho "revisitar quando o log mostrar `campo=concorrencia` com frequência" do ADR-027. Sem a linha, esse 409 não deixa rastro, porque o handler não loga por desenho (A09) |
 
 Regras:
 
 * `clienteId` é o `Long` do caminho depois da conversão. `usuarioId` é o `sub` do JWT (art. 7º, IX).
 * `campo` é só o texto fixo `cpf` ou `email`, tirado do **tipo** da exceção (`CpfJaCadastradoException` ou a de email), nunca da mensagem do MySQL nem de `getConstraintName()` impresso.
+* **Revisão 7: terceiro valor de `campo`, `concorrencia`, aprovado pelo VIGIA** (ADR-027, regra 3). É texto fixo, tirado do tipo `PessimisticLockingFailureException` capturado em `ClienteService.atualizar`, que relança a mesma instância. Nunca `ex`, `getMessage()` nem a causa no logger: a mensagem do driver pode citar a consulta e o valor. O handler global continua sem log. O `criar` não ganha a linha (6.5). **Condição de merge da F10:** a linha não existe no código em `738f04b` (achado W2). Ela entra com o teste unitário da 10.4 antes do merge. Se a pessoa preferir não acrescentar código, a regra 3 do ADR-027 muda para "sem linha" e o gatilho de revisão passa a ser a reclamação de usuário. A decisão é do CARTOGRAFO e não muda nada nesta política além de remover esta linha.
 * **Valor anterior: nunca.** Nem o antigo, nem o novo, nem os dois juntos, nem mascarados, nem indicador de campo alterado (`cpfAlterado`, lista de campos). Saber qual campo mudou num cadastro identificado é um pedaço do histórico que a R6 (2.5) não autoriza.
 * Nunca nome, CPF, telefone, email ou endereço, **nem mascarados**, nem DTO, entidade, `BindingResult`, `getMessage()` de exceção de persistência ou `toString()` de nenhum deles. O erro 1062 do MySQL traz o email ou o CPF inteiro (provado na 8.6 e na 8.4).
 * Sem linha no 400 de validação, no 400 ou 415 de corpo ilegível, no 401 e no 405. O 500 segue a seção 7: classe da exceção e caminho, nada mais.
@@ -763,6 +769,108 @@ Conferido sem achado, por leitura:
 * CSRF: a API é stateless com JWT no cabeçalho, sem cookie de sessão, como na 8.1. Não reexecutei.
 * Segredo: a F10 não cria configuração nova. Vale o ADR-009.
 
+### 8.7 Revisão do código da F10 depois da revisão humana (revisão 7, 2026-11-19)
+
+Escopo revisado por leitura no ramo `feat/f03d-clientes-editar`, commit `738f04b`: os 10 commits da F10 desde `7250be2` (`git diff --stat 7250be2..HEAD`, 21 arquivos), `ClienteService`, `ClienteMapper`, `ClienteRequest`, `AparoUnicode`, `ClienteController` (PUT), `GlobalExceptionHandler`, `SecurityConfig`, a V8, os testes `ClienteAtualizarIT` e `ClienteAtualizarControllerTest`, `CHANGELOG.md` e o rascunho do corpo da PR do ESPRESSO, que não está versionado.
+
+#### Evidência executada (2026-11-19)
+
+MySQL 8.4.13 descartável em contêiner, com uma tabela `clientes` reduzida (`id`, `email VARCHAR(190)` em `utf8mb4_0900_ai_ci` e `uk_clientes_email`) e só `ana@example.com`, que é fictício. O contêiner foi removido no fim. Na saída do 1062 troquei o valor por `<valor>`.
+
+| Tentativa | Resultado observado |
+|---|---|
+| Comparar `ana@example.com` com o mesmo valor mais U+200B no fim, no início e no meio, e mais U+200D, U+FEFF e U+00AD | `1` (igual) nos seis casos |
+| `INSERT` do valor com U+200B no fim, com `ana@example.com` já gravado | `ERROR 1062 (23000): Duplicate entry '<valor>' for key 'clientes.uk_clientes_email'` |
+| `INSERT` com U+200B no meio do domínio | `ERROR 1062`, igual ao anterior |
+| `COUNT(*)` no fim | `1` |
+
+Leitura e comandos:
+
+* `git grep -nE "LOG\.(info|debug|warn|error|trace)" -- apps/api/src/main`: no `ClienteService`, as linhas de log do PUT são só as três da 6.7 (linhas 124, 139 e 144). Nenhuma carrega valor.
+* `git diff 7250be2..HEAD -- apps/api/pom.xml apps/mobile/package.json`: vazio. A F10 não acrescenta dependência.
+
+Não executado:
+
+* `osv-scanner`: não está instalado nesta máquina. Vale a última varredura registrada (8.1).
+* O comportamento do `@Email` (Hibernate Validator 9.1.5) com U+200B: o ambiente bloqueou a gravação do programa de teste. Ficou para o teste do W5.
+* Nenhuma chamada à API rodando. Não rodei a suíte: esta revisão não muda código.
+
+#### Autorização pelo lado de quem não deveria ter acesso
+
+| Quem tenta | O que acontece | Como foi conferido |
+|---|---|---|
+| Sem token ou com token malformado | 401 antes do controller; A intacto | `ClienteAtualizarIT`, US-CLI-29 (teste existente; não reexecutei) |
+| Token expirado, de outra chave ou com `alg: none` | Deve dar 401 pela mesma cadeia (`anyRequest().authenticated()` e o mesmo `JwtDecoder` do POST, que tem o expirado testado) | Só leitura de `SecurityConfig`. **Não há teste no PUT** (W3) |
+| Usuário autenticado editando o cliente de outro funcionário | 200: todo token edita todo cliente. Não existe dono por objeto, por desenho do briefing | Leitura. É o U5, risco a aceitar na P8 antes do merge |
+| Token de usuário desativado, até o JWT expirar | 200, como no 8.2 | Herdado do 8.2. P8 |
+| Corpo com `id` de B, `createdAt` ou objeto aninhado | Só A muda; B e o `created_at` de A ficam intactos | `ClienteAtualizarIT`, US-CLI-30 (existente) e o mapper com `@MappingTarget`, `id` e `createdAt` ignorados e `ReportingPolicy.ERROR` |
+| Uso do 409 como oráculo de CPF ou email | Confirma que o valor é de algum cliente, sem dizer qual | Mensagens fixas, exceções sem causa. U8, P8 |
+
+#### Achados
+
+| ID | Severidade | OWASP | Achado | Impacto concreto | Correção específica | Dono |
+|---|---|---|---|---|---|---|
+| W1 | Média | A09 / LGPD | O rascunho do corpo da PR manda checar a V8 com `SELECT email, COUNT(*) FROM clientes WHERE email IS NOT NULL GROUP BY email HAVING COUNT(*) > 1`. A consulta lista os emails, contra a 2.5 (dúvida 2) e a 6.1 | Em banco com dado real, os emails duplicados aparecem no terminal, no histórico do cliente SQL e, se rodar em pipeline, no log do CI | Trocar pela contagem pura: `SELECT COUNT(*) FROM (SELECT email FROM clientes WHERE email IS NOT NULL GROUP BY email HAVING COUNT(*) > 1) d;`. Sem `TRIM`, ela usa a mesma expressão e a mesma collation do índice, então prevê a falha da V8 com exatidão. A variante com `TRIM` da 2.5 é conservadora: conta também pares que só diferem por espaço ASCII nas pontas, que a V8 aceita (NO PAD). As duas só contam | ESPRESSO (corpo da PR). Bloqueia a abertura da PR |
+| W2 | Baixa | A09 | A linha `campo=concorrencia` do ADR-027 (regra 3) **não existe no código**: o `try` de `ClienteService.atualizar` (linhas 130 a 138) só captura as exceções de CPF e de email. O changelog e o corpo da PR dizem que ela "não foi vista rodando", quando ela nem foi implementada | O 409 de deadlock sai sem rastro nenhum, e o gatilho de revisão do ADR-027 fica cego. Não há dado pessoal em jogo | `catch (PessimisticLockingFailureException ex)` depois do catch de email, chamando `logarConflito(id, usuarioId, "concorrencia")` e relançando `ex`. Teste unitário da 10.4. Corrigir o changelog (linhas 84 e 85) e o corpo da PR para dizer "não implementada" até o commit | ESPRESSO; PERGAMINHO (textos). Condição de merge da F10 (6.7) |
+| W3 | Baixa | A07 | O 401 do PUT só tem teste com token ausente e malformado. A 10.4 e o U5 pedem também expirado, de outra chave e `alg: none` | Hoje não há falha: a cadeia é a mesma do POST. O risco é de regressão. Uma mudança futura no `SecurityConfig` que libere o PUT, ou um decoder por rota, passaria sem teste vermelho | Ampliar `shouldReturn401AndChangeNothingWhenTokenIsMissingOrInvalid` com os três tokens, cada um com A intacto pelo `JdbcTemplate` e sem linha `clientes.editar` | ESPRESSO |
+| W4 | Baixa | LGPD | O U9 continua aberto. O exemplo do `@Schema` de `ClienteRequest.telefone` é `(11) 91234-5678`, e o PUT o mostra no schema do corpo. O exemplo do POST (`ClienteController`, linha 104) é igual, e os de resposta (`ClienteDetalheResponse` e `ClienteListResponse`) são `11912345678`. Só o exemplo do PUT (linha 218) usa `(00)` | O número pode ser o celular de alguém e vai para captura de tela, demonstração e, no futuro, para a integração com WhatsApp | `(20) 91234-5678` e `20912345678`, como pede a seção 7 ("Teste e ambiente local") | ESPRESSO |
+| W5 | Baixa, risco aceito | A04 / qualidade do dado | U+200B não é aparado. O duplicado com caractere invisível dá 409 (provado acima), mas um email novo com U+200B, se o `@Email` aceitar (não verificado), é gravado com o caractere | O contato não recebe mensagem, e o funcionário vê um email que parece certo. Não há vazamento e não há quebra de unicidade | Na F10, nada no código (premissa 1). Teste de caracterização no `ClienteAtualizarIT`: email de A com U+200B no fim, no início e no meio, enviado no PUT de B, dá 409 ou 400 e nunca 200 nem 500. No caso sem conflito, o teste registra o status real. Revisitar quando entrar envio por email ou WhatsApp: aí recusar com 400 os caracteres da categoria Format (Cf) no email | ESPRESSO (teste); BUSSOLA (revisita) |
+| W6 | Informativo | — | O rascunho do corpo da PR diz que o PUT "responde 200 com `ClienteResponse`" | Texto errado na PR: o tipo é `ClienteDetalheResponse` | Corrigir o texto | ESPRESSO |
+
+Conferido sem achado, por leitura em `738f04b`:
+
+* O 409 tem `mensagem` fixa (`CPF ja cadastrado` ou `Email ja cadastrado`). As exceções não têm causa, e o nome da restrição só serve para escolher a exceção: o `toLowerCase(Locale.ROOT)` do `ClienteService` roda sobre esse nome, nunca sobre o email.
+* A normalização do email no mapper troca só `A` a `Z` ASCII, sem `toLowerCase` (2.5, U4).
+* O PUT faz `findById` antes de tudo (404 sem o id na mensagem) e depois `@MappingTarget`, sem `new Cliente` nem `setId` (U1).
+* O controller é fino: `@Positive` no id, `@Valid` no corpo e o `usuarioId` tirado do `sub` do JWT.
+* O handler de `PessimisticLockingFailureException` responde 409 com mensagem fixa, sem log e sem ler a exceção.
+* `SecurityConfig`: `PUBLIC_PATHS` continua só com o login e a documentação.
+* Segredo: a F10 não cria configuração nova, e os testes usam segredo fictício de teste (ADR-009).
+
+### 8.8 Revisão do código da segunda rodada da F10 (2026-11-19)
+
+Escopo: os commits `4f7a127` a `bd7962d` do ESPRESSO (W2, W3, W4, W5, CHANGELOG e evidência das 100 rodadas), revisados no ramo `feat/f03d-clientes-editar`. Os testes e o estilo que acrescentei estão em `8fa0d3c` e `3caf42c`. Coleta, base legal, retenção e descarte não mudam, por isso esta seção não abre revisão nova da política.
+
+#### Evidência executada (2026-11-19)
+
+| Comando | Resultado observado |
+|---|---|
+| `apps/api/mvnw -f apps/api/pom.xml verify -Dtest=NONE -Dsurefire.failIfNoSpecifiedTests=false -Dit.test=ClienteAtualizarIT` | `Tests run: 33, Failures: 0, Errors: 0, Skipped: 0`, `BUILD SUCCESS` (MySQL 8.4 via Testcontainers) |
+| `apps/api/mvnw -f apps/api/pom.xml checkstyle:check` | `You have 0 Checkstyle violations.`, `BUILD SUCCESS` |
+| `apps/api/mvnw -f apps/api/pom.xml spotless:check`, antes de `3caf42c` | `BUILD FAILURE`: a única violação é `AparoUnicodeTest.java`, criado na F10 (`4b680c8`) |
+| O mesmo comando, depois de `3caf42c` | `BUILD SUCCESS`. U+00A0, U+2007 e U+202F do arquivo contados antes e depois: 4, 2 e 1 nos dois casos |
+| `apps/api/mvnw -f apps/api/pom.xml clean verify` | 249 testes unitários e 142 de integração, 0 falhas, `BUILD SUCCESS` |
+| `gitleaks git --log-opts="7250be2..HEAD" --config .gitleaks.toml --redact .` | `15 commits scanned`, `no leaks found` (antes dos meus dois commits, que só mexem em teste) |
+| `git diff --stat 7250be2..HEAD -- apps/api/pom.xml apps/mobile/package.json apps/mobile/package-lock.json` | vazio: a F10 não acrescenta dependência |
+| `git grep -n "PessimisticLockingFailureException" -- apps/api/src/main` | só o `GlobalExceptionHandler` e o `ClienteService` (Confirmação do ADR-027) |
+| `git merge-base --is-ancestor 03e7646 <base>` | `03e7646` está no ramo e em `origin/feat/f03c-clientes-criar` e em `feat/f04-veiculos`. Não está na `main` |
+
+Não executado: `osv-scanner`, que não está instalado (vale a última varredura registrada, 8.1); deadlock real do MySQL, que continua não provado.
+
+#### Conferido sem achado
+
+* **W2.** O `catch (PessimisticLockingFailureException ex)` em `ClienteService.atualizar` vem depois dos catches de CPF e de email, que são `ConflitoException`, e por isso não esconde nenhum deles. A linha logada é só `clientes.editar.conflito clienteId= usuarioId= campo=concorrencia`, sem `ex` nem `getMessage()`, e a mesma instância é relançada para o handler, que responde 409 com mensagem fixa e sem log. O teste unitário cobre o roteiro da 10.4: mesma instância, linha exata, nenhum `Deadlock` nem email e nenhuma linha de sucesso. Limite: um deadlock que estourasse só no commit, fora do `saveAndFlush`, teria 409, mas não teria essa linha. Com o `saveAndFlush`, o `UPDATE` roda dentro do `try`. Isso não foi provado com deadlock real.
+* **Critério 11.** Nenhuma linha do PUT carrega valor, nem mascarado. É mais restritivo que o card, que pede CPF, telefone e email mascarados. Parecer do VIGIA: manter. A divergência vai para a PR, para o aceite da pessoa.
+* **W4.** Nenhum exemplo do OpenAPI em `apps/api/src/main` usa DDD 11.
+* **W1.** Nenhum `SELECT` lista email em código ou doc versionado. As únicas ocorrências são a contagem do ADR-026 e as consultas de teste com dado fictício.
+* **Evidência das 100 rodadas.** O arquivo `docs/product/F10-evidencia-corrida-100-rodadas.md` só tem códigos HTTP e contagens, sem dado pessoal nem segredo.
+
+#### Achados
+
+| ID | Severidade | OWASP | Achado | Impacto concreto | Correção específica | Dono |
+|---|---|---|---|---|---|---|
+| X1 | Média (processo, bloqueia a PR pela regra da pessoa) | — | O handoff diz que o `03e7646` (com `Co-Authored-By`) "não entrou", mas ele é ancestral do `HEAD`: dos 167 commits do ramo sobre a `main`, 101 descendem dele. Também está em `feat/f03c-clientes-criar` e em `feat/f04-veiculos`, mas não na `main` | Uma PR deste ramo para a `main` leva o commit. Uma PR empilhada sobre a F03c ou a F04 não o mostra no diff, mas ele entra na `main` quando a base entrar | A pessoa escolhe: reescrever o histórico desde o `03e7646` (rebase que muda o hash dos 101 commits posteriores neste ramo, e dos 73 de `origin/feat/f03c-clientes-criar`, e exige force-push de ramos já publicados) ou levar o commit sabendo disso. Ninguém reescreve o histórico sem a decisão dela | Pessoa |
+| X2 | Baixa | A07 | Os três 401 do W3 não tinham controle positivo. Com o decoder HS256 do `JwtConfig` (só os validadores padrão de tempo), um 401 por qualquer outro defeito do token feito pelo teste também passaria | O teste de "expirado" podia passar sem provar o vencimento | **Corrigido em `8fa0d3c`**: o mesmo `tokenHs256`, com data válida e a chave do teste, dá 200 e grava a linha `clientes.editar clienteId=<A> usuarioId=1`. Os três 401 afirmam também que não há linha `clientes.editar` (10.4) | VIGIA |
+| X3 | Baixa, risco aceito (W5) | A04 / qualidade do dado | O W5 só cobria o U+200B no fim. Agora, no conflito, ele no início, no fim e no meio do domínio dá 409 `Email ja cadastrado`. **Sem conflito, o PUT responde 200 e grava o email com o U+200B** (status real, `8fa0d3c`). O `@Email` aceita o caractere | Confirma o risco do W5: o email parece certo na tela e não recebe mensagem. Não há vazamento e não há quebra de unicidade | Na F10, nada no código (premissa 1). Na entrada do envio por email ou WhatsApp: recusar com 400 os caracteres da categoria Cf no email, no `ClienteRequest` | BUSSOLA (revisita) |
+| X4 | Baixa | — | O `spotless:check` estava vermelho no `AparoUnicodeTest`. O handoff tratou o arquivo como de fora da feature, mas ele é da F10 | Lint isolado vermelho na PR | **Corrigido em `3caf42c`**, só com formatação. O lint isolado agora está verde (tabela acima) | VIGIA |
+| X5 | Informativo | LGPD (seção 7) | As fixtures de teste ainda usam telefone com DDD 11 (`11912345678`, `(11) 3456-7890`) em 16 arquivos de `apps/api/src/test`. A seção 7 diz "prefira" DDD que não existe | Um número inventado pode ser de alguém, e as fixtures aparecem em log de CI e em captura de tela | Trocar por DDD 20 numa fatia de limpeza, sem misturar com a F10. Os testes novos desta seção já usam `20912345678` | ESPRESSO |
+| X6 | Informativo | A09 | A evidência das 100 rodadas é a saída do log, mas o teste temporário não foi versionado. A execução não se reproduz a partir do repositório | O CRIVO não consegue reexecutar o mesmo teste | Anexar o código do teste temporário ao arquivo de evidência, ou versioná-lo com `@Tag("corrida")` e fora da execução padrão | ESPRESSO, CRIVO |
+
+#### Parecer sobre as perguntas da pessoa
+
+* **Email só com NBSP virar `null`.** Recomendo manter. É o mesmo tratamento que o email só com espaço ASCII já recebe (`emBrancoParaNulo`). Como o PUT substitui tudo, `null` já quer dizer "apagar o email". Recusar com 400 só o NBSP criaria uma regra diferente para cada tipo de espaço. O efeito colateral é que a F35, ao reenviar um campo que só tem NBSP, apaga o email, exatamente como faria com o campo vazio. Não há impacto em LGPD: apagar reduz dado. A decisão é da pessoa.
+* **Qual corpo vale.** O rascunho do ESPRESSO não está versionado, então não consigo conferir nele o W1 nem o W6. Recomendo o corpo consolidado e versionado em `docs/product/F10-pr-rascunho-corpo.md`, que traz a contagem do W1 e o tipo certo da resposta (W6). A confirmação é da pessoa.
+
 ## 9. Pendências e donos
 
 | ID | Pendência | Dono | Bloqueia |
@@ -859,6 +967,12 @@ Cada item gera evidência executada, com comando e saída na entrega:
 * `Cache-Control: no-store` no 200.
 * `git grep -nE "toLowerCase|equalsIgnoreCase" -- apps/api/src/main/java/br/com/mecanicasaojorge/api/mapper apps/api/src/main/java/br/com/mecanicasaojorge/api/service/ClienteService.java`: só o `toLowerCase(Locale.ROOT)` do nome da restrição, que já existe, e nenhum sobre email.
 * Exemplo do OpenAPI do telefone com DDD que não existe (U9).
+* Revisão 7, antes do merge (8.7):
+  * Teste unitário do W2 em `ClienteAtualizarServiceTest`. O `saveAndFlush` lança uma `CannotAcquireLockException` cuja mensagem tem `Deadlock found` e um email fictício. O teste afirma que a mesma instância é relançada, que existe exatamente a linha `clientes.editar.conflito clienteId=<id> usuarioId=<u> campo=concorrencia`, que nenhuma linha contém `Deadlock` nem o email e que não há linha `clientes.editar clienteId=` de sucesso.
+  * `git grep -n "PessimisticLockingFailureException" -- apps/api/src/main` mostra só o `GlobalExceptionHandler` e o `ClienteService` (Confirmação do ADR-027).
+  * IT do W3 (401 do PUT com token expirado, de outra chave e `alg: none`) e IT do W5 (U+200B), com o status real observado.
+  * Exemplos do OpenAPI do W4 com DDD 20.
+  * O corpo da PR usa a contagem do W1 e não tem nenhum `SELECT email`.
 
 ## 11. Histórico
 
@@ -872,4 +986,6 @@ Cada item gera evidência executada, com comando e saída na entrega:
 | 2026-11-17 | Revisão 3 (F03c, card F09): unicidade decidida (CPF único quando preenchido, com 409, entrando antes do primeiro cliente real; email, telefone e placa não únicos) e regra de troca de dono de veículo (2.1); parecer de CPF opcional na criação (2.2); telefone obrigatório na API com a coluna NULL; linha de log da criação sem dado, nem mascarado (6.5); regras de validação, normalização, atribuição em massa e corpo ilegível do POST (seção 7); insumo do app para a F35 e aviso de privacidade; achados E1 a E8 (8.3); P4 revista e P9 a P11 novas; roteiro de verificação da F03c (10.2). Base legal e prazos seguem como proposta (P1) | commit `01af04f` |
 | 2026-11-18 | Revisão 4 (F09): a premissa 3 cai e o índice único de CPF com 409 entra na própria F03c (2.1; decisão do VIGIA registrada no ADR-020); resumo de retenção e descarte por dado, regra R5 de texto livre, o que o descarte não faz e o que a F09 entrega para ele (3.1); recadastro de titular anonimizado, provado em MySQL 8.4 (2.3 e 8.4); placa anonimizada na hora no pedido do titular dentro de R1 (seção 5); E7 decidido, E9 novo, P10 decidida, P12 nova e roteiro da 10.2 ampliado. Base legal e prazos seguem como proposta (P1) | commits `1cfecdb` e `ec8de65` |
 | 2026-11-18 | Revisão 5 (F04, Veículos): placa classificada como dado pessoal, e marca, modelo, ano e cor como dado pessoal por associação, com o ciclo do dado (2.4); placa única com 409 e `CHECK` de formato na V7, revogando a linha da revisão 3 (2.1); descarte do veículo junto com o cliente pelo marcador `ANON<id>` no lugar de `ANONIMO`, provado em MySQL 8.4 (2.4, 3.1, seção 4 e 8.5); `cliente_id` imutável depois da criação; máscara de placa `****D23` (6.2.2) e linhas de log da F04 (6.6); regras de API e de app para veículos (seção 7); achados V1 a V10 (8.5); P11 fechada, P13 a P15 novas; roteiro da 10.3. Base legal e prazos seguem como proposta (P1) | commits `6886e61` e `d253503` |
-| 2026-11-18 | Revisão 6 (F10, F03d, edição de cliente): cobertura da edição confirmada, com o ciclo do dado no PUT, valor anterior nunca guardado, edição que não reinicia R1 nem R2 e regra R6 de histórico de alteração (2.5). Email único quando preenchido, com 409 no POST e no PUT, revogando a linha de email da revisão 3 (2.1 e 2.5, aceite na P16). Normalização do email só em ASCII. Respostas às três dúvidas do card. Linhas de log do PUT sem valor, nem mascarado, nem anterior (6.7). Regras de API da edição (seção 7). Evidência em MySQL 8.4 e JDK 21 e achados U1 a U9 (8.6). P8 e P15 ampliadas, P16 nova e roteiro da 10.4. Base legal e prazos seguem como proposta (P1) | esta revisão |
+| 2026-11-18 | Revisão 6 (F10, F03d, edição de cliente): cobertura da edição confirmada, com o ciclo do dado no PUT, valor anterior nunca guardado, edição que não reinicia R1 nem R2 e regra R6 de histórico de alteração (2.5). Email único quando preenchido, com 409 no POST e no PUT, revogando a linha de email da revisão 3 (2.1 e 2.5, aceite na P16). Normalização do email só em ASCII. Respostas às três dúvidas do card. Linhas de log do PUT sem valor, nem mascarado, nem anterior (6.7). Regras de API da edição (seção 7). Evidência em MySQL 8.4 e JDK 21 e achados U1 a U9 (8.6). P8 e P15 ampliadas, P16 nova e roteiro da 10.4. Base legal e prazos seguem como proposta (P1) | commits `1161f9a` e `c4d112e` |
+| 2026-11-19 | Revisão 7 (F10, depois da revisão humana): a linha `campo=concorrencia` foi aprovada e vira condição de merge, porque não existe no código (6.7). Provado em MySQL 8.4.13 que o índice de email ignora U+200B, U+200D, U+FEFF e U+00AD (2.5 e 8.7). O aparo Unicode do email (`AparoUnicode`) substitui o `strip()` da revisão 6 (2.5). Revisão do código em `738f04b`, com a autorização conferida pelo lado de quem ataca (por leitura e pelos testes existentes) e os achados W1 a W6 (8.7). Roteiro da 10.4 ampliado. Coleta, base legal, retenção e descarte não mudam. Base legal e prazos seguem como proposta (P1) | esta revisão |
+| 2026-11-19 | Revisão do código da segunda rodada da F10 (8.8), sem revisão nova da política: W2 conferido; controle positivo de token e U+200B em três posições e sem conflito (200, gravado) acrescentados; lint isolado verde; achados X1 a X6; parecer sobre o NBSP e sobre o corpo da PR. Coleta, base legal, retenção e descarte não mudam | commits `8fa0d3c`, `3caf42c` e este |

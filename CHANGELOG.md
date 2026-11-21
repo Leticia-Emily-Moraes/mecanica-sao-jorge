@@ -24,6 +24,74 @@ não corta a primeira tag, as entregas ficam em `[Não lançado]`.
 > para quem usa". Detalhe completo da auditoria, por feature, PR e teste:
 > `docs/product/F37-auditoria-sprint-01.md`.
 
+### F10 — Clientes: editar (API) — branch `feat/f03d-clientes-editar`
+
+Só API e contrato. A tela de edição é da F35. Referência com exemplos reais:
+`docs/api/clientes.md`.
+
+#### Adicionado
+
+- Edição de cliente: `PUT /api/v1/clientes/{id}`. É edição total (sem
+  `PATCH`): campo opcional omitido grava vazio. O `id` vem só do caminho e
+  `id` no corpo é ignorado. Responde `200` com o mesmo corpo do detalhe.
+- CPF e email de outro cliente respondem `409` (`CPF ja cadastrado` ou
+  `Email ja cadastrado`), sem repetir o valor nem identificar o outro
+  cliente. Reenviar o próprio CPF ou email, com outra pontuação ou caixa, não
+  gera conflito.
+- Gravação simultânea que o MySQL derrubar por deadlock responde `409`
+  (`Conflito de gravacao simultanea, tente novamente`) e não `500`. Quem
+  recebe reenvia; a API não repete sozinha.
+
+#### Alterado (quebra de comportamento no `POST /api/v1/clientes`)
+
+- **Email de outro cliente no `POST` passa de `201` para `409`.** Ação para o
+  app: tratar `409` com `mensagem` `Email ja cadastrado` na tela de cadastro.
+- **O email passa a ser gravado e devolvido com `A` a `Z` em minúsculas e sem
+  espaço nas pontas** (`Carla@EXAMPLE.com` volta como `carla@example.com`),
+  no `POST` e no `PUT`. Letras com acento não mudam.
+- Espaço nas pontas do email é aparado antes da validação de formato.
+  `" beto@example.com "` deixa de dar `400` e passa a valer. O aparo inclui
+  espaço sem quebra (NBSP, U+00A0), U+2007 e U+202F, para que
+  `"beto@example.com "` seja o mesmo email e dê `409`, não um cliente
+  novo. Caractere de largura zero (U+200B) **não** é aparado.
+
+#### Banco de dados (ação necessária)
+
+- Migration `V8__adicionar_indice_unico_email_em_clientes.sql`: índice único
+  `uk_clientes_email`. Vários clientes sem email continuam permitidos.
+  **Se a tabela `clientes` de algum ambiente já tiver email repetido, a V8
+  falha ao subir a API.** Antes de atualizar um ambiente com dados, conte os
+  repetidos (só a contagem, sem listar os emails). O índice compara sem
+  diferenciar caixa nem acento: `joao@x.com` e `joão@x.com` contam como
+  repetidos. Não testei a V8 contra dados sujos; os testes rodam em banco
+  vazio.
+
+#### Privacidade
+
+- O valor antigo é sobrescrito e não fica em log, coluna nem histórico. O log
+  da edição traz só `clienteId`, `usuarioId` e, no conflito, `campo=cpf` ou
+  `campo=email`, sem valor, nem mascarado (política do VIGIA, revisão 6; o
+  card pedia mascarado).
+
+#### Não verificado / pendente
+
+- **Email único depende do aceite da pessoa (P16).** Sem ele, o `409` de
+  email e a normalização do email caem.
+- Telas de edição: não existem; a F35 as entrega.
+- Deadlock real do MySQL: não consegui provocá-lo nos testes de corrida. O
+  `409` de deadlock está testado só com exceção simulada.
+- U+200B (largura zero) no email não é aparado pelo código. Teste de
+  caracterização (`ClienteAtualizarIT`): `U+200B` no início, no fim ou no
+  meio do domínio de um email que já pertence a outro cliente responde `409`,
+  porque o índice único do MySQL o ignora na comparação. Não passa na
+  unicidade. Sem conflito, o `PUT` responde `200` e grava o email com o
+  `U+200B` (risco aceito, W5 e X3 da política de dados do cliente).
+- A linha de log `campo=concorrencia` (conflito por gravação simultânea) estava
+  não implementada na entrega anterior; agora está no `ClienteService` e
+  coberta por teste unitário (`ClienteAtualizarServiceTest`). Vista rodando só
+  com exceção simulada, não com deadlock real do MySQL.
+- A `description` geral do `POST` no OpenAPI ainda cita só o CPF no `409`.
+
 ### F04 — Veículos (API) — branch `feat/f04-veiculos`
 
 Só API e contrato. As telas de Veículos são da F35.

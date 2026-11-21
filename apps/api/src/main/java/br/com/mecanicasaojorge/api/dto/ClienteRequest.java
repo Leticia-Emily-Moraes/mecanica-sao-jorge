@@ -27,7 +27,7 @@ public record ClienteRequest(
         String cpf,
     @Schema(
             description = "DDD + numero, 10 ou 11 digitos, com ou sem mascara",
-            example = "(11) 91234-5678")
+            example = "(20) 91234-5678")
         @NotBlank(message = "telefone e obrigatorio")
         @Pattern(regexp = TELEFONE_REGEX, message = "telefone deve ter 10 ou 11 digitos")
         String telefone,
@@ -49,7 +49,9 @@ public record ClienteRequest(
     nome = emBrancoParaNulo(nome);
     cpf = emBrancoParaNulo(cpf);
     telefone = emBrancoParaNulo(telefone);
-    email = emBrancoParaNulo(email);
+    // Espaco nas pontas do email e ruido de digitacao, nao formato invalido: aparar antes do @Email
+    // deixa o 409 de email repetido valer igual com ou sem espaco (F03d, US-CLI-31).
+    email = emBrancoParaNulo(AparoUnicode.aparar(email));
     endereco = emBrancoParaNulo(endereco);
   }
 

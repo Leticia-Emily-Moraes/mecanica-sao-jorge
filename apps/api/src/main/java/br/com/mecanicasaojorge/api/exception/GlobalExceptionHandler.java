@@ -11,6 +11,7 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.dao.PessimisticLockingFailureException;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -42,6 +43,9 @@ public class GlobalExceptionHandler {
 
   private static final Logger LOG = LoggerFactory.getLogger(GlobalExceptionHandler.class);
 
+  static final String MENSAGEM_GRAVACAO_SIMULTANEA =
+      "Conflito de gravacao simultanea, tente novamente";
+
   /** Chave i18n: segmentos alfabeticos separados por ponto, ex.: veiculo.form.placa.erro. */
   private static final Pattern FORMATO_CHAVE = Pattern.compile("^[a-z]+(\\.[a-zA-Z]+)+$");
 
@@ -63,6 +67,16 @@ public class GlobalExceptionHandler {
   public ResponseEntity<ErrorResponse> handleConflito(
       ConflitoException ex, HttpServletRequest request) {
     return buildResponse(HttpStatus.CONFLICT, ex.getMessage(), request, ex.getErros());
+  }
+
+  /**
+   * Deadlock ou espera de lock na corrida de gravacao (ADR-027): 409 com mensagem fixa, sem ler a
+   * excecao e sem log, porque a mensagem do driver pode citar a consulta e o valor.
+   */
+  @ExceptionHandler(PessimisticLockingFailureException.class)
+  public ResponseEntity<ErrorResponse> handleGravacaoSimultanea(
+      PessimisticLockingFailureException ex, HttpServletRequest request) {
+    return buildResponse(HttpStatus.CONFLICT, MENSAGEM_GRAVACAO_SIMULTANEA, request);
   }
 
   @ExceptionHandler(AppError.class)
