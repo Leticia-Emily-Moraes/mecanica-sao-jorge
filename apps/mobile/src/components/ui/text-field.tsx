@@ -28,6 +28,17 @@ export interface TextFieldProps {
   readonly textContentType?: TextInputProps['textContentType'];
   readonly rightAccessory?: ReactNode;
   readonly accessibilityLabel?: string;
+  /** Ajuda sob o campo (fica no nome acessível, mas some quando há erro). */
+  readonly helperText?: string;
+  /** Caixa de 76 com várias linhas (ex.: endereço). */
+  readonly multiline?: boolean;
+  readonly maxLength?: number;
+  readonly autoComplete?: TextInputProps['autoComplete'];
+  /** Android: `no` tira o campo do serviço de preenchimento automático. */
+  readonly importantForAutofill?: TextInputProps['importantForAutofill'];
+  readonly autoCorrect?: boolean;
+  readonly returnKeyType?: TextInputProps['returnKeyType'];
+  readonly onSubmitEditing?: () => void;
 }
 
 /**
@@ -50,14 +61,22 @@ export const TextField = forwardRef<TextInput, TextFieldProps>(function TextFiel
     textContentType,
     rightAccessory,
     accessibilityLabel,
+    helperText,
+    multiline = false,
+    maxLength,
+    autoComplete,
+    importantForAutofill,
+    autoCorrect,
+    returnKeyType,
+    onSubmitEditing,
   },
   ref,
 ): ReactElement {
   const { focused, onFocus, onBlur } = useFocusRing();
   const hasError = invalid || Boolean(errorMessage);
   const highlighted = focused || hasError;
-  const inputAccessibilityLabel =
-    accessibilityLabel ?? (errorMessage ? `${label}, ${errorMessage}` : label);
+  const detail = errorMessage ?? helperText;
+  const inputAccessibilityLabel = accessibilityLabel ?? (detail ? `${label}, ${detail}` : label);
 
   return (
     <View style={styles.container}>
@@ -66,6 +85,7 @@ export const TextField = forwardRef<TextInput, TextFieldProps>(function TextFiel
         testID="text-field-box"
         style={[
           styles.inputRow,
+          multiline && styles.inputRowMultiline,
           highlighted ? styles.inputRowHighlighted : styles.inputRowIdle,
           !editable && styles.inputRowDisabled,
         ]}
@@ -83,10 +103,17 @@ export const TextField = forwardRef<TextInput, TextFieldProps>(function TextFiel
           keyboardType={keyboardType}
           autoCapitalize={autoCapitalize}
           textContentType={textContentType}
+          autoComplete={autoComplete}
+          importantForAutofill={importantForAutofill}
+          autoCorrect={autoCorrect}
+          maxLength={maxLength}
+          multiline={multiline}
+          returnKeyType={returnKeyType}
+          onSubmitEditing={onSubmitEditing}
           accessibilityLabel={inputAccessibilityLabel}
           accessibilityState={{ disabled: !editable }}
           hitSlop={TOUCH_SLOP}
-          style={styles.input}
+          style={[styles.input, multiline && styles.inputMultiline]}
         />
         {rightAccessory}
       </View>
@@ -94,6 +121,8 @@ export const TextField = forwardRef<TextInput, TextFieldProps>(function TextFiel
         <Text accessibilityRole="alert" accessibilityLiveRegion="polite" style={styles.error}>
           {errorMessage}
         </Text>
+      ) : helperText ? (
+        <Text style={styles.helper}>{helperText}</Text>
       ) : null}
     </View>
   );
@@ -136,8 +165,22 @@ const styles = StyleSheet.create({
     borderColor: color.border.focusField,
     paddingHorizontal: FIELD_PADDING,
   },
+  inputRowMultiline: {
+    height: size.textArea,
+    alignItems: 'flex-start',
+  },
   inputRowDisabled: {
     backgroundColor: color.surface.skeleton,
+  },
+  inputMultiline: {
+    textAlignVertical: 'top',
+    paddingTop: spacing.s10,
+  },
+  helper: {
+    marginTop: spacing.xs,
+    fontFamily: typography.caption.fontFamily,
+    fontSize: typography.caption.fontSize,
+    color: color.text.secondary,
   },
   input: {
     flex: 1,

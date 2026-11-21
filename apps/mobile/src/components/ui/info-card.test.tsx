@@ -1,5 +1,5 @@
 import { render, screen } from '@testing-library/react-native';
-import { StyleSheet } from 'react-native';
+import { StyleSheet, Text } from 'react-native';
 
 import { findAncestorStyle } from '@/test-utils/find-ancestor-with-style';
 import type { TestStyle } from '@/test-utils/flat-style';
@@ -57,6 +57,19 @@ describe('InfoCard', () => {
     });
   });
 
+  it('should draw the detail shadow with radius 2 when the elevation is detail (P-10)', () => {
+    render(<InfoCard rows={LINHAS} elevation="detail" />);
+
+    const card = findAncestorStyle(screen.getByLabelText('Usuário: joao.silva'), 'borderWidth');
+
+    expect(card).toMatchObject({
+      shadowColor: '#1E3A3F',
+      shadowOffset: { width: 0, height: 1 },
+      shadowOpacity: 0.06,
+      shadowRadius: 2,
+    });
+  });
+
   it('should draw the label in Flint 14 and the value in petro Inter Medium 14 on the right (V-P07)', () => {
     render(<InfoCard rows={LINHAS} />);
 
@@ -73,6 +86,66 @@ describe('InfoCard', () => {
       color: '#1E3A3F',
       textAlign: 'right',
     });
+  });
+
+  it('should read the given accessibility phrase instead of "label: value" when it is given', () => {
+    render(
+      <InfoCard
+        rows={[
+          {
+            label: 'CPF',
+            value: '***.*56.7**-**',
+            accessibilityLabel: 'CPF parcialmente oculto',
+          },
+        ]}
+      />,
+    );
+
+    expect(screen.getByLabelText('CPF parcialmente oculto')).toBeTruthy();
+    expect(screen.queryByLabelText(/\*/)).toBeNull();
+  });
+
+  it('should draw a row without data in the secondary color and regular weight', () => {
+    render(<InfoCard rows={[{ label: 'E-mail', value: 'Não informado', muted: true }]} />);
+
+    expect(
+      StyleSheet.flatten(screen.getByText('Não informado').props.style as TestStyle),
+    ).toMatchObject({ fontFamily: 'Inter_400Regular', color: '#6E6A66' });
+  });
+
+  it('should show the header with its leading element and the title as a header', () => {
+    render(
+      <InfoCard rows={LINHAS} header={{ leading: <Text>ícone</Text>, title: 'Fulano de Teste' }} />,
+    );
+
+    expect(screen.getByText('ícone')).toBeTruthy();
+    expect(screen.getByRole('header', { name: 'Fulano de Teste' })).toBeTruthy();
+  });
+
+  it('should show the header subtitle under the title in the secondary color', () => {
+    render(
+      <InfoCard
+        rows={LINHAS}
+        header={{ leading: <Text>ícone</Text>, title: 'Honda Civic', subtitle: 'Fulano de Teste' }}
+      />,
+    );
+
+    expect(screen.getByRole('header', { name: 'Honda Civic' })).toBeTruthy();
+    expect(
+      StyleSheet.flatten(screen.getByText('Fulano de Teste').props.style as TestStyle),
+    ).toMatchObject({ color: '#6E6A66' });
+  });
+
+  it('should not draw a subtitle when none is given', () => {
+    render(<InfoCard rows={LINHAS} header={{ leading: <Text>ícone</Text>, title: 'Fulano' }} />);
+
+    expect(screen.getAllByText(/./)).toHaveLength(2 + LINHAS.length * 2);
+  });
+
+  it('should not draw a header when none is given', () => {
+    render(<InfoCard rows={LINHAS} />);
+
+    expect(screen.queryByRole('header')).toBeNull();
   });
 
   it('should render an empty card when there are no rows', () => {

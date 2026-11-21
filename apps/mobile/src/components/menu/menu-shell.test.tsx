@@ -22,4 +22,17 @@ describe('MenuShell', () => {
     expect(screen.getByText('conteúdo da aba')).toBeTruthy();
     expect(screen.getAllByRole('tab')).toHaveLength(4);
   });
+
+  it('should keep the content and drop the tab bar when showTabBar is false', () => {
+    render(
+      <SafeAreaProvider initialMetrics={METRICS}>
+        <MenuShell showTabBar={false}>
+          <Text>detalhe</Text>
+        </MenuShell>
+      </SafeAreaProvider>,
+    );
+
+    expect(screen.getByText('detalhe')).toBeTruthy();
+    expect(screen.queryAllByRole('tab')).toHaveLength(0);
+  });
 });

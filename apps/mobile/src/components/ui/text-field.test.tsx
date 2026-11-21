@@ -231,6 +231,60 @@ describe('TextField', () => {
     expect(findFixedWidths(screen.toJSON())).toEqual([]);
   });
 
+  it('should show the helper text under the field and include it in the accessible name', () => {
+    render(
+      <TextField label="CPF" value="" onChangeText={jest.fn()} helperText="Só se pedir nota." />,
+    );
+
+    expect(screen.getByText('Só se pedir nota.')).toBeTruthy();
+    expect(screen.getByLabelText('CPF, Só se pedir nota.')).toBeTruthy();
+  });
+
+  it('should replace the helper text by the error message when there is an error', () => {
+    render(
+      <TextField
+        label="CPF"
+        value=""
+        onChangeText={jest.fn()}
+        helperText="Só se pedir nota."
+        errorMessage="CPF inválido."
+      />,
+    );
+
+    expect(screen.queryByText('Só se pedir nota.')).toBeNull();
+    expect(screen.getByRole('alert')).toBeTruthy();
+    expect(screen.getByLabelText('CPF, CPF inválido.')).toBeTruthy();
+  });
+
+  it('should pass multiline and maxLength to the input and use the 76 px box', () => {
+    render(
+      <TextField label="Endereço" value="" onChangeText={jest.fn()} multiline maxLength={200} />,
+    );
+
+    const input = screen.getByLabelText('Endereço');
+    expect(input.props.multiline).toBe(true);
+    expect(input.props.maxLength).toBe(200);
+    const box = StyleSheet.flatten(screen.getByTestId('text-field-box').props.style as TestStyle);
+    expect(box).toMatchObject({ height: 76 });
+  });
+
+  it('should call onSubmitEditing when the keyboard action is pressed', () => {
+    const onSubmitEditing = jest.fn();
+    render(
+      <TextField
+        label="Nome"
+        value=""
+        onChangeText={jest.fn()}
+        returnKeyType="next"
+        onSubmitEditing={onSubmitEditing}
+      />,
+    );
+
+    fireEvent(screen.getByLabelText('Nome'), 'submitEditing');
+
+    expect(onSubmitEditing).toHaveBeenCalledTimes(1);
+  });
+
   it('should draw the 2 px error border when invalid, even without its own message', () => {
     render(<TextField label="Senha" value="" invalid onChangeText={jest.fn()} />);
 

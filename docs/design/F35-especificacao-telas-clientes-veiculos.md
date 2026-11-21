@@ -345,10 +345,63 @@ Segue a ordem visual, de cima para baixo. Nas 39 telas do F26 a ordem numerada e
 
 ---
 
+## 13. Leitura complementar de 20/11/2026 (somente leitura, nada no Figma foi alterado)
+
+Fecha o que a seção 12 deixou aberto sobre foco e anotações. Lido por `use_figma` (só leitura) nos 39 frames F26 da seção `106:2097`, mais `get_metadata` de D1 `106:2159`, da folha de foco `113:2666` e de D6 `135:937`, e `get_variable_defs` de D1. Esta etapa seguiu a instrução do comandante: **não alterei o protótipo**. O título da seção no Figma continua "aguardando aprovação"; não há registro de aprovação no arquivo (**não verifiquei a aprovação por outra via**).
+
+### 13.1 Aparência do foco **[Figma]** (folha `113:2666`)
+
+| Controle | Foco |
+|---|---|
+| Botão primário e de contorno | anel de 2 px petro (`#1E3A3F`) por fora, com 2 px de respiro branco entre o botão e o anel (caixa externa 330 × 58 para botão de 322 × 50) |
+| Cartão de cliente, de veículo | igual ao botão (caixa 330 × 74 para cartão de 322 × 66) |
+| Campo de texto | borda de 2 px `primary` (`#B5453D`), **sem anel externo** |
+| Botão do cabeçalho (voltar, editar, usuário) | anel branco de 2 px sobre o fundo petro, em volta do alvo de 44 × 44 |
+| Aba da barra inferior | anel branco de 2 px |
+
+Contrastes que o Figma registra (não medi de novo): anel petro sobre o fundo 11,14:1; respiro branco sobre o primário 5,41:1; anel branco sobre petro 12,12:1; borda primária do campo 4,97:1 sobre o fundo e 5,41:1 sobre branco. **[Código]** `tokens.ts` já tem `focusRingWidth = 2`, `focusRingOffset = 2` e `color.focus.*`; o ORLA só confere que os valores batem com esta tabela.
+
+### 13.2 Ordem de foco e leitura por frame **[Figma]** (anotação abaixo de cada frame)
+
+Número entre parênteses = quantidade de selos de foco na camada do frame. Controles que **não** recebem foco de teclado, mas são lidos pelo leitor de tela: cartão de dados do cliente e do veículo e cartões de OS.
+
+| Frame | Ordem de foco (Figma) | Leitor de tela (texto do Figma) |
+|---|---|---|
+| L1, L7 (12) | Perfil → Busca → cartões → Novo cliente → abas | Cartão: "Teodoro Lemos, (11) 90000-0001, botão". Busca: "Buscar por nome, telefone ou e-mail, campo de busca". L7: sem telefone lê o e-mail; sem nenhum, "Iara Montenegro, sem contato cadastrado, botão". |
+| L2 (7) | Perfil → Busca → Novo cliente → abas | Ao entrar: "Nenhum cliente cadastrado. Cadastre o primeiro cliente para abrir ordens de serviço." |
+| L3 (7) | Perfil → Busca → Cadastrar "Lauro" → abas | "Nenhum resultado. Nenhum cliente encontrado para Lauro." como status, sem tirar o foco da busca. |
+| L4 (1) | foco fica na busca; nada mais é focável | "Carregando clientes" (polida); ao terminar, "5 clientes". |
+| L5 (8) | Perfil → Busca → Tentar novamente → Voltar → abas | Alerta: "Não foi possível carregar. Verifique a internet da oficina e tente de novo." "Voltar" leva ao Perfil (tela de pouso, F33). |
+| L6 (11) | Perfil → Busca → cartões → abas | Status: "Cliente Otávio Neves cadastrado". Não move o foco. |
+| D1 (5), D4 (5), D5 (5) | Voltar → Editar → veículos → + Veículo | Voltar: "Voltar para clientes". Editar: "Editar cliente Teodoro Lemos". **CPF lido como "CPF parcialmente oculto"** (resolve o rótulo acessível da D-C: não soletra asteriscos). Veículo: "RTK4M81, Honda Civic, 2018, botão". |
+| D2, V3 (1) | Voltar é o único focável | "Carregando cliente" / "Carregando veículo" (polida). |
+| D3, V4 (3) | Voltar → Tentar novamente → Voltar (botão) | Alerta: "Não foi possível abrir este cliente/veículo. Verifique a internet da oficina e tente de novo." |
+| V1, V5, V2 (2) | Voltar → Editar veículo | Item de OS: "OS 142, troca de pastilhas, em andamento, exemplo". Itens não abrem a OS (F28). V2: "Histórico de OS, nenhuma. Nenhuma OS neste veículo." |
+| C1 (6) | Voltar → Nome → Telefone → E-mail → CPF → Endereço → Salvar cliente | Nome: "Nome completo, obrigatório, campo de texto"; demais "…, opcional". Ajuda do CPF lida junto. O aviso de privacidade é lido antes do Salvar. |
+| E1 (8) | Voltar → campos 1 a 5 → Cancelar → Salvar alterações | Campos lidos com o valor atual. Voltar/Cancelar com alteração abrem X2; sem alteração saem direto. |
+| N1 (7), M1 (8) | Voltar → Placa → Marca → Modelo → Ano → Cor → (Cancelar) → Salvar | "Cliente: Teodoro Lemos" é lido antes do formulário. Placa, Marca e Modelo "obrigatório"; Ano e Cor "opcional". |
+| C3, N3 | foco vai ao primeiro campo com erro | Alerta "Corrija os 2 (C3) / 3 (N3) campos destacados"; depois "Nome completo, obrigatório, erro: Informe o nome do cliente." |
+| C4, C5, C7, N4 | foco vai ao campo com erro (CPF, CPF, E-mail, Placa) | "CPF, erro: CPF inválido. Confira os 11 números." / "…Já existe um cliente com este CPF." / "E-mail, erro: Informe um e-mail válido." / "Placa, erro: Esta placa já está cadastrada." A mensagem de duplicidade não revela de quem é o dado. |
+| C6, E3, N5, M3 | foco vai ao aviso e depois ao Salvar | Alerta: "Não foi possível salvar. Verifique a internet da oficina e tente de novo." Dados mantidos. |
+| C2, E2, N2, M2 (1) | campos e botões bloqueados; foco fica em Salvar | "Salvando cliente / alterações / veículo" (aria-busy); botão lido como "Salvando, indisponível". |
+| X1 a X4 (2) | "Continuar editando" (inicial) → "Descartar"; foco preso; Esc ou voltar do sistema = Continuar editando | "Descartar alterações? O que você digitou neste formulário será perdido. Continuar editando, botão. Descartar, botão." Descartar volta: X1 à lista (L1); X2, X3 ao detalhe do cliente (D1); X4 ao detalhe do veículo (V1). |
+
+**Ajustes na seção 8.2 e 8.3, que a leitura corrige:** (a) o cartão de dados não entra na ordem de foco de teclado, só na leitura; (b) os cartões de OS não são focáveis; (c) o rótulo de Editar é "Editar cliente {nome}" e o de Voltar no detalhe do cliente é "Voltar para clientes" (no detalhe do veículo o Voltar leva ao cliente, mas o Figma não traz esse texto: **[Proposta]** "Voltar para o cliente"); (d) o aviso de sucesso no protótipo some em 3 s, o app mantém no mínimo 5 s ou até dispensar (anotação do próprio Figma).
+
+### 13.3 Ícones **[Figma]**
+
+Os ícones são instâncias anônimas do componente "Component 1", com variantes numeradas (`variant=17`, `24`, `47`, `50` a `53`, `64` a `66`). **Nenhum traz nome do ícone**, então a tabela da seção 5 segue como inferência por captura. Variantes lidas: busca/setas e ícone de veículo 20 × 20 (`variant=50`, `52`), seta do cartão 18 × 18 (`51`, `53`), "+" do botão Novo cliente 18 × 18 (`17`), ícones de estado 32 × 32 (`24` no vazio, `5` no erro) e o ícone do aviso de sucesso 18 × 18 (`variant=47`, no D4 `109:2874`). Continua sem nome definitivo: ORLA confirma cada um contra as capturas.
+
+### 13.4 Variáveis do Figma em D1 **[Figma]**
+
+`get_variable_defs` confirma: `color/cyan/18` `#1E3A3F`, `color/cyan/28` `#33575D`, `color/grey/42` `#6E6A66`, `color/orange/87` `#E2DEDA`, `color/border/default` `#8C8780`, `color/red/47` `#B5453D`, `color/grey/96` `#F7F5F2`, `color/white/solid`; raios 8, 10, 20; espaçamentos 12, 14 e 3; fontes Barlow Condensed SemiBold (22 e 15 com espaçamento de letra 0,9) e Inter Regular, Medium e SemiBold (13, 14, 15). Bate com a seção 2. Nenhuma variável para `#3E6E4A` e `#2C5258` (seguem soltas).
+
+---
+
 ## 12. O que não consegui ler ou verificar
 
-- **Nomes dos ícones** do Figma (a camada não traz nome): inferidos por screenshot. O ícone do aviso de sucesso não foi identificado.
-- **Ordem de foco** de cada selo das 39 telas F26: não reli um a um.
+- **Nomes dos ícones** do Figma: a camada traz só variantes numeradas (seção 13.3); inferidos por screenshot.
+- **Ordem de foco** de cada selo: **lida em 20/11/2026** (seção 13.2); as 5 telas propostas (D6, D7, D8, V6, L8) não têm camada de foco, só anotações.
 - **Leitor de tela real** (VoiceOver/TalkBack): nenhum teste feito; os anúncios acima são especificação.
 - **Link do Figma** com acesso restrito: não testei abertura por outra conta.
 - **Variáveis do Figma** para `#3E6E4A` e `#2C5258`: não existem; os frames usam a cor solta.
