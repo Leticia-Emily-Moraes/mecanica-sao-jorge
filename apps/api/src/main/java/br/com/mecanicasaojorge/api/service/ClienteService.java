@@ -7,6 +7,7 @@ import br.com.mecanicasaojorge.api.dto.PaginaResponse;
 import br.com.mecanicasaojorge.api.entity.Cliente;
 import br.com.mecanicasaojorge.api.exception.ClienteNaoEncontradoException;
 import br.com.mecanicasaojorge.api.exception.CpfJaCadastradoException;
+import br.com.mecanicasaojorge.api.exception.EmailJaCadastradoException;
 import br.com.mecanicasaojorge.api.mapper.ClienteMapper;
 import br.com.mecanicasaojorge.api.repository.ClienteRepository;
 import java.util.List;
@@ -30,6 +31,7 @@ public class ClienteService {
   private static final Logger LOG = LoggerFactory.getLogger(ClienteService.class);
 
   private static final String INDICE_CPF = "uk_clientes_cpf";
+  private static final String INDICE_EMAIL = "uk_clientes_email";
 
   private static final Sort ORDEM_PADRAO = Sort.by(Sort.Order.asc("nome"), Sort.Order.asc("id"));
 
@@ -104,28 +106,72 @@ public class ClienteService {
   }
 
   /**
-   * Unico ponto de gravacao (ADR-020, regra 3). O flush forca o erro do indice a estourar aqui
-   * dentro; a causa nunca e propagada, porque o MySQL escreve o CPF na mensagem.
+   * Edita um cliente (F03d, ADR-021 e ADR-026): substitui todos os campos editaveis do cliente do
+   * caminho. Carrega a entidade e copia os campos sobre ela, nunca monta entidade nova. CPF e email
+   * de outro cliente viram 409 pelo indice unico, sem consulta previa. Loga so {@code clienteId},
+   * {@code usuarioId} e, no conflito, o nome do campo; nunca valor, nem mascarado (politica de
+   * dados do cliente, secao 6.7).
+   *
+   * @throws ClienteNaoEncontradoException quando nao existe cliente com o id (404, ADR-019)
+   */
+  @Transactional
+  public ClienteDetalheResponse atualizar(Long id, ClienteRequest request, String usuarioId) {
+    Cliente cliente =
+        clienteRepository
+            .findById(id)
+            .orElseThrow(
+                () -> {
+                  LOG.info(
+                      "clientes.editar.naoEncontrado clienteId={} usuarioId={}", id, usuarioId);
+                  return new ClienteNaoEncontradoException();
+                });
+    clienteMapper.atualizar(request, cliente);
+    Cliente salvo;
+    try {
+      salvo = gravar(cliente);
+    } catch (CpfJaCadastradoException ex) {
+      logarConflito(id, usuarioId, "cpf");
+      throw ex;
+    } catch (EmailJaCadastradoException ex) {
+      logarConflito(id, usuarioId, "email");
+      throw ex;
+    }
+    LOG.info("clientes.editar clienteId={} usuarioId={}", id, usuarioId);
+    return clienteMapper.toDetalheResponse(salvo);
+  }
+
+  private static void logarConflito(Long id, String usuarioId, String campo) {
+    LOG.info("clientes.editar.conflito clienteId={} usuarioId={} campo={}", id, usuarioId, campo);
+  }
+
+  /**
+   * Unico ponto de gravacao (ADR-020, regra 3; ADR-026, regra 3). O flush forca o erro do indice a
+   * estourar aqui dentro; a causa nunca e propagada, porque o MySQL escreve o valor na mensagem.
    */
   private Cliente gravar(Cliente cliente) {
     try {
       return clienteRepository.saveAndFlush(cliente);
     } catch (DataIntegrityViolationException ex) {
-      if (violaIndiceDeCpf(ex)) {
+      String indice = nomeDoIndiceViolado(ex);
+      if (indice.endsWith(INDICE_CPF)) {
         throw new CpfJaCadastradoException();
+      }
+      if (indice.endsWith(INDICE_EMAIL)) {
+        throw new EmailJaCadastradoException();
       }
       throw ex;
     }
   }
 
-  private static boolean violaIndiceDeCpf(Throwable erro) {
+  /** Nome da restricao violada em minusculas, ou vazio quando a causa nao e uma restricao. */
+  private static String nomeDoIndiceViolado(Throwable erro) {
     for (Throwable atual = erro; atual != null; atual = atual.getCause()) {
       if (atual instanceof ConstraintViolationException violacao) {
         String nome = violacao.getConstraintName();
-        return nome != null && nome.toLowerCase(Locale.ROOT).endsWith(INDICE_CPF);
+        return nome == null ? "" : nome.toLowerCase(Locale.ROOT);
       }
     }
-    return false;
+    return "";
   }
 
   private Page<Cliente> consultar(TermoBusca termo, Pageable pageable) {
