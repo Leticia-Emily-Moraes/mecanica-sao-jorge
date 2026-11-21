@@ -24,6 +24,11 @@
     <springdoc.version>2.8.5</springdoc.version>
     <testcontainers.version>1.21.4</testcontainers.version>
     <owasp-dependency-check.version>12.1.3</owasp-dependency-check.version>
+    <!-- Sobrescreve o 9.7.0 do Boot 4.1.2: CVE-2026-60586 (7.7) e CVE-2026-60623 (7.1) afetam 9.7.0-9.7.1. -->
+    <mysql.version>26.10.0</mysql.version>
+    <!-- O springdoc 2.8.5 traz o swagger-ui 5.18.3 com DOMPurify 3.1.6 (CVE-2026-116803, 10.0;
+         corrigido no DOMPurify 3.4.17). O 5.35.1 depende de dompurify ^3.4.17. -->
+    <swagger-ui.version>5.35.1</swagger-ui.version>
   </properties>
 
   <dependencies>
@@ -124,6 +129,11 @@
         <version>${testcontainers.version}</version>
         <type>pom</type>
         <scope>import</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.webjars</groupId>
+        <artifactId>swagger-ui</artifactId>
+        <version>${swagger-ui.version}</version>
       </dependency>
     </dependencies>
   </dependencyManagement>
