@@ -3,25 +3,33 @@ package br.com.mecanicasaojorge.api.controller;
 import br.com.mecanicasaojorge.api.config.OpenApiConfig;
 import br.com.mecanicasaojorge.api.dto.ClienteDetalheResponse;
 import br.com.mecanicasaojorge.api.dto.ClienteListResponse;
+import br.com.mecanicasaojorge.api.dto.ClienteRequest;
 import br.com.mecanicasaojorge.api.dto.PaginaResponse;
 import br.com.mecanicasaojorge.api.exception.ErrorResponse;
 import br.com.mecanicasaojorge.api.service.ClienteService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.Size;
+import java.net.URI;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -74,6 +82,85 @@ public class ClienteController {
           int size,
       @AuthenticationPrincipal Jwt jwt) {
     return ResponseEntity.ok(clienteService.listar(q, page, size, jwt.getSubject()));
+  }
+
+  @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
+  @Operation(
+      summary = "Cadastra um cliente",
+      description =
+          "CPF e telefone aceitos com ou sem mascara e gravados so com digitos. CPF repetido "
+              + "responde 409 (indice unico, ADR-020). O Location e relativo.",
+      requestBody =
+          @io.swagger.v3.oas.annotations.parameters.RequestBody(
+              content =
+                  @Content(
+                      examples =
+                          @ExampleObject(
+                              name = "Cliente completo",
+                              value =
+                                  """
+                                  {"nome": "Ana Exemplo", "cpf": "123.456.789-00",
+                                   "telefone": "(11) 91234-5678", "email": "ana@example.com",
+                                   "endereco": "Rua Modelo, 100 - Jardim Exemplo"}"""))))
+  @ApiResponse(
+      responseCode = "201",
+      description = "Cliente criado; Location aponta para o detalhe",
+      content = @Content(schema = @Schema(implementation = ClienteDetalheResponse.class)))
+  @ApiResponse(
+      responseCode = "400",
+      description =
+          "Campo invalido ou ausente (nome, cpf, telefone, email) ou JSON malformado; a mensagem "
+              + "cita o campo e nunca o valor enviado",
+      content =
+          @Content(
+              schema = @Schema(implementation = ErrorResponse.class),
+              examples =
+                  @ExampleObject(
+                      value =
+                          """
+                          {"timestamp": "2026-11-17T10:00:00-03:00", "status": 400,
+                           "erro": "Bad Request", "mensagem": "cpf deve ter 11 digitos",
+                           "path": "/api/v1/clientes"}""")))
+  @ApiResponse(
+      responseCode = "401",
+      description = "Token ausente, invalido ou expirado",
+      content =
+          @Content(
+              schema = @Schema(implementation = ErrorResponse.class),
+              examples =
+                  @ExampleObject(
+                      value =
+                          """
+                          {"timestamp": "2026-11-17T10:00:00-03:00", "status": 401,
+                           "erro": "Unauthorized", "mensagem": "Nao autenticado",
+                           "path": "/api/v1/clientes"}""")))
+  @ApiResponse(
+      responseCode = "409",
+      description = "CPF ja cadastrado; a mensagem nao traz o CPF nem o id do cadastro existente",
+      content =
+          @Content(
+              schema = @Schema(implementation = ErrorResponse.class),
+              examples =
+                  @ExampleObject(
+                      value =
+                          """
+                          {"timestamp": "2026-11-17T10:00:00-03:00", "status": 409,
+                           "erro": "Conflict", "mensagem": "CPF ja cadastrado",
+                           "path": "/api/v1/clientes"}""")))
+  @ApiResponse(
+      responseCode = "415",
+      description = "Content-Type diferente de application/json",
+      content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+  @ApiResponse(
+      responseCode = "500",
+      description = "Erro interno inesperado",
+      content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+  public ResponseEntity<ClienteDetalheResponse> criar(
+      @Valid @RequestBody ClienteRequest request, @AuthenticationPrincipal Jwt jwt) {
+    ClienteDetalheResponse criado = clienteService.criar(request, jwt.getSubject());
+    return ResponseEntity.status(HttpStatus.CREATED)
+        .location(URI.create("/api/v1/clientes/" + criado.id()))
+        .body(criado);
   }
 
   @GetMapping("/{id}")
