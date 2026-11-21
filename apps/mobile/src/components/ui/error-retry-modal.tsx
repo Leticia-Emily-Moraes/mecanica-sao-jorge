@@ -1,8 +1,9 @@
 import type { ReactElement } from 'react';
 import { Modal, StyleSheet, Text, View } from 'react-native';
 
-import { Button } from '@/components/button';
-import { color, radius, spacing, typography } from '@/theme/tokens';
+import { AlertIcon } from '@/components/ui/alert-icon';
+import { Button } from '@/components/ui/button';
+import { color, iconSize, layout, radius, spacing, typography } from '@/theme/tokens';
 
 export interface ErrorRetryModalProps {
   readonly visible: boolean;
@@ -17,7 +18,7 @@ export interface ErrorRetryModalProps {
 /**
  * Popup sobre o conteúdo de fundo (não substitui a tela), mesmo padrão
  * corrigido no wireframe F24 e reaproveitado no protótipo F25 — ícone de
- * alerta ⚠ (dingbat, não emoji colorido), título, mensagem e ação de retry.
+ * alerta (triângulo cheio), título, mensagem e ação de retry.
  */
 export function ErrorRetryModal({
   visible,
@@ -37,9 +38,9 @@ export function ErrorRetryModal({
           accessibilityRole="alert"
           accessibilityLiveRegion="assertive"
         >
-          <Text accessibilityElementsHidden importantForAccessibility="no" style={styles.icon}>
-            ⚠
-          </Text>
+          <View style={styles.icon}>
+            <AlertIcon size={iconSize.alert} />
+          </View>
           <Text style={styles.title}>{title}</Text>
           <Text style={styles.message}>{message}</Text>
           <View style={styles.actions}>
@@ -66,15 +67,13 @@ const styles = StyleSheet.create({
   },
   card: {
     width: '100%',
-    maxWidth: 320,
+    maxWidth: layout.dialogMaxWidth,
     backgroundColor: color.surface.default,
-    borderRadius: radius.lg,
-    padding: spacing.lg,
+    borderRadius: radius.md,
+    padding: spacing.card,
     alignItems: 'center',
   },
   icon: {
-    fontSize: 32,
-    color: color.text.error,
     marginBottom: spacing.sm,
   },
   title: {
@@ -85,7 +84,7 @@ const styles = StyleSheet.create({
     marginBottom: spacing.xs,
   },
   message: {
-    fontSize: typography.body.fontSize,
+    fontSize: typography.subtitle.fontSize,
     color: color.text.secondary,
     textAlign: 'center',
     marginBottom: spacing.md,

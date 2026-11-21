@@ -1,12 +1,14 @@
 import type { ReactElement } from 'react';
 import { Modal, StyleSheet, Text, View } from 'react-native';
 
-import { Button } from '@/components/button';
-import { color, radius, spacing, typography } from '@/theme/tokens';
+import { Button } from '@/components/ui/button';
+import { color, layout, radius, spacing, typography } from '@/theme/tokens';
 
 export interface ConfirmDialogProps {
   readonly visible: boolean;
   readonly title: string;
+  /** Texto de apoio sob o título (Figma 33:64). */
+  readonly message?: string;
   readonly cancelLabel: string;
   readonly confirmLabel: string;
   readonly onCancel: () => void;
@@ -17,6 +19,7 @@ export interface ConfirmDialogProps {
 export function ConfirmDialog({
   visible,
   title,
+  message,
   cancelLabel,
   confirmLabel,
   onCancel,
@@ -32,6 +35,7 @@ export function ConfirmDialog({
           accessibilityLiveRegion="assertive"
         >
           <Text style={styles.title}>{title}</Text>
+          {message ? <Text style={styles.message}>{message}</Text> : null}
           <View style={styles.actions}>
             <View style={styles.actionSpacing}>
               <Button label={cancelLabel} onPress={onCancel} variant="secondary" />
@@ -54,22 +58,29 @@ const styles = StyleSheet.create({
   },
   card: {
     width: '100%',
-    maxWidth: 320,
+    maxWidth: layout.dialogMaxWidth,
     backgroundColor: color.surface.default,
-    borderRadius: radius.lg,
-    padding: spacing.lg,
+    borderRadius: radius.md,
+    padding: spacing.card,
   },
   title: {
-    fontSize: typography.label.fontSize,
-    fontWeight: typography.label.fontWeight,
+    fontSize: typography.heading.fontSize,
+    fontWeight: typography.heading.fontWeight,
     color: color.text.primary,
     textAlign: 'center',
-    marginBottom: spacing.lg,
+    marginBottom: spacing.xs,
+  },
+  message: {
+    fontSize: typography.subtitle.fontSize,
+    fontWeight: typography.subtitle.fontWeight,
+    color: color.text.secondary,
+    textAlign: 'center',
   },
   actions: {
     width: '100%',
+    marginTop: spacing.card,
   },
   actionSpacing: {
-    marginBottom: spacing.sm,
+    marginBottom: spacing.xs,
   },
 });

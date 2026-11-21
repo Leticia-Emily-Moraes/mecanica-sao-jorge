@@ -1,15 +1,29 @@
 import type { ReactElement } from 'react';
 import { ActivityIndicator, Pressable, StyleSheet, Text, View } from 'react-native';
 
-import { color, minTouchTarget, radius, spacing, typography } from '@/theme/tokens';
+import {
+  borderWidth,
+  color,
+  focusRingRadius,
+  layout,
+  minTouchTarget,
+  opacity,
+  radius,
+  spacing,
+  typography,
+} from '@/theme/tokens';
 import { useFocusRing } from '@/theme/use-focus-ring';
 
 export type ButtonVariant = 'primary' | 'secondary';
+
+/** `page`: ação principal da tela (52, Figma 29:16); `default`: demais usos (48). */
+export type ButtonSize = 'default' | 'page';
 
 export interface ButtonProps {
   readonly label: string;
   readonly onPress: () => void;
   readonly variant?: ButtonVariant;
+  readonly size?: ButtonSize;
   readonly loading?: boolean;
   readonly loadingLabel?: string;
   readonly disabled?: boolean;
@@ -20,6 +34,7 @@ export function Button({
   label,
   onPress,
   variant = 'primary',
+  size = 'default',
   loading = false,
   loadingLabel,
   disabled = false,
@@ -40,8 +55,10 @@ export function Button({
         onPress={onPress}
         style={({ pressed }) => [
           styles.button,
+          size === 'page' && styles.page,
           variant === 'primary' ? styles.primary : styles.secondary,
-          isDisabled && styles.disabled,
+          // Carregando mantém a cor cheia (Figma 29:20): a 50 % o rótulo cairia a 2,18:1.
+          disabled && !loading && styles.disabled,
           pressed && !isDisabled && styles.pressed,
         ]}
       >
@@ -76,28 +93,31 @@ export function Button({
 
 const styles = StyleSheet.create({
   ringWrapper: {
-    borderRadius: radius.md + 4,
+    borderRadius: focusRingRadius,
   },
   button: {
     minHeight: minTouchTarget,
-    borderRadius: radius.md,
+    borderRadius: radius.sm,
     alignItems: 'center',
     justifyContent: 'center',
     paddingHorizontal: spacing.lg,
+  },
+  page: {
+    minHeight: layout.pageButtonHeight,
   },
   primary: {
     backgroundColor: color.action.primaryBackground,
   },
   secondary: {
     backgroundColor: 'transparent',
-    borderWidth: 1,
+    borderWidth: borderWidth.emphasis,
     borderColor: color.border.default,
   },
   pressed: {
-    opacity: 0.85,
+    opacity: opacity.pressed,
   },
   disabled: {
-    opacity: 0.5,
+    opacity: opacity.disabled,
   },
   loadingRow: {
     flexDirection: 'row',

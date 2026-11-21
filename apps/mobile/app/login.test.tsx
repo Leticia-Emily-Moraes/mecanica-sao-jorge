@@ -1,14 +1,14 @@
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react-native';
 
-import { autenticar, CredenciaisInvalidasError, ErroDeRedeError } from '@/auth/auth-api';
-import { AuthProvider } from '@/auth/auth-context';
+import { AuthProvider } from '@/hooks/use-auth';
+import { autenticar, CredenciaisInvalidasError, ErroDeRedeError } from '@/services/auth-service';
 
 import LoginScreen from './login';
 
 // Só a função é mockada — as classes de erro reais ficam, senão o
 // `instanceof` da tela compararia contra uma classe automockada diferente.
-jest.mock('@/auth/auth-api', () => ({
-  ...jest.requireActual('@/auth/auth-api'),
+jest.mock('@/services/auth-service', () => ({
+  ...jest.requireActual('@/services/auth-service'),
   autenticar: jest.fn(),
 }));
 
@@ -32,6 +32,15 @@ async function renderLoginScreen(): Promise<void> {
 describe('LoginScreen', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+  });
+
+  it('should show the header band title and subtitle and the field placeholders', async () => {
+    await renderLoginScreen();
+
+    expect(screen.getByRole('header', { name: 'Mecânica São Jorge' })).toBeTruthy();
+    expect(screen.getByText('Entre com sua conta')).toBeTruthy();
+    expect(screen.getByLabelText('E-mail').props.placeholder).toBe('seu@email.com');
+    expect(screen.getByLabelText('Senha').props.placeholder).toBe('Sua senha');
   });
 
   it('should show field validation errors and never call the API when email and senha are empty', async () => {
@@ -87,6 +96,22 @@ describe('LoginScreen', () => {
     fireEvent.press(screen.getByRole('button', { name: 'Entrar' }));
 
     await waitFor(() => expect(mockReplace).toHaveBeenCalledWith('/perfil'));
+  });
+
+  it('should hide the show-password button and keep the fields locked while signing in', async () => {
+    autenticarMock.mockReturnValueOnce(new Promise(() => {}));
+    await renderLoginScreen();
+
+    fireEvent.changeText(screen.getByLabelText('E-mail'), 'ana.souza@exemplo-ficticio.com.br');
+    fireEvent.changeText(screen.getByLabelText('Senha'), 'senha-ficticia');
+    expect(screen.getByRole('button', { name: 'Mostrar senha' })).toBeTruthy();
+
+    fireEvent.press(screen.getByRole('button', { name: 'Entrar' }));
+
+    expect(await screen.findByText('Entrando...')).toBeTruthy();
+    expect(screen.queryByRole('button', { name: 'Mostrar senha' })).toBeNull();
+    expect(screen.getByLabelText('E-mail').props.editable).toBe(false);
+    expect(screen.getByLabelText('Senha').props.editable).toBe(false);
   });
 
   it('should toggle password visibility with an accessible button', async () => {
