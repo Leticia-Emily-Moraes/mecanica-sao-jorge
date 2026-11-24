@@ -8,6 +8,11 @@ spring:
     url: ${DB_URL}
     username: ${DB_USERNAME}
     password: ${DB_PASSWORD}
+    hikari:
+      # ADR-039: instante lido do banco igual em qualquer fuso de JVM.
+      data-source-properties:
+        connectionTimeZone: UTC
+        forceConnectionTimeZoneToSession: true
   jpa:
     open-in-view: false
     hibernate:
