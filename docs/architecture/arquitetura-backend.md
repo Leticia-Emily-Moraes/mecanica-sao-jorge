@@ -159,6 +159,38 @@ Conclusão mantida do `CLAUDE.md`: por camada agora; se o projeto crescer para m
 ### Peça (catálogo + estoque)
 `PecaController`, `PecaService`/`Impl`, `PecaRepository`, `Peca`, `PecaMapper`, `PecaRequestDTO`, `PecaResponseDTO`. Estoque tratado por `MovimentacaoEstoqueService` (entrada/saída/ajuste), não dentro do próprio `PecaService`, para manter responsabilidade única.
 
+Entregue na F17 (listagem): `PecaController`, `PecaService` (classe concreta, sem interface), `PecaRepository.buscar`, `PecaMapper`, `PecaListResponse` (o nome `PecaResponse` fica livre para a F14) e `service.EstoqueMinimo` (função pura `atingido(quantidade, minimo)`, ADR-035, reaproveitada pela F16). Migration `V10__adicionar_nome_em_pecas.sql` (ADR-036).
+
+#### Contrato: `GET /api/v1/pecas` (F17, ADR-034)
+
+Exige JWT. Parâmetros: `q` (opcional, até 100 caracteres, aparado; trecho de `nome` ou `codigo`, sem diferenciar caixa e acento; `%`, `_` e `!` valem como texto), `page` (base 0, padrão 0, mínimo 0), `size` (padrão 20, de 1 a 100). Ordem por `nome` e depois `id`. Não filtra por `ativo`. Página além do fim devolve 200 com `itens` vazio e o total real.
+
+Resposta 200 (envelope do ADR-017):
+
+```json
+{
+  "itens": [
+    {
+      "id": 3,
+      "nome": "Filtro de óleo",
+      "codigo": "FO-100",
+      "precoVenda": 25.00,
+      "quantidadeEstoque": 5,
+      "estoqueMinimo": 5,
+      "estoqueBaixo": true
+    }
+  ],
+  "pagina": 0,
+  "tamanho": 20,
+  "totalItens": 1,
+  "totalPaginas": 1
+}
+```
+
+`estoqueBaixo` = `quantidadeEstoque <= estoqueMinimo`, calculado a cada requisição e nunca gravado. O item não traz `custo` nem `ativo`. Erros no formato padrão (`timestamp`, `status`, `erro`, `mensagem`, `path`): 400 (`Parametro invalido: <nome>`), 401 e 500 (`Erro interno inesperado`, sem stack trace).
+
+Correspondência com os critérios da F17: `content` = `itens`, `totalElements` = `totalItens`, `totalPages` = `totalPaginas`.
+
 ### Ordem de Serviço
 `OrdemServicoController`, `OrdemServicoService`/`Impl`, `OrdemServicoRepository`, `OrdemServico` (+ entidades de junção `OrdemServicoServico`, `OrdemServicoPeca` que congelam valor no momento da venda), `OrdemServicoMapper`, `OrdemServicoRequestDTO`, `OrdemServicoResponseDTO`, `AtualizarStatusOrdemServicoDTO`. Validação de transição de status fica no service (`StatusOrdemServico`), nunca no controller.
 
