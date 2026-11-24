@@ -1,13 +1,16 @@
 import { render, screen } from '@testing-library/react-native';
-import { Text, View } from 'react-native';
+import { StyleSheet, Text, type ViewStyle } from 'react-native';
 
-import { jsonChildren, jsonStyle, type JsonNode } from '@/test-utils/render-tree';
 import { color, spacing } from '@/theme/tokens';
 
 import { ScreenContainer } from './screen-container';
 
-function root(): JsonNode {
-  return screen.toJSON() as JsonNode;
+function rootStyle(): ViewStyle {
+  const root = screen.toJSON();
+  if (!root || Array.isArray(root)) {
+    throw new Error('Esperava um único nó raiz');
+  }
+  return StyleSheet.flatten(root.props.style as ViewStyle);
 }
 
 describe('ScreenContainer', () => {
@@ -21,81 +24,47 @@ describe('ScreenContainer', () => {
     expect(screen.getByText('conteúdo')).toBeTruthy();
   });
 
-  it('should fill the area with the surface color', () => {
+  it('should fill the area with the Pampas background and the 16 side margin', () => {
     render(
       <ScreenContainer>
         <Text>conteúdo</Text>
       </ScreenContainer>,
     );
 
-    expect(jsonStyle(root())).toMatchObject({
-      flex: 1,
-      backgroundColor: color.surface.default,
-    });
-  });
-
-  it('should pad the content body with the standard spacing', () => {
-    render(
-      <ScreenContainer>
-        <Text>conteúdo</Text>
-      </ScreenContainer>,
-    );
-
-    expect(jsonStyle(jsonChildren(root())[0])).toMatchObject({
+    expect(rootStyle()).toMatchObject({
       flex: 1,
       paddingHorizontal: spacing.md,
-      paddingVertical: spacing.lg,
+      backgroundColor: color.surface.background,
     });
   });
 
-  it('should use topSpacing as the space under the header when given', () => {
+  it('should accept a custom side margin (Login uses 28)', () => {
     render(
-      <ScreenContainer topSpacing={spacing.formTop}>
+      <ScreenContainer horizontalPadding={spacing.md + spacing.s12}>
         <Text>conteúdo</Text>
       </ScreenContainer>,
     );
 
-    expect(jsonStyle(jsonChildren(root())[0])).toMatchObject({
-      paddingTop: spacing.formTop,
-      paddingVertical: spacing.lg,
-    });
+    expect(rootStyle().paddingHorizontal).toBe(28);
   });
 
-  it('should pin the footer after the body, with the side padding', () => {
-    render(
-      <ScreenContainer footer={<View testID="rodape" />}>
-        <Text>conteúdo</Text>
-      </ScreenContainer>,
-    );
-
-    const [body, footer] = jsonChildren(root());
-
-    expect(jsonStyle(body).flex).toBe(1);
-    expect(jsonStyle(footer).paddingHorizontal).toBe(spacing.md);
-    expect(screen.getByTestId('rodape')).toBeTruthy();
-  });
-
-  it('should not render a footer wrapper when none is given', () => {
+  it('should not center vertically by default', () => {
     render(
       <ScreenContainer>
         <Text>conteúdo</Text>
       </ScreenContainer>,
     );
 
-    expect(jsonChildren(root())).toHaveLength(1);
+    expect(rootStyle().justifyContent).toBeUndefined();
   });
 
-  it('should draw the header before the padded body, outside its padding', () => {
+  it('should center vertically when centered is set', () => {
     render(
-      <ScreenContainer header={<View testID="faixa" />}>
+      <ScreenContainer centered>
         <Text>conteúdo</Text>
       </ScreenContainer>,
     );
 
-    const [first, second] = jsonChildren(root());
-
-    expect(first.props.testID).toBe('faixa');
-    expect(jsonStyle(first).paddingHorizontal).toBeUndefined();
-    expect(jsonStyle(second).paddingHorizontal).toBe(spacing.md);
+    expect(rootStyle().justifyContent).toBe('center');
   });
 });

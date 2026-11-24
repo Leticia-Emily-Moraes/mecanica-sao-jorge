@@ -39,7 +39,7 @@ export function IconButton({
         onPress={onPress}
         style={styles.button}
       >
-        <Ionicons name={icon} size={iconSize.action} color={color.text.secondary} />
+        <Ionicons name={icon} size={iconSize.tab} color={color.text.secondary} />
       </Pressable>
     </View>
   );

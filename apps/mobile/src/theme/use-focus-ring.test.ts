@@ -1,6 +1,6 @@
 import { act, renderHook } from '@testing-library/react-native';
 
-import { color, focusRingInset, focusRingOffset, focusRingRadius, focusRingWidth } from './tokens';
+import { color, focusRingOffset, focusRingRadius, focusRingWidth } from './tokens';
 import { useFocusRing } from './use-focus-ring';
 
 describe('useFocusRing', () => {
@@ -12,7 +12,6 @@ describe('useFocusRing', () => {
       borderWidth: focusRingWidth,
       borderColor: 'transparent',
       padding: focusRingOffset,
-      margin: -focusRingInset,
       backgroundColor: 'transparent',
     });
   });
@@ -38,9 +37,20 @@ describe('useFocusRing', () => {
     expect(result.current.focusRingStyle).toMatchObject({ borderColor: 'transparent' });
   });
 
-  it('should match the frame ring: 2 pt petro, 4 pt halo and outer radius 14', () => {
+  it('should match the tokens of the approved ring: 2 pt petro, 2 pt halo and outer radius 12', () => {
     expect(focusRingWidth).toBe(2);
-    expect(focusRingOffset).toBe(4);
-    expect(focusRingRadius).toBe(14);
+    expect(focusRingOffset).toBe(2);
+    expect(focusRingRadius).toBe(12);
+  });
+
+  it('should paint a white ring without halo over the petro bar (onBrand)', () => {
+    const { result } = renderHook(() => useFocusRing({ onBrand: true }));
+
+    act(() => result.current.onFocus());
+
+    expect(result.current.focusRingStyle).toMatchObject({
+      borderColor: color.focus.ringOnBrand,
+      backgroundColor: 'transparent',
+    });
   });
 });

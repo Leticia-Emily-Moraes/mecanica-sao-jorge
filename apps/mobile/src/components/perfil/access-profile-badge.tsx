@@ -8,13 +8,13 @@ export interface AccessProfileBadgeProps {
 }
 
 /**
- * Selo do perfil de acesso (ADMIN, FUNCIONARIO): pílula petro com texto
- * branco (Figma 33:40). Não é o badge de status que chega com a primeira
- * lista (F35): se aquele nascer genérico, este deve ser trocado por ele.
+ * Selo do perfil de acesso (ADMIN, FUNCIONÁRIO): pílula petro com texto
+ * branco, centralizada sob o nome. Não é o badge de status que chega com a
+ * primeira lista (F35): se aquele nascer genérico, este deve ser trocado por ele.
  */
 export function AccessProfileBadge({ label }: AccessProfileBadgeProps): ReactElement {
   return (
-    <View style={styles.badge}>
+    <View testID="access-profile-badge" style={styles.badge}>
       <Text style={styles.label}>{label}</Text>
     </View>
   );
@@ -22,15 +22,15 @@ export function AccessProfileBadge({ label }: AccessProfileBadgeProps): ReactEle
 
 const styles = StyleSheet.create({
   badge: {
-    alignSelf: 'flex-start',
+    alignSelf: 'center',
     backgroundColor: color.surface.brand,
     borderRadius: radius.pill,
-    paddingHorizontal: spacing.md,
+    paddingHorizontal: spacing.s12,
     paddingVertical: spacing.xs,
   },
   label: {
-    fontSize: typography.micro.fontSize,
-    fontWeight: typography.micro.fontWeight,
+    fontFamily: typography.badge.fontFamily,
+    fontSize: typography.badge.fontSize,
     color: color.text.onBrand,
   },
 });

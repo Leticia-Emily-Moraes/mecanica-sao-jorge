@@ -1,39 +1,30 @@
 import { render, screen } from '@testing-library/react-native';
+import { StyleSheet } from 'react-native';
+import type { TestStyle } from '@/test-utils/flat-style';
 
-import { Avatar, getInitials } from './avatar';
+import { color, size } from '@/theme/tokens';
 
-describe('getInitials', () => {
-  it('should return the first letter of the first two names when there are more than two', () => {
-    expect(getInitials('Ana Beatriz Souza')).toBe('AB');
-  });
-
-  it('should return a single letter when the name has one word', () => {
-    expect(getInitials('Ana')).toBe('A');
-  });
-
-  it('should upper-case accented and lower-case initials', () => {
-    expect(getInitials('érica  lima')).toBe('ÉL');
-  });
-
-  it('should ignore surrounding and repeated spaces', () => {
-    expect(getInitials('  Ana   Souza  ')).toBe('AS');
-  });
-
-  it('should return an empty string for an empty name', () => {
-    expect(getInitials('   ')).toBe('');
-  });
-});
+import { Avatar } from './avatar';
 
 describe('Avatar', () => {
-  it('should show the initials of the name', () => {
-    render(<Avatar name="Ana Beatriz Souza" />);
+  it('should show the initials inside an 84 Spectra circle with white text', () => {
+    render(<Avatar initials="JS" />);
 
-    expect(screen.getByText('AB', { includeHiddenElements: true })).toBeTruthy();
+    const initials = screen.getByText('JS', { includeHiddenElements: true });
+    const circle = screen.getByTestId('avatar', { includeHiddenElements: true });
+
+    expect(StyleSheet.flatten(circle.props.style as TestStyle)).toMatchObject({
+      width: size.avatar,
+      height: size.avatar,
+      borderRadius: size.avatar / 2,
+      backgroundColor: color.surface.avatar,
+    });
+    expect(StyleSheet.flatten(initials.props.style as TestStyle).color).toBe(color.text.onBrand);
   });
 
-  it('should be hidden from the screen reader because the name is read next to it', () => {
-    render(<Avatar name="Ana Beatriz Souza" />);
+  it('should hide the decorative circle from screen readers (the name follows as text)', () => {
+    render(<Avatar initials="JS" />);
 
-    expect(screen.queryByText('AB')).toBeNull();
+    expect(screen.queryByText('JS')).toBeNull();
   });
 });

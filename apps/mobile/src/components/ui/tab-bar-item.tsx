@@ -1,18 +1,17 @@
 import { Ionicons } from '@expo/vector-icons';
-import { useCallback, useState } from 'react';
 import type { ComponentProps, ReactElement } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import {
   color,
-  focusRingWidth,
+  focusRingOffset,
   iconSize,
-  layout,
   opacity,
   radius,
   spacing,
   typography,
 } from '@/theme/tokens';
+import { useFocusRing } from '@/theme/use-focus-ring';
 
 export type TabBarIconName = ComponentProps<typeof Ionicons>['name'];
 
@@ -20,7 +19,7 @@ export interface TabBarItemProps {
   readonly icon: TabBarIconName;
   /** Rótulo visível sob o ícone. */
   readonly label: string;
-  /** Nome acessível completo (inclui o estado, ex.: "Perfil, aba selecionada"). */
+  /** Nome acessível completo (inclui o estado, ex.: "Ordens, aba selecionada"). */
   readonly accessibilityLabel: string;
   readonly selected: boolean;
   /** Item de placeholder: não navega, fica esmaecido e anunciado como desabilitado. */
@@ -29,11 +28,11 @@ export interface TabBarItemProps {
 }
 
 /**
- * Item de aba da barra de navegação inferior (Figma 39:3): pílula só atrás do
- * ícone quando selecionado, rótulo de 10 abaixo, esmaecido quando indisponível.
- * O foco é um anel branco de 2 de borda, sem preenchimento: a barra é petro e
- * o anel petro/branco dos demais controles sumiria ou deixaria ícone e rótulo
- * brancos sobre branco.
+ * Item de aba da barra de navegação inferior, no desenho da referência: sem
+ * pílula, ícone de 22 e rótulo de 11 em colunas de 62 de altura. O item
+ * selecionado muda de cor e vai de Medium para SemiBold (não depende só de
+ * cor, WCAG 1.4.1) e expõe `selected` ao leitor de tela. Esmaecido quando
+ * indisponível e com anel de foco duplo.
  */
 export function TabBarItem({
   icon,
@@ -43,85 +42,78 @@ export function TabBarItem({
   unavailable = false,
   onPress,
 }: TabBarItemProps): ReactElement {
-  const [focused, setFocused] = useState(false);
-  const onFocus = useCallback(() => setFocused(true), []);
-  const onBlur = useCallback(() => setFocused(false), []);
+  const { focusRingStyle, onFocus, onBlur } = useFocusRing({ onBrand: true });
+  const tone = selected ? color.text.tabSelected : color.text.onBrandMuted;
 
   return (
-    <View style={[styles.cell, focused && styles.cellFocused]}>
-      <Pressable
-        accessibilityRole="tab"
-        accessibilityLabel={accessibilityLabel}
-        accessibilityState={{ selected, disabled: unavailable }}
-        disabled={unavailable}
-        onFocus={onFocus}
-        onBlur={onBlur}
-        onPress={onPress}
-        style={styles.pressable}
-      >
-        <View testID="tab-pill" style={[styles.iconSlot, selected && styles.pill]}>
-          <Ionicons
-            name={icon}
-            size={iconSize.tab}
-            color={color.text.onBrand}
-            style={unavailable && styles.unavailable}
-          />
-        </View>
-        <Text
-          style={[
-            styles.label,
-            selected && styles.labelSelected,
-            unavailable && styles.unavailable,
-          ]}
-          numberOfLines={2}
+    <View style={styles.cell}>
+      <View style={[styles.ring, focusRingStyle]}>
+        <Pressable
+          accessibilityRole="tab"
+          accessibilityLabel={accessibilityLabel}
+          accessibilityState={{ selected, disabled: unavailable }}
+          disabled={unavailable}
+          onFocus={onFocus}
+          onBlur={onBlur}
+          onPress={onPress}
+          style={styles.pressable}
         >
-          {label}
-        </Text>
-      </Pressable>
+          <View style={styles.content}>
+            <Ionicons
+              name={icon}
+              size={iconSize.tab}
+              color={tone}
+              style={unavailable && styles.unavailable}
+            />
+            <Text
+              style={[
+                styles.label,
+                selected ? styles.labelSelected : styles.labelIdle,
+                { color: tone },
+                unavailable && styles.unavailable,
+              ]}
+              numberOfLines={1}
+            >
+              {label}
+            </Text>
+          </View>
+        </Pressable>
+      </View>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
+  // Célula de 90 × 62 (frame `20:1102`): o anel fica 2 de folga por dentro dela.
   cell: {
     flex: 1,
-    minHeight: layout.tabItemHeight,
-    borderRadius: radius.md,
-    borderWidth: focusRingWidth,
-    borderColor: 'transparent',
+    padding: focusRingOffset,
   },
-  cellFocused: {
-    borderColor: color.focus.ringOnBrand,
+  ring: {
+    flex: 1,
+    borderRadius: radius.tabFocus,
   },
   pressable: {
     flex: 1,
     alignItems: 'center',
-    // Do topo: rótulos de uma e de duas linhas mantêm o ícone na mesma altura.
-    justifyContent: 'flex-start',
-    paddingTop: spacing.xs,
-    gap: spacing.xs,
+    justifyContent: 'center',
   },
-  iconSlot: {
-    width: layout.tabPillWidth,
-    height: layout.tabPillHeight,
+  content: {
     alignItems: 'center',
     justifyContent: 'center',
-    borderRadius: radius.pill,
-  },
-  pill: {
-    backgroundColor: color.action.primaryBackground,
+    gap: spacing.xs,
   },
   unavailable: {
     opacity: opacity.unavailable,
   },
   label: {
-    fontSize: typography.tab.fontSize,
-    fontWeight: typography.tab.fontWeight,
-    color: color.text.onBrand,
-    textAlign: 'center',
+    fontFamily: typography.tabLabel.fontFamily,
+    fontSize: typography.tabLabel.fontSize,
   },
   labelSelected: {
-    fontSize: typography.tabSelected.fontSize,
-    fontWeight: typography.tabSelected.fontWeight,
+    fontFamily: typography.tabLabelSelected.fontFamily,
+  },
+  labelIdle: {
+    fontFamily: typography.tabLabel.fontFamily,
   },
 });

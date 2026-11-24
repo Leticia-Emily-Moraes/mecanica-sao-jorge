@@ -18,6 +18,6 @@ export function FormActions({ children }: FormActionsProps): ReactElement {
 
 const styles = StyleSheet.create({
   actions: {
-    marginTop: spacing.lg - spacing.field,
+    marginTop: spacing.lg - spacing.md,
   },
 });

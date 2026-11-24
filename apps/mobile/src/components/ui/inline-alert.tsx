@@ -2,16 +2,17 @@ import type { ReactElement } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 
 import { AlertIcon } from '@/components/ui/alert-icon';
-import { borderWidth, color, layout, radius, spacing, typography } from '@/theme/tokens';
+import { borderWidth, color, radius, spacing, typography } from '@/theme/tokens';
 
 export interface InlineAlertProps {
   readonly message: string;
 }
 
 /**
- * Faixa de erro dentro do formulário (a tela continua utilizável; Figma
- * 29:60). Sempre com ícone e texto — nunca só cor — e anunciada como alerta
- * ao leitor de tela. O ícone é decorativo.
+ * Faixa de erro dentro do formulário (a tela continua utilizável): fundo Pot
+ * Pourri, contorno Rose Fog, ícone de alerta e texto El Salva. Sempre com
+ * texto — nunca só cor — e anunciada como alerta ao leitor de tela. A altura
+ * vem da margem e do texto (sem altura fixa): 1 linha ≈ 48, 2 linhas = 67.
  */
 export function InlineAlert({ message }: InlineAlertProps): ReactElement {
   return (
@@ -19,32 +20,32 @@ export function InlineAlert({ message }: InlineAlertProps): ReactElement {
       accessibilityRole="alert"
       accessibilityLiveRegion="polite"
       accessible
-      style={styles.banner}
+      accessibilityLabel={message}
+      style={styles.container}
     >
-      <AlertIcon size={typography.labelSmall.fontSize} />
+      <AlertIcon />
       <Text style={styles.message}>{message}</Text>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  banner: {
+  container: {
     flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.sm,
-    backgroundColor: color.surface.errorTint,
-    borderWidth: borderWidth.field,
-    borderColor: color.text.error,
+    alignItems: 'flex-start',
+    gap: spacing.s10,
+    padding: spacing.s12 + borderWidth.hairline,
+    borderWidth: borderWidth.hairline,
+    borderColor: color.border.errorBanner,
     borderRadius: radius.sm,
-    minHeight: layout.inlineAlertMinHeight,
-    paddingVertical: spacing.sm + spacing.xs,
-    paddingHorizontal: spacing.md - spacing.xs,
+    backgroundColor: color.surface.errorTint,
     marginBottom: spacing.md,
   },
   message: {
     flex: 1,
-    fontSize: typography.labelSmall.fontSize,
-    fontWeight: typography.labelSmall.fontWeight,
-    color: color.text.error,
+    color: color.text.errorOnBanner,
+    fontFamily: typography.banner.fontFamily,
+    fontSize: typography.banner.fontSize,
+    lineHeight: typography.banner.lineHeight,
   },
 });

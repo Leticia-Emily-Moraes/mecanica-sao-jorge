@@ -3,6 +3,7 @@ import { StyleSheet, Text, View } from 'react-native';
 
 import { AccessProfileBadge } from '@/components/perfil/access-profile-badge';
 import { Avatar } from '@/components/perfil/avatar';
+import { getInitials } from '@/components/perfil/get-initials';
 import { borderWidth, color, spacing, typography } from '@/theme/tokens';
 
 export interface ProfileSummaryProps {
@@ -27,7 +28,7 @@ export function ProfileSummary({
   return (
     <View style={styles.container}>
       <View accessible accessibilityLabel={accessibilityLabel} style={styles.row}>
-        <Avatar name={name} />
+        <Avatar initials={getInitials(name)} />
         <View style={styles.details}>
           <Text style={styles.name}>{name}</Text>
           <Text style={styles.email}>{email}</Text>
@@ -53,11 +54,12 @@ const styles = StyleSheet.create({
     gap: spacing.xs,
   },
   name: {
-    fontSize: typography.heading.fontSize,
-    fontWeight: typography.heading.fontWeight,
+    fontFamily: typography.label.fontFamily,
+    fontSize: typography.body.fontSize,
     color: color.text.primary,
   },
   email: {
+    fontFamily: typography.subtitle.fontFamily,
     fontSize: typography.subtitle.fontSize,
     color: color.text.secondary,
   },

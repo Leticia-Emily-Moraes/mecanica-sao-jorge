@@ -1,7 +1,7 @@
 import { useCallback, useState } from 'react';
 import type { ViewStyle } from 'react-native';
 
-import { color, focusRingInset, focusRingOffset, focusRingWidth } from './tokens';
+import { color, focusRingOffset, focusRingWidth } from './tokens';
 
 export interface FocusRing {
   readonly focusRingStyle: ViewStyle;
@@ -10,14 +10,19 @@ export interface FocusRing {
   onBlur(): void;
 }
 
+export interface FocusRingOptions {
+  /** Controle sobre a barra petro: anel branco de 2 px, sem halo (T1). */
+  readonly onBrand?: boolean;
+}
+
 /**
  * Anel de foco duplo (borda petro + halo branco) para qualquer controle
  * focável. O espaço da borda/halo é sempre reservado (padding fixo) para o
  * layout não pular ao ganhar/perder foco — só a cor muda, de transparente
- * para petro/branco. A margem negativa devolve esse espaço ao layout: a borda
- * visível do controle fica alinhada com o conteúdo ao redor, como no Figma.
+ * para petro/branco. Sobre a barra petro (`onBrand`) o anel é branco e o
+ * respiro de 2 px fica transparente, mostrando a própria barra.
  */
-export function useFocusRing(): FocusRing {
+export function useFocusRing({ onBrand = false }: FocusRingOptions = {}): FocusRing {
   const [focused, setFocused] = useState(false);
 
   const onFocus = useCallback(() => setFocused(true), []);
@@ -25,10 +30,9 @@ export function useFocusRing(): FocusRing {
 
   const focusRingStyle: ViewStyle = {
     borderWidth: focusRingWidth,
-    borderColor: focused ? color.focus.ring : 'transparent',
+    borderColor: focused ? (onBrand ? color.focus.ringOnBrand : color.focus.ring) : 'transparent',
     padding: focusRingOffset,
-    margin: -focusRingInset,
-    backgroundColor: focused ? color.focus.ringOffset : 'transparent',
+    backgroundColor: focused && !onBrand ? color.focus.ringOffset : 'transparent',
   };
 
   return { focusRingStyle, focused, onFocus, onBlur };

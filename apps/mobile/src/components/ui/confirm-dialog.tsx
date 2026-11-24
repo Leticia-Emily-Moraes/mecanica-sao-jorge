@@ -2,12 +2,11 @@ import type { ReactElement } from 'react';
 import { Modal, StyleSheet, Text, View } from 'react-native';
 
 import { Button } from '@/components/ui/button';
-import { color, layout, radius, spacing, typography } from '@/theme/tokens';
+import { color, layout, radius, shadow, spacing, typography } from '@/theme/tokens';
 
 export interface ConfirmDialogProps {
   readonly visible: boolean;
   readonly title: string;
-  /** Texto de apoio sob o título (Figma 33:64). */
   readonly message?: string;
   readonly cancelLabel: string;
   readonly confirmLabel: string;
@@ -15,7 +14,11 @@ export interface ConfirmDialogProps {
   readonly onConfirm: () => void;
 }
 
-/** Diálogo de confirmação (US-PRF-FRONT-02/03) — nenhuma ação é destrutiva de dado. */
+/**
+ * Diálogo de confirmação (US-PRF-FRONT-02/03) — nenhuma ação é destrutiva de
+ * dado. Título à esquerda, mensagem e as duas ações lado a lado: Cancelar
+ * (contorno petro) e Sair (Crail), como no frame `10:3886`.
+ */
 export function ConfirmDialog({
   visible,
   title,
@@ -34,13 +37,17 @@ export function ConfirmDialog({
           accessibilityRole="alert"
           accessibilityLiveRegion="assertive"
         >
-          <Text style={styles.title}>{title}</Text>
+          <Text accessibilityRole="header" style={styles.title}>
+            {title}
+          </Text>
           {message ? <Text style={styles.message}>{message}</Text> : null}
           <View style={styles.actions}>
-            <View style={styles.actionSpacing}>
+            <View style={styles.action}>
               <Button label={cancelLabel} onPress={onCancel} variant="secondary" />
             </View>
-            <Button label={confirmLabel} onPress={onConfirm} variant="primary" />
+            <View style={styles.action}>
+              <Button label={confirmLabel} onPress={onConfirm} variant="primary" />
+            </View>
           </View>
         </View>
       </View>
@@ -54,33 +61,33 @@ const styles = StyleSheet.create({
     backgroundColor: color.surface.overlay,
     alignItems: 'center',
     justifyContent: 'center',
-    padding: spacing.lg,
+    paddingHorizontal: spacing.s22,
   },
   card: {
     width: '100%',
     maxWidth: layout.dialogMaxWidth,
     backgroundColor: color.surface.default,
-    borderRadius: radius.md,
-    padding: spacing.card,
+    borderRadius: radius.dialog,
+    padding: spacing.s20,
+    gap: spacing.s14,
+    ...shadow.dialog,
   },
   title: {
-    fontSize: typography.heading.fontSize,
-    fontWeight: typography.heading.fontWeight,
+    fontFamily: typography.dialogTitle.fontFamily,
+    fontSize: typography.dialogTitle.fontSize,
     color: color.text.primary,
-    textAlign: 'center',
-    marginBottom: spacing.xs,
   },
   message: {
-    fontSize: typography.subtitle.fontSize,
-    fontWeight: typography.subtitle.fontWeight,
+    fontFamily: typography.dialogMessage.fontFamily,
+    fontSize: typography.dialogMessage.fontSize,
+    lineHeight: typography.dialogMessage.lineHeight,
     color: color.text.secondary,
-    textAlign: 'center',
   },
   actions: {
-    width: '100%',
-    marginTop: spacing.card,
+    flexDirection: 'row',
+    gap: spacing.s10,
   },
-  actionSpacing: {
-    marginBottom: spacing.xs,
+  action: {
+    flex: 1,
   },
 });
