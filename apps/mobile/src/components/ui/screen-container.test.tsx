@@ -24,7 +24,7 @@ describe('ScreenContainer', () => {
     expect(screen.getByText('conteúdo')).toBeTruthy();
   });
 
-  it('should fill the area with the standard padding and surface color', () => {
+  it('should fill the area with the Pampas background and the 16 side margin', () => {
     render(
       <ScreenContainer>
         <Text>conteúdo</Text>
@@ -33,9 +33,19 @@ describe('ScreenContainer', () => {
 
     expect(rootStyle()).toMatchObject({
       flex: 1,
-      padding: spacing.lg,
-      backgroundColor: color.surface.default,
+      paddingHorizontal: spacing.md,
+      backgroundColor: color.surface.background,
     });
+  });
+
+  it('should accept a custom side margin (Login uses 28)', () => {
+    render(
+      <ScreenContainer horizontalPadding={spacing.md + spacing.s12}>
+        <Text>conteúdo</Text>
+      </ScreenContainer>,
+    );
+
+    expect(rootStyle().paddingHorizontal).toBe(28);
   });
 
   it('should not center vertically by default', () => {
