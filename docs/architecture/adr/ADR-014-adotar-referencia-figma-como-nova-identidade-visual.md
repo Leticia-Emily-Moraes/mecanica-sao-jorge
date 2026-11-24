@@ -1,8 +1,8 @@
 ---
-status: proposto   # proposto até a aprovação humana; ver "Condição para passar a Aceito"
-date: 2026-11-13
-decision-makers: [Pessoa dona do produto (decisão D1 da F39, 2026-11-12), CARTOGRAFO (Arquiteto — registro e regras de transição)]
-consulted: [BUSSOLA (Product Owner — PRD F39 v3, commit 3956ba1), ESQUADRO (leitura real da referência e quadro de tokens, spec F39 de 2026-11-13, commit fb5c246)]
+status: aceito   # Proposto em 2026-11-12; Aceito em 2026-11-16 (ver "Aceitação (2026-11-16)")
+date: 2026-11-16
+decision-makers: [Pessoa dona do produto (D1 da F39, 2026-11-12; D-01 a D-19a da F41 e aprovação deste ADR, 2026-11-16), CARTOGRAFO (Arquiteto — registro e regras de transição)]
+consulted: [BUSSOLA (Product Owner — PRD F39 v3, commit 3956ba1; PRD F41 revisado, commit 00f1f17; PRD F41 v3, commit 61a3dc1), ESQUADRO (leitura real da referência, spec F39 de 2026-11-13, commit fb5c246; rodada F41 de 2026-11-14, commit f2833aa; planilhas F41 de 2026-11-16, commits df53a45 e c627ac6)]
 informed: [REGENTE, PRUMO, ORLA, CRIVO, PERGAMINHO, VIGIA]
 ---
 
@@ -51,6 +51,30 @@ Os valores da v2 citados abaixo vêm dessa leitura do ESQUADRO. **CARTOGRAFO
 não abriu o Figma nesta revisão**: a origem dos valores é a spec, e os
 contrastes foram recalculados por mim.
 
+### Decisão de 2026-11-16 (F41)
+
+Em 2026-11-16, a pessoa decidiu (D-01 a D-09 do PRD da [[F41]],
+`docs/product/F41-prd-paridade-figma-fpdb8.md`, commit `00f1f17`) que
+`FPdB8RymAnN81pbKfizdzE` é a **referência definitiva de alta fidelidade** de
+Login, Perfil, diálogo de logout e tab bar, que **o Figma manda em tudo** e que
+só barra de status, fonte do sistema e tamanho de aparelho são diferença de
+plataforma. Três decisões mudam comportamento: rótulo "Usuário" com o campo
+enviando e-mail (N-01), versão do app lida da configuração do Expo (N-10) e
+Perfil fora da tab bar, aberto por um botão de usuário no cabeçalho (N-12). O
+endpoint `POST /api/v1/auth/login` e o contrato de login não mudam.
+
+Isso antecipa para a F41 a migração dessas quatro telas, que este ADR deixava
+para depois dela. Também transforma o arquivo de referência, antes só de
+leitura, na fonte do lado Figma da paridade. As regras 1, 2, 3, 6, 7, 12 e 14
+foram revisadas, a regra 15 é nova, e duas seções novas fixam o pedido do
+comandante: "Referência aprovada de alta fidelidade" (arquivo e nós) e "O que
+conta como diferença de plataforma".
+
+O arquivo de referência **não é "a v2 editada pela F39"**: a F39 não editou
+nenhum nó dele. Ele é a inspiração externa da F39 e a origem dos valores da v2
+deste ADR, e vira referência de paridade por decisão da pessoa. A v2 continua
+sendo essa referência ajustada para AA (regra 5).
+
 ## Fatores de decisão
 
 * **F1 — Decisão de produto**: a D1 já foi tomada pela pessoa em 2026-11-12. Paleta e tipografia da referência viram a identidade.
@@ -59,6 +83,7 @@ contrastes foram recalculados por mim.
 * **F4 — Direito de uso**: 100% dos ativos adotados (fonte, ícone, imagem) com titularidade ou licença registrada, e a fonte carregável no Expo.
 * **F5 — Custo de retrabalho**: número de artefatos já aprovados a revisar (F25, F34, tokens.ts, identidade-visual.md) e de artefatos ainda não iniciados que nasceriam na v1 e teriam de ser refeitos (F26 a F29).
 * **F6 — Escopo da F39 (US-WFR-04)**: nenhum arquivo de `apps/` nem `docs/design/identidade-visual.md` alterado na F39.
+* **F7 — Referência única de paridade** (2026-11-16): cada tela programada tem 1 arquivo e 1 lista de nós aprovados, e a lista do que é diferença de plataforma é fechada (0 casos decididos na hora da conferência).
 
 ## Opções consideradas
 
@@ -76,36 +101,164 @@ transição controlada"**. A justificativa, fator a fator:
 * **F2**: B não toca nada do que está programado. C só manteria a paridade se mudasse o código no mesmo PR, o que a F39 proíbe (F6).
 * **F3 e F4**: B mede o contraste antes de qualquer valor virar token e adia ícone e imagem até a D2.
 * **F5**: B impede que F26 a F29 nasçam na v1. O custo é revisar F25 e F34 uma vez, inevitável em qualquer opção que cumpra a D1.
+* **F7** (2026-11-16): B, com as regras revisadas, aponta um arquivo e uma lista de nós por tela e fecha a lista de plataforma. A e D manteriam a F25 e a F34 como referência, contra a D-01 da F41. C já previa a troca de uma vez, mas continua violando a F6.
 
 ### Regras de transição (parte da decisão)
 
-1. **A v1 continua valendo para o código e para os frames aprovados** da F25 (página `28:2`) e da F34 (página `39:2`) até a feature de migração. A F39 não altera `tokens.ts` nem a coleção `VariableCollectionId:28:3`.
-2. **A v2 entra no Figma numa coleção de variáveis nova e separada** (nome sugerido: `OP-002 Identidade v2`). A coleção `28:3` nunca é editada para isso. Motivo: os frames de F25 e F34 estão vinculados à `28:3`, e editá-la mudaria na hora o protótipo das telas já programadas, criando divergência com o código. O wireframe da F39, que sobrescreve as páginas da F24 (D4), usa só a coleção v2 (US-WFR-09).
+1. **Login, Perfil, diálogo de logout e tab bar migram na F41** (revisada em 2026-11-16, D-01 da F41). Para essas quatro telas, a F41 é a feature de migração da regra 3, e a referência aprovada é a da seção "Referência aprovada de alta fidelidade". Os frames da F25 (página `28:2`) e da F34 (página `39:2`) do arquivo `DLqbSzzKRxiN2eyvXG73Lr` deixam de ser referência de paridade, não são apagados nem editados e ficam como histórico da v1. Nenhuma outra tela está programada hoje; cada tela nova nasce direto na v2. Texto anterior (2026-11-13): "A v1 continua valendo para o código e para os frames aprovados da F25 e da F34 até a feature de migração".
+2. **As variáveis semânticas da v2 vivem no arquivo de referência** `FPdB8RymAnN81pbKfizdzE`, numa coleção `OP-002 Identidade v2` com o contrato da seção "Coleção v2 e componentes estruturais no Figma" (revisada em 2026-11-16). Motivo: a paridade compara o código com o frame aprovado, e o frame aprovado agora está nesse arquivo. Uma coleção em outro arquivo não governaria os frames conferidos. Hoje o arquivo só tem primitivos importados, sem semânticos (leitura do ESQUADRO, 2026-11-14). A coleção `28:3` do arquivo da operação continua sem edição. Se a F39 tiver criado uma coleção v2 no arquivo da operação, ela vira cópia de consulta e não recebe valor novo: valor muda primeiro no arquivo de referência e em `tokens.ts`, na mesma entrega. Texto anterior (2026-11-13): a v2 entrava numa coleção nova do arquivo da operação.
 3. **A troca v1 → v2 é atômica por feature de migração.** O mesmo PR altera `tokens.ts`, vincula os frames das telas programadas à v2, atualiza `identidade-visual.md`, ajusta os testes de componente e anexa a captura lado a lado no protocolo da F41. O fatiamento e a ordem são a D3, decidida por quem prioriza o backlog com a REGENTE, e não por este ADR.
+   Para Login, Perfil, diálogo de logout e tab bar, esse PR é o da F41 (revisão de 2026-11-16), contra os frames da seção "Referência aprovada de alta fidelidade". A atualização de `identidade-visual.md` descrita em "O que muda, artefato por artefato" entra inteira nesse PR, porque o documento é um só e uma troca pela metade o deixaria descrevendo duas identidades. Valor sem consumidor no código fica marcado no documento como "entra com o primeiro consumidor" (regra 10).
 4. **Token da v1 sem equivalente na referência mantém o valor da v1.** Hoje: anel de foco (petro + halo branco), borda de skeleton (`slate200`) e `radius.lg` (16). Esse token aparece no quadro como "sem equivalente na referência" e só muda por decisão registrada. Nenhum valor é inventado para preencher a lacuna.
 5. **A v2 é a "referência ajustada para AA", não uma cópia literal.** Um par que falha entra na v2 com o valor ajustado, e o quadro registra antes e depois (US-WFR-10). Os ajustes já propostos estão na seção "O que muda, artefato por artefato". O anel de foco duplo de `use-focus-ring.ts` continua válido na v2, porque petro, branco e primary não mudam (petro/branco 12,12:1); ele só é reconferido sobre o fundo novo Pampas (petro/Pampas 11,14:1, passa).
 6. **Fonte, ícone e imagem**: Barlow Condensed e Inter **não dependem da D2**, porque já estavam em `identidade-visual.md` §3 desde 2026-11-07 e são OFL-1.1, com pacote `@expo-google-fonts/*` (versões e licença verificadas pelo ESQUADRO com `npm view`, spec §3; não reverificado por mim). A fonte é embutida no bundle por `expo-font`, nunca carregada de CDN em tempo de execução. **Ícones e imagens da referência** (175 símbolos na página `1:66`) só entram com a D2 respondida. Até lá, a v2 reproduz só estilo.
-7. **Portão:** nenhum protótipo de alta fidelidade novo (F26 a F29) e nenhuma revisão de F25 ou F34 começa sobre a v2 antes de três condições: (a) a aprovação da F39 registrada por BUSSOLA (US-WFR-07), (b) a D2 respondida e (c) este ADR em `Aceito`. O portão "protótipo aprovado antes do front" é regra do briefing, e não do ADR-007 (ver "ADRs existentes afetados").
+   Na F41 (revisão de 2026-11-16), Barlow Condensed e Inter entram por `@expo-google-fonts/barlow-condensed` e `@expo-google-fonts/inter`, embutidas por `expo-font` (já em `package.json`), com o README principal atualizado na mesma entrega. O ORLA reconfere versão e licença com `npm view` antes do commit (P-05 do PRD da F41). O **escudo** da referência (84 × 96) é imagem e segue a parte de ícones e imagens desta regra. Formato recomendado, se a D2 liberar: PNG em `apps/mobile/assets/images/`, nas densidades 1x, 2x e 3x, carregado por `require` com o `Image` do React Native, sem dependência nova. SVG exigiria `react-native-svg`, que não está no `package.json` (conferido em 2026-11-16). Ícone desenhado no próprio código que só reproduz a forma da referência (o círculo com `!` da R-02, os ícones da tab bar) é estilo, não ativo exportado, e não depende da D2.
+7. **Portão** (revisada em 2026-11-16). (a) Nenhum commit de código da F41 que dependa deste ADR entra com o ADR em `Proposto` (regra da casa: o ADR é revisado antes da implementação). (b) O escudo e qualquer vetor ou imagem exportado do arquivo de referência só entram com a D2 respondida (regra 6). Até lá, a correção correspondente fica bloqueada e registrada, sem substituto improvisado (P-05 do PRD da F41). (c) Protótipos novos de F26 a F29 continuam exigindo a aprovação da F39 registrada por BUSSOLA (US-WFR-07). Essa aprovação deixa de ser condição para as quatro telas da F41, que saem do alta fidelidade da F39 (PRD da F41, §6 item 4, a confirmar pela pessoa). O portão "protótipo aprovado antes do front" é regra do briefing, e não do ADR-007 (ver "ADRs existentes afetados"). Texto anterior (2026-11-13): o portão exigia F39 aprovada, D2 respondida e ADR `Aceito` antes de qualquer revisão de F25 ou F34.
 8. **Nenhuma chave semântica exportada de `tokens.ts` é renomeada ou removida na migração.** As chaves de `color.*`, `spacing`, `radius`, `typography` e as demais exportadas são o contrato que os componentes consomem; a migração troca valor e acrescenta chave. Os primitivos (`primitiveColor`, não exportado) podem ser renomeados, porque nenhum arquivo fora de `tokens.ts` os importa (conferido por `grep` em `apps/mobile` em 2026-11-13). Motivo: a troca de identidade não pode exigir edição em cada componente, senão deixa de ser atômica (regra 3).
 9. **Cor de erro com primitivo próprio e dois papéis de texto** (achado 1): `color.text.error` aponta hoje para `primitiveColor.primary600`, o mesmo primitivo da ação primária. Na migração, erro ganha primitivo próprio (`error600`, hoje com o mesmo valor `#B5453D`), para que uma mudança futura de marca não altere o erro e vice-versa. O texto de erro tem dois papéis: `color.text.error` (mensagem sob o campo, Crail, lida em `10:1861` e `10:1872`) e `color.text.errorOnBanner` (texto do banner, El Salva, lido em `10:976`). `color.text.error` nunca vai sobre `color.surface.errorBanner` (Crail sobre Pot Pourri dá 4,50:1, sem folga). Revisado em 2026-11-13 a partir da leitura do ESQUADRO (spec F39 §4.2.1): a versão anterior deste ADR propunha El Salva para os dois papéis.
 10. **Token só entra em `tokens.ts` quando um componente o consome.** Cores de status de OS e de parcela, aviso e sucesso entram na feature que programa o primeiro componente que as usa, sempre com o valor da coleção v2 nos dois lados. Motivo: o briefing proíbe código morto; um token sem consumidor não tem teste de componente que o confira.
 11. **Texto nunca sobre skeleton** (achado 8): `color.text.secondary` sobre `color.surface.skeleton` dá 4,44:1 (par P01 do verificador). No estado Carregando, a mensagem de carregamento fica sobre `color.surface.background` ou `color.surface.default`, e o bloco de skeleton não leva texto.
-12. **Item ativo da navegação inferior com três sinais** (achado 7): o pill Crail contra a barra petro dá 2,24:1 (par P02), abaixo do 3:1 do WCAG 1.4.11. O pill nunca é o único sinal: o item ativo também tem rótulo branco SemiBold (5,41:1 sobre o pill), contra Tide Medium nos inativos, e nome acessível com "selecionada". A cor Crail direto sobre petro da referência (`20:1103`, 2,24:1) não é adotada.
+12. **Item selecionado da navegação inferior** (revisada em 2026-11-16, D-05 e D-07 da F41). Vale a estrutura da referência: sem pill, com ícone e rótulo do item selecionado em outra cor (símbolos `20:1102` e `20:1340` da leitura de 2026-11-14). O pill da F34 sai. A cor Crail direto sobre petro (2,24:1, par P02) não entra como está: o ESQUADRO propõe uma cor, e a pessoa aprova antes de ela mudar no Figma e em `tokens.ts`, na mesma entrega. A cor proposta precisa de 4,5:1 no rótulo e 3:1 no ícone, medidos sobre petro. O item selecionado também se distingue do inativo por um sinal que não é cor (SemiBold contra Medium, como na referência) e expõe `accessibilityState.selected`, para não depender só de cor (WCAG 1.4.1). Se a P-01 do PRD da F41 fechar sem item habilitado, o estado selecionado não aparece no app em execução e é provado por render do componente isolado, declarado como tal. Texto anterior (2026-11-13): o pill do F34 continuava, com três sinais.
 13. **Forma da coleção v2 no Figma e dos componentes de cabeçalho e navegação inferior**: contrato na seção "Coleção v2 e componentes estruturais no Figma".
 14. **Chaves que a F40 e a F41 acrescentaram a `tokens.ts` entram no contrato da regra 8** (achado 9). A branch `feat/f41-paridade-correcoes`, que contém a F40, acrescenta ao `tokens.ts` do `main` chaves que já têm consumidor: `color.surface.errorTint` (`inline-alert.tsx`), `color.text.placeholder` (`text-field.tsx`), `color.border.divider` (`profile-summary.tsx`), `color.focus.ringOnBrand` (`tab-bar-item.tsx`), oito papéis novos de `typography` e os grupos `borderWidth`, `opacity`, `iconSize` e `layout`. A migração parte do `tokens.ts` que estiver no `main` quando ela abrir: troca valor e não renomeia nem remove essas chaves. Onde este ADR chamava um papel por nome novo, vale a chave que já existe: o papel `color.surface.errorBanner` (regra 9 e rastreabilidade) é a chave `color.surface.errorTint`, e o papel `color.border.subtle` é a chave `color.border.divider`. Duas restrições medidas em 2026-11-13: (a) `color.surface.errorTint` hoje é Crail a 8% de opacidade; o texto Crail dá 4,83:1 sobre ele composto em branco (par V27) e 4,46:1 composto sobre o fundo Pampas da v2 (par P03, falha). Na v2 a faixa fica opaca, Pot Pourri `#F6E7E5`, com texto `color.text.errorOnBanner` (El Salva, 6,26:1, par V09; 6,20:1 mesmo se a faixa continuar translúcida, par V28). (b) Placeholder só sobre `color.surface.default`: o slate500 atual direto sobre Pampas dá 4,37:1 (par P04, falha), e na v2 ele vira Flint (5,36:1 sobre branco, par V04).
+    **Revisão de 2026-11-16:** a F40 entrou na `main` pela PR #10 sem essas chaves, e a `feat/f41-paridade-correcoes` não é ancestral da `main`. O `tokens.ts` da `main` (`348a43e`) tem só `color.surface` (`default`, `skeleton`, `brand`, `overlay`), `color.text` (`primary`, `onBrand`, `secondary`, `onPrimaryAction`, `error`), `color.border` (`default`, `skeleton`), `color.action.primaryBackground`, `color.focus` (`ring`, `ringOffset`), os cinco papéis de `typography`, `borderWidth.hairline`, `opacity`, `iconSize` (`tab`, `alert`, `empty`), `layout` (`dialogMaxWidth`, `tabBarMaxWidth`) e `glyph.alert`. Para a F41, as chaves desta regra são novas. Quando um componente precisar de uma delas, ela entra com o nome já fixado aqui (`surface.errorTint`, `text.placeholder`, `border.divider`, `focus.ringOnBrand`) e nunca com um terceiro nome (regras 8 e 10). As chaves de medida que a branch antiga criou (`inlineAlertMinHeight`, `tabItemHeight`, `pageButtonHeight`, `avatarSize`) seguem a mesma regra, com o valor do frame novo (regra 15).
+15. **Medida visível da referência, área de toque da casa** (nova em 2026-11-16, P-04 do PRD da F41). A medida visível segue o frame: campo de 46, botão de página de 50, barra de navegação de 62 e botão de ícone do cabeçalho com fundo de 36. A área de toque continua com no mínimo `minTouchTarget` (48), por `hitSlop` ou por área transparente em volta do controle. Essa área não aparece na captura e por isso não é divergência visual. Onde o componente não aceitar área estendida sem mudar o desenho, o ORLA registra o caso e ele volta à pessoa pela P-04. Nenhum alvo fica abaixo de 24 × 24 (WCAG 2.2, critério 2.5.8). Para as quatro telas, esta regra substitui a recomendação do achado 5, que continua valendo como risco.
+16. **Cor da referência que reprova AA** (nova em 2026-11-16; registra a D-07 e a D-17 da F41, pedido do comandante na aceitação). (a) Valor da referência abaixo do alvo (4,5:1 para texto normal; 3:1 para texto grande, ícone, borda de controle e anel de foco) não entra como está em nenhum dos lados. (b) O ESQUADRO propõe o valor ajustado, de preferência um valor que já existe na v2 ou a mesma matiz da referência, com a razão medida pelo verificador versionado (`python3 -I docs/design/F41-contraste.py`). A pessoa aprova vendo o valor, e a decisão fica no PRD da feature com id e data. (c) O valor aprovado vira primitivo e semântico em `tokens.ts` e variável da coleção `OP-002 Identidade v2` no `FPdB8RymAnN81pbKfizdzE`, na mesma entrega, e os frames que usam o papel são religados à variável. A descrição da variável guarda o antes e o depois, no formato `AA: referência #A8A39D (2,50:1) → #6E6A66 (5,36:1), D-17`. (d) Na planilha de divergências, a diferença entre o hex desenhado na referência e o valor aprovado não é "só de plataforma" nem "dado": é divergência real decidida a favor do valor aprovado (classe "Ajuste AA"). Cada lado que ainda mostra o hex antigo (código, variável ou frame) fica com a divergência **aberta**, e a feature não fecha até os dois lados terem o mesmo hex (US-PAR-07 da F41). (e) O valor aprovado é travado por literal em `apps/mobile/src/theme/tokens.test.ts`, e o par entra no verificador. Mudar o valor exige nova aprovação da pessoa e os dois lados na mesma entrega. (f) Não são ajuste AA e mantêm o valor da referência: borda decorativa, quando a borda não é a única pista do controle (WCAG 1.4.11; pares B5 e B6, D-18), e componente inativo (isento pelo WCAG 1.4.3 e 1.4.11; par D1, D-18). A isenção fica na planilha com a pista que substitui o contraste e nunca vale para controle ativo nem para o texto dele. (g) Contraste entre dois estados do mesmo controle (aba selecionada `#EE8279` contra inativa Tide, 1,23:1) não é exigido pelo WCAG; o estado se distingue também por um sinal que não é cor (regra 12). (h) Ajustes aprovados em 2026-11-16 (D-17): placeholder Dawn `#A8A39D` (2,50:1) → Flint `#6E6A66` (5,36:1 sobre branco); borda de campo em repouso Westar `#E2DEDA` (1,34:1) → `#8C8780` (3,56:1 sobre branco, 3,28:1 sobre Pampas); aba selecionada Crail `#B5453D` sobre petro (2,24:1) → `#EE8279` (4,68:1). Ajuste novo depois de `Aceito` segue esta regra e entra na tabela viva (planilha de valores da feature e `docs/design/figma.md`), sem reabrir o ADR. Mudar a regra exige ADR novo.
 
 ```mermaid
 stateDiagram-v2
     [*] --> V1Vigente
     V1Vigente: v1 vigente (tokens.ts, coleção 28:3, F25/F34)
-    V1Vigente --> V2EmAvaliacao: F39 — coleção v2 separada + wireframe + quadro comparativo
-    V2EmAvaliacao: v2 só no wireframe F39 (código e F25/F34 seguem v1)
-    V2EmAvaliacao --> V2Aceita: D2 ok + aprovação F39 (US-WFR-07) + aprovação humana deste ADR
+    V1Vigente --> V2EmAvaliacao: F39 com wireframe e quadro comparativo
+    V2EmAvaliacao: v2 em avaliação, código ainda na v1
     V2EmAvaliacao --> V1Vigente: D1 revista pela pessoa (ADR-014 Rejeitado)
-    V2Aceita --> V2Vigente: feature(s) de migração — tokens.ts + frames + identidade-visual.md no mesmo PR
-    V2Vigente: v2 vigente nos dois lados; v1 vira histórico
+    V2EmAvaliacao --> V2Aceita: aprovação humana deste ADR
+    V2Aceita --> V2QuatroTelas: F41 migra Login, Perfil, logout e tab bar contra FPdB8 (regras 1 e 3)
+    V2QuatroTelas: v2 vigente nas 4 telas programadas, F25/F34 viram histórico
+    V2QuatroTelas --> V2Vigente: cada tela nova já nasce na v2
+    V2Vigente: v2 vigente nos dois lados, v1 só histórico
     V2Vigente --> [*]
 ```
+
+## Referência aprovada de alta fidelidade: Login, Perfil, diálogo de logout e tab bar
+
+Decisão da pessoa em 2026-11-16 (D-01 e D-02 do PRD da F41, commit `00f1f17`).
+Os nós vêm da leitura do ESQUADRO em 2026-11-14
+(`docs/design/F41-rodada-figma-fpdb8.md`, branch `docs/f41-rodada-figma-fpdb8`,
+commit `f2833aa`). **CARTOGRAFO não os reabriu**: o Figma foi negado nesta sessão
+(ver "Mais informações"). A confirmação por nó é a primeira tarefa do ESQUADRO
+(ver "Confirmação").
+
+* **Arquivo**: `FPdB8RymAnN81pbKfizdzE`.
+* **Página**: `20:2132` "02 — Alta fidelidade", seção `10:3936`.
+* **Frame de tela**: 360 × 740 (frame externo 362 × 772).
+
+| Tela e estado | Frame | Nó | O que vale como referência |
+|---|---|---|---|
+| Login, estado inicial (vazio) | 1a — Login | `10:895` | Estrutura, textos, tokens e ícones do Login; estado vazio |
+| Login, erro de credencial | 1b — Login — erro de credencial | `10:936` | Caixa de erro, bordas dos dois campos em erro, mensagem genérica sem indicar o campo |
+| Perfil, preenchido | 1av — Perfil | `10:3842` | Cabeçalho com seta de voltar, avatar, nome, selo, cartão, botão "Sair da conta"; tela sem tab bar |
+| Diálogo de logout | 1aw — Sair — confirmação | `10:3886` | Título, mensagem, ordem Cancelar e Sair, scrim |
+| Tab bar, Ordens selecionado | símbolo | `20:1102` | Barra de 4 itens, ordem, rótulos, medidas, item selecionado e inativo |
+| Tab bar, Clientes selecionado | símbolo | `20:1340` | Item selecionado fora da primeira posição |
+| Cabeçalho com botão de usuário | dentro do frame 1c (tela Ordens de Serviço, sem conexão) | `10:981` | **Só** o cabeçalho e o botão de usuário 36 × 36 no canto direito. O corpo da tela (Ordens, sem conexão) não é referência da F41 |
+
+**Não são referência de paridade:**
+
+* `20:2131`: é a página "01 — Wireframes" (baixa fidelidade), citada no briefing como frame de alta. Continua sendo a página de inspiração do baixa da F39.
+* `20:968`: é um rótulo de texto ("Navegação inferior / OS · Clientes · Catálogo · Financeiro / 3"), citado no briefing como frame de baixa.
+* Arquivo `DLqbSzzKRxiN2eyvXG73Lr`: frames da F25 (página `28:2`: `29:2`, `29:20`, `29:35`, `29:56`, `29:79`, `33:2`, `33:14`, `33:33`, `33:49`) e da F34 (página `39:2`: `39:3`, `39:31`, `39:58`). Viram histórico da v1 e não são editados nem apagados. As capturas deles de 2026-11-13 estão em `docs/design/f41-capturas/figma-*.png`, na branch `docs/f41-rodada-figma-fpdb8`, e são o "antes" desta troca.
+* Os demais frames da seção `10:3936` (Clientes, Catálogo, Ordens, Financeiro): são inspiração da F39 e de F26 a F29, não referência de paridade, porque nenhuma dessas telas está programada.
+
+### Estados que o código tem e a referência não tem
+
+Pela D-06 da F41, cada um é **divergência real aberta** até ter frame aprovado ou "não se aplica" registrado pela pessoa com o frame visto.
+
+| Tela | Estados sem frame em 2026-11-16 |
+|---|---|
+| Login | carregando ("Entrando..."), preenchido sem erro, erro de conexão, sessão expirada, foco de campo, botão "Mostrar senha" (N-05, P-06 do PRD) |
+| Perfil | carregando, erro |
+| Tab bar | foco, desabilitado |
+
+Como um estado entra na referência:
+
+1. O ESQUADRO desenha o frame no arquivo `FPdB8RymAnN81pbKfizdzE`, página `20:2132`, numa seção própria "F41 — estados propostos". O nome do frame termina em " — proposto", segue o estilo dos frames da tabela acima e se liga à coleção v2 (regra 2).
+2. A pessoa aprova vendo o frame. A aprovação é registrada com data no PRD da F41, e o frame perde o sufixo " — proposto". Só então ele entra na lista viva de `docs/design/figma.md`.
+3. Se a pessoa decidir que o estado não se aplica, a justificativa fica no PRD. O código remove o estado na mesma entrega ou o mantém por decisão registrada. "Não se aplica" sem frame visto não vale.
+
+**Estados aprovados em 2026-11-16 (D-19a do PRD da F41)**, na seção `82:1989` da página `20:2132`: L1 `82:1990` (preenchido, ação "Mostrar"), L2 `82:2024` (carregando), L3 `82:2058` (erro de conexão), L4 `82:2098` (sessão expirada), P1 `83:712` (Perfil carregando), P2 `83:754` (Perfil com erro, com "Tentar novamente" cheio e "Entrar novamente" em contorno; o frame ainda precisa desse ajuste), T1 `83:817` (foco da tab bar; a aba selecionada ainda precisa do coral) e T2 `83:844` (itens desabilitados). Eles entram na lista viva de `docs/design/figma.md` pela regra acima.
+
+**Rota sem referência (D-20 e D-21 da F41, origem: comandante).** `/inicio` é destino técnico pós-login sem frame e o escudo 84 × 96 depende da D2. Os dois são da classe "fora do aceite" (seção "Classes de divergência"), com dono e portão, e não contam como divergência aberta da F41. Nenhuma outra tela ou estado programado pode usar essa classe sem decisão registrada com origem (achado 17).
+
+### Edição do arquivo de referência
+
+1. **Lista viva**: `docs/design/figma.md` (ESQUADRO) guarda a lista viva de nós aprovados. Este ADR fixa a regra e a lista de 2026-11-16. Nó novo aprovado entra só na lista viva e não reabre o ADR.
+2. **Antes de editar** qualquer frame da tabela (decisão a favor do código, token, ligação a variável), o ESQUADRO captura o frame como está e versiona a captura junto da conferência, como foi feito com a F24.
+3. **Alcance**: só a página `20:2132`, os frames da tabela, a seção "F41 — estados propostos" e a coleção `OP-002 Identidade v2`. Nenhum outro nó do arquivo é alterado na F41.
+4. **Pré-condição**: o ESQUADRO registra a saída real de `whoami` e de uma leitura do arquivo antes de editar. Se o MCP estiver bloqueado ou a conta não puder editar o arquivo, vale a US-PAR-11: a feature fica aguardando, e nenhum frame é copiado para outro arquivo sem decisão da pessoa.
+
+## O que conta como diferença de plataforma
+
+Lista fechada pela pessoa em 2026-11-16 (D-02 da F41): **só três categorias são
+"só de plataforma"**. Todo o resto é divergência real, inclusive dois casos que a
+conferência de 2026-11-13 tratava como plataforma: a fonte Inter no frame contra a
+fonte do sistema no app, e a sombra.
+
+| Categoria | Conta como plataforma | Não conta: é divergência real |
+|---|---|---|
+| Barra de status e áreas do sistema | Conteúdo da barra de status (hora, sinal, bateria), notch e ilha dinâmica, indicador de início do iOS, barra de navegação do Android, altura da área segura | Estilo da barra de status definido pelo app (`StatusBar` clara ou escura) e a cor de fundo atrás dela, quando o frame os mostra |
+| Renderização de fonte do sistema | Suavização, hinting e arredondamento de métrica de uma **mesma** família, peso e tamanho, e a quebra de linha que vem só disso | Família diferente (Barlow Condensed ou Inter no frame e fonte do sistema no app), peso, tamanho, entrelinha, espaçamento entre letras, caixa alta e alinhamento |
+| Tamanho de aparelho | Largura e altura lógicas diferentes de 360 × 740: espaço vertical que sobra ou falta, rolagem, elemento fluido que estica na largura | Qualquer medida fixa (margem, espaçamento, altura de campo, botão e barra, raio, tamanho de ícone e de fonte), ordem, alinhamento e posição relativa |
+
+Dois casos ficavam fora das três categorias e eram **real até a pessoa decidir**
+(P-08). **A pessoa decidiu em 2026-11-16 (D-16 da F41):**
+
+* **Elementos que o sistema desenha e o app não estiliza** (teclado, cursor, seleção de texto, forma do indicador de carregamento nativo `ActivityIndicator`, animação de transição): **só de plataforma**. Passam a ser a quarta categoria da lista. Cor, tamanho e posição desses elementos, quando o app os define, continuam reais. A referência é lida sem teclado aberto e sem animação em curso.
+* **Sombra**: **real**. Os valores dos tokens `shadow.card` e `shadow.dialog` (deslocamento, raio, opacidade e cor) são iguais nos dois lados e travados por teste, e o iOS reproduz o token. A aproximação por `elevation` no Android é **real aceita por decisão registrada** (D-16), e não plataforma: não conta como aberta, mas aparece na planilha com a decisão.
+
+Texto anterior (antes da D-16): os dois casos eram a P-08, com a recomendação de tratar como plataforma a sombra residual e a forma do glifo nativo.
+
+**Diferença de dado de exemplo** não é desenho nem plataforma: é quando campo,
+formato, tipografia e posição são iguais e só o valor difere (nome, usuário,
+versão). Os testes e a planilha usam os mesmos valores fictícios do frame (por
+exemplo, o nome "João da Silva" de `10:3842`). O que não der para igualar fica
+numa linha própria da planilha, da classe "dado", com decisão da pessoa. Casos
+decididos em 2026-11-16: a versão do app `0.1.0`, lida de
+`apps/mobile/app.config.ts`, contra "1.0.0" no frame (D-12), e o e-mail do
+usuário sob o rótulo "Usuário" contra "joao.silva" no frame (D-13).
+
+### Classes de divergência (fechadas em 2026-11-16)
+
+Toda linha da planilha de divergências e da planilha de valores de uma tela
+programada tem exatamente uma classe. Só as classes marcadas "sim" impedem o
+fechamento da feature.
+
+| Classe | Conta como aberta? | Condição para usar a classe | Casos da F41 |
+|---|---|---|---|
+| Igual | não | valor do código = valor do frame aprovado ou da variável, travado por teste | maioria das linhas de `docs/design/F41-valores-fpdb8.md` |
+| Só de plataforma | não | cita uma das quatro categorias: barra de status e áreas do sistema; renderização de uma mesma fonte; tamanho de aparelho; elemento desenhado pelo sistema (D-16) | conteúdo da barra de status; forma do `ActivityIndicator`; limites `layout.dialogMaxWidth` e `layout.tabBarMaxWidth` em tela larga |
+| Dado | não, com decisão registrada | mesmo campo, formato, tipografia e posição; só o valor difere | versão `0.1.0` (D-12); e-mail sob "Usuário" (D-13) |
+| Ajuste AA | **sim** enquanto um lado mostra o hex antigo; não depois | regra 16 | placeholder, borda de campo em repouso, aba selecionada (D-17) |
+| Isenção AA | não | borda decorativa ou componente inativo, com a pista que substitui o contraste (regra 16, item f) | pares B5, B6 e D1 (D-18) |
+| Real aceita por exceção | não, com decisão da pessoa com data no PRD | diferença visível que a pessoa decidiu manter | Ionicons no lugar dos ícones do arquivo (D-10); sombra por `elevation` no Android (D-16) |
+| Real corrigida | não | o lado errado foi corrigido e um teste trava o valor | correções do ORLA de 2026-11-16 |
+| Real aberta | **sim** | qualquer outra diferença em estrutura, hierarquia, texto, token, família de fonte, ícone, estado ou sombra | lista da US-PAR-08 do PRD da F41 |
+| Fora do aceite | não conta como aberta e não vale como "igual" | o item saiu da feature por decisão com dono, portão e origem marcada | escudo (D-21, portão D2); Início (D-20, achado 17) |
+
+O ESQUADRO classifica. O CRIVO devolve como "real aberta" toda linha sem classe,
+toda linha "só de plataforma" sem categoria e toda exceção ou "dado" sem decisão
+com data.
+
+**Como comparar** (revisado em 2026-11-16, D-19 da F41): a pessoa dispensou a
+captura do app e os pares lado a lado nas quatro telas da F41. A prova é a
+planilha de valores (uma linha por valor do frame, com o nó, a chave do código e
+o teste que trava o valor) mais os testes de componente, e a planilha registra o
+protocolo de referência (simulador, sistema, escala de fonte padrão e tema). As
+imagens de `docs/design/f41-capturas/` ficam como histórico, sem valor de prova
+(D-22). Texto anterior: imagem composta, com o Figma à esquerda e o app à
+direita, na mesma escala lógica e com a escala de fonte do sistema em 100%. A
+dispensa é da F41: este ADR não altera a regra do briefing para as revisões de
+paridade de fim de sprint.
 
 ## Coleção v2 e componentes estruturais no Figma
 
@@ -113,7 +266,8 @@ A regra 2 manda a v2 para uma coleção separada. Esta seção fixa a forma dess
 coleção e dos dois componentes que a pessoa pediu para seguir a referência de
 perto (cabeçalho e navegação inferior). O ESQUADRO pinta 110 frames sobre ela,
 e a migração depois copia a mesma estrutura para `tokens.ts`. Nada aqui é
-executado antes do gate G1 do PRD da F39 (versão nomeada da F24).
+executado antes do gate G1 do PRD da F39 (versão nomeada da F24). Para as quatro
+telas da F41, vale a regra 7, e não o gate G1 (revisão de 2026-11-16).
 
 ### Estrutura da coleção
 
@@ -125,12 +279,13 @@ executado antes do gate G1 do PRD da F39 (versão nomeada da F24).
 
 Contrato:
 
-1. Coleção `OP-002 Identidade v2`, com um modo `v2`. A coleção `28:3` não é tocada (regra 2).
-2. Primitivos em `primitive/<nome>` (ex.: `primitive/petro-900`, `primitive/crail-600`, `primitive/error-600`, `primitive/pampas-50`), com a lista de escopos (`scopes`) vazia, para não aparecerem no seletor e para nenhum nó se ligar a eles direto.
+1. Coleção `OP-002 Identidade v2`, com um modo `v2`, no arquivo `FPdB8RymAnN81pbKfizdzE` (regra 2, revisada em 2026-11-16). A coleção `28:3` do arquivo da operação não é tocada.
+2. Primitivos em `primitive/<chave de primitiveColor em kebab-case>` (ex.: `primitive/petro-900`, `primitive/primary-600`, `primitive/pampas`, `primitive/stone`, `primitive/coral`), com a lista de escopos (`scopes`) vazia, para não aparecerem no seletor e para nenhum nó se ligar a eles direto. O nome segue a chave do `tokens.ts` do commit que a feature entrega, para que a cópia seja 1:1 (revisado em 2026-11-16; os exemplos anteriores `crail-600` e `pampas-50` não existem no código). Quando a regra 9 for aplicada no código, entra `primitive/error-600` nos dois lados.
 3. Semânticos com o caminho da chave de `tokens.ts`, trocando ponto por barra (`color/text/error` ↔ `color.text.error`), sempre como alias de um primitivo. A descrição da variável diz `tokens.ts: color.text.error` quando a chave já existe, ou `tokens.ts: entra com o primeiro consumidor (regra 10)` quando ainda não existe.
-4. Medidas em variáveis numéricas: `spacing/*`, `radius/*`, `size/minTouchTarget` (48), `size/header` (56) e `size/tabBar` (62).
-5. Tipografia em estilos de texto `typography/<papel>`. Os papéis são os de `tokens.ts` (`title`, `body`, `label`, `button`, `caption`) mais os da escala proposta pelo ESQUADRO que ainda não têm chave (`input`, `detail`, `cardTitle`, `brand`; spec F39 §4.2.1). Sombra no estilo de efeito `shadow/card`.
+4. Medidas em variáveis numéricas, com o nome da chave de `tokens.ts`: `spacing/*`, `radius/*`, `size/*` (`size/field` 46, `size/button` 50, `size/appBar` 56, `size/tabBar` 62, `size/avatar` 84, `size/iconButton` 36), `size/minTouchTarget` (48), `iconSize/*`, `borderWidth/*` e `opacity/*`. Revisado em 2026-11-16: o nome `size/header` previsto antes vira `size/appBar`, que é a chave que o código usa.
+5. Tipografia em estilos de texto `typography/<chave>`, com as chaves de `tokens.ts` (na F41: `title`, `body`, `label`, `button`, `caption`, `brandTitle`, `subtitle`, `appBarTitle`, `fieldLabel`, `input`, `banner`, `dialogTitle`, `dialogMessage`, `rowLabel`, `rowValue`, `badge`, `avatarInitials`, `tabLabel`, `tabLabelSelected`). Sombra nos estilos de efeito `shadow/card` e `shadow/dialog`. Revisado em 2026-11-16: os nomes `detail`, `cardTitle` e `brand` da escala proposta na F39 não existem no código e não são criados; papel novo entra com o nome da chave que o código criar.
 6. Todo fill, stroke, raio e texto dos 110 frames se liga a um semântico ou estilo da v2. Ficam em zero as ligações a `primitive/*` e à coleção `28:3`.
+7. Na F41 (2026-11-16), os frames da seção "Referência aprovada de alta fidelidade" e os estados propostos se ligam à coleção em todo fill, stroke, raio e texto que usa um token tocado pela F41. Variável criada só para a F41 segue a regra 10: entra junto com o primeiro consumidor no código.
 
 Estar na coleção v2 não obriga o token a entrar em `tokens.ts`: a regra 10 continua
 valendo para o código. A diferença entre os dois lados fica visível na descrição
@@ -151,22 +306,135 @@ o Figma foi negado nesta sessão (ver "Mais informações").
 | Mensagem de erro de campo | `color/text/error` (Crail), Inter Regular 13, borda `color/border/error` de 2 px | `10:1861`, `10:1872` | Nenhum |
 | Banner de erro | `color/text/errorOnBanner` (El Salva) sobre `color/surface/errorBanner` (Pot Pourri), borda Rose Fog, Inter 14 | `10:976` | Nenhum |
 | Cabeçalho: fundo, altura e título | `color/surface/brand`, `size/header` 56, `typography/title` (Barlow Condensed SemiBold 21) em `color/text/onBrand` | `10:1052`, `10:1373` | Nenhum |
-| Cabeçalho, variante lista (tela raiz) | Sem voltar; ação Perfil (ícone de pessoa) | `20:1174`, `20:1080` | O acesso ao Perfil por aqui depende do débito 1 do PRD da F39 (REGENTE) |
+| Cabeçalho, variante lista (tela raiz) | Sem voltar; ação Perfil (ícone de pessoa), nome acessível "Perfil" | `20:1174`, `20:1080`; na F41, `10:981` | Decidido em 2026-11-16 (D-05 da F41): o Perfil sai da tab bar e é aberto por este botão |
 | Cabeçalho, variante detalhe | Voltar, título e ação editar | `20:1435` | Nenhum |
 | Cabeçalho, variante formulário | Voltar e título, sem ação | `20:1455`, `20:2084` | Nenhum |
 | Cabeçalho, variante detalhe de OS ou de parcela | Voltar, título e badge de status | `20:1726`, `20:1922` | Badge com as cores de status ajustadas (regra 5) |
 | Cabeçalho, botão de ícone | Fundo visível de 36, área de toque de 48 | `10:992` | Área de 36 → 48 (`minTouchTarget`, achado 5) |
 | Cabeçalho como componente único | Propriedades `titulo` (texto), `voltar` (booleano) e `acao` (variante: nenhuma, perfil, editar, badge) | — | A referência tem uma instância por título, resultado da importação de HTML; o wireframe usa um componente só (US-WFR-16) |
 | Cabeçalho no Login (D8 do PRD) | Mesmo componente, com `voltar` falso e `acao` nenhuma | `1:885` (Login da referência) | O ESQUADRO confirma se a referência tem cabeçalho no Login e registra o desvio, se houver |
-| Navegação inferior: barra | `color/surface/brand`, `size/tabBar` 62, 4 itens de 90 × 62, ícone de 22 acima do rótulo | `20:1103` | Número de itens e presença do Perfil são os débitos 1 e 2 do PRD (REGENTE) |
+| Navegação inferior: barra | `color/surface/brand`, `size/tabBar` 62, 4 itens de 90 × 62, ícone de 22 acima do rótulo | `20:1103`; símbolo `20:1102` na leitura de 2026-11-14 | Decidido em 2026-11-16 (D-05 da F41): 4 itens, sem Perfil, na ordem Ordens, Clientes, Catálogo, Financeiro. Id a confirmar (achado 11) |
 | Navegação inferior: item inativo | `color/text/onBrandMuted` (Tide), Inter Medium 11 | `20:1103` | Nenhum |
-| Navegação inferior: item ativo | Pill `color/action/primaryBackground` com rótulo `color/text/onPrimaryAction`, Inter SemiBold 11 | Variantes por aba: `20:1103` (Ordens), `20:1341` (Clientes), `20:1545` (Catálogo), `20:1851` (Financeiro) | Crail direto sobre petro sai (2,24:1); entra o pill do F34 com três sinais (regra 12) |
+| Navegação inferior: item ativo | Sem pill; ícone e rótulo na cor aprovada pela pessoa, Inter SemiBold 11 | Variantes por aba: `20:1103` (Ordens; `20:1102` em 2026-11-14), `20:1341` (Clientes; `20:1340` em 2026-11-14), `20:1545` (Catálogo), `20:1851` (Financeiro) | Crail direto sobre petro (2,24:1) não entra; cor AA proposta pelo ESQUADRO e aprovada pela pessoa (regra 12, revisada em 2026-11-16) |
 | Onde a navegação inferior aparece | Só nas 6 telas raiz | `10:1052`, `10:1889`, `10:2092`, `10:2480`, `10:3277`, `10:3647` | Nenhum |
 
 Com cabeçalho e navegação inferior aplicados por instância nos 110 frames, a
 decisão da REGENTE sobre os débitos 1 e 2 vira a edição de um componente, e não
 de 110 frames. Por isso "nenhuma cópia desanexada" (US-WFR-16) é também requisito
 de arquitetura, e não só de aceite.
+
+## Tabela token Figma × token de código (F41)
+
+Pedido do comandante na aceitação (2026-11-16): uma linha por token que as quatro
+telas da F41 usam, com o nome no Figma e no código e sem linha em branco. Origem
+de cada coluna:
+
+* **Chave e valor**: `apps/mobile/src/theme/tokens.ts` no commit `61a3dc1` (ramo `feat/f41-paridade-fpdb8-codigo`), lido por CARTOGRAFO em 2026-11-16. Só parte dos valores está travada por literal em `apps/mobile/src/theme/tokens.test.ts` (28 testes, rodados em 2026-11-16); as chaves sem trava estão no achado 19.
+* **Consumidor**: busca da chave nos arquivos de produção de `apps/mobile/app` e `apps/mobile/src`, sem `*.test.*`, feita por CARTOGRAFO em 2026-11-16.
+* **Referência**: valor e nó da leitura do ESQUADRO (2026-11-14 e 2026-11-16), em `docs/design/F41-valores-fpdb8.md` §4 e `docs/design/F41-planilha-fpdb8.md`. CARTOGRAFO não abriu o Figma (ver "Mais informações").
+* **Variável**: nome na coleção `OP-002 Identidade v2` do `FPdB8RymAnN81pbKfizdzE`, pela regra de nome do contrato (chave de `tokens.ts` com barra no lugar de ponto). **Nenhuma variável semântica existe no arquivo em 2026-11-16**: a coleção não foi criada, porque o Figma foi negado nas sessões desse dia. A coluna diz o que o ESQUADRO cria; a coluna "Falta" diz o que impede a linha de fechar.
+
+Uma linha fecha quando a variável existe com o valor da coluna "Valor nos dois
+lados" e os nós citados estão ligados a ela. Linha marcada "não vira variável"
+fecha com a justificativa da própria linha.
+
+
+### Cor
+
+| Chave `tokens.ts` | Variável no FPdB8 | Valor nos dois lados | Valor desenhado na referência (nó) | Classe | Consumidor no código | Falta |
+|---|---|---|---|---|---|---|
+| `color.surface.default` | `color/surface/default` | `#FFFFFF` | branco: campo `10:895`, cartão `10:3842`, diálogo `10:3886` | igual | `text-field`, `info-card`, `confirm-dialog` | Figma: criar e ligar |
+| `color.surface.background` | `color/surface/background` | `#F7F5F2` | Pampas: `10:895`, `10:3842` | igual | `screen-container`, `menu-shell` | Figma: criar e ligar |
+| `color.surface.skeleton` | `color/surface/skeleton` | `#F1F5F9` | nenhum frame da F41 mostra o uso (fundo de campo desabilitado); o skeleton da referência é `#EDE9E4` | sem frame (achado 18) | `text-field` (campo desabilitado) | Figma: criar com o valor do código e a nota do achado 18 |
+| `color.surface.brand` | `color/surface/brand` | `#1E3A3F` | petro: `20:2083`, `20:1102`, selo de `10:3842` | igual | `screen-header`, `menu-tab-bar`, `access-profile-badge` | Figma: criar e ligar |
+| `color.surface.overlay` | `color/surface/overlay` | `rgba(30, 58, 63, 0.55)` | scrim petro a 55%: `10:3886` | igual | `confirm-dialog` | Figma: criar e ligar |
+| `color.surface.errorTint` | `color/surface/errorTint` | `#F6E7E5` | Pot Pourri: `10:936` | igual | `inline-alert`, `error-state` | Figma: criar e ligar |
+| `color.surface.avatar` | `color/surface/avatar` | `#33575D` | Spectra: `10:3842` | igual | `avatar` | Figma: criar e ligar |
+| `color.surface.onBrandControl` | `color/surface/onBrandControl` | `rgba(255, 255, 255, 0.12)` | branco a 12%: `20:2083`, `10:981` | igual | `header-icon-button` | Figma: criar e ligar |
+| `color.text.primary` | `color/text/primary` | `#1E3A3F` | petro: título `10:895`, nome `10:3842`, título do diálogo `10:3886` | igual | `brand-header`, `perfil`, `info-card`, `button`, `confirm-dialog`, `state-view`, `error-state`, `text-field` | Figma: criar e ligar |
+| `color.text.onBrand` | `color/text/onBrand` | `#FFFFFF` | branco sobre petro: `20:2083`, `10:3842` | igual | `screen-header`, `header-icon-button`, `avatar`, `access-profile-badge` | Figma: criar e ligar |
+| `color.text.secondary` | `color/text/secondary` | `#6E6A66` | Flint: `10:895`, `10:3842`, `10:3886` | igual | `brand-header`, `text-field`, `info-card`, `confirm-dialog`, `state-view`, `error-state`, `inline-action-button` | Figma: criar e ligar |
+| `color.text.onPrimaryAction` | `color/text/onPrimaryAction` | `#FFFFFF` | branco sobre Crail: `20:1073` | igual | `button` | Figma: criar e ligar |
+| `color.text.error` | `color/text/error` | `#B5453D` | Crail: `10:1861`, `10:1872` | igual no valor; primitivo próprio pendente (achado 16) | `text-field` (erro de campo), `button` (texto de "Sair da conta", achado 16) | Figma: criar como alias de `primitive/primary-600`; código: achado 16 |
+| `color.text.errorOnBanner` | `color/text/errorOnBanner` | `#923631` | El Salva: `10:936` | igual | `inline-alert`, `alert-icon`, `error-state` | Figma: criar e ligar |
+| `color.text.placeholder` | `color/text/placeholder` | `#6E6A66` | Dawn `#A8A39D` (2,50:1): `10:895` | ajuste AA (regra 16, D-17) | `text-field` | **Figma: criar com a descrição AA e ligar `10:895` e L1 a L4 (`82:1990`, `82:2024`, `82:2058`, `82:2098`)** |
+| `color.text.onBrandMuted` | `color/text/onBrandMuted` | `#B7B2AC` | Tide: `20:1102`, `20:1340` | igual | `tab-bar-item` | Figma: criar e ligar |
+| `color.text.tabSelected` | `color/text/tabSelected` | `#EE8279` | Crail `#B5453D` sobre petro (2,24:1): `20:1102`, `20:1340`, T1 `83:817` | ajuste AA (regra 16, D-17) | `tab-bar-item` | **Figma: criar e ligar `20:1102`, `20:1340` e T1 `83:817` (hoje desenhado em Crail)** |
+| `color.border.default` | `color/border/default` | `#8C8780` | Westar `#E2DEDA` (1,34:1): `10:895` | ajuste AA (regra 16, D-17) | `text-field` | **Figma: criar e ligar `10:895`, `10:936` e L1 a L4** |
+| `color.border.skeleton` | `color/border/skeleton` | `#E2E8F0` | sem equivalente (regra 4) | sem consumidor (achado 14) | nenhum | Figma: criar com a descrição "sem consumidor"; código: achado 14 |
+| `color.border.divider` | `color/border/divider` | `#E2DEDA` | Westar: cartão e botão "Sair da conta" de `10:3842` | isenção AA, decorativa (regra 16, item f; D-18) | `info-card`, `button` (`outlineAccent`) | Figma: criar e ligar |
+| `color.border.errorBanner` | `color/border/errorBanner` | `#E2B5B0` | Rose Fog: `10:936` | igual | `inline-alert` | Figma: criar e ligar |
+| `color.border.focusField` | `color/border/focusField` | `#B5453D` | Crail 2 px no campo com foco: `10:895` (P-11 do PRD da F41) | igual | `text-field` (foco **e** erro, achado 14) | Figma: criar e ligar |
+| `color.border.error` | `color/border/error` | `#B5453D` | Crail 2 px nos dois campos: `10:936` | igual no valor | nenhum em produção (o campo em erro usa `border.focusField`, achado 14) | Figma: criar e ligar `10:936`; código: achado 14 |
+| `color.action.primaryBackground` | `color/action/primaryBackground` | `#B5453D` | Crail: `20:1073`, botão Sair de `10:3886` | igual | `button` | Figma: criar e ligar |
+| `color.focus.ring` | `color/focus/ring` | `#1E3A3F` | não definido na referência (regra 4) | sem equivalente, valor da v1 | `use-focus-ring` | Figma: criar |
+| `color.focus.ringOffset` | `color/focus/ringOffset` | `#FFFFFF` | não definido na referência (regra 4) | sem equivalente, valor da v1 | `use-focus-ring` | Figma: criar |
+| `color.focus.ringOnBrand` | `color/focus/ringOnBrand` | `#FFFFFF` | anel branco de 2 px no T1 `83:817` (legenda 12,12:1) | igual (T1 aprovado, D-19a) | `use-focus-ring`, `tab-bar-item` | Figma: criar e ligar T1 |
+
+Primitivos (contrato, item 2), todos com o mesmo valor de `primitiveColor` em `tokens.ts`: `primitive/petro-900` `#1E3A3F`, `primitive/primary-600` `#B5453D`, `primitive/white` `#FFFFFF`, `primitive/pampas` `#F7F5F2`, `primitive/flint` `#6E6A66`, `primitive/westar` `#E2DEDA`, `primitive/tide` `#B7B2AC`, `primitive/stone` `#8C8780`, `primitive/coral` `#EE8279`, `primitive/spectra` `#33575D`, `primitive/pot-pourri` `#F6E7E5`, `primitive/rose-fog` `#E2B5B0`, `primitive/el-salva` `#923631`, `primitive/slate-200` `#E2E8F0`, `primitive/slate-100` `#F1F5F9`, `primitive/white-overlay-12` `rgba(255, 255, 255, 0.12)` e `primitive/scrim-petro` `rgba(30, 58, 63, 0.55)`. `stone` e `coral` não existem na referência: nascem do ajuste AA (regra 16).
+
+### Medida, forma e opacidade
+
+| Chave `tokens.ts` | Variável no FPdB8 | Valor nos dois lados | Referência (nó) | Classe | Consumidor no código | Falta |
+|---|---|---|---|---|---|---|
+| `size.field` | `size/field` | 46 | campo: `10:895` | igual; toque 48 por `hitSlop` (regra 15) | `text-field` | Figma: criar e ligar |
+| `size.button` | `size/button` | 50 | `20:1073`, `10:3842`, `10:3886` | igual | `button` | Figma: criar e ligar |
+| `size.appBar` | `size/appBar` | 56 | `20:2083`, `10:981` | igual | `screen-header` | Figma: criar e ligar |
+| `size.tabBar` | `size/tabBar` | 62 | `20:1102` | igual | `menu-tab-bar` | Figma: criar e ligar |
+| `size.avatar` | `size/avatar` | 84 | `10:3842` | igual | `avatar` | Figma: criar e ligar |
+| `size.iconButton` | `size/iconButton` | 36 | `20:2083`, `10:981` | igual; toque 48 por `hitSlop` (regra 15) | `header-icon-button` | Figma: criar e ligar |
+| `minTouchTarget` | `size/minTouchTarget` | 48 | área de toque, não aparece no frame | sem equivalente visual (regra 15) | controles com `hitSlop` | Figma: criar, sem ligação visual |
+| `iconSize.tab` | `iconSize/tab` | 22 | `20:1102` | igual | `tab-bar-item` | Figma: criar e ligar |
+| `iconSize.appBar` | `iconSize/appBar` | 18 | `20:2083` | igual | `header-icon-button` | Figma: criar e ligar |
+| `iconSize.banner` | `iconSize/banner` | 18 | `10:936` | igual | `alert-icon` | Figma: criar e ligar |
+| `iconSize.empty` | `iconSize/empty` | 48 | ícone do P2 `83:754`: tamanho não lido | a conferir | `state-view`, `error-state` | ESQUADRO lê P2 e registra; se diferir, real aberta |
+| `iconSize.alert` | `iconSize/alert` | 32 | sem uso nos frames | sem consumidor (achado 14) | nenhum | Figma: criar com a descrição "sem consumidor" |
+| `radius.sm` | `radius/sm` | 8 | campo, botão, caixa de erro e cartão: `10:895`, `10:936`, `10:3842` | igual | `text-field`, `button`, `inline-alert`, `info-card`, `header-icon-button`, `inline-action-button` | Figma: criar e ligar |
+| `radius.md` | `radius/md` | 12 | sem uso nos frames da F41 | sem equivalente | `tab-bar-item` (contorno do anel de foco) | Figma: criar |
+| `radius.lg` | `radius/lg` | 16 | sem uso nos frames | sem consumidor (achado 14) | nenhum | Figma: criar com a descrição "sem consumidor" |
+| `radius.dialog` | `radius/dialog` | 10 | `10:3886` | igual | `confirm-dialog` | Figma: criar e ligar |
+| `radius.avatar` | `radius/avatar` | 42 | `10:3842` | igual | `avatar`, `error-state` | Figma: criar e ligar |
+| `radius.pill` | `radius/pill` | 999 | selo de `10:3842` | igual | `access-profile-badge` | Figma: criar e ligar |
+| `borderWidth.hairline` | `borderWidth/hairline` | 1 | campo em repouso, cartão, caixa de erro: `10:895`, `10:3842`, `10:936` | igual | `text-field`, `info-card`, `button`, `inline-alert` | Figma: criar e ligar |
+| `borderWidth.field` | `borderWidth/field` | 2 | foco e erro de campo: `10:895`, `10:936` | igual | `text-field` | Figma: criar e ligar |
+| `opacity.unavailable` | `opacity/unavailable` | 0,5 | legenda do T2 `83:844` | igual (T2 aprovado, D-19a) | `tab-bar-item` | Figma: criar e ligar T2 |
+| `opacity.disabled` | `opacity/disabled` | 0,5 | botão em L2 `82:2024`: não lido (V-L14) | a conferir | `button` | ESQUADRO relê L2; se diferir, real aberta |
+| `opacity.pressed` | `opacity/pressed` | 0,85 | estado pressionado não tem frame | sem frame (interação) | `button` | Figma: criar |
+| `spacing.xs`, `s6`, `sm`, `s10`, `s12`, `s14`, `md`, `s20`, `s22`, `lg`, `xl` | `spacing/xs` … `spacing/xl` (11, mesmo nome) | 4, 6, 8, 10, 12, 14, 16, 20, 22, 24, 32 | ritmo dos frames (V-L12, V-P13 e V-D04 da planilha de valores) | igual | telas e componentes | Figma: criar as 11 e ligar |
+| `layout.dialogMaxWidth`, `layout.tabBarMaxWidth` | não vira variável | 320, 480 | o frame de 360 não mostra o limite | só de plataforma (tamanho de aparelho) | `confirm-dialog`, `state-view`, `error-state`, `menu-tab-bar` | nada: o limite fica descrito na planilha |
+| `focusRingWidth`, `focusRingOffset` | `focusRing/width`, `focusRing/offset` | 2, 2 | anel de 2 px com respiro de 2 px no T1 `83:817` (legenda) | igual (T1 aprovado, D-19a) | `use-focus-ring` | Figma: criar e ligar T1 |
+| `focusRingRadius` | `focusRing/radius` | 12 (`radius.sm` + largura + respiro) | contorno do anel no T1 `83:817`: raio não lido | a conferir | `use-focus-ring` | ESQUADRO lê T1; no Figma a variável é número fixo 12, porque variável não soma |
+
+### Tipografia, sombra e glifo (estilos, não variáveis)
+
+| Chave `tokens.ts` | Estilo no FPdB8 | Valor nos dois lados | Referência (nó) | Classe | Consumidor no código | Falta |
+|---|---|---|---|---|---|---|
+| `typography.brandTitle` | `typography/brandTitle` | Barlow Condensed Bold 30, espaçamento 0,6 | `10:895` | igual | `brand-header` | Figma: criar estilo e aplicar |
+| `typography.subtitle` | `typography/subtitle` | Inter Regular 13 | `10:895` | igual | `brand-header` | Figma: criar estilo e aplicar |
+| `typography.fieldLabel` | `typography/fieldLabel` | Inter Medium 13 | `10:895` | igual | `text-field` | Figma: criar estilo e aplicar |
+| `typography.input` | `typography/input` | Inter Regular 15 | `10:895` | igual | `text-field` | Figma: criar estilo e aplicar |
+| `typography.button` | `typography/button` | Inter SemiBold 15 | `20:1073` | igual | `button` | Figma: criar estilo e aplicar |
+| `typography.banner` | `typography/banner` | Inter Regular 14, entrelinha 19,6 | `10:936` | igual | `inline-alert` | Figma: criar estilo e aplicar |
+| `typography.appBarTitle` | `typography/appBarTitle` | Barlow Condensed SemiBold 21, espaçamento 0,21 | `20:2083` | igual | `screen-header` | Figma: criar estilo e aplicar |
+| `typography.title` | `typography/title` | Barlow Condensed SemiBold 24 | nome em `10:3842`; título do P2 `83:754`: tamanho não lido | igual no nome; P2 a conferir | `perfil`, `error-state` | Figma: criar estilo e aplicar; ESQUADRO relê P2 |
+| `typography.avatarInitials` | `typography/avatarInitials` | Barlow Condensed SemiBold 32 | `10:3842` | igual | `avatar` | Figma: criar estilo e aplicar |
+| `typography.badge` | `typography/badge` | Inter SemiBold 12 | `10:3842` | igual | `access-profile-badge` | Figma: criar estilo e aplicar |
+| `typography.rowLabel` | `typography/rowLabel` | Inter Regular 14 | `10:3842`; texto "Carregando sessão…" do P1 `83:712`: tamanho não lido | igual no cartão; P1 a conferir | `info-card`, `state-view` | Figma: criar estilo e aplicar; ESQUADRO relê P1 |
+| `typography.rowValue` | `typography/rowValue` | Inter Medium 14 | `10:3842` | igual | `info-card` | Figma: criar estilo e aplicar |
+| `typography.dialogTitle` | `typography/dialogTitle` | Barlow Condensed Bold 22 | `10:3886` | igual | `confirm-dialog` | Figma: criar estilo e aplicar |
+| `typography.dialogMessage` | `typography/dialogMessage` | Inter Regular 14, entrelinha 21 | `10:3886` | igual | `confirm-dialog` | Figma: criar estilo e aplicar |
+| `typography.tabLabel` | `typography/tabLabel` | Inter Medium 11 | `20:1102` | igual | `tab-bar-item` | Figma: criar estilo e aplicar |
+| `typography.tabLabelSelected` | `typography/tabLabelSelected` | Inter SemiBold 11 | `20:1102`, `20:1340` | igual | `tab-bar-item` | Figma: criar estilo e aplicar |
+| `typography.caption` | `typography/caption` | Inter Regular 12 | validação de campo sem frame (V-L20); ação "Mostrar" em L1 `82:1990`: tamanho não lido | sem frame / a conferir | `text-field`, `inline-action-button` | ESQUADRO relê L1; se diferir, real aberta |
+| `typography.body` | `typography/body` | Inter Regular 16 | mensagem do P2 `83:754`: tamanho não lido | a conferir | `state-view`, `error-state` | ESQUADRO relê P2; se diferir, real aberta |
+| `typography.label` | `typography/label` | Inter SemiBold 14 | título de estado vazio: nenhum estado vazio está no aceite da F41 (Perfil vazio "não se aplica"; Início fora do aceite, D-20) | fora do aceite | `state-view` | Figma: criar estilo, sem frame a ligar |
+| `fontFamily.*` (5 chaves) | família dos estilos | `BarlowCondensed_700Bold`, `BarlowCondensed_600SemiBold`, `Inter_400Regular`, `Inter_500Medium`, `Inter_600SemiBold` | Barlow Condensed e Inter | igual (regra 6) | todos os estilos | nada |
+| `shadow.card` | `shadow/card` (efeito) | `0 1 1`, petro a 6%; Android `elevation` 1 | `10:3842` | igual no iOS; Android real aceita (D-16) | `info-card` | Figma: criar efeito e aplicar |
+| `shadow.dialog` | `shadow/dialog` (efeito) | `0 12 16`, preto a 25%; Android `elevation` 8 | `10:3886` | igual no iOS; Android real aceita (D-16); cor fora de primitivo (achado 15) | `confirm-dialog` | Figma: criar efeito e aplicar; código: achado 15 |
+| `glyph.alertMark` | não vira variável | `!` | "!" no círculo do alerta de `10:936` | igual; ícone desenhado no código (regra 6) | `alert-icon` | nada |
+| `glyph.alert` | não vira variável | `⚠` | sem uso nos frames | sem consumidor (achado 14) | nenhum | código: achado 14 |
+
+**Resultado da conferência da tabela (2026-11-16):** nenhuma chave exportada de `tokens.ts` ficou sem linha, e nenhuma linha ficou sem variável ou sem a justificativa de "não vira variável". Os valores coincidem por construção: a coluna é o `tokens.ts`, e o Figma recebe esse valor. O que impede o fechamento é o lado Figma (coleção inexistente; as três linhas de ajuste AA estão em negrito) e leituras pendentes do ESQUADRO nos estados aprovados L1, L2, P1, P2 e T1 (`iconSize.empty`, `opacity.disabled`, `focusRingRadius`, `typography.caption`, `typography.body`, `typography.title` no P2 e `typography.rowLabel` no P1).
 
 ## Quadro comparativo de tokens e contrastes medidos
 
@@ -200,7 +468,7 @@ Quando o ESQUADRO pintar os frames, a confirmação é `get_variable_defs` nos f
 | Faixa de erro `color.surface.errorTint` | não existe | Crail a 8% | Pot Pourri `#F6E7E5` | Pot Pourri opaco (regra 14) | V27 4,83:1 (valor da F41 sobre branco); P03 4,46:1 (translúcido sobre Pampas, proibido) |
 | Texto da faixa `color.text.errorOnBanner` (nova) | — | — (a faixa usa `text.error`) | El Salva `#923631` | El Salva | V09 6,26:1; V28 6,20:1 |
 | Aba inativa `color.text.onBrandMuted` (nova) | — (branco) | — (branco; abas reservadas com `opacity.unavailable` 0,6 em `tab-bar-item.tsx`) | Tide `#B7B2AC` | Tide, sujeito ao achado 4 | V13 5,76:1 |
-| Aba ativa | pill Crail com rótulo branco | pill Crail com rótulo branco SemiBold | Crail direto sobre petro | pill (regra 12) | V14 5,41:1; P02 pill contra a barra 2,24:1 (proibido como sinal único) |
+| Aba ativa | pill Crail com rótulo branco | pill Crail com rótulo branco SemiBold | Crail direto sobre petro, sem pill | sem pill; cor AA a aprovar pela pessoa (regra 12, revisada em 2026-11-16) | P02 Crail sobre petro 2,24:1 (proibido) |
 | Anel de foco `color.focus.ring` / `ringOffset` | petro / branco | igual | não definido | sem mudança | V24 12,12:1; V25 11,14:1; V26 5,41:1 |
 | Anel sobre a barra `color.focus.ringOnBrand` | não existe | branco | não definido | sem mudança | branco sobre petro 12,12:1 (mesmo par de V12) |
 | Status de OS e de parcela, aviso, sucesso | não existem | não existem | tabela "Cores de status" | ajustados | V15 a V23 |
@@ -222,12 +490,18 @@ Quando o ESQUADRO pintar os frames, a confirmação é `get_variable_defs` nos f
 | Espaçamento | 4, 8, 16, 24, 32 | mais `field` 6, `card` 20, `formTop` 30 | 3, 4, 6, 8, 9, 12, 14, 16 | nenhuma chave removida (regra 8) |
 | Raio de card | `radius.md` 12 | igual | 10 | 10 |
 | Borda de campo | 1 | `borderWidth.field` 1,25 e `emphasis` 1,5 | 1 px; erro e foco de campo 2 px | decisão da migração com o ESQUADRO |
-| Altura do botão de página | `minTouchTarget` 48 | `layout.pageButtonHeight` 52 | 50 | decisão da migração, nunca abaixo de 48 |
-| Célula da tab bar | — | `layout.tabItemHeight` 64, pill 56 × 32 | barra 62, item 90 × 62 | decisão da migração; depende dos débitos 1 e 2 (REGENTE) |
+| Altura do botão de página | `minTouchTarget` 48 | `layout.pageButtonHeight` 52 | 50 | 50 visível, área de toque de pelo menos 48 (regra 15) |
+| Célula da tab bar | — | `layout.tabItemHeight` 64, pill 56 × 32 | barra 62, item 90 × 62 | barra 62 visível, sem pill, área de toque de pelo menos 48 (regras 12 e 15) |
 | Ícone da aba | — | `iconSize.tab` 22 | 22 | sem mudança |
 | Anel de foco | largura 2, respiro 2 | largura 2, respiro 4 | não definido | sem mudança (regra 5) |
 
 Leitura do quadro: a F41 já aproximou a escala tipográfica da referência (13, 15, 17 e 11 existem como chave), então a migração troca a família e poucos tamanhos (cabeçalho 20 → 21, botão 16 → 15, corpo 16 → 14, aba 10 → 11). Em cor, a mudança é a que este ADR já previa, com duas chaves da F41 reaproveitadas (regra 14).
+
+Revisão de 2026-11-16, para a F41:
+
+* A coluna F40/F41 é da `feat/f41-paridade-correcoes`, que não entrou na `main`. O ponto de partida da F41 é a coluna `main` (regra 14).
+* **Os valores v2 de placeholder (Flint) e da aba ativa são propostas deste ADR.** Pela D-07 da F41, entra nos dois lados a cor que o ESQUADRO propuser e a pessoa aprovar. O mesmo vale para a borda de campo em repouso e para o texto da caixa de erro, se a leitura por nó confirmar que reprovam AA. **Fechado em 2026-11-16 (D-17):** placeholder Flint `#6E6A66`, borda de campo `#8C8780` e aba selecionada `#EE8279`; o texto da caixa de erro (El Salva, 6,26:1) passa. Ver regra 16 e a "Tabela token Figma × token de código (F41)".
+* Na `main`, `focusRingRadius` deriva de `radius.md` (`apps/mobile/src/theme/tokens.ts:85`). Trocar `radius.md` de 12 para 10 muda também o raio do anel de foco, e a F41 confere o anel nos controles tocados (achado 12).
 
 ## O que muda, artefato por artefato
 
@@ -324,7 +598,7 @@ migração, não na F39:
 
 | Protótipo | Situação | O que muda |
 |---|---|---|
-| F25 Login e Perfil (aprovado, página `28:2`) | Revisão obrigatória, na feature de migração, junto com `tokens.ts` (regra 3) | Frames revinculados da coleção `28:3` para a v2: fundo Pampas, texto secundário Flint, borda de controle, banner de erro, Barlow/Inter, raio 10, sombra do card, campo com área 48. Precisa de nova aprovação. Marca sem mudança |
+| F25 Login e Perfil (página `28:2`) | Substituído como referência em 2026-11-16 (regra 1) | Os frames de 2026-11-13 viram histórico da v1. A referência passa a ser a seção "Referência aprovada de alta fidelidade", e a F41 é a migração dessas telas. Não há nova aprovação da página `28:2` |
 | F26 Clientes e Veículos | Não iniciado | Nasce na coleção v2, depois do portão (regra 7). Cita "gate do ADR-007", citação errada (ver ADRs afetados) |
 | F27 Catálogo e Estoque | Não iniciado | Nasce na v2. Alerta de estoque mínimo usa o par de aviso (Kumera/Albescent) e nunca só cor |
 | F28 Ordens de Serviço | Não iniciado | Nasce na v2, com badges de status de OS nos valores ajustados. Cita "gate do ADR-007" |
@@ -336,10 +610,10 @@ vem do wireframe da F39, não deste ADR.
 
 ### Outros artefatos afetados
 
-* **F33/F34 (tab bar, página `39:2`)**: o pill primary do item ativo continua (crail sobre petro sem pill dá 2,24:1). Aba inativa passa de branco para Tide, sujeita ao achado 4. A divergência de número e ordem de abas é débito da F39 para a REGENTE, fora deste ADR.
+* **F33/F34 (tab bar)** (revisado em 2026-11-16): a tab bar passa a ter 4 itens, sem Perfil, na ordem da referência (Ordens, Clientes, Catálogo, Financeiro), sem pill (regra 12). Os frames `39:3`, `39:31` e `39:58` viram histórico. US-MENU-01 a 03 da F33 deixam de valer como escritos; o efeito está registrado no PRD da F41, §6, sem reescrever a F33.
 * **`docs/design/F33-especificacao-menu-tabbar.md`**: o valor "≈5,46:1 nos desabilitados a 60%" foi medido com branco; com Tide vira 3,08:1.
 * **F40**: refatoração sem mudança visual, fica na v1 sem conflito. Os tokens que ela acrescenta (`borderWidth`, `opacity`, `iconSize`, `layout`, `glyph`, `focusRingRadius`) seguem a regra 8.
-* **F41**: confere a paridade na v1 e precisa de nova linha de base depois da migração. A branch `feat/f41-paridade-correcoes` altera `tokens.ts` (chaves da regra 14 e `focusRingOffset` de 2 para 4) e ainda não está no `main`. A migração só abre depois do merge da F41, sobre o arquivo resultante, e as capturas finais da F41 são a linha de base do "antes" (regra do briefing de 2026-11-13).
+* **F41** (revisado em 2026-11-16): é a feature de migração de Login, Perfil, diálogo de logout e tab bar (regras 1 e 3), contra a seção "Referência aprovada de alta fidelidade". Parte do `tokens.ts` da `main` (`348a43e`), e não da `feat/f41-paridade-correcoes`, que fica como insumo (regra 14). As capturas finais da F41 viram a linha de base de F35, F36, F42 e F43. A exceção temporária do briefing ("redesenho aguardando código") perde o objeto para essas quatro telas; o texto do briefing é da pessoa e não é editado por este ADR.
 
 ### Achados da revisão
 
@@ -352,16 +626,46 @@ vem do wireframe da F39, não deste ADR.
 7. **Pill do item ativo contra a barra: 2,24:1** (par P02, medido em 2026-11-13). O F34 aprovado e o código atual usam o pill como indicador de forma, mas a fronteira Crail/petro fica abaixo do 3:1 do WCAG 1.4.11. Com rótulo branco SemiBold e nome acessível "selecionada", o estado não depende só desse contraste (regra 12), mas o risco residual existe. Recomendação ao ESQUADRO: avaliar no wireframe um sinal de 3:1 contra a barra (contorno branco de 1 px no pill ou barra indicadora branca). Se for adotado, chega ao código pela feature de migração, com revisão da F34, e nunca pela F39.
 8. **Texto secundário sobre skeleton: 4,44:1** (par P01, medido em 2026-11-13). Tratado pela regra 11.
 9. **O `tokens.ts` mudou depois da leitura de 2026-11-13** (medido na etapa 3). A F40 e a F41 acrescentaram uma chave que este ADR tratava como nova (`text.placeholder`) e duas que ocupam papéis previstos com outro nome (`surface.errorTint` no lugar de `surface.errorBanner`, `border.divider` no lugar de `border.subtle`). Tratado pela regra 14. Dois pares reprovam se a migração trocar só o fundo de tela: P03 (faixa de erro translúcida sobre Pampas, 4,46:1) e P04 (placeholder slate500 sobre Pampas, 4,37:1). Por isso a troca atômica da regra 3 é obrigatória: trocar `surface.background` sem trocar `errorTint` e `placeholder` no mesmo PR cria regressão AA.
+10. **Os ids do briefing não são frames** (leitura do ESQUADRO, 2026-11-14): `20:2131` é a página "01 — Wireframes" e `20:968` é um rótulo de texto. Tratado na seção "Referência aprovada de alta fidelidade", que lista os nós que valem.
+11. **Id da tab bar com Ordens selecionado diverge entre leituras**: `20:1103` na spec da F39 (2026-11-13) e `20:1102` (símbolo) na rodada da F41 (2026-11-14). Um pode ser a instância e o outro o símbolo. O ESQUADRO confirma por `get_metadata` e corrige este ADR enquanto ele estiver `Proposto`.
+12. **Raio do anel de foco acompanha `radius.md` na `main`** (`tokens.ts:85`): a troca de 12 para 10 do card muda o anel. A F41 confere o anel nos controles tocados.
+13. **A `main` não tem as chaves da regra 14**: medido em 2026-11-16 no `tokens.ts` da base `348a43e`. Tratado na revisão da regra 14.
+14. **Tokens exportados sem consumidor de produção** (medido em `61a3dc1`, 2026-11-16): `color.border.skeleton`, `color.border.error` (só em `login.test.tsx`; o campo em erro usa `color.border.focusField`), `radius.lg`, `iconSize.alert` e `glyph.alert`. Decisão: (a) o ORLA liga o estado inválido de `text-field.tsx` a `color.border.error`, mesmo hex e sem mudança visual, para o nome do código bater com a variável ligada ao `10:936`; (b) a regra 8 protege só a migração. Depois dela, remover uma chave exportada com zero consumidor (`grep` em `apps/mobile/app` e `apps/mobile/src` sem saída fora de `tokens.ts` e de testes) não precisa de ADR novo, porque não quebra componente, que é o motivo da regra 8. A remoção apaga a variável do Figma na mesma entrega.
+15. **`shadow.dialog` usa `#000000` literal** (`tokens.ts:221`), fora de `primitiveColor`. Está no arquivo único de cor, então não fere o briefing, mas quebra o contrato primitivo → semântico: no Figma o efeito `shadow/dialog` usaria cor solta. Correção do ORLA, sem mudança visual: primitivo `black` em `tokens.ts` e `primitive/black` no Figma, na mesma entrega.
+16. **Regra 9 ainda não aplicada no código**: `color.text.error`, `color.border.focusField` e `color.border.error` apontam para `primary600`, o mesmo primitivo de `color.action.primaryBackground`. O hex é o mesmo, sem efeito visual hoje. Além disso, o texto do botão "Sair da conta" (`button.tsx`, variante `outlineAccent`) usa `color.text.error` para uma ação que não é erro: se a cor de erro mudar, o botão muda junto. Correção do ORLA, sem mudança visual, em commit próprio: primitivo `error600` (`#B5453D`) para os papéis de erro e chave nova `color.text.accent` (alias de `primary600`) para o texto do botão, com a variável `color/text/accent` no Figma na mesma entrega (regras 3 e 10). Enquanto isso, a variável `color/text/error` é alias de `primitive/primary-600`, igual ao código.
+17. **`/inicio` é rota programada sem frame** (D-20 da F41). O briefing manda toda tela programada ficar idêntica a um frame aprovado. A D-20 veio do comandante, com rastro no PRD (risco R2). Este ADR não cria exceção à paridade: registra que, até a feature própria do Início, `/inicio` é destino técnico com classe "fora do aceite", e que nenhuma outra rota pode entrar nessa condição. Se a pessoa não confirmar a D-20, vale o PRD v4 da F41 e a US-PAR-08 reabre.
+18. **`color.surface.skeleton` com valor da v1** (`#F1F5F9`) é usado como fundo de campo desabilitado (`text-field.tsx:140`), estado sem frame na referência. Fica com o valor do código até um frame mostrar o estado. Quando o skeleton da referência (`#EDE9E4`) entrar com o primeiro consumidor de skeleton, o fundo de campo desabilitado ganha chave própria, para não mudar de cor sem querer (regra 3).
+19. **Trava por literal incompleta** (lido em `apps/mobile/src/theme/tokens.test.ts`, `61a3dc1`). Sem literal: `color.surface.default`, `color.surface.skeleton`, `color.text.primary`, `color.text.onBrand`, `color.text.onPrimaryAction`, `color.text.error`, `color.border.skeleton`, `color.border.error`, `color.focus.ring`, `color.focus.ringOffset`; `iconSize.empty` e `iconSize.alert`; `radius.md`, `radius.lg` e `radius.avatar`; `opacity.disabled` e `opacity.pressed`; `spacing.sm`, `spacing.s22`, `spacing.lg` e `spacing.xl`; `minTouchTarget`, `focusRingWidth`, `focusRingOffset` e `focusRingRadius`; `layout.*`, `glyph.*`, o `elevation` das sombras; e 14 dos 19 estilos de `typography` (todos menos `tabLabel`, `tabLabelSelected`, `dialogTitle` e, só em tamanho e entrelinha, `banner` e `dialogMessage`). Os testes de componente comparam com o token, então trocar um desses valores no `tokens.ts` não quebra nenhum teste. Correção do ORLA: estender `tokens.test.ts` com a coluna "Valor nos dois lados" da tabela token Figma × código. Até lá, a regra 16, item e, só vale de fato para as três cores ajustadas, que já têm literal.
 
-### Condição para passar a `Aceito`
+### Aceitação (2026-11-16)
 
-Este ADR fica `Proposto` até as quatro condições abaixo estarem registradas,
-com data, no PRD da F39:
+Status `Aceito` em 2026-11-16, no commit que traz esta seção. Origem da aprovação:
 
-1. A D2 foi respondida com titularidade ou licença compatível (US-WFR-12). **Aberta em 2026-11-13** (spec F39 §3: indícios de que a referência foi gerada do HTML do próprio projeto, sem prova de titularidade).
-2. O ESQUADRO abriu a referência e extraiu os tokens com a saída real registrada (sem disparar a US-WFR-14). **Cumprida em 2026-11-13** na spec F39 §2 e §4 (commit `c815235`), não reverificada no Figma por CARTOGRAFO.
-3. O quadro comparativo token a token está anexado ao PRD (US-WFR-11). **Cumprida em 2026-11-13 por referência**: o PRD v3 (commit `3956ba1`) aponta o quadro da spec F39 §4, e este ADR traz o quadro consolidado com as colunas `main`, F40/F41, referência e v2 (seção "Quadro comparativo de tokens e contrastes medidos"). O quadro ainda não saiu de frame pintado; a confirmação por `get_variable_defs` nos frames da F39 vem depois do gate G1.
-4. A pessoa dona do produto aprovou este ADR, com as regras de transição e a seção "O que muda, artefato por artefato".
+* Revisão humana da F41 de 2026-11-16, registrada pelo ESQUADRO em `docs/design/F41-planilha-fpdb8.md`, linha 4 (commit `df53a45`): "a pessoa aprovou os frames L1 a L4, P1, P2 (com botões ajustados), T1 e T2, as três cores AA e o ADR-014".
+* Instrução do comandante a CARTOGRAFO na mesma data: publicar o ADR-014 aprovado e registrar nele a regra de divergência para as cores ajustadas para AA e para a diferença de plataforma.
+* CARTOGRAFO não viu o texto literal da pessoa: a aprovação vale pelo registro acima. Se a pessoa não a reconhecer, a correção é um ADR novo que substitui este, e não uma edição.
+
+O que entrou nesta versão sem decisão nova: a regra 16, as classes de divergência, o fechamento da P-08 e a tabela token Figma × código **registram** decisões já tomadas (D-07, D-10, D-12, D-13 e D-16 a D-19a da pessoa; D-20 e D-21 do comandante, com origem marcada no PRD da F41, `61a3dc1`). Os ajustes de nome do contrato da coleção (itens 2, 4 e 5) só alinham o Figma às chaves que o código já tem (regra 8).
+
+Situação das condições fixadas em 2026-11-16 (texto anterior abaixo):
+
+1. Aprovação da pessoa: **cumprida**, pelo registro acima.
+2. Ids da referência confirmados por nó: **cumprida pelo ESQUADRO, não por CARTOGRAFO**. A leitura de 2026-11-16 (registrada em `docs/design/F41-valores-fpdb8.md` §1) usa `20:1102` e `20:1340`, os ids da seção "Referência aprovada de alta fidelidade". O achado 11 (`20:1103` na spec da F39) fica como divergência entre leituras; correção posterior de id vai para a lista viva de `docs/design/figma.md`, sem editar este ADR.
+3. Tokens extraídos com saída real: **cumprida** (2026-11-13, 2026-11-14 e 2026-11-16, pelo ESQUADRO).
+4. Quadro comparativo token a token: **cumprida**, e completada pela "Tabela token Figma × token de código (F41)".
+
+**Rastro do portão da regra 7a (desvio registrado).** Seis commits de código da F41 (`3576cb5`, `1af01b5`, `388ac14`, `5e86379`, `3eb2fc5` e `ef54855`, das 10:02 às 10:15 de 2026-11-16) entraram antes do registro da aprovação (`df53a45`, 11:27), com este ADR em `Proposto`. Eles já estão publicados em `origin/feat/f41-paridade-fpdb8-codigo`. A aprovação posterior cobre o conteúdo desses commits, e a revisão humana conferiu o resultado, por isso não há reversão. Os commits de código depois de `df53a45` (`480d15d` em diante) respeitam a ordem. O arquivo ficou `Proposto` até este commit: desvio de registro, que a REGENTE acompanha para não virar precedente.
+
+**O que esta aceitação não declara:** que as variáveis existem no Figma (não existem; US-PAR-07 continua aberta) nem que a F41 está pronta. Aceitar o ADR fecha a decisão de arquitetura; a paridade continua provada pela planilha de valores e pelos testes, e o lado Figma depende de `claude mcp login figma-remote`.
+
+Texto anterior (até 2026-11-16, com o ADR `Proposto`): o ADR ficava `Proposto` até estarem registradas no PRD da F41 (1) a aprovação da pessoa, (2) a confirmação por nó dos ids da referência pelo ESQUADRO, (3) a extração dos tokens com saída real e (4) o quadro comparativo anexado.
+
+A D2 deixa de ser condição para `Aceito` (até 2026-11-13 era a condição 1) e passa
+a ser portão só do escudo e dos ativos exportados da referência (regra 7, item b).
+Motivo: a F41 não pode começar com este ADR em `Proposto`, e prender o ADR inteiro
+a uma dúvida de licença de imagem travaria correções que não usam ativo da
+referência. Cor, escala e espaçamento já estão em `identidade-visual.md`, que é do
+projeto, e a fonte é OFL-1.1.
 
 Se a D2 voltar como "terceiros sem licença", o ADR não é rejeitado só por
 isso: cor, escala e espaçamento coincidem com `identidade-visual.md`, que é do
@@ -382,6 +686,12 @@ editado: mudança vira ADR novo que o substitui.
 * Ruim, porque os ajustes AA afastam três cores de status do visual da referência (o âmbar vira marrom; os dois verdes ficam mais próximos entre si). O texto do badge evita dependência só de cor, mas a leitura "de longe" de §2.3 perde força.
 * Ruim, porque o corpo de texto menor (achado 6) e a margem mais curta do texto secundário (10,35:1 → 5,36:1) pioram a legibilidade em relação à v1, ainda dentro do AA.
 * Neutro, porque não há impacto no backend. A dependência de fonte chega com a feature de migração, com atualização do README.
+* Bom (2026-11-16), porque Login, Perfil, diálogo e tab bar passam a ter um arquivo e uma lista de nós como referência, e a lista do que é plataforma é fechada: a conferência deixa de decidir caso a caso.
+* Bom (2026-11-16), porque a F41 vira a migração dessas quatro telas, e a exceção temporária "redesenho aguardando código" deixa de ser necessária.
+* Ruim (2026-11-16), porque a lista fechada torna real a diferença de família de fonte: a F41 precisa embutir duas fontes (dependência nova, README atualizado) e pode ter divergência residual de sombra até a P-08.
+* Ruim (2026-11-16), porque o arquivo de referência, antes só de leitura, passa a ser editado. A separação entre inspiração externa e artefato do projeto some, e a D2 (titularidade) pesa mais.
+* Ruim (2026-11-16), porque dez estados sem frame precisam ser desenhados e aprovados antes do fechamento, o que alonga a F41.
+* Ruim (2026-11-16), porque, enquanto a F39 tiver uma coleção v2 no arquivo da operação, existem duas coleções com os mesmos nomes. Mitigação: regra 2 (a do arquivo da operação não recebe valor novo).
 
 ### Confirmação
 
@@ -393,6 +703,14 @@ editado: mudança vira ADR novo que o substitui.
 * **Figma, regra 2**: `get_variable_defs` em `29:79` (Login Preenchido, F25) e `39:3` (tab bar, F34) devolve variáveis da coleção `28:3` até a migração. Nos frames da F39, devolve só variáveis da coleção v2, sem valor solto (US-WFR-09).
 * **Figma, regra 13**: uma listagem somente leitura (`use_figma`) dos filhos da página `3:2` conta 0 nós ligados a `primitive/*`, 0 ligados à coleção `28:3`, 0 textos sem estilo `typography/*` e 0 cabeçalhos ou navegações inferiores que não sejam instância dos componentes únicos.
 * **Revisão de PR**: todo PR que toque `tokens.ts`, `identidade-visual.md` ou a coleção `28:3` passa por CARTOGRAFO e ESQUADRO e só é aprovado com os dois lados alterados no mesmo PR e a captura lado a lado anexada.
+* **Referência aprovada (F41)**: `get_metadata` na página `20:2132` de `FPdB8RymAnN81pbKfizdzE` devolve os nós da seção "Referência aprovada de alta fidelidade" com os nomes registrados, e a saída fica anexada à conferência da F41. Id divergente é corrigido aqui enquanto o ADR estiver `Proposto`, ou só em `docs/design/figma.md` depois disso.
+* **Lista de plataforma (F41)**: toda linha "só de plataforma" da planilha da F41 cita uma das três categorias. O CRIVO devolve como real qualquer linha de plataforma fora delas.
+* **Variáveis (F41)**: `get_variable_defs` nos frames da referência aprovada devolve variáveis da coleção `OP-002 Identidade v2`, com nomes iguais às chaves de `tokens.ts` dos tokens tocados pela F41 e os mesmos valores.
+* **Código fora da v1 (F41)**: depois do PR da F41, o comentário de cabeçalho de `apps/mobile/src/theme/tokens.ts` não cita mais a página da F25 nem a coleção `28:3` (`grep -nE "28:3|F25" apps/mobile/src/theme/tokens.ts` sem saída).
+* **Área de toque (regra 15)**: o teste de componente dos controles com medida visível abaixo de 48 confere o `hitSlop` (ou a área transparente) que leva o alvo a pelo menos 48.
+* **Regra 16 (F41)**: `python3 -I docs/design/F41-contraste.py` termina com código 0 e a linha `OK: todos os pares obrigatórios atingem o alvo`; `apps/mobile/src/theme/tokens.test.ts` trava os três valores ajustados por literal; `get_variable_defs` nos frames da tabela devolve `color/text/placeholder` = `#6E6A66`, `color/border/default` = `#8C8780` e `color/text/tabSelected` = `#EE8279`, com a descrição AA.
+* **Classes de divergência (F41)**: toda linha de `docs/design/F41-planilha-fpdb8.md` e de `docs/design/F41-valores-fpdb8.md` tem uma das nove classes; o CRIVO devolve como "real aberta" a linha sem classe, a de plataforma sem categoria e a exceção sem decisão com data.
+* **Tabela token Figma × código (F41)**: `grep -cE "^export const" apps/mobile/src/theme/tokens.ts` e a lista de chaves de cada grupo exportado batem com as linhas da tabela; `get_variable_defs` nos nós citados devolve, para cada variável, o valor da coluna "Valor nos dois lados". Linha divergente volta para a planilha de valores como "real aberta", sem editar este ADR.
 
 ## Prós e contras das opções
 
@@ -425,7 +743,8 @@ editado: mudança vira ADR novo que o substitui.
 ## Segurança, LGPD e direito de uso
 
 * **Dado pessoal**: a decisão trata só de tokens visuais e não coleta, armazena nem expõe dado pessoal. Um ponto pode receber dado pessoal: as capturas da tela rodando no app, exigidas pelo protocolo de paridade na feature de migração. Elas devem ser feitas com dados fictícios (seed de desenvolvimento), nunca contra uma base com cliente real. Os textos do wireframe seguem fictícios (premissa 4 do PRD F39). Base legal e retenção: não se aplicam (não há dado pessoal).
-* **Arquivo de referência**: externo ao arquivo da operação (`DLqbSzzKRxiN2eyvXG73Lr`). É acessado só para leitura, e nenhum nó é criado ou alterado nele.
+* **Arquivo de referência** (revisado em 2026-11-16): `FPdB8RymAnN81pbKfizdzE` deixa de ser só de leitura. A edição fica restrita ao alcance da seção "Edição do arquivo de referência", sempre com captura do antes. Os frames usam só dados fictícios (o nome "João da Silva" do `10:3842`, por exemplo), e nenhum frame novo pode trazer dado real de cliente ou funcionário. A squad não altera o compartilhamento do arquivo; abrir link público é decisão da pessoa. O arquivo da operação (`DLqbSzzKRxiN2eyvXG73Lr`) segue sem edição nos frames da F25 e da F34.
+* **Dado pessoal nas telas da F41**: o Perfil continua exibindo nome, e-mail e perfil de acesso do usuário logado, que já chegam pela resposta de login (sem coleta nova). A versão do app não é dado pessoal. O rótulo "Usuário" não muda o dado enviado: o corpo de `POST /api/v1/auth/login` continua com o e-mail. Nas capturas, nome e e-mail são fictícios e a senha fica mascarada (premissa 7 do PRD da F41). Finalidade: provar paridade visual. Base legal: não aplicável, sem dado real. Retenção: até o fechamento da F41, depois só a linha de base.
 * **Direito autoral**: ícone e imagem de terceiros sem licença são risco jurídico, contido pela regra 6. Cor, escala e espaçamento são reproduzidos como estilo e já constavam de `identidade-visual.md`.
 * **Cadeia de suprimento**: as dependências de fonte entram na migração com a verificação normal (origem oficial do pacote, licença, `npm audit`). A fonte é embutida no bundle, sem CDN de terceiro em tempo de execução.
 
@@ -445,6 +764,12 @@ editado: mudança vira ADR novo que o substitui.
 * Acesso ao Figma: na versão de 2026-11-12, `whoami` na sessão do CARTOGRAFO devolveu `Claude requested permissions to use mcp__figma-remote__whoami, but you haven't granted it yet.`. Na revisão de 2026-11-13, CARTOGRAFO não abriu o Figma; os valores vêm da leitura do ESQUADRO. Na etapa 2 (2026-11-13), `whoami` devolveu de novo `Claude requested permissions to use mcp__figma-remote__whoami, but you haven't granted it yet.`, e a chamada não foi repetida; os node-ids da seção de rastreabilidade não foram reabertos por CARTOGRAFO.
 * Acesso ao Figma na etapa 3 (2026-11-13): o conector `claude_ai_Figma` apareceu nesta sessão, e `whoami` devolveu `Claude requested permissions to use mcp__claude_ai_Figma__whoami, but you haven't granted it yet.`. A chamada não foi repetida. O `figma-remote` segue sem autenticação (sessão não interativa). Nenhum valor deste ADR foi lido no Figma por CARTOGRAFO.
 * **Pendência para a REGENTE**: o portão de protótipo é citado como "ADR-007" sem existir como ADR. Saídas: (a) ADR próprio do portão, com o próximo número livre, e correção das citações; ou (b) corrigir as citações para apontar para o briefing. Recomendação: (b), mais barata, porque a regra já é do briefing e não tem alternativa técnica a comparar.
+* Acesso ao Figma em 2026-11-16 (revisão para a F41): `mcp__figma-remote__whoami` devolveu `Claude requested permissions to use mcp__figma-remote__whoami, but you haven't granted it yet.`. A chamada não foi repetida. Nenhum nó da seção "Referência aprovada de alta fidelidade" foi aberto por CARTOGRAFO; a origem é a leitura do ESQUADRO de 2026-11-14.
+* Acesso ao Figma na aceitação (2026-11-16, CARTOGRAFO): `mcp__figma-remote__whoami` devolveu `Claude requested permissions to use mcp__figma-remote__whoami, but you haven't granted it yet.`. A chamada não foi repetida e o bloqueio não foi contornado. Nenhum valor desta versão foi lido no Figma por CARTOGRAFO: a coluna de referência da tabela token Figma × código vem das planilhas do ESQUADRO, e a coluna de código foi lida em `61a3dc1`.
+* Arquivos citados que não estão nesta branch: a spec da F39, `docs/design/f39-frames/contraste.mjs`, `pares-contraste.csv` e `contraste.test.mjs` estão em `docs/f39-wireframe-redesenho` (`18efb4e`); a leitura do ESQUADRO de 2026-11-14 e as capturas da v1 estão em `docs/f41-rodada-figma-fpdb8` (`f2833aa`). O PRD da F41 está nesta branch, em `docs/product/F41-prd-paridade-figma-fpdb8.md` (`00f1f17`).
 * Histórico: 2026-11-12, `Proposto` (primeira versão, sem acesso à referência). 2026-11-13, `Proposto`, revisado com a leitura do ESQUADRO (marca sem mudança, regras 8 a 10, seção "O que muda, artefato por artefato", achados). 2026-11-13, `Proposto`, etapa 2 da rota da F39: erro em dois papéis (regra 9), regras 11 a 13, contrato da coleção v2, rastreabilidade por node-id do cabeçalho, da navegação inferior e dos tokens, contraste versionado e achados 7 e 8. 2026-11-13, `Proposto`, etapa 3 da rota da F39 (PRD v3): quadro comparativo consolidado com as colunas `main`, F40/F41, referência e v2; regra 14 e achado 9 (chaves acrescentadas pela F40 e pela F41); pares V27, V28, P03 e P04; correção da origem do `focusRingRadius`. Continua `Proposto` até a aprovação humana (instrução do comandante).
+  2026-11-16, `Proposto`, revisão para a F41 (decisões D-01 a D-09 da pessoa): regras 1, 2, 3, 6, 7, 12 e 14 revisadas, regra 15 nova, seções "Referência aprovada de alta fidelidade" e "O que conta como diferença de plataforma", condição de aceite sem a D2, achados 10 a 13. Arquivo trazido para a base da F41 (branch `docs/f41-adr014-referencia-aprovada`). Continua `Proposto` até a aprovação humana.
+  2026-11-16, `Aceito`: aprovação da pessoa registrada em `df53a45` e instrução do comandante. Entraram a regra 16 (cor da referência que reprova AA), o fechamento da P-08 (D-16), as classes de divergência, a revisão do "Como comparar" (D-19), a "Tabela token Figma × token de código (F41)", os nomes do contrato da coleção alinhados ao código e os achados 14 a 18. A partir daqui o ADR não é editado: mudança vira ADR novo que o substitui.
 * Revisitar quando: a D2 for respondida; a pessoa aprovar ou rever a D1; um ajuste de contraste descaracterizar a referência; a primeira feature de migração abrir (este ADR já deve estar `Aceito`).
+* Revisitar também (2026-11-16): quando a pessoa confirmar ou rever a D-20 e a D-21 da F41 (origem: comandante); quando a D2 for respondida (escudo); quando um aparelho Android mostrar a sombra por `elevation` longe do token (D-16); quando a pessoa confirmar que a F39 não edita o alta das quatro telas (PRD da F41, §6 item 4). A P-08 foi respondida em 2026-11-16 (D-16), e os ids da referência foram confirmados pela leitura do ESQUADRO do mesmo dia.
 * Complementa: nenhum ADR. Substitui: nenhum ADR (substitui direção visual não registrada em ADR).

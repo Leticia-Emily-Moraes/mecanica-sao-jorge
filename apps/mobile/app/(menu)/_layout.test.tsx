@@ -4,7 +4,7 @@ import type { ReactElement, ReactNode } from 'react';
 import { Pressable } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
-import { AuthProvider, useAuth } from '@/auth/auth-context';
+import { AuthProvider, useAuth } from '@/hooks/use-auth';
 
 import MenuLayout from './_layout';
 
@@ -69,7 +69,7 @@ describe('MenuLayout', () => {
     renderComProvedores(<MenuLayout />);
 
     await waitFor(() => expect(mockSlotRenderizado).toHaveBeenCalled());
-    expect(screen.getAllByRole('tab')).toHaveLength(5);
+    expect(screen.getAllByRole('tab')).toHaveLength(4);
     expect(mockReplace).not.toHaveBeenCalled();
   });
 
@@ -87,7 +87,7 @@ describe('MenuLayout', () => {
       </>,
     );
 
-    await waitFor(() => expect(screen.getAllByRole('tab')).toHaveLength(5));
+    await waitFor(() => expect(screen.getAllByRole('tab')).toHaveLength(4));
 
     fireEvent.press(screen.getByLabelText('forcar-expiracao-de-teste'));
 
