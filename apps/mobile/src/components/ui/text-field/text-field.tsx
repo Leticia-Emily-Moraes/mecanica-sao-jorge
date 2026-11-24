@@ -4,14 +4,16 @@ import { Text, TextInput, View } from 'react-native';
 
 import { useFocusRing } from '@/theme/use-focus-ring';
 
-import { styles, visual } from './text-field.styles';
+import { styles, TOUCH_SLOP, visual } from './text-field.styles';
 
 export interface TextFieldProps {
   readonly label: string;
   readonly value: string;
   readonly onChangeText: (value: string) => void;
-  readonly errorMessage?: string;
   readonly placeholder?: string;
+  readonly errorMessage?: string;
+  /** Borda de erro sem mensagem própria (ex.: credencial inválida marca os dois campos). */
+  readonly invalid?: boolean;
   readonly secureTextEntry?: boolean;
   readonly editable?: boolean;
   readonly keyboardType?: KeyboardTypeOptions;
@@ -21,13 +23,19 @@ export interface TextFieldProps {
   readonly accessibilityLabel?: string;
 }
 
+/**
+ * Campo de texto: rótulo acima, caixa de 46 com raio 8. Foco e erro trocam a
+ * borda de 1 px por 2 px Crail; o espaço das duas larguras é sempre reservado
+ * para o layout não pular.
+ */
 export const TextField = forwardRef<TextInput, TextFieldProps>(function TextField(
   {
     label,
     value,
     onChangeText,
-    errorMessage,
     placeholder,
+    errorMessage,
+    invalid = false,
     secureTextEntry,
     editable = true,
     keyboardType,
@@ -38,45 +46,42 @@ export const TextField = forwardRef<TextInput, TextFieldProps>(function TextFiel
   },
   ref,
 ): ReactElement {
-  const { focusRingStyle, onFocus, onBlur } = useFocusRing();
+  const { focused, onFocus, onBlur } = useFocusRing();
+  const hasError = invalid || Boolean(errorMessage);
+  const highlighted = focused || hasError;
   const inputAccessibilityLabel =
     accessibilityLabel ?? (errorMessage ? `${label}, ${errorMessage}` : label);
 
   return (
     <View style={styles.container}>
       <Text style={styles.label}>{label}</Text>
-      <View style={[styles.ringWrapper, focusRingStyle]}>
-        <View
-          testID="text-field-row"
-          style={[
-            styles.inputRow,
-            errorMessage ? styles.inputRowError : null,
-            !editable && styles.inputRowDisabled,
-          ]}
-        >
-          <TextInput
-            ref={ref}
-            value={value}
-            onChangeText={onChangeText}
-            onFocus={onFocus}
-            onBlur={onBlur}
-            editable={editable}
-            placeholder={placeholder}
-            placeholderTextColor={visual.placeholderColor}
-            secureTextEntry={secureTextEntry}
-            keyboardType={keyboardType}
-            autoCapitalize={autoCapitalize}
-            textContentType={textContentType}
-            accessibilityLabel={inputAccessibilityLabel}
-            accessibilityState={{ disabled: !editable }}
-            style={styles.input}
-          />
-          {rightAccessory ? (
-            <View testID="text-field-accessory" style={styles.accessory}>
-              {rightAccessory}
-            </View>
-          ) : null}
-        </View>
+      <View
+        testID="text-field-box"
+        style={[
+          styles.inputRow,
+          highlighted ? styles.inputRowHighlighted : styles.inputRowIdle,
+          !editable && styles.inputRowDisabled,
+        ]}
+      >
+        <TextInput
+          ref={ref}
+          value={value}
+          onChangeText={onChangeText}
+          onFocus={onFocus}
+          onBlur={onBlur}
+          editable={editable}
+          placeholder={placeholder}
+          placeholderTextColor={visual.placeholder}
+          secureTextEntry={secureTextEntry}
+          keyboardType={keyboardType}
+          autoCapitalize={autoCapitalize}
+          textContentType={textContentType}
+          accessibilityLabel={inputAccessibilityLabel}
+          accessibilityState={{ disabled: !editable }}
+          hitSlop={TOUCH_SLOP}
+          style={styles.input}
+        />
+        {rightAccessory}
       </View>
       {errorMessage ? (
         <Text accessibilityRole="alert" accessibilityLiveRegion="polite" style={styles.error}>

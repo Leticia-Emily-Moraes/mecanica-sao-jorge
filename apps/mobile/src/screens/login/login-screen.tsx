@@ -2,13 +2,11 @@ import { useRouter } from 'expo-router';
 import type { ReactElement } from 'react';
 import { useEffect } from 'react';
 
+import { BrandHeader } from '@/components/ui/brand-header';
 import { Button } from '@/components/ui/button';
-import { FormActions } from '@/components/ui/form-actions';
-import { IconButton } from '@/components/ui/icon-button';
+import { InlineActionButton } from '@/components/ui/inline-action-button';
 import { InlineAlert } from '@/components/ui/inline-alert';
 import { ScreenContainer } from '@/components/ui/screen-container';
-import { ScreenHeader } from '@/components/ui/screen-header';
-import { StateView } from '@/components/ui/state-view';
 import { TextField } from '@/components/ui/text-field';
 import { useAuth } from '@/hooks/use-auth';
 import { useLogin } from '@/hooks/use-login';
@@ -21,23 +19,19 @@ export default function LoginScreen(): ReactElement {
 
   useEffect(() => {
     if (status.tipo === 'autenticado') {
-      router.replace('/perfil');
+      router.replace('/inicio');
     }
   }, [status, router]);
 
   const enviando = form.estadoEnvio === 'enviando';
-  const temBanner = form.sessaoExpirada || form.estadoEnvio === 'erroCredencial';
+  const credencialInvalida = form.estadoEnvio === 'erroCredencial';
+  const erroDeRede = form.estadoEnvio === 'erroRede';
 
   return (
-    <ScreenContainer
-      header={<ScreenHeader title={t('login.titulo')} subtitle={t('login.subtitulo')} />}
-      topSpacing={temBanner ? 'default' : 'form'}
-    >
-      {form.sessaoExpirada ? <InlineAlert message={t('login.sessaoExpirada.mensagem')} /> : null}
+    <ScreenContainer centered horizontalPadding="form" statusBarStyle="dark">
+      <BrandHeader title={t('login.titulo')} subtitle={t('login.subtitulo')} />
 
-      {form.estadoEnvio === 'erroCredencial' ? (
-        <InlineAlert message={t('login.erroCredencial.mensagem')} />
-      ) : null}
+      {form.sessaoExpirada ? <InlineAlert message={t('login.sessaoExpirada.mensagem')} /> : null}
 
       <TextField
         ref={form.emailRef}
@@ -46,6 +40,7 @@ export default function LoginScreen(): ReactElement {
         value={form.email}
         onChangeText={form.atualizarEmail}
         errorMessage={form.erroEmail ? t('login.campoEmail.erroVazio') : undefined}
+        invalid={credencialInvalida}
         editable={!enviando}
         keyboardType="email-address"
         autoCapitalize="none"
@@ -59,40 +54,34 @@ export default function LoginScreen(): ReactElement {
         value={form.senha}
         onChangeText={form.atualizarSenha}
         errorMessage={form.erroSenha ? t('login.campoSenha.erroVazio') : undefined}
+        invalid={credencialInvalida}
         editable={!enviando}
         secureTextEntry={!form.mostrarSenha}
         textContentType="password"
-        // Em "Entrando..." o frame tira o olho do campo desabilitado (Figma 29:20).
         rightAccessory={
-          enviando ? undefined : (
-            <IconButton
-              icon={form.mostrarSenha ? 'eye-outline' : 'eye-off-outline'}
-              accessibilityLabel={
-                form.mostrarSenha ? t('login.campoSenha.ocultar') : t('login.campoSenha.mostrar')
-              }
-              onPress={form.alternarMostrarSenha}
-            />
-          )
+          <InlineActionButton
+            label={
+              form.mostrarSenha
+                ? t('login.campoSenha.ocultarTexto')
+                : t('login.campoSenha.mostrarTexto')
+            }
+            accessibilityLabel={
+              form.mostrarSenha ? t('login.campoSenha.ocultar') : t('login.campoSenha.mostrar')
+            }
+            disabled={enviando}
+            onPress={form.alternarMostrarSenha}
+          />
         }
       />
 
-      <FormActions>
-        <Button
-          label={t('login.botaoEntrar.rotulo')}
-          loadingLabel={t('login.botaoEntrar.carregando')}
-          loading={enviando}
-          size="page"
-          onPress={() => void form.enviar()}
-        />
-      </FormActions>
+      {credencialInvalida ? <InlineAlert message={t('login.erroCredencial.mensagem')} /> : null}
+      {erroDeRede ? <InlineAlert message={t('login.erroRede.mensagem')} /> : null}
 
-      <StateView
-        state="error"
-        visible={form.estadoEnvio === 'erroRede'}
-        title={t('login.erroRede.titulo')}
-        message={t('login.erroRede.mensagem')}
-        retryLabel={t('login.erroRede.botaoTentarNovamente')}
-        onRetry={() => void form.enviar()}
+      <Button
+        label={t('login.botaoEntrar.rotulo')}
+        loadingLabel={t('login.botaoEntrar.carregando')}
+        loading={enviando}
+        onPress={() => void form.enviar()}
       />
     </ScreenContainer>
   );

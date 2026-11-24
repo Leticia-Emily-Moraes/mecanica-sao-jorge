@@ -1,6 +1,6 @@
 import { StyleSheet } from 'react-native';
 
-import { color, iconSize, layout, spacing, typography } from '@/theme/tokens';
+import { color, layout, spacing, typography } from '@/theme/tokens';
 
 export const styles = StyleSheet.create({
   centered: {
@@ -8,18 +8,12 @@ export const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  emptyTitle: {
-    fontSize: typography.label.fontSize,
-    fontWeight: typography.label.fontWeight,
-    color: color.text.primary,
-    textAlign: 'center',
-    marginTop: spacing.md,
-  },
-  emptyMessage: {
-    fontSize: typography.body.fontSize,
+  loadingText: {
+    fontFamily: typography.rowLabel.fontFamily,
+    fontSize: typography.rowLabel.fontSize,
     color: color.text.secondary,
     textAlign: 'center',
-    marginTop: spacing.xs,
+    marginTop: spacing.s12,
   },
   emptyAction: {
     width: '100%',
@@ -29,7 +23,8 @@ export const styles = StyleSheet.create({
 });
 
 export const visual = {
-  spinnerColor: color.text.primary,
-  emptyIconSize: iconSize.empty,
-  emptyIconColor: color.text.secondary,
+  spinner: color.text.primary,
+  /** Espaços do Início I1 entre círculo, título e mensagem. */
+  titleGap: spacing.md,
+  messageGap: spacing.s10,
 } as const;

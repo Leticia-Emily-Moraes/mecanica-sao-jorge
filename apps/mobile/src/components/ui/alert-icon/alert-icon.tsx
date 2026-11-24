@@ -1,22 +1,23 @@
-import { Ionicons } from '@expo/vector-icons';
 import type { ReactElement } from 'react';
-import { View } from 'react-native';
+import { Text, View } from 'react-native';
 
-import { visual } from './alert-icon.styles';
-
-export interface AlertIconProps {
-  readonly size: number;
-}
+import { styles, visual } from './alert-icon.styles';
 
 /**
- * Triângulo de alerta cheio dos frames do Figma (29:60 e popups de erro),
- * na cor de erro. Decorativo: o texto ao lado carrega o significado, então o
- * ícone fica fora da árvore de acessibilidade.
+ * Ícone de alerta da faixa de erro: círculo com "!" em El Salva, desenhado em
+ * código (estilo da referência, sem ativo exportado). Decorativo: a faixa já
+ * se anuncia como alerta com o texto, então o ícone fica fora da árvore de
+ * acessibilidade.
  */
-export function AlertIcon({ size }: AlertIconProps): ReactElement {
+export function AlertIcon(): ReactElement {
   return (
-    <View accessibilityElementsHidden importantForAccessibility="no-hide-descendants">
-      <Ionicons name="warning" size={size} color={visual.iconColor} />
+    <View
+      testID="alert-icon"
+      accessibilityElementsHidden
+      importantForAccessibility="no-hide-descendants"
+      style={styles.circle}
+    >
+      <Text style={styles.mark}>{visual.mark}</Text>
     </View>
   );
 }

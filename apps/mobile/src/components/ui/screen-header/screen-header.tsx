@@ -1,33 +1,56 @@
 import { StatusBar } from 'expo-status-bar';
-import { useContext, type ReactElement } from 'react';
+import type { ReactElement } from 'react';
 import { Text, View } from 'react-native';
-import { SafeAreaInsetsContext } from 'react-native-safe-area-context';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+
+import { HeaderIconButton } from '@/components/ui/header-icon-button';
 
 import { styles, topInset } from './screen-header.styles';
 
+export interface ScreenHeaderAction {
+  /** Nome acessível do botão (só tem ícone). */
+  readonly label: string;
+  readonly onPress: () => void;
+}
+
 export interface ScreenHeaderProps {
   readonly title: string;
-  readonly subtitle?: string;
+  /** Seta de voltar no canto esquerdo (Perfil). */
+  readonly back?: ScreenHeaderAction;
+  /** Botão de usuário no canto direito (telas do menu). */
+  readonly user?: ScreenHeaderAction;
 }
 
 /**
- * Faixa de cabeçalho da tela (Figma 29:80, 33:34): fundo petro, título à
- * esquerda e subtítulo opcional. Ocupa a área sob a barra de status. O título
- * é anunciado como cabeçalho pelo leitor de tela. A barra de status fica
- * clara sobre a faixa petro: no tema escuro do aparelho o texto padrão seria
- * escuro e daria 1,73:1 (abaixo de 3:1); com texto branco dá 12,12:1.
+ * Cabeçalho petro de 56 de altura, sob a barra de status. A ordem de foco é a
+ * ordem da leitura: seta de voltar, título, botão de usuário. A barra de
+ * status fica com ícones claros porque o fundo atrás dela é petro.
  */
-export function ScreenHeader({ title, subtitle }: ScreenHeaderProps): ReactElement {
-  // Contexto lido direto: sem provedor (testes isolados) o inset é zero.
-  const insets = useContext(SafeAreaInsetsContext);
+export function ScreenHeader({ title, back, user }: ScreenHeaderProps): ReactElement {
+  const insets = useSafeAreaInsets();
 
   return (
-    <View style={[styles.band, topInset(insets?.top ?? 0)]}>
+    <View testID="screen-header" style={[styles.wrapper, topInset(insets.top)]}>
       <StatusBar style="light" />
-      <Text accessibilityRole="header" style={styles.title}>
-        {title}
-      </Text>
-      {subtitle ? <Text style={styles.subtitle}>{subtitle}</Text> : null}
+      <View testID="screen-header-bar" style={[styles.bar, back && styles.barWithBack]}>
+        {back ? (
+          <HeaderIconButton
+            icon="chevron-back"
+            accessibilityLabel={back.label}
+            onPress={back.onPress}
+          />
+        ) : null}
+        <Text accessibilityRole="header" numberOfLines={1} style={styles.title}>
+          {title}
+        </Text>
+        {user ? (
+          <HeaderIconButton
+            icon="person-outline"
+            accessibilityLabel={user.label}
+            onPress={user.onPress}
+          />
+        ) : null}
+      </View>
     </View>
   );
 }

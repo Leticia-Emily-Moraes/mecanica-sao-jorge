@@ -4,15 +4,15 @@ import { color, radius, spacing, typography } from '@/theme/tokens';
 
 export const styles = StyleSheet.create({
   badge: {
-    alignSelf: 'flex-start',
+    alignSelf: 'center',
     backgroundColor: color.surface.brand,
     borderRadius: radius.pill,
-    paddingHorizontal: spacing.md,
+    paddingHorizontal: spacing.s12,
     paddingVertical: spacing.xs,
   },
   label: {
-    fontSize: typography.micro.fontSize,
-    fontWeight: typography.micro.fontWeight,
+    fontFamily: typography.badge.fontFamily,
+    fontSize: typography.badge.fontSize,
     color: color.text.onBrand,
   },
 });

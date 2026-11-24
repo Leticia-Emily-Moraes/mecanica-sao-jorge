@@ -10,7 +10,7 @@ const METRICS = {
 };
 
 describe('MenuShell', () => {
-  it('should render the active route content together with the five tab bar items', () => {
+  it('should render the active route content together with the four tab bar items', () => {
     render(
       <SafeAreaProvider initialMetrics={METRICS}>
         <MenuShell>
@@ -20,6 +20,6 @@ describe('MenuShell', () => {
     );
 
     expect(screen.getByText('conteúdo da aba')).toBeTruthy();
-    expect(screen.getAllByRole('tab')).toHaveLength(5);
+    expect(screen.getAllByRole('tab')).toHaveLength(4);
   });
 });

@@ -3,6 +3,7 @@ import { Text, View } from 'react-native';
 
 import { AccessProfileBadge } from '@/components/perfil/access-profile-badge';
 import { Avatar } from '@/components/perfil/avatar';
+import { getInitials } from '@/components/perfil/avatar';
 
 import { styles } from './profile-summary.styles';
 
@@ -28,7 +29,7 @@ export function ProfileSummary({
   return (
     <View style={styles.container}>
       <View accessible accessibilityLabel={accessibilityLabel} style={styles.row}>
-        <Avatar name={name} />
+        <Avatar initials={getInitials(name)} />
         <View style={styles.details}>
           <Text style={styles.name}>{name}</Text>
           <Text style={styles.email}>{email}</Text>

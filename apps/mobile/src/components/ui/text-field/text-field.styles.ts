@@ -3,66 +3,68 @@ import { StyleSheet } from 'react-native';
 import {
   borderWidth,
   color,
-  focusRingRadius,
   minTouchTarget,
   radius,
+  size,
   spacing,
   typography,
 } from '@/theme/tokens';
 
+const FIELD_PADDING = spacing.s14;
+
+/** Completa a área de toque até `minTouchTarget` sem mudar a altura visível de 46 (ADR-014, regra 15). */
+export const TOUCH_SLOP = {
+  top: (minTouchTarget - size.field) / 2,
+  bottom: (minTouchTarget - size.field) / 2,
+};
+
 export const styles = StyleSheet.create({
   container: {
-    marginBottom: spacing.field,
+    marginBottom: spacing.md,
   },
   label: {
-    fontSize: typography.labelSmall.fontSize,
-    fontWeight: typography.labelSmall.fontWeight,
+    fontFamily: typography.fieldLabel.fontFamily,
+    fontSize: typography.fieldLabel.fontSize,
     color: color.text.secondary,
-    marginBottom: spacing.xs,
-    // O halo do anel de foco (4 pt) passa de 4 pt do campo: o rótulo fica por cima, sem corte.
-    zIndex: 1,
+    marginBottom: spacing.s6,
   },
-  ringWrapper: {
-    borderRadius: focusRingRadius,
-  },
-  // Altura externa de 48 com a borda dentro (Figma 29:7); o Yoga conta a borda na altura.
   inputRow: {
-    minHeight: minTouchTarget,
     flexDirection: 'row',
     alignItems: 'center',
-    borderWidth: borderWidth.field,
-    borderColor: color.border.default,
+    height: size.field,
     borderRadius: radius.sm,
-    paddingLeft: spacing.md,
-    paddingRight: spacing.xs,
     backgroundColor: color.surface.default,
   },
-  inputRowError: {
-    borderWidth: borderWidth.emphasis,
-    borderColor: color.text.error,
+  // 1 px em repouso, 2 px com foco ou erro: o padding compensa a diferença
+  // de borda e o conteúdo não se mexe.
+  inputRowIdle: {
+    borderWidth: borderWidth.hairline,
+    borderColor: color.border.default,
+    paddingHorizontal: FIELD_PADDING + borderWidth.field - borderWidth.hairline,
+  },
+  inputRowHighlighted: {
+    borderWidth: borderWidth.field,
+    borderColor: color.border.focusField,
+    paddingHorizontal: FIELD_PADDING,
   },
   inputRowDisabled: {
     backgroundColor: color.surface.skeleton,
-    borderColor: color.border.skeleton,
   },
   input: {
     flex: 1,
     alignSelf: 'stretch',
-    fontSize: typography.field.fontSize,
-    color: color.text.secondary,
-  },
-  // Ação de 48 dentro do campo de 48: a margem negativa tira as duas bordas da conta
-  // e o alvo de toque continua inteiro (a borda é transparente ao toque).
-  accessory: {
-    marginVertical: -borderWidth.emphasis,
+    fontFamily: typography.input.fontFamily,
+    fontSize: typography.input.fontSize,
+    color: color.text.primary,
   },
   error: {
     marginTop: spacing.xs,
+    fontFamily: typography.caption.fontFamily,
     fontSize: typography.caption.fontSize,
     color: color.text.error,
   },
 });
 
 export const visual = {
-  placeholderColor: color.text.placeholder,
+  placeholder: color.text.placeholder,
 } as const;

@@ -4,6 +4,6 @@ import { spacing } from '@/theme/tokens';
 
 export const styles = StyleSheet.create({
   actions: {
-    marginTop: spacing.lg - spacing.field,
+    marginTop: spacing.lg - spacing.md,
   },
 });

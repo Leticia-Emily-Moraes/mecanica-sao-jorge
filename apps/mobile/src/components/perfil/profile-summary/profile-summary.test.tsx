@@ -35,7 +35,7 @@ describe('ProfileSummary', () => {
   it('should draw the avatar with the initials, hidden from the screen reader', () => {
     renderSummary();
 
-    expect(screen.getByText('AB', { includeHiddenElements: true })).toBeTruthy();
-    expect(screen.queryByText('AB')).toBeNull();
+    expect(screen.getByText('AS', { includeHiddenElements: true })).toBeTruthy();
+    expect(screen.queryByText('AS')).toBeNull();
   });
 });

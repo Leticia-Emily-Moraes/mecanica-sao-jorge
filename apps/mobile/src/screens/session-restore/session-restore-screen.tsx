@@ -9,11 +9,12 @@ import { t } from '@/i18n/strings';
 
 /**
  * Tela de reidratação de sessão: decide, sem interação do usuário, se o
- * destino é Login ou Perfil (US-LGN-FRONT-06). É também onde os estados de
- * carregando/erro da "entrada" em Perfil aparecem — decisão registrada no
+ * destino é Login ou a tela inicial (US-LGN-FRONT-06). É também onde os
+ * estados de carregando/erro da "entrada" aparecem — decisão registrada no
  * handoff da F30 (F25 PRD, Dúvida 1, opção a): sem endpoint de perfil
- * dedicado, Perfil não tem carregamento de rede próprio, só a reidratação do
- * SecureStore ao abrir o app.
+ * dedicado, não há carregamento de rede próprio, só a reidratação do
+ * SecureStore ao abrir o app. Desde a F41 o destino autenticado é `/inicio`
+ * (o Perfil saiu da tab bar e se abre pelo botão do cabeçalho).
  */
 export default function SessionRestoreScreen(): ReactElement {
   const { status, tentarNovamenteInicializacao, logout } = useAuth();
@@ -21,7 +22,7 @@ export default function SessionRestoreScreen(): ReactElement {
 
   useEffect(() => {
     if (status.tipo === 'autenticado') {
-      router.replace('/perfil');
+      router.replace('/inicio');
     } else if (status.tipo === 'naoAutenticado') {
       router.replace('/login');
     }
@@ -30,19 +31,20 @@ export default function SessionRestoreScreen(): ReactElement {
   return (
     <ScreenContainer>
       {status.tipo === 'carregando' ? (
-        <StateView state="loading" loadingLabel={t('sessao.inicializando.anuncio')} />
+        <StateView state="loading" loadingLabel={t('sessao.inicializando.rotulo')} />
       ) : null}
 
-      <StateView
-        state="error"
-        visible={status.tipo === 'erroInicializacao'}
-        title={t('sessao.erroInicializacao.titulo')}
-        message={t('sessao.erroInicializacao.mensagem')}
-        retryLabel={t('sessao.erroInicializacao.botaoTentarNovamente')}
-        onRetry={tentarNovamenteInicializacao}
-        secondaryLabel={t('sessao.erroInicializacao.botaoEntrarNovamente')}
-        onSecondaryPress={() => void logout()}
-      />
+      {status.tipo === 'erroInicializacao' ? (
+        <StateView
+          state="error"
+          title={t('sessao.erroInicializacao.titulo')}
+          message={t('sessao.erroInicializacao.mensagem')}
+          retryLabel={t('sessao.erroInicializacao.botaoTentarNovamente')}
+          onRetry={tentarNovamenteInicializacao}
+          secondaryLabel={t('sessao.erroInicializacao.botaoEntrarNovamente')}
+          onSecondaryPress={() => void logout()}
+        />
+      ) : null}
     </ScreenContainer>
   );
 }

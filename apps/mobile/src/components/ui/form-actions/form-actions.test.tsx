@@ -26,6 +26,6 @@ describe('FormActions', () => {
 
     const style = jsonStyle(screen.toJSON() as JsonNode);
 
-    expect((style.marginTop as number) + spacing.field).toBe(spacing.lg);
+    expect((style.marginTop as number) + spacing.md).toBe(spacing.lg);
   });
 });

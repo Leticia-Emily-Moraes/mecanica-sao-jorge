@@ -7,8 +7,8 @@ export const styles = StyleSheet.create({
     marginBottom: spacing.md,
   },
   label: {
+    fontFamily: typography.label.fontFamily,
     fontSize: typography.label.fontSize,
-    fontWeight: typography.label.fontWeight,
     color: color.text.secondary,
     marginBottom: spacing.xs,
   },
