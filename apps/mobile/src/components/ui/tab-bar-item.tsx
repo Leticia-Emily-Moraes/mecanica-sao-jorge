@@ -4,8 +4,8 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import {
   color,
+  focusRingOffset,
   iconSize,
-  minTouchTarget,
   opacity,
   radius,
   spacing,
@@ -19,7 +19,7 @@ export interface TabBarItemProps {
   readonly icon: TabBarIconName;
   /** Rótulo visível sob o ícone. */
   readonly label: string;
-  /** Nome acessível completo (inclui o estado, ex.: "Perfil, aba selecionada"). */
+  /** Nome acessível completo (inclui o estado, ex.: "Ordens, aba selecionada"). */
   readonly accessibilityLabel: string;
   readonly selected: boolean;
   /** Item de placeholder: não navega, fica esmaecido e anunciado como desabilitado. */
@@ -28,8 +28,11 @@ export interface TabBarItemProps {
 }
 
 /**
- * Item de aba da barra de navegação inferior: ícone, rótulo, pílula quando
- * selecionado, esmaecido quando indisponível e anel de foco duplo.
+ * Item de aba da barra de navegação inferior, no desenho da referência: sem
+ * pílula, ícone de 22 e rótulo de 11 em colunas de 62 de altura. O item
+ * selecionado muda de cor e vai de Medium para SemiBold (não depende só de
+ * cor, WCAG 1.4.1) e expõe `selected` ao leitor de tela. Esmaecido quando
+ * indisponível e com anel de foco duplo.
  */
 export function TabBarItem({
   icon,
@@ -39,77 +42,78 @@ export function TabBarItem({
   unavailable = false,
   onPress,
 }: TabBarItemProps): ReactElement {
-  const { focusRingStyle, onFocus, onBlur } = useFocusRing();
+  const { focusRingStyle, onFocus, onBlur } = useFocusRing({ onBrand: true });
+  const tone = selected ? color.text.tabSelected : color.text.onBrandMuted;
 
   return (
-    <View style={[styles.cell, focusRingStyle]}>
-      <Pressable
-        accessibilityRole="tab"
-        accessibilityLabel={accessibilityLabel}
-        accessibilityState={{ selected, disabled: unavailable }}
-        disabled={unavailable}
-        onFocus={onFocus}
-        onBlur={onBlur}
-        onPress={onPress}
-        style={styles.pressable}
-      >
-        <View style={[styles.content, selected && styles.pill]}>
-          <Ionicons
-            name={icon}
-            size={iconSize.tab}
-            color={selected ? color.text.onPrimaryAction : color.text.onBrand}
-            style={unavailable && styles.unavailable}
-          />
-          <Text
-            style={[
-              styles.label,
-              selected ? styles.labelSelected : styles.labelIdle,
-              unavailable && styles.unavailable,
-            ]}
-            numberOfLines={1}
-          >
-            {label}
-          </Text>
-        </View>
-      </Pressable>
+    <View style={styles.cell}>
+      <View style={[styles.ring, focusRingStyle]}>
+        <Pressable
+          accessibilityRole="tab"
+          accessibilityLabel={accessibilityLabel}
+          accessibilityState={{ selected, disabled: unavailable }}
+          disabled={unavailable}
+          onFocus={onFocus}
+          onBlur={onBlur}
+          onPress={onPress}
+          style={styles.pressable}
+        >
+          <View style={styles.content}>
+            <Ionicons
+              name={icon}
+              size={iconSize.tab}
+              color={tone}
+              style={unavailable && styles.unavailable}
+            />
+            <Text
+              style={[
+                styles.label,
+                selected ? styles.labelSelected : styles.labelIdle,
+                { color: tone },
+                unavailable && styles.unavailable,
+              ]}
+              numberOfLines={1}
+            >
+              {label}
+            </Text>
+          </View>
+        </Pressable>
+      </View>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
+  // Célula de 90 × 62 (frame `20:1102`): o anel fica 2 de folga por dentro dela.
   cell: {
     flex: 1,
-    borderRadius: radius.md,
+    padding: focusRingOffset,
+  },
+  ring: {
+    flex: 1,
+    borderRadius: radius.tabFocus,
   },
   pressable: {
     flex: 1,
-    minHeight: minTouchTarget,
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: spacing.xs,
   },
   content: {
     alignItems: 'center',
     justifyContent: 'center',
-    gap: spacing.xs / 2,
-    paddingHorizontal: spacing.sm,
-    paddingVertical: spacing.xs,
-    borderRadius: radius.pill,
-  },
-  pill: {
-    backgroundColor: color.action.primaryBackground,
+    gap: spacing.xs,
   },
   unavailable: {
     opacity: opacity.unavailable,
   },
   label: {
-    fontSize: typography.caption.fontSize,
-    fontWeight: typography.label.fontWeight,
+    fontFamily: typography.tabLabel.fontFamily,
+    fontSize: typography.tabLabel.fontSize,
   },
   labelSelected: {
-    color: color.text.onPrimaryAction,
+    fontFamily: typography.tabLabelSelected.fontFamily,
   },
   labelIdle: {
-    color: color.text.onBrand,
+    fontFamily: typography.tabLabel.fontFamily,
   },
 });
