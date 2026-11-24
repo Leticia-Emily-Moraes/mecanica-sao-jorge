@@ -194,6 +194,12 @@ Correspondência com os critérios da F17: `content` = `itens`, `totalElements` 
 ### Ordem de Serviço
 `OrdemServicoController`, `OrdemServicoService`/`Impl`, `OrdemServicoRepository`, `OrdemServico` (+ entidades de junção `OrdemServicoServico`, `OrdemServicoPeca` que congelam valor no momento da venda), `OrdemServicoMapper`, `OrdemServicoRequestDTO`, `OrdemServicoResponseDTO`, `AtualizarStatusOrdemServicoDTO`. Validação de transição de status fica no service (`StatusOrdemServico`), nunca no controller.
 
+Entregue na F06a (listagem): `OrdemServicoController`, `OrdemServicoService` (classe concreta), `OrdemServicoRepository.buscar` (`join fetch` de cliente e veículo, com contagem própria), `OrdemServicoMapper`, `OrdemServicoListResponse` (o card pedia `OrdemServicoResumoResponse`; vale o nome do ADR-037), `ClienteResumo` e `VeiculoResumo`. Migration `V11__adicionar_datas_em_ordens_servico.sql` (ADR-038). Referência completa com exemplos reais: [`docs/api/ordens-servico.md`](../api/ordens-servico.md).
+
+#### Contrato: `GET /api/v1/ordens-servico` (F06a, ADR-037)
+
+Exige JWT. Parâmetros: `status` (nome exato de `StatusOS`), `q` (até 100 caracteres; trecho do nome do cliente ou da placa, sem diferenciar caixa, hífen da placa ignorado), `page` (base 0, padrão 0) e `size` (padrão 20, de 1 a 100). Ordem fixa: `dataAbertura` e depois `id`, ambos decrescentes. Resposta 200 no envelope do ADR-017 (`itens`, `pagina`, `tamanho`, `totalItens`, `totalPaginas`). Cada item traz `id`, `status`, `dataAbertura` (UTC), `previsaoEntrega` (`null` sem previsão), `valorTotal`, `cliente {id, nome}` e `veiculo {id, placa, modelo}`. Erros no formato padrão: 400 (`Parametro invalido: <nome>`), 401 e 500.
+
 ### Financeiro / Pagamentos
 `ParcelaController`, `ParcelaService`/`Impl`, `ParcelaRepository`, `Parcela`, `ParcelaResponseDTO` (com `StatusParcela` calculado em runtime, não persistido).
 `PagamentoController`, `PagamentoService`/`Impl`, `PagamentoRepository`, `Pagamento`, `PagamentoRequestDTO`. Ao registrar um `Pagamento`, o service dispara a criação do lançamento em `Financeiro` (regra já definida no `CLAUDE.md`).
