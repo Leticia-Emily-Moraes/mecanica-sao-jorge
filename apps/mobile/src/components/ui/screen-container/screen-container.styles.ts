@@ -13,9 +13,7 @@ export const styles = StyleSheet.create({
   },
 });
 
-export type HorizontalPadding = 'default' | 'form';
-
 /** Margem lateral da tela: 16 do Figma, ou 28 no Login (16 da tela + 12 do formulário). */
-export function horizontalPaddingStyle(variant: HorizontalPadding): ViewStyle {
+export function horizontalPaddingStyle(variant: 'default' | 'form'): ViewStyle {
   return { paddingHorizontal: variant === 'form' ? spacing.md + spacing.s12 : spacing.md };
 }

@@ -3,7 +3,9 @@ import type { ReactElement, ReactNode } from 'react';
 import { View } from 'react-native';
 
 import { horizontalPaddingStyle, styles } from './screen-container.styles';
-import type { HorizontalPadding } from './screen-container.styles';
+
+/** Margem lateral da tela: `default` = 16 do Figma; `form` = 28 do Login (16 + 12). */
+export type HorizontalPadding = 'default' | 'form';
 
 export interface ScreenContainerProps {
   readonly children: ReactNode;
