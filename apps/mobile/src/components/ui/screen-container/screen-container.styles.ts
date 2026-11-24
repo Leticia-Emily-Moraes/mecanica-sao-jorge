@@ -1,25 +1,19 @@
-import { StyleSheet, type ViewStyle } from 'react-native';
+import type { ViewStyle } from 'react-native';
+import { StyleSheet } from 'react-native';
 
 import { color, spacing } from '@/theme/tokens';
 
 export const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: color.surface.default,
+    backgroundColor: color.surface.background,
   },
-  body: {
-    flex: 1,
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.lg,
-  },
-  footer: {
-    paddingHorizontal: spacing.md,
-    paddingBottom: spacing.lg,
+  centered: {
+    justifyContent: 'center',
   },
 });
 
-export type TopSpacing = 'default' | 'form';
-
-export function topSpacingStyle(variant: TopSpacing): ViewStyle {
-  return { paddingTop: variant === 'form' ? spacing.formTop : spacing.lg };
+/** Margem lateral da tela: 16 do Figma, ou 28 no Login (16 da tela + 12 do formulário). */
+export function horizontalPaddingStyle(variant: 'default' | 'form'): ViewStyle {
+  return { paddingHorizontal: variant === 'form' ? spacing.md + spacing.s12 : spacing.md };
 }

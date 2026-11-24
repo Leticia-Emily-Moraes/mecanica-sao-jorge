@@ -1,19 +1,19 @@
 import { StyleSheet } from 'react-native';
 
-import { color, layout, radius, typography } from '@/theme/tokens';
+import { color, radius, size, typography } from '@/theme/tokens';
 
 export const styles = StyleSheet.create({
   circle: {
-    width: layout.avatarSize,
-    height: layout.avatarSize,
-    borderRadius: radius.pill,
-    backgroundColor: color.surface.brand,
+    width: size.avatar,
+    height: size.avatar,
+    borderRadius: radius.avatar,
+    backgroundColor: color.surface.avatar,
     alignItems: 'center',
     justifyContent: 'center',
   },
   initials: {
-    fontSize: typography.header.fontSize,
-    fontWeight: typography.header.fontWeight,
+    fontFamily: typography.avatarInitials.fontFamily,
+    fontSize: typography.avatarInitials.fontSize,
     color: color.text.onBrand,
   },
 });

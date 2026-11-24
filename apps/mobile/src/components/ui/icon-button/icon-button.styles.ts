@@ -15,6 +15,6 @@ export const styles = StyleSheet.create({
 });
 
 export const visual = {
-  iconSize: iconSize.action,
+  iconSize: iconSize.tab,
   iconColor: color.text.secondary,
 } as const;

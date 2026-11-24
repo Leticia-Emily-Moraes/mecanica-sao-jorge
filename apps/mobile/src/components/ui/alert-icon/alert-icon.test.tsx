@@ -1,26 +1,42 @@
-import { Ionicons } from '@expo/vector-icons';
 import { render, screen } from '@testing-library/react-native';
+import { StyleSheet } from 'react-native';
+import type { TestStyle } from '@/test-utils/flat-style';
 
-import { color } from '@/theme/tokens';
+import { color, iconSize } from '@/theme/tokens';
 
 import { AlertIcon } from './alert-icon';
 
 describe('AlertIcon', () => {
-  it('should draw the filled warning triangle in the error color at the given size', () => {
-    render(<AlertIcon size={32} />);
+  it('should draw a circle (not a triangle) with an exclamation mark', () => {
+    render(<AlertIcon />);
 
-    expect(screen.UNSAFE_getByType(Ionicons).props).toMatchObject({
-      name: 'warning',
-      size: 32,
-      color: color.text.error,
-    });
+    const circle = StyleSheet.flatten(
+      screen.getByTestId('alert-icon', { includeHiddenElements: true }).props.style as TestStyle,
+    );
+
+    expect(circle.width).toBe(iconSize.banner);
+    expect(circle.height).toBe(iconSize.banner);
+    expect(circle.borderRadius).toBe(iconSize.banner / 2);
+    expect(screen.getByText('!', { includeHiddenElements: true })).toBeTruthy();
   });
 
-  it('should hide the decorative icon from the screen reader', () => {
-    const { toJSON } = render(<AlertIcon size={16} />);
-    const root = toJSON() as { props: Record<string, unknown> };
+  it('should use the El Salva color on the ring and on the mark', () => {
+    render(<AlertIcon />);
 
-    expect(root.props.accessibilityElementsHidden).toBe(true);
-    expect(root.props.importantForAccessibility).toBe('no-hide-descendants');
+    const circle = StyleSheet.flatten(
+      screen.getByTestId('alert-icon', { includeHiddenElements: true }).props.style as TestStyle,
+    );
+    const mark = StyleSheet.flatten(
+      screen.getByText('!', { includeHiddenElements: true }).props.style as TestStyle,
+    );
+
+    expect(circle.borderColor).toBe(color.text.errorOnBanner);
+    expect(mark.color).toBe(color.text.errorOnBanner);
+  });
+
+  it('should stay out of the accessibility tree because the banner already announces the text', () => {
+    render(<AlertIcon />);
+
+    expect(screen.queryByText('!')).toBeNull();
   });
 });

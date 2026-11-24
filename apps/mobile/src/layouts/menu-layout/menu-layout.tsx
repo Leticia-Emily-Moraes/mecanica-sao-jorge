@@ -7,9 +7,9 @@ import { useAuth } from '@/hooks/use-auth';
 
 /**
  * Casa pós-login (F33, US-MENU-01/08): guarda a sessão de novo aqui, no nível
- * do grupo, independente do guard de `app/index.tsx` — cobre quem chega
+ * do grupo, independente do guard de `session-restore-screen` — cobre quem chega
  * direto numa rota do menu por deep link ou retomada do app sem passar pelo
- * guard de entrada. Mesmo padrão de defesa dupla que `(menu)/perfil.tsx` já
+ * guard de entrada. Mesmo padrão de defesa dupla que `profile-screen` já
  * usa para si mesma.
  */
 export default function MenuLayout(): ReactElement | null {

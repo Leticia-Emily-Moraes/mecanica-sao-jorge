@@ -2,16 +2,18 @@ import type { ReactElement } from 'react';
 import { Text, View } from 'react-native';
 
 import { AlertIcon } from '@/components/ui/alert-icon';
-import { styles, visual } from './inline-alert.styles';
+
+import { styles } from './inline-alert.styles';
 
 export interface InlineAlertProps {
   readonly message: string;
 }
 
 /**
- * Faixa de erro dentro do formulário (a tela continua utilizável; Figma
- * 29:60). Sempre com ícone e texto — nunca só cor — e anunciada como alerta
- * ao leitor de tela. O ícone é decorativo.
+ * Faixa de erro dentro do formulário (a tela continua utilizável): fundo Pot
+ * Pourri, contorno Rose Fog, ícone de alerta e texto El Salva. Sempre com
+ * texto — nunca só cor — e anunciada como alerta ao leitor de tela. A altura
+ * vem da margem e do texto (sem altura fixa): 1 linha ≈ 48, 2 linhas = 67.
  */
 export function InlineAlert({ message }: InlineAlertProps): ReactElement {
   return (
@@ -19,9 +21,10 @@ export function InlineAlert({ message }: InlineAlertProps): ReactElement {
       accessibilityRole="alert"
       accessibilityLiveRegion="polite"
       accessible
-      style={styles.banner}
+      accessibilityLabel={message}
+      style={styles.container}
     >
-      <AlertIcon size={visual.alertIconSize} />
+      <AlertIcon />
       <Text style={styles.message}>{message}</Text>
     </View>
   );

@@ -1,24 +1,31 @@
-import { StyleSheet, type ViewStyle } from 'react-native';
+import type { ViewStyle } from 'react-native';
+import { StyleSheet } from 'react-native';
 
-import { color, spacing, typography } from '@/theme/tokens';
+import { color, size, spacing, typography } from '@/theme/tokens';
 
 export const styles = StyleSheet.create({
-  band: {
+  wrapper: {
     backgroundColor: color.surface.brand,
-    paddingHorizontal: spacing.md,
-    paddingBottom: spacing.xl,
-    justifyContent: 'flex-end',
+  },
+  bar: {
+    height: size.appBar,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.s12,
+    paddingLeft: spacing.md,
+    paddingRight: spacing.s12,
+  },
+  /** No frame do Perfil a seta fica a 10 da borda e a 10 do título. */
+  barWithBack: {
+    gap: spacing.s10,
+    paddingLeft: spacing.s10,
   },
   title: {
-    fontSize: typography.header.fontSize,
-    fontWeight: typography.header.fontWeight,
+    flex: 1,
     color: color.text.onBrand,
-  },
-  subtitle: {
-    fontSize: typography.subtitle.fontSize,
-    fontWeight: typography.subtitle.fontWeight,
-    color: color.text.onBrand,
-    marginTop: spacing.xs,
+    fontFamily: typography.appBarTitle.fontFamily,
+    fontSize: typography.appBarTitle.fontSize,
+    letterSpacing: typography.appBarTitle.letterSpacing,
   },
 });
 

@@ -16,11 +16,12 @@ export const styles = StyleSheet.create({
     gap: spacing.xs,
   },
   name: {
-    fontSize: typography.heading.fontSize,
-    fontWeight: typography.heading.fontWeight,
+    fontFamily: typography.label.fontFamily,
+    fontSize: typography.body.fontSize,
     color: color.text.primary,
   },
   email: {
+    fontFamily: typography.subtitle.fontFamily,
     fontSize: typography.subtitle.fontSize,
     color: color.text.secondary,
   },

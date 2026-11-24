@@ -9,7 +9,10 @@ informed: [REGENTE, PRUMO, ESQUADRO, CRIVO, VIGIA, PERGAMINHO]
 # Separar rota, tela e estilo no app mobile: `app/` só roteia, telas em `src/screens`, estilo em `*.styles.ts` na pasta do componente
 
 Histórico de status: 2026-11-13, proposto. 2026-11-14, revisado pelo CARTOGRAFO contra o código do
-ramo `refactor/f40-estrutura-ui-sobre-f41` (HEAD `43b60f5`): segue proposto, pronto para aceite humano.
+ramo `refactor/f40-estrutura-ui-sobre-f41` (HEAD `43b60f5`): segue proposto, pronto para aceite humano. 2026-11-24, reaplicado sobre a `main` (F41 #16 já integrada) no ramo
+`integracao/f40-i2-sobre-pr10`, PR #44: mesma estrutura e mesmas regras de lint; o Perfil ganhou
+`ProfileIdentity` e `ScreenFooter`, a tela Início virou `src/screens/home` e o `ScreenContainer` usa a
+variante `horizontalPadding: 'default' | 'form'`. Segue proposto.
 
 Vínculos: PRD `docs/product/F40-componentizacao-front-mobile.md` (US-COMP-01, decisão R1);
 spec `docs/design/F40-componentes-base-especificacao.md` §4 e `apps/mobile/README.md`
