@@ -81,6 +81,7 @@ describe('tokens (FPdB8 literal values)', () => {
         avatar: 84,
         iconButton: 36,
         stateIcon: 72,
+        closeButton: 32,
         loadingIndicator: 16,
         brandShieldWidth: 84,
         brandShieldHeight: 96,
