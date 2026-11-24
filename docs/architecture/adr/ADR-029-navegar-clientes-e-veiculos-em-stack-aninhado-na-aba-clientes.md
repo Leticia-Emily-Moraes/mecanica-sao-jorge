@@ -68,7 +68,7 @@ Regras:
 * Segmento estático tem precedência sobre dinâmico no expo-router: `novo` e `veiculos` nunca são lidos como `clienteId`. O teste de rota afirma isso.
 * `clienteId` e `veiculoId` passam por uma função pura de leitura de id (inteiro positivo em texto, `^[1-9][0-9]{0,15}$`). Valor fora disso leva a tela ao estado "não encontrado" **sem chamar a API**, porque a API responderia 400 e o critério 21 pede a mensagem de registro não encontrado.
 * Parâmetro de rota permitido: o id e, se o ESQUADRO pedir aviso de sucesso no destino (frames L6, D4, D5 e V5 da F26), um sinalizador de valor fixo (por exemplo `aviso=salvo`). Nada digitado pelo usuário nem recebido da API além do id.
-* Se o ADR-015 for aceito antes da fatia (a), cada arquivo da tabela é só um re-export, o corpo da tela fica em `src/screens/clients/<tela>/` e `src/screens/vehicles/<tela>/`, e o layout em `src/layouts/clients-stack-layout/`. Se não for, a F35 segue o padrão atual da `main` (tela no próprio arquivo de `app/`). A tabela de URLs é a mesma nos dois casos.
+* Com o ADR-015 na `main` (PR #44), cada arquivo da tabela é só um re-export; o corpo da tela fica em `src/screens/<tela>/<tela>-screen.tsx` (`client-list`, `client-create`, `client-detail`, `client-edit`, `vehicle-create`, `vehicle-detail`, `vehicle-edit`) e o layout em `src/layouts/clients-stack-layout/`. As pastas de tela ficam num nível só, sem `clients/` e `vehicles/`, porque o teste de estrutura do ADR-015 exige `src/screens/<pasta>/<pasta>-screen.tsx`. A tabela de URLs não muda.
 
 ### D2. Destino depois de cada ação
 
@@ -190,5 +190,6 @@ flowchart LR
 
 * Pendente de revisão: ORLA (viabilidade da guarda e do `navigate` da D5), ESQUADRO (destinos da D2 contra os frames e o aviso de sucesso) e VIGIA (CPF em memória com o detalhe empilhado sob a edição).
 * Depende do ADR-015 só na localização do corpo da tela (D1); a navegação é a mesma com ou sem ele.
+* Histórico: em 2026-11-24 a F35 foi portada para a estrutura do ADR-015 no merge da `main` (PR #34); a D1 foi atualizada com as pastas reais.
 * Revisitar quando as abas Ordens, Catálogo e Financeiro forem habilitadas: se a perda de posição ao trocar de aba incomodar, avaliar a opção C com um ADR novo.
 * O mapa de navegação do wireframe (`docs/architecture/diagrams/navegacao-wireframe-f24.md`) não foi alterado nesta etapa; o diagrama acima vale para a F35.
