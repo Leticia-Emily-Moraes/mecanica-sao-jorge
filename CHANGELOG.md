@@ -150,6 +150,33 @@ não corta a primeira tag, as entregas ficam em `[Não lançado]`.
   habilitado nesta sprint); guard de sessão duplicado no layout do grupo
   `(menu)` cobre deep link e retomada sem token.
 
+### Adicionado (F06a — Listar ordens de serviço)
+
+- `GET /api/v1/ordens-servico`: lista as OS da mais recente para a mais
+  antiga, com filtro por `status` e busca `q` por trecho do nome do cliente ou
+  da placa. Paginada (`page` base 0, `size` de 1 a 100, padrão 20). Cada item
+  traz só `id` e `nome` do cliente e `id`, `placa` e `modelo` do veículo.
+  Exemplos reais em `docs/api/ordens-servico.md`.
+- Migration `V11`: colunas `data_abertura` e `data_previsao_entrega` em
+  `ordens_servico`. **Ação necessária:** rodar as migrations (a API aplica
+  sozinha ao subir). OS já existentes ganham `data_abertura` com a data e
+  hora da migration, não a da abertura real.
+- A API passa a fixar o fuso da conexão com o MySQL em UTC
+  (`connectionTimeZone=UTC`), e datas e horas saem em UTC com `Z`.
+
+### Alterado (F06a)
+
+- `TermoBusca.toString()` agora mostra só o tamanho do termo. Vale para as
+  listas de clientes, serviços, peças e OS: o termo buscado (que pode ser nome
+  de pessoa) deixa de aparecer se o objeto for logado.
+
+### Não verificado (F06a)
+
+- A V11 deve entrar na `main` depois das migrations V5 a V8 da F04, porque o
+  Flyway não aceita migration antiga depois de uma mais nova já aplicada. A
+  busca por placa também só funciona bem com a placa normalizada da F04 (V7).
+- Sem teste de carga da busca `like %termo%`.
+
 ### Corrigido (F02 — AppSec/LGPD, achados do VIGIA)
 
 - Enumeração de usuário por diferença de tempo (timing attack):
