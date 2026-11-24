@@ -1,5 +1,9 @@
 # F41 — Referência de paridade e dependência com a F40
 
+> **REVISADO em 2026-11-16 (ESQUADRO), por decisão da pessoa (D-01 e D-02 do PRD `F41-prd-paridade-figma-fpdb8.md`).**
+> A referência definitiva de paridade da F41 é o arquivo **`FPdB8RymAnN81pbKfizdzE`**, página `20:2132`, nós em `docs/design/figma.md` (seção "Referência F41 (FPdB8)") e no ADR-014. As tabelas abaixo, do arquivo `DLqbSzzKRxiN2eyvXG73Lr`, ficam como **histórico da v1** e **não valem mais como referência**. A dependência F40 → F41 (§3) foi superada: a F40 já está na `main` (PR #10) e a F41 é a nova linha de base das telas seguintes.
+> Registro: o arquivo novo **não é "a v2 editada pela F39"**. A F39 não editou nenhum nó; ele é a inspiração externa da F39 e vira referência da F41 por decisão da pessoa. Os ids `20:2131` e `20:968` do briefing **não são frames de alta fidelidade**: `20:2131` é a **página** "01 — Wireframes" e `20:968` é um **rótulo de texto**, verificado por `get_metadata` em 16/11 (`20:2131` é o canvas "01 — Wireframes"; `20:968` é um nó `text` de 420 × 16, "Navegação inferior / OS · Clientes · Catálogo · Financeiro / 3", legenda da página de wireframes).
+
 PRD (decisões de escopo) — dono: BUSSOLA (Product Owner). Data: 2026-11-13.
 Rota: BUSSOLA → ESQUADRO → ORLA → CRIVO. Prioridade P1 · Frontend · Sprint 01.
 
@@ -34,7 +38,7 @@ Os quatro itens desabilitados (Clientes e Veículos, Catálogo, Ordens de Servi�
 **Por que não a F39:**
 - A F39 está **em revisão** e o ADR-014 (identidade v2) está **Proposto**, não aceito.
 - `docs/design/figma.md` (seção F39) registra que **nenhum nó do arquivo foi alterado**: as páginas `3:2`, `28:2` e `39:2` seguem como foram aprovadas. A versão nomeada da F24 exigida pelo US-WFR-15 não pôde ser criada (`saveVersionHistoryAsync` não suportado), então a F39 não editou nada.
-- O arquivo `FPdB8RymAnN81pbKfizdzE` (nó `1:66`) é só a inspiração externa da F39. **Não é referência de paridade** e não deve ser consultado para esta feature.
+- ~~O arquivo `FPdB8RymAnN81pbKfizdzE` (nó `1:66`) é só a inspiração externa da F39. Não é referência de paridade.~~ **Revogado em 2026-11-16 (D-01):** o arquivo `FPdB8RymAnN81pbKfizdzE` é a **referência definitiva de paridade** da F41 (página `20:2132`, nós em `docs/design/figma.md`). Continua verdade que ele é a inspiração externa da F39 e que a F39 não o editou.
 - A F40 ficou na identidade v1 de propósito (F40, fora do escopo). A F41 confere a v1.
 
 **Condição para mudar:** se o ADR-014 for aceito e a F39 passar a editar `28:2` ou `39:2`, a referência só muda por decisão registrada da pessoa, e a linha de base da F41 é refeita. Sem essa decisão, vale esta tabela.

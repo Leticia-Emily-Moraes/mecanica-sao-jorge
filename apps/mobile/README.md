@@ -7,16 +7,32 @@ consumindo a API real da F02 — são as duas primeiras telas de feature do app.
 O que existe hoje:
 
 - scaffold Expo com Expo Router, TypeScript estrito, ESLint + Prettier e Jest;
-- **Login** (`app/login.tsx`): e-mail/senha, validação de campo vazio sem
-  chamar a API, erro genérico de credencial inválida (401), popup de erro de
-  conexão com "Tentar novamente", alternar mostrar/ocultar senha, e aviso de
-  sessão expirada quando a API devolve 401 numa chamada autenticada;
-- **Perfil** (`app/(menu)/perfil.tsx`): nome, e-mail e badge de perfil do usuário
-  logado, com logout por diálogo de confirmação (`ConfirmDialog`);
+- **Login** (`app/login.tsx`): campo "Usuário" (o valor digitado segue sendo
+  enviado como `email` em `POST /api/v1/auth/login`) e senha, validação de
+  campo vazio sem chamar a API, faixa de erro genérica de credencial inválida
+  (401) com as duas bordas em erro, caixa de erro de conexão entre a senha e o
+  botão (refaz o login pelo próprio "Entrar"), ação "Mostrar"/"Ocultar" na
+  senha (nome acessível "Mostrar senha"/"Ocultar senha"), e aviso de sessão
+  expirada quando a API devolve 401 numa chamada autenticada;
+- **Abertura do app** (`app/index.tsx`): carregando com o texto visível
+  "Carregando sessão…" e erro de tela cheia com "Tentar novamente" e
+  "Entrar novamente" quando a sessão salva não pode ser lida;
+- **Início** (`app/(menu)/inicio.tsx`, F41): destino pós-login. Sem módulo
+  programado ainda, mostra o cabeçalho com o botão de usuário, o estado vazio
+  e a tab bar de 4 itens (Ordens, Clientes, Catálogo, Financeiro) desabilitados;
+- **Perfil** (`app/perfil.tsx`, F41): tela própria, sem tab bar, aberta pelo
+  botão de usuário do cabeçalho; seta de voltar, avatar com iniciais, selo do
+  perfil, cartão com Usuário, Perfil de acesso e Versão do app (lida de
+  `app.config.ts` por `expo-constants`) e logout por diálogo de confirmação
+  (`ConfirmDialog`);
 - **Reidratação de sessão** (`app/index.tsx`): ao abrir o app, decide sem
-  interação do usuário entre Login e Perfil a partir do token salvo no
+  interação do usuário entre Login e Início a partir do token salvo no
   `expo-secure-store` — cobre os estados de carregando e erro dessa decisão
   (ver "Decisão: Perfil sem endpoint próprio" abaixo);
+- **Fontes (F41)**: Barlow Condensed e Inter vêm dos pacotes
+  `@expo-google-fonts/barlow-condensed` e `@expo-google-fonts/inter` (fontes
+  OFL-1.1), embutidas no bundle por `expo-font`; só os 5 pesos que
+  `tokens.ts` usa entram. Sem comando novo: `npm install` já as instala;
 - **Camadas (F40)**: a tela só compõe componentes e orquestra o fluxo;
   estado e orquestração ficam em `src/hooks/`, e chamada HTTP, token e
   `expo-secure-store` ficam em `src/services/` (ver "Estrutura de pastas" e
@@ -28,19 +44,23 @@ O que existe hoje:
   infraestrutura para qualquer chamada autenticada futura tratar 401 como
   sessão expirada, US-LGN-FRONT-07 — não tem chamador ainda, porque Perfil
   não tem endpoint de rede próprio, ver decisão abaixo) e `auth-types.ts`;
-- `src/theme/tokens.ts`: tokens de cor petro/primary + derivados (F25,
-  `docs/design/figma.md`), espaçamento, raio, tipografia, borda, opacidade,
-  ícone e layout — única fonte de valor visual do app;
+- `src/theme/tokens.ts`: tokens de cor, família de fonte, espaçamento, raio,
+  tipografia, medida, borda, opacidade, ícone, layout e sombra, com os valores
+  do arquivo Figma `FPdB8RymAnN81pbKfizdzE` (F41) — única fonte de valor
+  visual do app. Três pares que reprovam AA no Figma (placeholder, borda de
+  campo em repouso e aba selecionada) ficam com valor provisório que passa AA
+  até a pessoa aprovar a cor (planilha F41, §5);
 - `src/i18n/strings.ts`: todo texto de interface por chave
   `area.componente.texto`, nenhuma string fixa em componente;
 - `src/components/ui/`: componentes base sem texto próprio (o texto chega por
   prop) — `Button`, `TextField`, `ScreenHeader`, `ScreenContainer`,
-  `StateView` (carregando, vazio e erro), `InlineAlert`, `IconButton`,
-  `FormActions`, `ReadOnlyField`, `ConfirmDialog`, `TabBarItem`; rótulo, papel
-  e anel de foco duplo (petro + halo branco; branco na tab bar) já vêm
-  embutidos, a tela herda;
-- `src/components/menu/` (`MenuTabBar`) e `src/components/perfil/`
-  (`Avatar`, `AccessProfileBadge`, `ProfileSummary`): componentes de uma área;
+  `StateView` (carregando, vazio e erro), `InlineAlert` (com `AlertIcon`),
+  `InlineActionButton`, `BrandHeader`, `HeaderIconButton`, `ConfirmDialog`,
+  `TabBarItem`; rótulo, papel e anel de foco duplo (petro + halo branco) já
+  vêm embutidos, a tela herda;
+- `src/components/menu/` (`MenuTabBar`, `MenuShell`) e
+  `src/components/perfil/` (`Avatar`, `AccessProfileBadge`, `InfoCard`,
+  iniciais e texto do perfil): componentes de uma área;
 - leitor de variável de ambiente (`src/config/env.ts`) para a URL base da API,
   com teste unitário cobrindo valor configurado e valor padrão;
 - `.env.example` sem segredo.
@@ -122,18 +142,15 @@ npm run web      # navegador (suporte web do Expo Router)
 npm test
 ```
 
-176 testes em 31 suítes (execução de 2026-11-13, F40 sobre a F41):
+114 testes em 23 suítes (execução de 2026-11-13, F40):
 
-- `src/screens/**/*.test.tsx` e `src/layouts/**/*.test.tsx`: telas — reidratação
-  de sessão, validação de campo vazio sem chamar a API, erro de credencial,
-  erro de rede com retry, login com sucesso, mostrar/ocultar senha, Perfil e
-  logout com confirmação, guard do menu.
+- `app/*.test.tsx` e `app/(menu)/*.test.tsx`: telas — reidratação de sessão,
+  validação de campo vazio sem chamar a API, erro de credencial, erro de rede
+  com retry, login com sucesso, mostrar/ocultar senha, Perfil e logout com
+  confirmação, guard do menu.
 - `src/components/**/*.test.tsx`: um teste de componente para cada componente
   de `ui/`, `menu/` e `perfil/` (rótulo, papel, estado, foco, `onPress`);
   `StateView` cobre carregando, vazio e erro.
-- `src/integration/ui-structure.test.ts`: confere a posição dos arquivos
-  (ADR-015): pasta por componente com `index.ts` e `*.styles.ts`, tela com
-  `<nome>-screen.tsx`, nada de teste ou estilo em `app/`.
 - `src/hooks/*.test.tsx`: `useAuth` (restauração, login, logout, sessão
   expirada, falha do SecureStore) e `useLogin` (validação, sucesso, erro de
   credencial, erro de rede, retry).
@@ -160,16 +177,13 @@ npm run typecheck      # tsc --noEmit
 
 Definidas em `.eslintrc.js`, só com regras core do ESLint 8:
 
-| Camada                         | Não pode                                                                                                                                             |
-| ------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `app/`                         | qualquer coisa além de `export { default } from '...'` (sem import, função, JSX nem lógica)                                                          |
-| `src/screens/`, `src/layouts/` | importar `@/services/*`, `expo-secure-store` ou `*.styles`; `fetch`; `StyleSheet.create`, estilo inline, token, hex, numérico fixo e texto literal   |
-| `src/components/**/*.tsx`      | `fetch`; `StyleSheet.create`, objeto de estilo inline, import de `@/theme/tokens` e de `*.styles` de outra pasta; hex, numérico fixo e texto literal |
-| `src/**/*.styles.ts`           | importar algo além de `StyleSheet` (e tipos) de `react-native` e de `@/theme/tokens`; `export default`                                               |
-| `src/components/**/index.ts`   | reexportar `*.styles`                                                                                                                                |
-| `src/components/ui/`           | importar `@/i18n`, `@/hooks`, `@/services`, `@/config` ou componentes de área                                                                        |
-| `src/hooks/`                   | importar `@/components`, `@/i18n` ou `@/theme`                                                                                                       |
-| `src/services/`                | importar React, React Native, Expo Router, componente, hook, i18n ou tema; `console.*`                                                               |
+| Camada               | Não pode                                                                                                                      |
+| -------------------- | ----------------------------------------------------------------------------------------------------------------------------- |
+| `app/` (telas)       | importar `@/services/*` ou `expo-secure-store`; `fetch`; hex de cor, tamanho/espaçamento numérico fixo e texto literal em JSX |
+| `src/components/**`  | `fetch`; hex, numérico fixo e texto literal (mesmas regras das telas)                                                         |
+| `src/components/ui/` | importar `@/i18n`, `@/hooks`, `@/services`, `@/config` ou componentes de área                                                 |
+| `src/hooks/`         | importar `@/components`, `@/i18n` ou `@/theme`                                                                                |
+| `src/services/`      | importar React, React Native, Expo Router, componente, hook, i18n ou tema; `console.*`                                        |
 
 `src/theme/tokens.ts` é o único arquivo que pode ter hex. Arquivos de teste
 ficam fora destas regras.
@@ -177,30 +191,29 @@ ficam fora destas regras.
 ## Estrutura de pastas
 
 ```
-app/                      # só rotas do Expo Router: cada arquivo é um re-export
-├── _layout.tsx            # -> src/layouts/root-layout
-├── index.tsx              # -> src/screens/session-restore
-├── login.tsx              # -> src/screens/login
-└── (menu)/                # grupo pós-login
-    ├── _layout.tsx        # -> src/layouts/menu-layout (guard de sessão + tab bar)
-    └── perfil.tsx         # -> src/screens/profile
+app/                      # rotas (Expo Router): compõem componentes e orquestram o fluxo
+├── _layout.tsx            # layout raiz (Stack + AuthProvider)
+├── index.tsx              # reidratação de sessão (decide Login x Início)
+├── login.tsx
+├── perfil.tsx             # fora do grupo (menu): sem tab bar, guard de sessão próprio
+└── (menu)/                # grupo pós-login: guard de sessão + tab bar
+    ├── _layout.tsx
+    └── inicio.tsx
 
 src/
-├── layouts/               # root-layout (Stack + AuthProvider), menu-layout (guard + MenuShell)
-├── screens/               # session-restore, login, profile: só compõem componentes
 ├── components/
-│   ├── ui/<nome>/         # base, sem texto próprio: button, text-field, screen-header,
-│   │                      #   screen-container, state-view, inline-alert, alert-icon,
-│   │                      #   icon-button, form-actions, tab-bar-item, read-only-field,
-│   │                      #   confirm-dialog, error-retry-modal
-│   ├── menu/<nome>/       # menu-tab-bar, menu-shell
-│   └── perfil/<nome>/     # avatar, access-profile-badge, profile-summary
-│                          # cada pasta: <nome>.tsx, <nome>.styles.ts, <nome>.test.tsx, index.ts
+│   ├── ui/                # base, sem texto próprio: button, text-field, screen-header,
+│   │                      #   header-icon-button, brand-header, screen-container, state-view,
+│   │                      #   inline-alert, alert-icon, inline-action-button, confirm-dialog,
+│   │                      #   tab-bar-item
+│   ├── menu/              # menu-tab-bar, menu-shell
+│   └── perfil/            # avatar, access-profile-badge, info-card, get-initials, access-profile
 ├── hooks/                 # use-auth (AuthProvider + useAuth), use-login
 ├── services/              # TS puro: auth-service, http-client, session-storage, auth-types
-├── theme/                 # tokens.ts (única fonte de valor visual), use-focus-ring.ts
+├── theme/                 # tokens.ts (única fonte de valor visual), use-focus-ring.ts,
+│                          #   use-app-fonts.ts (carga das fontes)
 ├── i18n/                  # strings.ts — t('area.componente.texto')
-├── config/                # env.ts — leitura tipada de variável de ambiente
+├── config/                # env.ts (URL da API), app-version.ts (versão do app)
 ├── integration/           # testes que cruzam camadas
 └── test-utils/            # helpers só de teste (has-focus-ring)
 
@@ -208,23 +221,17 @@ __mocks__/
 └── expo-secure-store.ts   # mock manual (node_modules), aplicado automaticamente pelo Jest
 ```
 
-Teste de cada arquivo fica ao lado dele (`*.test.ts(x)`). A estrutura segue o
-[ADR-015](../../docs/architecture/adr/ADR-015-separar-rota-tela-e-estilo-no-app-mobile.md)
-(status **proposto**, aguardando revisão humana): `app/` só roteia, a tela fica
-em `src/screens`, e o estilo de cada componente fica em `<nome>.styles.ts`,
-lendo só de `src/theme/tokens.ts`. O import do consumidor não muda
-(`@/components/ui/button` resolve para `button/index.ts`).
+Teste de cada arquivo fica ao lado dele (`*.test.ts(x)`). A estrutura segue a
+proposta de camadas do CARTOGRAFO para a F40 (ADR-015, **ainda "proposto" e não
+gravado em `docs/architecture/adr/` quando esta entrega foi feita**).
 
-Para criar um componente novo: pasta `src/components/<grupo>/<nome>/` com
-`<nome>.tsx` (JSX, sem `StyleSheet` e sem token), `<nome>.styles.ts` (exporta
-`styles`, e `visual` quando um token entra em prop que não é `style`, como a cor
-de um ícone), `<nome>.test.tsx` e `index.ts`. O `npm run lint` e o
-`ui-structure.test.ts` barram o que fugir disso.
+## Divergência registrada em relação à proposta inicial do CARTOGRAFO
 
-Divergência registrada: o ADR-015 reverte a decisão anterior desta pasta de
-manter as telas em `app/` (que seguia a convenção "telas em arquivos por rota").
-A rota continua definida pelo nome do arquivo em `app/`; só o conteúdo passou
-para `src/screens` e `src/layouts`, por pedido da revisão humana da F40.
+A árvore de pastas proposta para o mobile listava `src/screens/` para as
+telas. Esta etapa segue, em vez disso, a convenção explícita da casa
+("Navegação com Expo Router (`app/`), telas em arquivos por rota"): as telas
+ficam em `app/`, e `src/` guarda código que não é rota (config, e depois api,
+componentes, tema, hooks, utils).
 
 ## Verificação manual (F30, 2026-11-07)
 
@@ -249,7 +256,7 @@ Executado nesta sessão, com shell real — não apenas escrito:
   `osascript` simular toque por coordenada — tentei e recebi erro de
   permissão (-1719), não contornei. O comportamento de toque foi exercitado
   pelos testes automatizados (RNTL `fireEvent` contra os componentes reais),
-  não por interação humana/visual na tela de Perfil, no popup de erro de rede
+  não por interação humana/visual na tela de Perfil, na caixa de erro de rede
   nem no diálogo de confirmação.
 - **Não verificado**: Android (nenhum emulador/`adb` disponível nesta
   sessão) e leitor de tela real (VoiceOver/TalkBack).
