@@ -5,7 +5,7 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import type { TestStyle } from '@/test-utils/flat-style';
 import { color, fontFamily } from '@/theme/tokens';
 
-import InicioScreen from './inicio';
+import InicioScreen from './home-screen';
 
 const mockIonicon = jest.fn((_props: Record<string, unknown>) => null);
 jest.mock('@expo/vector-icons', () => ({

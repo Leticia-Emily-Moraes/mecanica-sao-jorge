@@ -11,7 +11,7 @@ import type { TestStyle } from '@/test-utils/flat-style';
 import { findFixedWidths } from '@/test-utils/find-fixed-widths';
 import { borderWidth, color } from '@/theme/tokens';
 
-import LoginScreen from './login';
+import LoginScreen from './login-screen';
 
 // Só a função é mockada — as classes de erro reais ficam, senão o
 // `instanceof` da tela compararia contra uma classe automockada diferente.

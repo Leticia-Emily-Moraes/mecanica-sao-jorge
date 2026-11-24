@@ -7,7 +7,7 @@ import { getAppVersion } from '@/config/app-version';
 import { AuthProvider } from '@/hooks/use-auth';
 import type { TestStyle } from '@/test-utils/flat-style';
 
-import PerfilScreen from './perfil';
+import PerfilScreen from './profile-screen';
 
 const mockReplace = jest.fn();
 const mockBack = jest.fn();

@@ -4,7 +4,7 @@ import { Modal } from 'react-native';
 
 import { AuthProvider } from '@/hooks/use-auth';
 
-import IndexScreen from './index';
+import IndexScreen from './session-restore-screen';
 
 const mockReplace = jest.fn();
 jest.mock('expo-router', () => ({
