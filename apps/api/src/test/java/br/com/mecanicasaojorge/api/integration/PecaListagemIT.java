@@ -11,7 +11,11 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import br.com.mecanicasaojorge.api.service.PecaService;
 import com.jayway.jsonpath.JsonPath;
+import com.nimbusds.jose.jwk.source.ImmutableSecret;
+import java.nio.charset.StandardCharsets;
+import java.time.Instant;
 import java.util.List;
+import javax.crypto.spec.SecretKeySpec;
 import org.assertj.core.api.ListAssert;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -20,6 +24,11 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.dao.DataAccessResourceFailureException;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.security.oauth2.jose.jws.MacAlgorithm;
+import org.springframework.security.oauth2.jwt.JwsHeader;
+import org.springframework.security.oauth2.jwt.JwtClaimsSet;
+import org.springframework.security.oauth2.jwt.JwtEncoderParameters;
+import org.springframework.security.oauth2.jwt.NimbusJwtEncoder;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.context.bean.override.mockito.MockitoSpyBean;
@@ -284,6 +293,34 @@ class PecaListagemIT {
         .andExpect(jsonPath("$.itens").doesNotExist());
   }
 
+  /** US-CAT-17b: token malformado, assinado com outra chave ou expirado. */
+  @Test
+  void shouldReturnUnauthorizedInStandardFormatWhenTokenIsInvalid() throws Exception {
+    inserir("Filtro de óleo", "FO-100", 10, 5);
+    Instant agora = Instant.now();
+    String assinadoComOutraChave =
+        emitirToken("outra-chave-secreta-com-32-bytes-ou-mais-xyz", agora.plusSeconds(600));
+    String expirado =
+        emitirToken("it-test-secret-nao-usar-em-producao-0123456789", agora.minusSeconds(900));
+
+    for (String token : new String[] {"lixo", "a.b.c", assinadoComOutraChave, expirado}) {
+      String corpo =
+          mockMvc
+              .perform(get(URL).header("Authorization", "Bearer " + token))
+              .andExpect(status().isUnauthorized())
+              .andExpect(jsonPath("$.status").value(401))
+              .andExpect(jsonPath("$.timestamp").exists())
+              .andExpect(jsonPath("$.erro").exists())
+              .andExpect(jsonPath("$.mensagem").value("Nao autenticado"))
+              .andExpect(jsonPath("$.path").value(URL))
+              .andExpect(jsonPath("$.itens").doesNotExist())
+              .andReturn()
+              .getResponse()
+              .getContentAsString();
+      assertThat(corpo).doesNotContain("Filtro", "FO-100", "Jwt", "Nimbus");
+    }
+  }
+
   /** US-CAT-17. */
   @Test
   void shouldReturnInternalErrorWithoutLeakingDataWhenDatabaseFails() throws Exception {
@@ -303,6 +340,20 @@ class PecaListagemIT {
             .getContentAsString();
 
     assertThat(corpo).doesNotContain("Communications", "select", "SQL", "at br.com");
+  }
+
+  private static String emitirToken(String segredo, Instant expiraEm) {
+    SecretKeySpec chave = new SecretKeySpec(segredo.getBytes(StandardCharsets.UTF_8), "HmacSHA256");
+    JwtClaimsSet claims =
+        JwtClaimsSet.builder()
+            .subject("1")
+            .issuedAt(expiraEm.minusSeconds(1800))
+            .expiresAt(expiraEm)
+            .build();
+    return new NimbusJwtEncoder(new ImmutableSecret<>(chave))
+        .encode(
+            JwtEncoderParameters.from(JwsHeader.with(MacAlgorithm.HS256).build(), claims))
+        .getTokenValue();
   }
 
   private ListAssert<String> nomes(String q) throws Exception {
