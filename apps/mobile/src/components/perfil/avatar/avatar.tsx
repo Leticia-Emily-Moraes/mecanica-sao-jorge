@@ -1,7 +1,7 @@
 import type { ReactElement } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { Text, View } from 'react-native';
 
-import { color, radius, size, typography } from '@/theme/tokens';
+import { styles } from './avatar.styles';
 
 export interface AvatarProps {
   readonly initials: string;
@@ -23,19 +23,3 @@ export function Avatar({ initials }: AvatarProps): ReactElement {
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  circle: {
-    width: size.avatar,
-    height: size.avatar,
-    borderRadius: radius.avatar,
-    backgroundColor: color.surface.avatar,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  initials: {
-    fontFamily: typography.avatarInitials.fontFamily,
-    fontSize: typography.avatarInitials.fontSize,
-    color: color.text.onBrand,
-  },
-});

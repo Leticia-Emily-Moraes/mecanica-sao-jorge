@@ -1,7 +1,7 @@
 import type { ReactElement } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { Text, View } from 'react-native';
 
-import { color, radius, spacing, typography } from '@/theme/tokens';
+import { styles } from './access-profile-badge.styles';
 
 export interface AccessProfileBadgeProps {
   readonly label: string;
@@ -19,18 +19,3 @@ export function AccessProfileBadge({ label }: AccessProfileBadgeProps): ReactEle
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  badge: {
-    alignSelf: 'center',
-    backgroundColor: color.surface.brand,
-    borderRadius: radius.pill,
-    paddingHorizontal: spacing.s12,
-    paddingVertical: spacing.xs,
-  },
-  label: {
-    fontFamily: typography.badge.fontFamily,
-    fontSize: typography.badge.fontSize,
-    color: color.text.onBrand,
-  },
-});

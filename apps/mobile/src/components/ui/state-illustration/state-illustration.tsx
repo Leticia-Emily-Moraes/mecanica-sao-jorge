@@ -1,8 +1,8 @@
 import { Ionicons } from '@expo/vector-icons';
 import type { ComponentProps, ReactElement } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { Text, View } from 'react-native';
 
-import { color, iconSize, layout, size, typography } from '@/theme/tokens';
+import { gapAbove, styles, visual } from './state-illustration.styles';
 
 type IconName = ComponentProps<typeof Ionicons>['name'];
 
@@ -39,40 +39,15 @@ export function StateIllustration({
         importantForAccessibility="no-hide-descendants"
         style={styles.iconCircle}
       >
-        <Ionicons name={icon} size={iconSize.alert} color={color.icon.state} />
+        <Ionicons name={icon} size={visual.iconSize} color={visual.iconColor} />
       </View>
       <Text
         accessibilityRole={titleIsHeader ? 'header' : undefined}
-        style={[styles.title, { marginTop: titleGap }]}
+        style={[styles.title, gapAbove(titleGap)]}
       >
         {title}
       </Text>
-      {message ? <Text style={[styles.message, { marginTop: messageGap }]}>{message}</Text> : null}
+      {message ? <Text style={[styles.message, gapAbove(messageGap)]}>{message}</Text> : null}
     </>
   );
 }
-
-const styles = StyleSheet.create({
-  iconCircle: {
-    width: size.stateIcon,
-    height: size.stateIcon,
-    borderRadius: size.stateIcon / 2,
-    backgroundColor: color.surface.neutral,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  title: {
-    fontFamily: typography.stateTitle.fontFamily,
-    fontSize: typography.stateTitle.fontSize,
-    color: color.text.primary,
-    textAlign: 'center',
-  },
-  message: {
-    maxWidth: layout.stateMessageMaxWidth,
-    fontFamily: typography.dialogMessage.fontFamily,
-    fontSize: typography.dialogMessage.fontSize,
-    lineHeight: typography.dialogMessage.lineHeight,
-    color: color.text.secondary,
-    textAlign: 'center',
-  },
-});

@@ -1,11 +1,12 @@
 import type { ReactElement } from 'react';
 import { useEffect } from 'react';
-import { AccessibilityInfo, ActivityIndicator, StyleSheet, Text, View } from 'react-native';
+import { AccessibilityInfo, ActivityIndicator, Text, View } from 'react-native';
 
 import { Button } from '@/components/ui/button';
 import { ErrorState, type ErrorStateProps as ErrorViewProps } from '@/components/ui/error-state';
 import { StateIllustration } from '@/components/ui/state-illustration';
-import { color, layout, spacing, typography } from '@/theme/tokens';
+
+import { styles, visual } from './state-view.styles';
 
 export interface LoadingStateProps {
   readonly state: 'loading';
@@ -61,7 +62,7 @@ function LoadingState({ loadingLabel }: { loadingLabel: string }): ReactElement 
       accessibilityState={{ busy: true }}
       style={styles.centered}
     >
-      <ActivityIndicator size="large" color={color.text.primary} />
+      <ActivityIndicator size="large" color={visual.spinner} />
       <Text style={styles.loadingText}>{loadingLabel}</Text>
     </View>
   );
@@ -74,8 +75,8 @@ function EmptyState({ title, message, actionLabel, onAction }: EmptyStateProps):
         icon="document-text-outline"
         title={title}
         message={message}
-        titleGap={spacing.md}
-        messageGap={spacing.s10}
+        titleGap={visual.titleGap}
+        messageGap={visual.messageGap}
       />
       {actionLabel && onAction ? (
         <View style={styles.emptyAction}>
@@ -85,23 +86,3 @@ function EmptyState({ title, message, actionLabel, onAction }: EmptyStateProps):
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  centered: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  loadingText: {
-    fontFamily: typography.rowLabel.fontFamily,
-    fontSize: typography.rowLabel.fontSize,
-    color: color.text.secondary,
-    textAlign: 'center',
-    marginTop: spacing.s12,
-  },
-  emptyAction: {
-    width: '100%',
-    maxWidth: layout.dialogMaxWidth,
-    marginTop: spacing.lg,
-  },
-});

@@ -1,8 +1,8 @@
 import { Ionicons } from '@expo/vector-icons';
 import type { ComponentProps, ReactElement } from 'react';
-import { Pressable, StyleSheet, View } from 'react-native';
+import { Pressable, View } from 'react-native';
 
-import { color, iconSize, minTouchTarget, radius, size } from '@/theme/tokens';
+import { styles, visual } from './header-icon-button.styles';
 
 export type HeaderIconName = ComponentProps<typeof Ionicons>['name'];
 
@@ -22,30 +22,17 @@ export function HeaderIconButton({
   accessibilityLabel,
   onPress,
 }: HeaderIconButtonProps): ReactElement {
-  const slop = (minTouchTarget - size.iconButton) / 2;
-
   return (
     <Pressable
       accessibilityRole="button"
       accessibilityLabel={accessibilityLabel}
-      hitSlop={{ top: slop, bottom: slop, left: slop, right: slop }}
+      hitSlop={visual.hitSlop}
       onPress={onPress}
       style={styles.button}
     >
       <View accessibilityElementsHidden importantForAccessibility="no-hide-descendants">
-        <Ionicons name={icon} size={iconSize.appBar} color={color.text.onBrand} />
+        <Ionicons name={icon} size={visual.iconSize} color={visual.iconColor} />
       </View>
     </Pressable>
   );
 }
-
-const styles = StyleSheet.create({
-  button: {
-    width: size.iconButton,
-    height: size.iconButton,
-    borderRadius: radius.sm,
-    backgroundColor: color.surface.onBrandControl,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});

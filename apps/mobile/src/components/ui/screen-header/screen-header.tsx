@@ -1,10 +1,11 @@
 import { StatusBar } from 'expo-status-bar';
 import type { ReactElement } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { HeaderIconButton } from '@/components/ui/header-icon-button';
-import { color, size, spacing, typography } from '@/theme/tokens';
+
+import { styles, topInset } from './screen-header.styles';
 
 export interface ScreenHeaderAction {
   /** Nome acessível do botão (só tem ícone). */
@@ -29,7 +30,7 @@ export function ScreenHeader({ title, back, user }: ScreenHeaderProps): ReactEle
   const insets = useSafeAreaInsets();
 
   return (
-    <View testID="screen-header" style={[styles.wrapper, { paddingTop: insets.top }]}>
+    <View testID="screen-header" style={[styles.wrapper, topInset(insets.top)]}>
       <StatusBar style="light" />
       <View testID="screen-header-bar" style={[styles.bar, back && styles.barWithBack]}>
         {back ? (
@@ -53,29 +54,3 @@ export function ScreenHeader({ title, back, user }: ScreenHeaderProps): ReactEle
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  wrapper: {
-    backgroundColor: color.surface.brand,
-  },
-  bar: {
-    height: size.appBar,
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.s12,
-    paddingLeft: spacing.md,
-    paddingRight: spacing.s12,
-  },
-  /** No frame do Perfil a seta fica a 10 da borda e a 10 do título. */
-  barWithBack: {
-    gap: spacing.s10,
-    paddingLeft: spacing.s10,
-  },
-  title: {
-    flex: 1,
-    color: color.text.onBrand,
-    fontFamily: typography.appBarTitle.fontFamily,
-    fontSize: typography.appBarTitle.fontSize,
-    letterSpacing: typography.appBarTitle.letterSpacing,
-  },
-});

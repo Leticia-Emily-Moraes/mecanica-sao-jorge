@@ -1,12 +1,7 @@
 import type { ReactElement } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { Text, View } from 'react-native';
 
-import { color, fontFamily, glyph, iconSize } from '@/theme/tokens';
-
-/** Contorno do círculo do ícone de alerta (R-02 reconferido contra o Figma: círculo, não triângulo). */
-const RING_WIDTH = 1.5;
-/** Proporção do ponto de exclamação dentro do círculo. */
-const MARK_RATIO = 0.65;
+import { styles, visual } from './alert-icon.styles';
 
 /**
  * Ícone de alerta da faixa de erro: círculo com "!" em El Salva, desenhado em
@@ -22,27 +17,7 @@ export function AlertIcon(): ReactElement {
       importantForAccessibility="no-hide-descendants"
       style={styles.circle}
     >
-      <Text style={styles.mark}>{glyph.alertMark}</Text>
+      <Text style={styles.mark}>{visual.mark}</Text>
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  circle: {
-    width: iconSize.banner,
-    height: iconSize.banner,
-    borderRadius: iconSize.banner / 2,
-    borderWidth: RING_WIDTH,
-    borderColor: color.text.errorOnBanner,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  mark: {
-    color: color.text.errorOnBanner,
-    fontFamily: fontFamily.bodySemiBold,
-    fontSize: iconSize.banner * MARK_RATIO,
-    lineHeight: iconSize.banner * MARK_RATIO + 2,
-    includeFontPadding: false,
-    textAlign: 'center',
-  },
-});

@@ -1,11 +1,12 @@
 import type { ReactElement } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { TabBarItem } from '@/components/ui/tab-bar-item';
 import type { TabBarIconName } from '@/components/ui/tab-bar-item';
 import { t } from '@/i18n/strings';
-import { color, layout, size } from '@/theme/tokens';
+
+import { bottomInset, styles } from './menu-tab-bar.styles';
 
 interface TabBarEntry {
   readonly key: string;
@@ -51,7 +52,7 @@ export function MenuTabBar(): ReactElement {
   const insets = useSafeAreaInsets();
 
   return (
-    <View style={[styles.wrapper, { paddingBottom: insets.bottom }]}>
+    <View style={[styles.wrapper, bottomInset(insets.bottom)]}>
       <View testID="menu-tab-bar" accessibilityRole="tablist" style={styles.bar}>
         {ENTRIES.map((entry) => (
           <TabBarItem
@@ -67,18 +68,3 @@ export function MenuTabBar(): ReactElement {
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  wrapper: {
-    backgroundColor: color.surface.brand,
-    alignItems: 'center',
-  },
-  // Altura explícita de 62 (frame `20:1102`): sem ela o Yoga mede a barra só pela
-  // moldura do anel de foco das células e a tab bar sai cortada na base da tela.
-  bar: {
-    flexDirection: 'row',
-    height: size.tabBar,
-    width: '100%',
-    maxWidth: layout.tabBarMaxWidth,
-  },
-});

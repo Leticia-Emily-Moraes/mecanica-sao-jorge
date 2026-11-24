@@ -1,17 +1,10 @@
 import { Ionicons } from '@expo/vector-icons';
 import type { ComponentProps, ReactElement } from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Pressable, Text, View } from 'react-native';
 
-import {
-  color,
-  focusRingOffset,
-  iconSize,
-  opacity,
-  radius,
-  spacing,
-  typography,
-} from '@/theme/tokens';
 import { useFocusRing } from '@/theme/use-focus-ring';
+
+import { styles, toneStyle, visual } from './tab-bar-item.styles';
 
 export type TabBarIconName = ComponentProps<typeof Ionicons>['name'];
 
@@ -43,7 +36,7 @@ export function TabBarItem({
   onPress,
 }: TabBarItemProps): ReactElement {
   const { focusRingStyle, onFocus, onBlur } = useFocusRing({ onBrand: true });
-  const tone = selected ? color.text.tabSelected : color.text.onBrandMuted;
+  const tone = selected ? visual.toneSelected : visual.toneIdle;
 
   return (
     <View style={styles.cell}>
@@ -61,7 +54,7 @@ export function TabBarItem({
           <View style={styles.content}>
             <Ionicons
               name={icon}
-              size={iconSize.tab}
+              size={visual.iconSize}
               color={tone}
               style={unavailable && styles.unavailable}
             />
@@ -69,7 +62,7 @@ export function TabBarItem({
               style={[
                 styles.label,
                 selected ? styles.labelSelected : styles.labelIdle,
-                { color: tone },
+                toneStyle(tone),
                 unavailable && styles.unavailable,
               ]}
               numberOfLines={1}
@@ -82,38 +75,3 @@ export function TabBarItem({
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  // Célula de 90 × 62 (frame `20:1102`): o anel fica 2 de folga por dentro dela.
-  cell: {
-    flex: 1,
-    padding: focusRingOffset,
-  },
-  ring: {
-    flex: 1,
-    borderRadius: radius.tabFocus,
-  },
-  pressable: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  content: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: spacing.xs,
-  },
-  unavailable: {
-    opacity: opacity.unavailable,
-  },
-  label: {
-    fontFamily: typography.tabLabel.fontFamily,
-    fontSize: typography.tabLabel.fontSize,
-  },
-  labelSelected: {
-    fontFamily: typography.tabLabelSelected.fontFamily,
-  },
-  labelIdle: {
-    fontFamily: typography.tabLabel.fontFamily,
-  },
-});

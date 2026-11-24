@@ -40,7 +40,7 @@ describe('ScreenContainer', () => {
 
   it('should accept a custom side margin (Login uses 28)', () => {
     render(
-      <ScreenContainer horizontalPadding={spacing.md + spacing.s12}>
+      <ScreenContainer horizontalPadding="form">
         <Text>conteúdo</Text>
       </ScreenContainer>,
     );

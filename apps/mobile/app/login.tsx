@@ -11,10 +11,6 @@ import { TextField } from '@/components/ui/text-field';
 import { useAuth } from '@/hooks/use-auth';
 import { useLogin } from '@/hooks/use-login';
 import { t } from '@/i18n/strings';
-import { spacing } from '@/theme/tokens';
-
-/** Margem lateral do Login no Figma: 16 da tela + 12 do formulário (conteúdo de 304 em 360). */
-const LOGIN_HORIZONTAL_PADDING = spacing.md + spacing.s12;
 
 export default function LoginScreen(): ReactElement {
   const { status } = useAuth();
@@ -32,7 +28,7 @@ export default function LoginScreen(): ReactElement {
   const erroDeRede = form.estadoEnvio === 'erroRede';
 
   return (
-    <ScreenContainer centered horizontalPadding={LOGIN_HORIZONTAL_PADDING} statusBarStyle="dark">
+    <ScreenContainer centered horizontalPadding="form" statusBarStyle="dark">
       <BrandHeader title={t('login.titulo')} subtitle={t('login.subtitulo')} />
 
       {form.sessaoExpirada ? <InlineAlert message={t('login.sessaoExpirada.mensagem')} /> : null}
