@@ -14,7 +14,7 @@ Uso inicialmente interno (sem publicação em loja de apps). Arquitetura deve pe
 
 ## Stack
 
-- **Java 21** (LTS) + **Spring Boot 4.1.0** — versões fixadas no `apps/api/pom.xml` na fundação F00.
+- **Java 21** (LTS) + **Spring Boot 4.1.2** — versões fixadas no `apps/api/pom.xml` (4.1.0 na F00; 4.1.2 na F44 por CVE crítica no Tomcat e no spring-webmvc).
 - **MySQL** — volume alto de relacionamentos (Cliente→Veículo→Ordem→Serviços/Peças→Pagamentos→Financeiro) e necessidade de relatórios relacionais (faturamento, lucro).
 - **Spring Data JPA**, **Spring Security** (JWT), **Bean Validation**, **Lombok**, **MapStruct**, **Flyway** (migrations).
 - **springdoc-openapi** para documentação — não usar Springfox (abandonado, incompatível com Spring Boot 3+/4 por usar `javax` em vez de `jakarta`).
@@ -27,6 +27,7 @@ Instruções de instalação, execução e testes: `README.md` da raiz e de cada
 ## Documentação complementar
 
 - `docs/architecture/arquitetura-backend.md` — responsabilidade de cada pacote, classes por módulo, rotas REST.
+- `docs/security/lgpd-registro-dados-pessoais.md` — inventário de dado pessoal por tabela (finalidade, base legal, retenção, apagamento) e decisões LGPD pendentes.
 - `docs/architecture/adr/` e `docs/architecture/overview.md` — ADRs e visão geral (chegam com as PRs da F37/F38; prevalecem sobre este arquivo em caso de divergência).
 - `docs/product/ux-ui-mapeamento.md` — telas e fluxos do app.
 - `docs/design/identidade-visual.md` — paleta, tipografia, componentes.

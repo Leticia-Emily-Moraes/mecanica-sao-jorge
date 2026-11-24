@@ -36,6 +36,24 @@ public class Cliente {
   @Column(length = 190)
   private String email;
 
+  /** So digitos (CHECK da V4). Dado pessoal: nunca em log nem em toString (ADR-018). */
+  @Column(length = 11)
+  private String cpf;
+
+  @Column(length = 255)
+  private String endereco;
+
   @Column(name = "created_at", nullable = false, insertable = false, updatable = false)
   private OffsetDateTime createdAt;
+
+  /**
+   * O {@code toString()} gerado pelo Lombok imprimiria CPF e endereco; este o substitui por um
+   * texto fixo (politica de dados do cliente, secao 7, achado B1).
+   */
+  public static class ClienteBuilder {
+    @Override
+    public String toString() {
+      return "Cliente.ClienteBuilder";
+    }
+  }
 }
