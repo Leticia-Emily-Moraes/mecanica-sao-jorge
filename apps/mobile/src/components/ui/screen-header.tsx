@@ -1,32 +1,81 @@
+import { StatusBar } from 'expo-status-bar';
 import type { ReactElement } from 'react';
-import { StyleSheet, Text } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { color, spacing, typography } from '@/theme/tokens';
+import { HeaderIconButton } from '@/components/ui/header-icon-button';
+import { color, size, spacing, typography } from '@/theme/tokens';
 
-export type ScreenHeaderAlign = 'start' | 'center';
+export interface ScreenHeaderAction {
+  /** Nome acessível do botão (só tem ícone). */
+  readonly label: string;
+  readonly onPress: () => void;
+}
 
 export interface ScreenHeaderProps {
   readonly title: string;
-  readonly align?: ScreenHeaderAlign;
+  /** Seta de voltar no canto esquerdo (Perfil). */
+  readonly back?: ScreenHeaderAction;
+  /** Botão de usuário no canto direito (telas do menu). */
+  readonly user?: ScreenHeaderAction;
 }
 
-/** Título de tela. Anunciado como cabeçalho pelo leitor de tela. */
-export function ScreenHeader({ title, align = 'start' }: ScreenHeaderProps): ReactElement {
+/**
+ * Cabeçalho petro de 56 de altura, sob a barra de status. A ordem de foco é a
+ * ordem da leitura: seta de voltar, título, botão de usuário. A barra de
+ * status fica com ícones claros porque o fundo atrás dela é petro.
+ */
+export function ScreenHeader({ title, back, user }: ScreenHeaderProps): ReactElement {
+  const insets = useSafeAreaInsets();
+
   return (
-    <Text accessibilityRole="header" style={[styles.title, align === 'center' && styles.center]}>
-      {title}
-    </Text>
+    <View testID="screen-header" style={[styles.wrapper, { paddingTop: insets.top }]}>
+      <StatusBar style="light" />
+      <View testID="screen-header-bar" style={[styles.bar, back && styles.barWithBack]}>
+        {back ? (
+          <HeaderIconButton
+            icon="chevron-back"
+            accessibilityLabel={back.label}
+            onPress={back.onPress}
+          />
+        ) : null}
+        <Text accessibilityRole="header" numberOfLines={1} style={styles.title}>
+          {title}
+        </Text>
+        {user ? (
+          <HeaderIconButton
+            icon="person-outline"
+            accessibilityLabel={user.label}
+            onPress={user.onPress}
+          />
+        ) : null}
+      </View>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  title: {
-    fontSize: typography.title.fontSize,
-    fontWeight: typography.title.fontWeight,
-    color: color.text.primary,
-    marginBottom: spacing.lg,
+  wrapper: {
+    backgroundColor: color.surface.brand,
   },
-  center: {
-    textAlign: 'center',
+  bar: {
+    height: size.appBar,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.s12,
+    paddingLeft: spacing.md,
+    paddingRight: spacing.s12,
+  },
+  /** No frame do Perfil a seta fica a 10 da borda e a 10 do título. */
+  barWithBack: {
+    gap: spacing.s10,
+    paddingLeft: spacing.s10,
+  },
+  title: {
+    flex: 1,
+    color: color.text.onBrand,
+    fontFamily: typography.appBarTitle.fontFamily,
+    fontSize: typography.appBarTitle.fontSize,
+    letterSpacing: typography.appBarTitle.letterSpacing,
   },
 });

@@ -3,6 +3,9 @@ services:
     image: mysql:8.4
     restart: unless-stopped
     environment:
+      # ADR-017 (K2): sem LANG o cliente `mysql` do conteiner abre a sessao em latin1 e grava
+      # acento com dupla codificacao. So afeta o cliente de linha de comando, nao o servidor.
+      LANG: C.UTF-8
       MYSQL_DATABASE: mecanica_sao_jorge
       MYSQL_USER: mecanica
       MYSQL_PASSWORD: change-me-local
