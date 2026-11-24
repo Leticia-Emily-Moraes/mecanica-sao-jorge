@@ -2,16 +2,19 @@ import { useRouter } from 'expo-router';
 import type { ReactElement } from 'react';
 import { useEffect } from 'react';
 
+import { BrandHeader } from '@/components/ui/brand-header';
 import { Button } from '@/components/ui/button';
 import { InlineActionButton } from '@/components/ui/inline-action-button';
 import { InlineAlert } from '@/components/ui/inline-alert';
 import { ScreenContainer } from '@/components/ui/screen-container';
-import { ScreenHeader } from '@/components/ui/screen-header';
-import { StateView } from '@/components/ui/state-view';
 import { TextField } from '@/components/ui/text-field';
 import { useAuth } from '@/hooks/use-auth';
 import { useLogin } from '@/hooks/use-login';
 import { t } from '@/i18n/strings';
+import { spacing } from '@/theme/tokens';
+
+/** Margem lateral do Login no Figma: 16 da tela + 12 do formulário (conteúdo de 304 em 360). */
+const LOGIN_HORIZONTAL_PADDING = spacing.md + spacing.s12;
 
 export default function LoginScreen(): ReactElement {
   const { status } = useAuth();
@@ -20,28 +23,28 @@ export default function LoginScreen(): ReactElement {
 
   useEffect(() => {
     if (status.tipo === 'autenticado') {
-      router.replace('/perfil');
+      router.replace('/inicio');
     }
   }, [status, router]);
 
   const enviando = form.estadoEnvio === 'enviando';
+  const credencialInvalida = form.estadoEnvio === 'erroCredencial';
+  const erroDeRede = form.estadoEnvio === 'erroRede';
 
   return (
-    <ScreenContainer centered>
-      <ScreenHeader title={t('login.titulo')} align="center" />
+    <ScreenContainer centered horizontalPadding={LOGIN_HORIZONTAL_PADDING} statusBarStyle="dark">
+      <BrandHeader title={t('login.titulo')} subtitle={t('login.subtitulo')} />
 
       {form.sessaoExpirada ? <InlineAlert message={t('login.sessaoExpirada.mensagem')} /> : null}
-
-      {form.estadoEnvio === 'erroCredencial' ? (
-        <InlineAlert message={t('login.erroCredencial.mensagem')} />
-      ) : null}
 
       <TextField
         ref={form.emailRef}
         label={t('login.campoEmail.rotulo')}
+        placeholder={t('login.campoEmail.placeholder')}
         value={form.email}
         onChangeText={form.atualizarEmail}
         errorMessage={form.erroEmail ? t('login.campoEmail.erroVazio') : undefined}
+        invalid={credencialInvalida}
         editable={!enviando}
         keyboardType="email-address"
         autoCapitalize="none"
@@ -51,15 +54,22 @@ export default function LoginScreen(): ReactElement {
       <TextField
         ref={form.senhaRef}
         label={t('login.campoSenha.rotulo')}
+        placeholder={t('login.campoSenha.placeholder')}
         value={form.senha}
         onChangeText={form.atualizarSenha}
         errorMessage={form.erroSenha ? t('login.campoSenha.erroVazio') : undefined}
+        invalid={credencialInvalida}
         editable={!enviando}
         secureTextEntry={!form.mostrarSenha}
         textContentType="password"
         rightAccessory={
           <InlineActionButton
             label={
+              form.mostrarSenha
+                ? t('login.campoSenha.ocultarTexto')
+                : t('login.campoSenha.mostrarTexto')
+            }
+            accessibilityLabel={
               form.mostrarSenha ? t('login.campoSenha.ocultar') : t('login.campoSenha.mostrar')
             }
             disabled={enviando}
@@ -68,20 +78,14 @@ export default function LoginScreen(): ReactElement {
         }
       />
 
+      {credencialInvalida ? <InlineAlert message={t('login.erroCredencial.mensagem')} /> : null}
+      {erroDeRede ? <InlineAlert message={t('login.erroRede.mensagem')} /> : null}
+
       <Button
         label={t('login.botaoEntrar.rotulo')}
         loadingLabel={t('login.botaoEntrar.carregando')}
         loading={enviando}
         onPress={() => void form.enviar()}
-      />
-
-      <StateView
-        state="error"
-        visible={form.estadoEnvio === 'erroRede'}
-        title={t('login.erroRede.titulo')}
-        message={t('login.erroRede.mensagem')}
-        retryLabel={t('login.erroRede.botaoTentarNovamente')}
-        onRetry={() => void form.enviar()}
       />
     </ScreenContainer>
   );

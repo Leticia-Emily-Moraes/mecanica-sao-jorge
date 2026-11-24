@@ -1,5 +1,8 @@
 import { fireEvent, render, screen } from '@testing-library/react-native';
+import { StyleSheet } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
+
+import type { TestStyle } from '@/test-utils/flat-style';
 
 import { MenuTabBar } from './menu-tab-bar';
 
@@ -16,31 +19,56 @@ function renderMenuTabBar(): ReturnType<typeof render> {
   );
 }
 
+const ROTULOS_INDISPONIVEIS = [
+  'Ordens, indisponível nesta versão',
+  'Clientes, indisponível nesta versão',
+  'Catálogo, indisponível nesta versão',
+  'Financeiro, indisponível nesta versão',
+];
+
 describe('MenuTabBar', () => {
-  it('should show only the Perfil item as selected and navigable (US-MENU-02)', () => {
+  it('should show exactly the four Figma items and no Perfil item (D-05)', () => {
     renderMenuTabBar();
 
-    const perfil = screen.getByRole('tab', { name: 'Perfil, aba selecionada' });
-    expect(perfil.props.accessibilityState).toMatchObject({ selected: true, disabled: false });
+    expect(screen.getAllByRole('tab')).toHaveLength(4);
+    expect(screen.queryByText('Perfil')).toBeNull();
   });
 
-  it('should show the four future items as disabled with an accessible unavailable label (US-MENU-02/05)', () => {
+  it('should list the items in the Figma order: Ordens, Clientes, Catálogo, Financeiro', () => {
     renderMenuTabBar();
 
-    const rotulosIndisponiveis = [
-      'Clientes e Veículos, indisponível nesta versão',
-      'Catálogo, indisponível nesta versão',
-      'Ordens de Serviço, indisponível nesta versão',
-      'Financeiro, indisponível nesta versão',
-    ];
+    const nomes = screen.getAllByRole('tab').map((tab) => tab.props.accessibilityLabel as string);
 
-    for (const rotulo of rotulosIndisponiveis) {
+    expect(nomes).toEqual(ROTULOS_INDISPONIVEIS);
+  });
+
+  it('should use the short Figma labels "Ordens" and "Clientes"', () => {
+    renderMenuTabBar();
+
+    expect(screen.getByText('Ordens')).toBeTruthy();
+    expect(screen.getByText('Clientes')).toBeTruthy();
+    expect(screen.queryByText('Ordens de Serviço')).toBeNull();
+    expect(screen.queryByText('Clientes e Veículos')).toBeNull();
+  });
+
+  it('should show every item disabled with an accessible unavailable label, none selected', () => {
+    renderMenuTabBar();
+
+    for (const rotulo of ROTULOS_INDISPONIVEIS) {
       const item = screen.getByRole('tab', { name: rotulo });
       expect(item.props.accessibilityState).toMatchObject({ selected: false, disabled: true });
     }
   });
 
-  it('should not navigate when a disabled item is pressed (US-MENU-02)', () => {
+  it('should give the bar an explicit height of 62, as in frame 20:1102', () => {
+    renderMenuTabBar();
+
+    expect(
+      StyleSheet.flatten(screen.getByTestId('menu-tab-bar').props.style as TestStyle).height,
+    ).toBe(62);
+  });
+
+  it('should not navigate when a disabled item is pressed', () => {
     renderMenuTabBar();
 
     const catalogo = screen.getByRole('tab', { name: 'Catálogo, indisponível nesta versão' });
@@ -49,11 +77,5 @@ describe('MenuTabBar', () => {
     // Item desabilitado: a própria API do Pressable bloqueia o onPress;
     // nenhuma navegação ocorre porque nenhum handler é chamado.
     expect(catalogo.props.accessibilityState.disabled).toBe(true);
-  });
-
-  it('should expose all five items with a minimum 48pt touch target (US-MENU-05)', () => {
-    renderMenuTabBar();
-
-    expect(screen.getAllByRole('tab')).toHaveLength(5);
   });
 });
