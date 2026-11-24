@@ -50,6 +50,8 @@ evitar fluxo órfão) em [`diagrams/navegacao-wireframe-f24.md`](diagrams/navega
 | [ADR-019](adr/ADR-019-mapear-recurso-nao-encontrado-para-404-por-excecao-de-dominio.md) | Mapear recurso de domínio não encontrado para 404 com exceção dedicada no handler global | Proposto | 2026-11-17 |
 | [ADR-020](adr/ADR-020-garantir-cpf-unico-por-indice-no-banco-com-409-no-service.md) | Garantir CPF único com índice no banco e traduzir a violação para 409 no service (F03c; momento de ligar depende de D2/P10) | Proposto | 2026-11-17 |
 | [ADR-021](adr/ADR-021-compartilhar-dto-de-entrada-clienterequest-entre-criar-e-editar.md) | Compartilhar um único DTO de entrada `ClienteRequest` entre criar (F09) e editar (F10) | Proposto | 2026-11-17 |
+| [ADR-032](adr/ADR-032-reaproveitar-contrato-de-listagem-do-adr-017-com-paginacao-extraida-no-service.md) | Reaproveitar o contrato de listagem do ADR-017 em serviços e peças, com a paginação extraída para `service.Paginacao` (F05a, F17) | Proposto | 2026-11-23 |
+| [ADR-033](adr/ADR-033-acrescentar-servicos-nome-por-migration-aditiva-v9-sem-tocar-nas-colunas-geradas.md) | Acrescentar `servicos.nome` por migration aditiva V9 com preenchimento provisório, sem tocar nas colunas geradas da OS (F05a) | Proposto | 2026-11-23 |
 
 ADR-014 foi trazido de `docs/f39-wireframe-redesenho` (`18efb4e`) pela branch `docs/f41-adr014-referencia-aprovada`, aceito em 2026-11-16 na F41 e levado à `main` pela #16. O ADR-016 chega com a #14 (a F44 usa o número 016; o ADR-012 é a remoção do template, da F38). O ADR-015 continua fora da `main` (`refactor/f40-estrutura-ui-sobre-f41`); a numeração dele está reservada e ele entra nesta tabela no próprio merge.
 
@@ -77,7 +79,7 @@ pela F00 (`usuarios`, PK `id`, snake_case). O script é referência de **estrutu
 | Usuario | `usuarios` | V1 (F00) | PK `id`; `perfil` VARCHAR+CHECK (enum STRING); `created_at`/`updated_at` |
 | Cliente | `clientes` | V2 (+ V3 na F03a; + V4 na F03b, aplicada no ramo `feat/f03b-clientes-detalhe`; + V5 na F03c, especificada, não escrita) | nome, telefone, email, created_at; `cpf` e `endereco` opcionais pela V4 ([ADR-018](adr/ADR-018-guardar-cpf-e-endereco-do-cliente-como-colunas-opcionais.md)); collation `utf8mb4_0900_ai_ci` fixada pela V3 ([ADR-017](adr/ADR-017-padronizar-listagem-com-busca-e-paginacao.md)); `CHECK` de telefone pela V5 da F03c; `UNIQUE` em `cpf` numa V6 ([ADR-020](adr/ADR-020-garantir-cpf-unico-por-indice-no-banco-com-409-no-service.md)), quando D2/P10 decidir o momento |
 | Veiculo | `veiculos` | V2 | FK `cliente_id`; placa, modelo, marca, ano, cor, quilometragem |
-| Servico | `servicos` | V2 | valor_padrao_mao_obra, tempo_estimado_horas, ativo |
+| Servico | `servicos` | V2 (+ V9 na F05a, especificada no [ADR-033](adr/ADR-033-acrescentar-servicos-nome-por-migration-aditiva-v9-sem-tocar-nas-colunas-geradas.md), não escrita) | `nome` pela V9 (`VARCHAR(150) NOT NULL`, `CHECK` de preenchimento, collation `utf8mb4_0900_ai_ci`); valor_padrao_mao_obra, tempo_estimado_horas, ativo |
 | Peca | `pecas` | V2 | codigo UNIQUE, custo, preco_venda, quantidade_estoque, estoque_minimo, ativo |
 | OrdemServico | `ordens_servico` | V2 | FK `cliente_id`, `veiculo_id`; `status` VARCHAR (enum); subtotais/desconto/valor_total **recalculados no service** (colunas comuns) |
 | OrdemServicoServico | `ordens_servico_servicos` | V2 | FK `ordem_id`, `servico_id`; valor_cobrado, quantidade; **subtotal = coluna gerada** |
@@ -116,7 +118,7 @@ coluna a coluna por CARTOGRAFO em 2026-11-12, lendo os três arquivos SQL.
 |---|---|---|
 | `clientes` | nenhuma (só nomes divergem, ver abaixo) | n/a |
 | `veiculos` | `data_cadastro` | F04 |
-| `servicos` | `nome VARCHAR(150) NOT NULL`, `descricao VARCHAR(255)` | F05 / F11 / F12 |
+| `servicos` | `nome VARCHAR(150) NOT NULL` (especificada na V9 da F05a pelo [ADR-033](adr/ADR-033-acrescentar-servicos-nome-por-migration-aditiva-v9-sem-tocar-nas-colunas-geradas.md); a linha fecha quando a V9 entrar), `descricao VARCHAR(255)` | F05a (`nome`) / F11 / F12 (`descricao`) |
 | `pecas` | `nome VARCHAR(150) NOT NULL`, `categoria VARCHAR(80)`, `fabricante VARCHAR(100)`, `unidade VARCHAR(20) NOT NULL DEFAULT 'UN'` | F17 / F14 / F15 |
 | `ordens_servico` | `descricao_problema TEXT`, `diagnostico TEXT`, `data_abertura`, `data_previsao_entrega DATE`, `data_fechamento` | F18 / F19 / F20 |
 | `ordens_servico_servicos` | nenhuma | n/a |
@@ -232,6 +234,10 @@ Pontos de integração da F03a:
 * `mapper.ClienteMapper` (MapStruct) converte `Cliente` em `ClienteListResponse`; `dto.PaginaResponse<T>` monta a página.
 * `exception.GlobalExceptionHandler` ganha os handlers de 400 para parâmetro inválido (achado A1) e, na revisão 2 do ADR-017, os de 404 e 405 (RH-A3), sem log de erro inesperado nem eco da query string.
 * `security.MascaraDadoPessoal`: utilitário único de máscara de telefone e CPF para log (seção 6.2 da política de dados). Classe `final` com métodos estáticos, sem bean, com teste unitário para entrada nula, curta e com formatação. Ver a divergência 8.
+
+## Contrato de API — Serviços listar (F05a)
+
+Contrato normativo no [ADR-032](adr/ADR-032-reaproveitar-contrato-de-listagem-do-adr-017-com-paginacao-extraida-no-service.md), que herda o do ADR-017 sem mudá-lo: `GET /api/v1/servicos` com `q` (até 100, busca por trecho só em `nome`), `page` (base 0), `size` (1 a 100, padrão 20; 400 acima) e `ativo` opcional (ausente lista todos; valor não booleano responde 400). Ordem por `nome` e `id`, corpo `PaginaResponse<ServicoListResponse>` com itens `id`, `nome`, `valorPadraoMaoObra`, `tempoEstimadoHoras` e `ativo`. A guarda de deslocamento do ADR-017 (O3) sai do `ClienteService` para `service.Paginacao`, usada por clientes, serviços e peças (F17). A coluna `nome` e a collation de `servicos` vêm da V9 ([ADR-033](adr/ADR-033-acrescentar-servicos-nome-por-migration-aditiva-v9-sem-tocar-nas-colunas-geradas.md)). Status: **proposto**; o ESPRESSO só começa depois do aceite dos dois ADRs.
 
 ## Contrato de API — Clientes detalhe (F03b)
 
