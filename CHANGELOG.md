@@ -150,6 +150,53 @@ não corta a primeira tag, as entregas ficam em `[Não lançado]`.
   habilitado nesta sprint); guard de sessão duplicado no layout do grupo
   `(menu)` cobre deep link e retomada sem token.
 
+### Adicionado (F17 — Listar peças com busca e alerta de estoque mínimo)
+
+> Só API. A tela da lista fica na F36. Ramo `docs/f17-adr040-contrato-paginacao`,
+> ainda sem PR e fora da `main`. A F17 usa `service.Paginacao`, que só existe
+> no ramo da F05a, então depende dessa feature entrar antes.
+
+- Nova rota `GET /api/v1/pecas`, para qualquer usuário autenticado:
+  - Busca por trecho do nome ou do código, sem diferenciar maiúsculas,
+    minúsculas e acentos. `%` e `_` valem como texto, não como curinga.
+  - Paginação com `page` (começa em 0) e `size` (padrão 20, máximo 100).
+    Ordem por nome e, em empate, por id.
+  - Página além do fim e busca sem resultado devolvem 200 com `itens` vazio.
+  - Cada peça traz `id`, `nome`, `codigo`, `precoVenda`, `quantidadeEstoque`,
+    `estoqueMinimo` e `estoqueBaixo`. O custo não aparece.
+  - `estoqueBaixo` é `true` quando a quantidade é menor ou igual ao mínimo.
+    É calculado a cada consulta, não fica gravado.
+- A resposta usa o envelope `itens`, `pagina`, `tamanho`, `totalItens`,
+  `totalPaginas` (ADR-017, consolidado no ADR-040), e não os nomes do
+  Spring (`content`, `totalElements`).
+- Migration `V10__adicionar_nome_em_pecas.sql`: coluna `pecas.nome` e
+  collation `utf8mb4_0900_ai_ci` em `nome` e `codigo`. A migration é aditiva.
+- Contrato com requisição e respostas reais (200, 400, 401, 500) em
+  `docs/architecture/arquitetura-backend.md`, seção "Contrato: `GET /api/v1/pecas`".
+
+**Parâmetro inválido devolve 400 padronizado.** Vale para `size` fora de
+1–100, `page` negativo, não numérico ou acima do limite de `int`, e `q` com
+mais de 100 caracteres. A mensagem é `Parametro invalido: <nome>` e não repete
+o valor enviado. Quem consome a rota (F36) deve tratar esse 400.
+
+**Ação necessária para quem consome:**
+
+- Use os nomes do envelope real. Nada a migrar: a rota é nova.
+- Antes de subir a API com a V10, confira que a V5 a V8 (F06a) e a V9/V10
+  entram na ordem certa. O Flyway roda sem `outOfOrder`.
+
+**Dúvidas em aberto que mudam o comportamento:**
+
+- Peça com mínimo 0 e quantidade 0 aparece com `estoqueBaixo: true`
+  (regra `<=`). Falta confirmar com a oficina se mínimo 0 significa "sem
+  controle de reposição".
+- Falta confirmar se 20 itens por página atende o volume real de peças.
+
+**Testes (resultado informado pelo ESPRESSO, não reexecutado pelo PERGAMINHO):**
+`PecaServiceTest` com 7 testes e `PecaListagemIT` com 15 (MySQL 8.4 real),
+0 falhas. Comando: `apps/api/mvnw -f apps/api/pom.xml -B clean verify -Dtest=PecaServiceTest -Dsurefire.failIfNoSpecifiedTests=false -Dit.test=PecaListagemIT`.
+Suíte completa, lint e typecheck não foram rodados.
+
 ### Corrigido (F02 — AppSec/LGPD, achados do VIGIA)
 
 - Enumeração de usuário por diferença de tempo (timing attack):
