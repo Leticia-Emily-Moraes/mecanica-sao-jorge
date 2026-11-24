@@ -270,9 +270,11 @@
           <nvdApiResultsPerPage>500</nvdApiResultsPerPage>
           <failBuildOnCVSS>7</failBuildOnCVSS>
           <!-- O Sonatype OSS Index passou a exigir conta (HTTP 401 sem credencial) e
-               derrubava a auditoria inteira antes do NVD. Erro remoto dele so avisa;
-               a regra de CVSS >= 7 continua valendo pelo NVD. -->
-          <ossIndexWarnOnlyOnRemoteErrors>true</ossIndexWarnOnlyOnRemoteErrors>
+               derrubava a auditoria inteira; ossIndexWarnOnlyOnRemoteErrors nao cobre
+               o 401 no plugin 12.1.3. Analisador desligado ate haver conta no CI
+               (ossIndexUsername/ossIndexPassword); a regra de CVSS >= 7 continua
+               valendo pela base do NVD. -->
+          <ossindexAnalyzerEnabled>false</ossindexAnalyzerEnabled>
           <formats>
             <format>HTML</format>
             <format>JSON</format>
