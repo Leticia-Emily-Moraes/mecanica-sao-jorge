@@ -1,6 +1,6 @@
 # api — backend Mecânica São Jorge
 
-API REST em Java 21 + Spring Boot 4.1.0, MySQL via Spring Data JPA,
+API REST em Java 21 + Spring Boot 4.1.2, MySQL via Spring Data JPA,
 migrations com Flyway, autenticação stateless com JWT HS256 via OAuth2
 Resource Server (ADR-004), documentação via springdoc-openapi. Pacotes
 organizados por camada, não por feature (ADR-001/ADR-002).
@@ -29,6 +29,23 @@ organizados por camada, não por feature (ADR-001/ADR-002).
 - `POST /api/v1/auth/login`: autenticação por email e senha, devolve JWT
   HS256 válido por `jwt.expiration-minutes` (padrão 10080 min = 7 dias) e os
   dados básicos do usuário, sem nunca expor `senha_hash`;
+- `GET /api/v1/clientes` (F03a, autenticado): lista paginada com busca opcional
+  `q` (nome e email, sem diferenciar maiúsculas e acentos; `%`, `_`, `\` e `!`
+  valem como texto; o telefone só é consultado quando o termo é numérico, isto
+  é, só dígitos e `( ) - . +` e espaço, com ou sem máscara: `zeta5@example.org`
+  não casa telefone), `page` (base 0, padrão 0) e `size` (1 a 100, padrão 20).
+  Resposta `{itens, pagina, tamanho, totalItens, totalPaginas}`, cada item só
+  com `id`, `nome`, `telefone` e `email`. Página além do fim, mesmo com
+  `page * size` acima de 2.147.483.647, responde 200 com `itens` vazio e o total
+  real. Parâmetro inválido (inclusive `page` acima de 2.147.483.647) responde
+  400; rota inexistente 404 e método não suportado 405 (com `Allow`), todos no
+  formato do handler global. Contrato em
+  `docs/architecture/adr/ADR-017-padronizar-listagem-com-busca-e-paginacao.md`
+  e na Swagger UI. Migration `V3__fixar_collation_clientes.sql` fixa a
+  collation `utf8mb4_0900_ai_ci` da tabela `clientes`;
+- script manual no MySQL: sempre `mysql --default-character-set=utf8mb4` (o
+  `docker-compose.yml` já define `LANG: C.UTF-8` no serviço `mysql`) e nunca
+  `characterEncoding` diferente de UTF-8 na `DB_URL`;
 - `RestAuthenticationEntryPoint` customizado: toda rejeição do resource
   server (sem token, token malformado, token expirado) responde no formato
   padrão do handler global (`timestamp`, `status`, `erro`, `mensagem`,
@@ -47,14 +64,28 @@ cadastro de usuário, recuperação de senha e refresh token (ver
 
 ## Pré-requisitos
 
-- JDK 21
-- Maven 3.9+ (`mvn -v`)
+- JDK 21 (travado pelo `maven-enforcer-plugin`: outro JDK falha no `validate`)
+- Maven Wrapper incluso: `./mvnw` (Maven 3.9.9), sem Maven instalado no host.
+  Com Maven próprio: 3.9+ (`mvn -v`) **rodando com o JDK 21**: confira a linha
+  `Java version` do `mvn -v`, não só o `java -version`. O Maven do Homebrew
+  instala e usa o OpenJDK mais recente (ex.: 27), e o Lombok falha nele com
+  `ExceptionInInitializerError: com.sun.tools.javac.tree.EndPosTable`. No
+  macOS, fixe o JDK 21 no shell:
+
+  ```bash
+  export JAVA_HOME=$(/usr/libexec/java_home -v 21)
+  ```
 - Docker (para o MySQL local e para os testes de integração com
   Testcontainers)
 
-> Esta etapa não inclui o Maven Wrapper (`mvnw`). Gerá-lo é um passo
-> pendente (ver "Pendências" no final deste arquivo) — por ora, use o Maven
-> instalado localmente.
+> O `./mvnw` confere o SHA-256 do Maven baixado (`distributionSha256Sum` em
+> `.mvn/wrapper/maven-wrapper.properties`, OWASP A08). O hash é o do `.zip`:
+> o script só baixa o `.zip` quando há `unzip` no PATH; sem `unzip` ele baixa o
+> `.tar.gz` e a validação falha com "your Maven distribution might be
+> compromised". macOS e os runners `ubuntu-latest` do GitHub já trazem `unzip`;
+> em contêiner mínimo (ex.: `eclipse-temurin:21-jdk`), instale antes
+> (`apt-get install -y unzip`). Ao trocar a versão do Maven, atualize o hash
+> junto (`shasum -a 256` do `.zip`, conferindo o `.sha512` oficial).
 
 ## Subir o banco local
 
@@ -67,10 +98,11 @@ Isso sobe um MySQL 8.4 em `localhost:3306` com o banco/usuário já definidos
 em `docker-compose.yml` (iguais aos valores de exemplo do `.env.example`).
 
 > Se a porta `3306` já estiver em uso por outro processo no seu ambiente,
-> `docker compose up -d` falha com `address already in use` — não é um
-> problema do projeto. Pare o processo que já usa a porta ou suba o MySQL
-> numa porta alternativa só para teste local (não comitar essa mudança em
-> `docker-compose.yml`).
+> `docker compose up -d` falha com `address already in use`. Não precisa
+> mexer no `docker-compose.yml`: crie o `.env` (seção abaixo) antes e defina
+> nele `MYSQL_HOST_PORT=3307` e a mesma porta no `DB_URL`
+> (`jdbc:mysql://localhost:3307/mecanica_sao_jorge`). O Docker Compose lê o
+> `.env` da mesma pasta automaticamente.
 
 ## Configurar variáveis de ambiente
 
@@ -188,9 +220,6 @@ src/test/java/br/com/mecanicasaojorge/api/
 
 ## Pendências / riscos conhecidos
 
-- **Maven Wrapper (`mvnw`) não gerado.** Gerar com
-  `mvn -N wrapper:wrapper -Dmaven=<versão>` em ambiente com rede, e commitar
-  `mvnw`, `mvnw.cmd` e `.mvn/wrapper/maven-wrapper.properties`.
 - **Login sem usuário de seed**: as migrations desta fatia não inserem
   nenhum usuário. Para testar o caminho de sucesso (`200`) manualmente,
   é preciso inserir um usuário com `senha_hash` em BCrypt diretamente no

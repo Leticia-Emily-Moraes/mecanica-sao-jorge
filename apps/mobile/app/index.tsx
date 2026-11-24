@@ -1,20 +1,20 @@
 import { useRouter } from 'expo-router';
 import type { ReactElement } from 'react';
 import { useEffect } from 'react';
-import { ActivityIndicator, StyleSheet, View } from 'react-native';
 
-import { useAuth } from '@/auth/auth-context';
-import { ErrorRetryModal } from '@/components/error-retry-modal';
+import { ScreenContainer } from '@/components/ui/screen-container';
+import { StateView } from '@/components/ui/state-view';
+import { useAuth } from '@/hooks/use-auth';
 import { t } from '@/i18n/strings';
-import { color } from '@/theme/tokens';
 
 /**
  * Tela de reidratação de sessão: decide, sem interação do usuário, se o
- * destino é Login ou Perfil (US-LGN-FRONT-06). É também onde os estados de
- * carregando/erro da "entrada" em Perfil aparecem — decisão registrada no
+ * destino é Login ou a tela inicial (US-LGN-FRONT-06). É também onde os
+ * estados de carregando/erro da "entrada" aparecem — decisão registrada no
  * handoff da F30 (F25 PRD, Dúvida 1, opção a): sem endpoint de perfil
- * dedicado, Perfil não tem carregamento de rede próprio, só a reidratação do
- * SecureStore ao abrir o app.
+ * dedicado, não há carregamento de rede próprio, só a reidratação do
+ * SecureStore ao abrir o app. Desde a F41 o destino autenticado é `/inicio`
+ * (o Perfil saiu da tab bar e se abre pelo botão do cabeçalho).
  */
 export default function IndexScreen(): ReactElement {
   const { status, tentarNovamenteInicializacao, logout } = useAuth();
@@ -22,40 +22,29 @@ export default function IndexScreen(): ReactElement {
 
   useEffect(() => {
     if (status.tipo === 'autenticado') {
-      router.replace('/perfil');
+      router.replace('/inicio');
     } else if (status.tipo === 'naoAutenticado') {
       router.replace('/login');
     }
   }, [status, router]);
 
   return (
-    <View style={styles.container}>
+    <ScreenContainer>
       {status.tipo === 'carregando' ? (
-        <ActivityIndicator
-          size="large"
-          color={color.text.primary}
-          accessibilityLabel={t('sessao.inicializando.anuncio')}
-        />
+        <StateView state="loading" loadingLabel={t('sessao.inicializando.rotulo')} />
       ) : null}
 
-      <ErrorRetryModal
-        visible={status.tipo === 'erroInicializacao'}
-        title={t('sessao.erroInicializacao.titulo')}
-        message={t('sessao.erroInicializacao.mensagem')}
-        retryLabel={t('sessao.erroInicializacao.botaoTentarNovamente')}
-        onRetry={tentarNovamenteInicializacao}
-        secondaryLabel={t('sessao.erroInicializacao.botaoEntrarNovamente')}
-        onSecondaryPress={() => void logout()}
-      />
-    </View>
+      {status.tipo === 'erroInicializacao' ? (
+        <StateView
+          state="error"
+          title={t('sessao.erroInicializacao.titulo')}
+          message={t('sessao.erroInicializacao.mensagem')}
+          retryLabel={t('sessao.erroInicializacao.botaoTentarNovamente')}
+          onRetry={tentarNovamenteInicializacao}
+          secondaryLabel={t('sessao.erroInicializacao.botaoEntrarNovamente')}
+          onSecondaryPress={() => void logout()}
+        />
+      ) : null}
+    </ScreenContainer>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: color.surface.default,
-  },
-});

@@ -1,121 +1,50 @@
 import { useRouter } from 'expo-router';
 import type { ReactElement } from 'react';
-import { useEffect, useRef, useState } from 'react';
-import { StyleSheet, Text, TextInput, View } from 'react-native';
+import { useEffect } from 'react';
 
-import { useRestoreFocusOnClose } from '@/accessibility/use-restore-focus-on-close';
-import { CredenciaisInvalidasError } from '@/auth/auth-api';
-import { useAuth } from '@/auth/auth-context';
-import { Button } from '@/components/button';
-import { ErrorRetryModal } from '@/components/error-retry-modal';
-import { PasswordVisibilityToggle } from '@/components/password-visibility-toggle';
-import { TextField } from '@/components/text-field';
+import { BrandHeader } from '@/components/ui/brand-header';
+import { Button } from '@/components/ui/button';
+import { InlineAlert } from '@/components/ui/inline-alert';
+import { PasswordVisibilityToggle } from '@/components/ui/password-visibility-toggle';
+import { ScreenContainer } from '@/components/ui/screen-container';
+import { TextField } from '@/components/ui/text-field';
+import { useAuth } from '@/hooks/use-auth';
+import { useLogin } from '@/hooks/use-login';
 import { t } from '@/i18n/strings';
-import { color, spacing, typography } from '@/theme/tokens';
+import { spacing } from '@/theme/tokens';
 
-type EstadoEnvio = 'idle' | 'enviando' | 'erroRede' | 'erroCredencial';
+/** Margem lateral do Login no Figma: 16 da tela + 12 do formulário (conteúdo de 304 em 360). */
+const LOGIN_HORIZONTAL_PADDING = spacing.md + spacing.s12;
 
 export default function LoginScreen(): ReactElement {
-  const { status, login } = useAuth();
+  const { status } = useAuth();
   const router = useRouter();
-
-  const [email, setEmail] = useState('');
-  const [senha, setSenha] = useState('');
-  const [mostrarSenha, setMostrarSenha] = useState(false);
-  const [erroEmail, setErroEmail] = useState<string | undefined>(undefined);
-  const [erroSenha, setErroSenha] = useState<string | undefined>(undefined);
-  const [estadoEnvio, setEstadoEnvio] = useState<EstadoEnvio>('idle');
-
-  const emailRef = useRef<TextInput>(null);
-  const senhaRef = useRef<TextInput>(null);
-  const botaoEntrarRef = useRestoreFocusOnClose(estadoEnvio === 'erroRede');
+  const form = useLogin();
 
   useEffect(() => {
     if (status.tipo === 'autenticado') {
-      router.replace('/perfil');
+      router.replace('/inicio');
     }
   }, [status, router]);
 
-  function limparBannerDeEnvio(): void {
-    if (estadoEnvio === 'erroCredencial' || estadoEnvio === 'erroRede') {
-      setEstadoEnvio('idle');
-    }
-  }
-
-  function atualizarEmail(valor: string): void {
-    setEmail(valor);
-    limparBannerDeEnvio();
-  }
-
-  function atualizarSenha(valor: string): void {
-    setSenha(valor);
-    limparBannerDeEnvio();
-  }
-
-  function validar(): boolean {
-    const emailVazio = email.trim().length === 0;
-    const senhaVazia = senha.length === 0;
-
-    setErroEmail(emailVazio ? t('login.campoEmail.erroVazio') : undefined);
-    setErroSenha(senhaVazia ? t('login.campoSenha.erroVazio') : undefined);
-
-    if (emailVazio) {
-      emailRef.current?.focus();
-    } else if (senhaVazia) {
-      senhaRef.current?.focus();
-    }
-
-    return !emailVazio && !senhaVazia;
-  }
-
-  async function handleSubmit(): Promise<void> {
-    if (!validar()) {
-      return;
-    }
-
-    setEstadoEnvio('enviando');
-    try {
-      await login(email.trim(), senha);
-    } catch (erro) {
-      setEstadoEnvio(erro instanceof CredenciaisInvalidasError ? 'erroCredencial' : 'erroRede');
-    }
-  }
-
-  const enviando = estadoEnvio === 'enviando';
-  const sessaoExpirada = status.tipo === 'naoAutenticado' && status.sessaoExpirada;
+  const enviando = form.estadoEnvio === 'enviando';
+  const credencialInvalida = form.estadoEnvio === 'erroCredencial';
+  const erroDeRede = form.estadoEnvio === 'erroRede';
 
   return (
-    <View style={styles.container}>
-      <Text accessibilityRole="header" style={styles.title}>
-        {t('login.titulo')}
-      </Text>
+    <ScreenContainer centered horizontalPadding={LOGIN_HORIZONTAL_PADDING} statusBarStyle="dark">
+      <BrandHeader title={t('login.titulo')} subtitle={t('login.subtitulo')} />
 
-      {sessaoExpirada ? (
-        <Text
-          accessibilityRole="alert"
-          accessibilityLiveRegion="polite"
-          style={styles.avisoSessaoExpirada}
-        >
-          {t('login.sessaoExpirada.mensagem')}
-        </Text>
-      ) : null}
-
-      {estadoEnvio === 'erroCredencial' ? (
-        <Text
-          accessibilityRole="alert"
-          accessibilityLiveRegion="polite"
-          style={styles.erroCredencial}
-        >
-          {t('login.erroCredencial.mensagem')}
-        </Text>
-      ) : null}
+      {form.sessaoExpirada ? <InlineAlert message={t('login.sessaoExpirada.mensagem')} /> : null}
 
       <TextField
-        ref={emailRef}
+        ref={form.emailRef}
         label={t('login.campoEmail.rotulo')}
-        value={email}
-        onChangeText={atualizarEmail}
-        errorMessage={erroEmail}
+        placeholder={t('login.campoEmail.placeholder')}
+        value={form.email}
+        onChangeText={form.atualizarEmail}
+        errorMessage={form.erroEmail ? t('login.campoEmail.erroVazio') : undefined}
+        invalid={credencialInvalida}
         editable={!enviando}
         keyboardType="email-address"
         autoCapitalize="none"
@@ -123,65 +52,36 @@ export default function LoginScreen(): ReactElement {
       />
 
       <TextField
-        ref={senhaRef}
+        ref={form.senhaRef}
         label={t('login.campoSenha.rotulo')}
-        value={senha}
-        onChangeText={atualizarSenha}
-        errorMessage={erroSenha}
+        placeholder={t('login.campoSenha.placeholder')}
+        value={form.senha}
+        onChangeText={form.atualizarSenha}
+        errorMessage={form.erroSenha ? t('login.campoSenha.erroVazio') : undefined}
+        invalid={credencialInvalida}
         editable={!enviando}
-        secureTextEntry={!mostrarSenha}
+        secureTextEntry={!form.mostrarSenha}
         textContentType="password"
         rightAccessory={
           <PasswordVisibilityToggle
-            visible={mostrarSenha}
-            onToggle={() => setMostrarSenha((valor) => !valor)}
+            visible={form.mostrarSenha}
+            showLabel={t('comum.campoSenha.mostrarSenha')}
+            hideLabel={t('comum.campoSenha.ocultarSenha')}
+            onToggle={form.alternarMostrarSenha}
             disabled={enviando}
           />
         }
       />
 
+      {credencialInvalida ? <InlineAlert message={t('login.erroCredencial.mensagem')} /> : null}
+      {erroDeRede ? <InlineAlert message={t('login.erroRede.mensagem')} /> : null}
+
       <Button
         label={t('login.botaoEntrar.rotulo')}
         loadingLabel={t('login.botaoEntrar.carregando')}
         loading={enviando}
-        onPress={() => void handleSubmit()}
-        triggerRef={botaoEntrarRef}
+        onPress={() => void form.enviar()}
       />
-
-      <ErrorRetryModal
-        visible={estadoEnvio === 'erroRede'}
-        title={t('login.erroRede.titulo')}
-        message={t('login.erroRede.mensagem')}
-        retryLabel={t('login.erroRede.botaoTentarNovamente')}
-        onRetry={() => void handleSubmit()}
-        onClose={() => setEstadoEnvio('idle')}
-      />
-    </View>
+    </ScreenContainer>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    padding: spacing.lg,
-    justifyContent: 'center',
-    backgroundColor: color.surface.default,
-  },
-  title: {
-    fontSize: typography.title.fontSize,
-    fontWeight: typography.title.fontWeight,
-    color: color.text.primary,
-    textAlign: 'center',
-    marginBottom: spacing.lg,
-  },
-  avisoSessaoExpirada: {
-    color: color.text.error,
-    textAlign: 'center',
-    marginBottom: spacing.md,
-  },
-  erroCredencial: {
-    color: color.text.error,
-    textAlign: 'center',
-    marginBottom: spacing.md,
-  },
-});
