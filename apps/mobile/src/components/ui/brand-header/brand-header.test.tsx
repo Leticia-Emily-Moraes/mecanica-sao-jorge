@@ -63,7 +63,7 @@ describe('BrandHeader', () => {
   });
 
   it('should ship the shield in 1x, 2x and 3x PNGs of at most 50 KB each', () => {
-    const dir = join(__dirname, '../../../assets/brand');
+    const dir = join(__dirname, '../../../../assets/brand');
     const files = ['escudo-login.png', 'escudo-login@2x.png', 'escudo-login@3x.png'];
 
     files.forEach((file) => {

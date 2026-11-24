@@ -5,7 +5,7 @@ import { color, size, spacing, typography } from '@/theme/tokens';
 
 // Metro escolhe o arquivo 1x, 2x ou 3x pela densidade da tela (o app não usa react-native-svg).
 // eslint-disable-next-line @typescript-eslint/no-require-imports
-const SHIELD_SOURCE = require('../../../assets/brand/escudo-login.png') as number;
+const SHIELD_SOURCE = require('../../../../assets/brand/escudo-login.png') as number;
 
 export interface BrandHeaderProps {
   readonly title: string;
