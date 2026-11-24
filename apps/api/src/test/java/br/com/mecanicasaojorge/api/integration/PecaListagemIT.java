@@ -174,6 +174,29 @@ class PecaListagemIT {
     }
   }
 
+  /** US-CAT-14e, DV4 do ADR-040: tipo errado, estouro de int e termo de 101 espacos. */
+  @Test
+  void shouldReturnBadRequestWhenParametersHaveWrongTypeOrOverflowOrOnlyBlanks() throws Exception {
+    for (String[] par :
+        new String[][] {
+          {"size", "abc"}, {"page", "abc"}, {"page", "2147483648"}, {"q", " ".repeat(101)}
+        }) {
+      String corpo =
+          mockMvc
+              .perform(get(URL).param(par[0], par[1]).with(jwt()))
+              .andExpect(status().isBadRequest())
+              .andExpect(jsonPath("$.status").value(400))
+              .andExpect(jsonPath("$.timestamp").exists())
+              .andExpect(jsonPath("$.erro").exists())
+              .andExpect(jsonPath("$.path").value(URL))
+              .andExpect(jsonPath("$.mensagem").value("Parametro invalido: " + par[0]))
+              .andReturn()
+              .getResponse()
+              .getContentAsString();
+      assertThat(corpo).doesNotContain("2147483648", "abc", "NumberFormat");
+    }
+  }
+
   /** US-CAT-14f: curinga e texto literal. */
   @Test
   void shouldTreatWildcardsAsLiteralTextWhenTermHasSpecialCharacters() throws Exception {
