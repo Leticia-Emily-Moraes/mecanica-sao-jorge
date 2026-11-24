@@ -269,6 +269,10 @@
                paginas de 500 em ~11 s. Retry ja e 30 por padrao. -->
           <nvdApiResultsPerPage>500</nvdApiResultsPerPage>
           <failBuildOnCVSS>7</failBuildOnCVSS>
+          <!-- O Sonatype OSS Index passou a exigir conta (HTTP 401 sem credencial) e
+               derrubava a auditoria inteira antes do NVD. Erro remoto dele so avisa;
+               a regra de CVSS >= 7 continua valendo pelo NVD. -->
+          <ossIndexWarnOnlyOnRemoteErrors>true</ossIndexWarnOnlyOnRemoteErrors>
           <formats>
             <format>HTML</format>
             <format>JSON</format>
