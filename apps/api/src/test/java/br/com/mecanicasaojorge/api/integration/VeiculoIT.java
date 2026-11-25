@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.not;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
@@ -688,6 +689,48 @@ class VeiculoIT {
             "veiculo.form.modelo.obrigatorio",
             "veiculo.form.ano.faixa",
             "veiculo.form.cor.tamanho");
+  }
+
+  @Test
+  void shouldOrderErrorsByFieldNameWhenSeveralFieldsAreInvalid() throws Exception {
+    // enviados fora de ordem alfabetica: placa, marca, ano
+    criar(clienteId, "{\"placa\":\"AB12345\",\"marca\":\" \",\"modelo\":\"Uno\",\"ano\":1800}")
+        .andExpect(status().isBadRequest())
+        .andExpect(jsonPath("$.erros.length()").value(3))
+        .andExpect(jsonPath("$.erros[0].campo").value("ano"))
+        .andExpect(jsonPath("$.erros[1].campo").value("marca"))
+        .andExpect(jsonPath("$.erros[2].campo").value("placa"));
+  }
+
+  @Test
+  void shouldReturn400OnModelFieldWhenModelHasOnlySpaces() throws Exception {
+    criar(clienteId, corpo(PLACA).replace("\"Uno\"", "\"   \""))
+        .andExpect(status().isBadRequest())
+        .andExpect(jsonPath("$.erros.length()").value(1))
+        .andExpect(jsonPath("$.erros[0].campo").value("modelo"))
+        .andExpect(jsonPath("$.erros[0].chave").value("veiculo.form.modelo.obrigatorio"));
+
+    assertThat(totalVeiculos()).isZero();
+  }
+
+  @Test
+  void shouldReturnEmptyErrorsArrayOn404And400OfIdAnd405WhenMethodIsNotAllowed() throws Exception {
+    mockMvc
+        .perform(get("/api/v1/veiculos/999999").with(jwt()))
+        .andExpect(status().isNotFound())
+        .andExpect(jsonPath("$.erros").isArray())
+        .andExpect(jsonPath("$.erros.length()").value(0));
+    mockMvc
+        .perform(get("/api/v1/veiculos/abc").with(jwt()))
+        .andExpect(status().isBadRequest())
+        .andExpect(jsonPath("$.erros").isArray())
+        .andExpect(jsonPath("$.erros.length()").value(0));
+    mockMvc
+        .perform(delete("/api/v1/veiculos/999999").with(jwt()))
+        .andExpect(status().isMethodNotAllowed());
+    mockMvc
+        .perform(delete("/api/v1/clientes/" + clienteId + "/veiculos").with(jwt()))
+        .andExpect(status().isMethodNotAllowed());
   }
 
   @Test
