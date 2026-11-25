@@ -48,4 +48,15 @@ public class Veiculo {
   private String cor;
 
   private Integer quilometragem;
+
+  /**
+   * O {@code toString()} gerado pelo Lombok imprimiria a placa; este o substitui por um texto fixo
+   * (politica de dados do cliente, secao 7, achado V8).
+   */
+  public static class VeiculoBuilder {
+    @Override
+    public String toString() {
+      return "Veiculo.VeiculoBuilder";
+    }
+  }
 }

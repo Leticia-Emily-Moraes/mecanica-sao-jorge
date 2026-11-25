@@ -1,8 +1,8 @@
 ---
-status: proposto   # 2026-11-17 proposto (F03c, card F09)
+status: proposto   # 2026-11-17 proposto (F03c, card F09); 2026-11-18 momento decidido pelo VIGIA: entra na F09
 date: 2026-11-17
-decision-makers: [CARTOGRAFO (Arquiteto), pessoa dona do produto (D2 do handoff BUSSOLA da F09 e P10 da política)]
-consulted: [VIGIA (política de dados do cliente, revisão 3, seção 2.1), BUSSOLA (handoff da F09)]
+decision-makers: [CARTOGRAFO (Arquiteto, o como), VIGIA (AppSec/LGPD, o quando, pela premissa 3 e dúvida 1 do card F09), pessoa dona do produto (aceite)]
+consulted: [BUSSOLA (handoff da F09, D2)]
 informed: [ESPRESSO, CRIVO, PERGAMINHO, ORLA, REGENTE]
 ---
 
@@ -14,7 +14,7 @@ O VIGIA decidiu que o CPF do cliente é único quando preenchido. O CPF repetido
 
 Hoje a coluna não tem índice. Conferi em 2026-11-17 lendo a V2 e a V4, e também no `information_schema` de um MySQL 8.4 com V1 a V4 aplicadas: `clientes.cpf` é `VARCHAR(11) NULL` com o `CHECK` `ck_clientes_cpf_digitos`, e a tabela não tem restrição além de `PRIMARY` e dos `CHECK`.
 
-Duas fontes discordam sobre **quando** a regra entra. O card (US-CLI-20.6), a revisão humana de 17/11 às 21:34 (critério 9: "ambos criados com 201") e a política (2.1, item 1) dizem que a F09 ainda aceita CPF repetido. O BUSSOLA propôs o 409 já na F09 (D2), e a pessoa ainda não confirmou. Este ADR decide **como** a unicidade é garantida, de um jeito que vale para as duas datas. A pergunta: índice no banco, checagem no service ou as duas coisas?
+Duas fontes discordavam sobre **quando** a regra entra. O card (US-CLI-20.6), a revisão humana de 17/11 às 21:34 (critério 9: "ambos criados com 201") e a revisão 3 da política (2.1, item 1) diziam que a F09 ainda aceitava CPF repetido "até a decisão do VIGIA". O BUSSOLA propôs o 409 já na F09 (D2). Em 2026-11-18 o VIGIA decidiu que a regra entra na F09 (ver "Quando a regra entra"). Este ADR decide **como** a unicidade é garantida, de um jeito que vale para qualquer data. A pergunta: índice no banco, checagem no service ou as duas coisas?
 
 ## Fatores de decisão
 
@@ -23,7 +23,7 @@ Duas fontes discordam sobre **quando** a regra entra. O card (US-CLI-20.6), a re
 * F3. Comandos SQL por escrita: quanto menos, melhor (1 `INSERT` contra `SELECT` mais `INSERT`).
 * F4. A F10 reaproveita a regra sem escrever código de unicidade.
 * F5. Migration aditiva (ADR-003), aplicável sobre a base existente, sem barrar vários clientes sem CPF.
-* F6. A data em que a regra entra é decisão de produto (D2 ou P10). Ligar a regra não pode exigir reescrever o service da F09 nem o da F10.
+* F6. Ligar a regra, em qualquer data, não pode exigir reescrever o service da F09 nem o da F10. O card deixou a data com o VIGIA (premissa 3 e dúvida 1), e a decisão saiu em 2026-11-18.
 
 ## Opções consideradas
 
@@ -59,7 +59,16 @@ Regras de código, nos pacotes do ADR-001:
 6. **Sem consulta prévia.** Proibido `existsByCpf` ou `findByCpf` antes de gravar. O 409 não gera linha de log (política 6.5), e nunca se usa `getMessage()` da exceção de persistência.
 7. **Comparação.** A unicidade vale sobre os 11 dígitos já normalizados (ADR-021), então `123.456.789-00` e `12345678900` colidem. O `CHECK` da V4 garante que nenhuma outra forma é gravada.
 
-**Quando a regra entra (F6).** O código das regras 1 a 6 entra **junto** com a migration, na mesma PR, para não existir caminho de 409 sem índice e sem teste. Até a pessoa decidir a D2, vale o que a revisão humana pediu para a F09: sem índice, sem 409, e dois POST com o mesmo CPF respondem 201, só com dado fictício. A F09 já nasce com o método único de gravação da regra 3. Assim, a fatia que ligar a regra (a própria F09, se a D2 for aceita, ou a fatia da P10) mexe num método só e cobre POST e PUT de uma vez.
+**Quando a regra entra (F6). Decisão do VIGIA em 2026-11-18: na própria F09, e a premissa 3 do card cai.** O código das regras 1 a 6 entra **junto** com a migration `V6__adicionar_indice_unico_cpf_em_clientes.sql`, na mesma PR do `POST /api/v1/clientes`, para não existir caminho de 409 sem índice e sem teste. Motivos (detalhe na política, 2.1, item 2):
+
+* A premissa 3 e a dúvida 1 prendiam a ausência de checagem a uma política "ainda não definida". A regra está definida desde a revisão 3 da política. O US-CLI-20.6 se declara provisório "até a decisão do VIGIA", e a decisão é esta.
+* A F09 é a primeira escrita de CPF. Um duplicado que entre antes do índice faz a migration falhar no boot, com o CPF no log do Flyway (Consequências).
+* A trava alternativa, "antes do primeiro cliente real" (P10), depende de memória: o uso é interno e não há homologação entre o merge da F35 e o balcão.
+* O teste de "dois 201" seria escrito para ser apagado. Com a regra agora, o teste de CPF repetido nasce definitivo, e a F10 herda o método único de gravação (F4).
+
+Efeito no card: o US-CLI-20.6 deixa de valer. O critério 9 da revisão humana passa a provar o 409 (Confirmação, primeiro item do IT), e o teste de "dois 201" não é escrito. O texto final do critério é do BUSSOLA. O CPF continua opcional (P9 da política), e vários `NULL` não colidem.
+
+Se a pessoa recusar o momento no aceite deste ADR, vale a opção D na F09 (dois 201, só com dado fictício), a P10 da política volta a bloquear o primeiro cliente real, e o PR perde só a migration, o `catch` e o handler do 409. O método único de gravação da regra 3 fica de qualquer jeito.
 
 ### Consequências
 
@@ -76,10 +85,12 @@ Regras de código, nos pacotes do ADR-001:
   * POST com `12345678900` e depois com `123.456.789-00`: 201 e 409, com `mensagem` exatamente `CPF ja cadastrado`. Corpo e cabeçalhos do 409 sem o CPF nas duas formas e sem o id do primeiro. `COUNT(*)` igual a 1.
   * 10 POST simultâneos com o mesmo CPF: um 201, nove 409 e nenhum 500.
   * Dois POST sem CPF: os dois respondem 201.
+  * O Flyway aplica V1 a V6 sobre o banco vazio, e o contexto sobe com `ddl-auto: validate` (premissa 6 do card).
   * Na F10: PUT para o CPF de outro cliente responde 409 e não altera nada. PUT mantendo o próprio CPF responde 200.
 * Captura de log no 409: nenhuma linha `clientes.criar`, nenhum nível ERROR e nenhuma ocorrência do CPF.
 * `git grep -nE "existsByCpf|findByCpf" -- apps/api/src/main` sem ocorrência.
 * `git grep -n "getMessage" -- apps/api/src/main/java/br/com/mecanicasaojorge/api/service/ClienteService.java` sem ocorrência.
+* Nenhum teste da suíte afirma 201 para CPF repetido.
 * Revisão do CARTOGRAFO na PR que liga a regra: a migration bate com a especificação, e o `overview.md` (matriz e contrato) foi atualizado no mesmo PR.
 
 ## Prós e contras das opções
@@ -108,6 +119,8 @@ Regras de código, nos pacotes do ADR-001:
 
 ### D. Manter como está
 
+Rejeitada para a F09 pelo VIGIA em 2026-11-18 (ver "Quando a regra entra"). Volta a valer só se a pessoa recusar o momento no aceite.
+
 * Bom, porque não custa nada e é o que o card e a revisão humana pedem para a F09.
 * Ruim, porque contraria a política (2.1) e só é aceitável com dado fictício. Enquanto esta opção valer, a P10 bloqueia o primeiro cliente real.
 
@@ -127,18 +140,21 @@ A mensagem 1062 traz o CPF, e é essa prova que sustenta F2 e a regra 4.
 
 **Não verificado nesta etapa:** a migration rodando pelo Flyway, o `ddl-auto: validate` depois dela e a extração do nome da restrição pelo Hibernate. Essas provas são do teste de integração do ESPRESSO.
 
+**Evidência (VIGIA, 2026-11-18): índice contra a anonimização.** Contêiner `mysql:8.4` (8.4.13) descartável, sem rede e removido no fim. Apliquei pelo cliente `mysql` as V1 a V5 deste ramo (a V5 ainda sem commit) e o índice desta especificação. A contagem prévia deu `cpf_duplicados 0`. Um cliente fictício anonimizado por completo (CPF NULL) foi recadastrado com o mesmo CPF (`inseridas 1`). Um anonimizado em parte (CPF retido) não foi: `ERROR 1062 (23000) at line 1: Duplicate entry '98765432100' for key 'clientes.uk_clientes_cpf'`. Dois cadastros com CPF NULL conviveram (`linhas_cpf_null 2`). O detalhe está na política, seções 2.3 e 8.4. Continuam sem verificação o Flyway aplicando a V6 e o nome da restrição extraído pelo Hibernate, que ficam com o IT do ESPRESSO.
+
 **Risco residual.**
 
 * Se três transações inserem o mesmo CPF e a primeira faz rollback em vez de commit, o InnoDB pode devolver deadlock (1213) para as outras, e isso vira 500. No fluxo da F09 a primeira faz commit, então o risco é baixo. O IT de corrida é a medida.
 * O 409 confirma, a quem tem token válido, que aquele CPF já está na base. É risco aceito na política (2.1, item 6), coberto pela P8.
-* Até a regra entrar, a F09 aceita CPF repetido. Isso só vale com dado fictício (P10).
+* O titular anonimizado em parte (CPF retido dentro de R1, política seção 5) que volta como cliente recebe 409. Não é defeito: a conduta é reusar o cadastro retido pela edição (política 2.3, achado E9).
 
 **Vínculos.** Card F09 (F03c): US-CLI-20.6, tarefa 7 e dúvida 1. Card F10 (F03d). Handoff BUSSOLA da F09: D2, US-CLI-20.9, US-CLI-20.10 e o US-CLI-27 proposto. Política, seções 2.1, 6.5 e 7 (achado E7, pendência P10). Complementa o ADR-003 (migration aditiva), o ADR-011 (acrescenta o 409) e o ADR-018 (colunas). Segue o padrão de exceção do ADR-019 e usa o formato normalizado do ADR-021.
 
-**Revisitar quando:** a oficina atender empresa (CNPJ no mesmo campo ou em outro, decisão D6 da F26); o banco ou a versão maior do Hibernate mudar; ou a pessoa decidir que CPF repetido só deve gerar alerta.
+**Revisitar quando:** a oficina atender empresa (CNPJ no mesmo campo ou em outro, decisão D6 da F26); o banco ou a versão maior do Hibernate mudar; ou a pessoa decidir que CPF repetido só deve gerar alerta; ou a anonimização parcial (política, seção 5) deixar de reter o CPF, o que muda a 2.3 da política.
 
 ## Histórico
 
 | Data | Status | Mudança |
 |---|---|---|
 | 2026-11-17 | Proposto | Criação na F03c (CARTOGRAFO), com DDL provado em MySQL 8.4. Aguarda o aceite da pessoa e a decisão D2 (data em que a regra entra) |
+| 2026-11-18 | Proposto | O VIGIA decide o momento: a regra entra na F09 e a premissa 3 do card cai ("Quando a regra entra"; política, revisão 4, 2.1). Opção D rejeitada para a F09. Interação com a anonimização provada em MySQL 8.4 (Mais informações). Status segue Proposto até o aceite da pessoa |
