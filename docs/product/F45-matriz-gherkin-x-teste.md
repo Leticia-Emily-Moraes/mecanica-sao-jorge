@@ -1,9 +1,9 @@
 # F45 — Matriz critério Gherkin x teste (Sprint 02, rodada 2)
 
-- Rascunho: CRIVO (QA), 2026-11-24 · Revisão e fechamento: BUSSOLA (PO), 2026-11-25
+- Rascunho: CRIVO (QA), 2026-11-24 · Revisão e fechamento: BUSSOLA (PO), 2026-11-25 · Testes de borda novos: ESPRESSO (rodada 2), 2026-11-25
 - Base: branch `docs/f45-revisao-sprint-02-rodada-2` = `main` `00f3236` (já contém F03a, F03b, F03c, F03d, F04, F26 e F35).
-- Escopo: leitura de código e execução de testes. Nenhum código de produto foi alterado. Esta matriz **não reescreve nenhum critério** das features revisadas; onde o texto do critério não está no repo, a linha diz isso (seção 10.3).
-- Estado: **fechada como matriz**. As lacunas da seção 10 continuam abertas, cada uma com dono e destino proposto.
+- Escopo: leitura de código e execução de testes. Nenhum código de produto foi alterado; a rodada 2 acrescentou 6 testes de integração (ClienteDetalheIT, VeiculoIT) e testTimeout no jest.config.js. Esta matriz **não reescreve nenhum critério** das features revisadas; onde o texto do critério não está no repo, a linha diz isso (seção 10.3).
+- Estado: **fechada como matriz** (uma linha por cenário de F03a, F03b/F08, F03c/F09, F03d/F10, F04, F26 e F35; totais recalculados na seção 10.1 depois dos testes da rodada 2). As lacunas da seção 10.2 continuam abertas, cada uma com dono e destino proposto. **Não há critério novo**: as linhas só apontam teste ou lacuna.
 
 ## 1. Como ler
 
@@ -19,14 +19,15 @@ Texto de card: os cards de F03a, F03c, F03d e F35 **não estão no repo**. Onde 
 
 | Item | Situação | Evidência |
 |---|---|---|
-| Backend (surefire + failsafe), clone limpo da `main` `00f3236` | **Relato do CRIVO** (relatórios Maven de 24/11, surefire 23:19 e failsafe 23:25, num clone fora desta pasta). **Eu não reproduzi o número de 410.** O `apps/api/target/` desta pasta é de 24/11 12:47 e soma 208 testes, 0 falha: é de outra execução e não prova a `main` atual. Os 100 nomes de teste citados nesta matriz existem no código (conferi por `grep` em `apps/api/src/test`, nenhum ausente), mas existir não é ter passado. | 410 PASS segundo o CRIVO; 208 PASS no `target` local (desatualizado) |
+| Backend (surefire + failsafe), clone limpo da `main` `00f3236` | **Reproduzido pelo ESPRESSO em 25/11** (clone novo de origin/main, mvnw -B clean verify: surefire 250 + failsafe 160 = **410, 0 falha**, BUILD SUCCESS, 2 min 10 s; `docs/product/F45-espresso-rodada-2.md`, seção 1). Eu li o relato dele; **eu não rodei o clone limpo**. Antes disso havia só o relato do CRIVO (relatórios Maven de 24/11). O `apps/api/target/` desta pasta é de 24/11 12:47 e soma 208 testes, 0 falha: é de outra execução e não prova a `main` atual. Os 100 nomes de teste citados nesta matriz existem no código (conferi por `grep` em `apps/api/src/test`, nenhum ausente), mas existir não é ter passado. | 410 PASS no clone limpo (ESPRESSO e CRIVO concordam); 208 no `target` local antigo, que não vale |
+| Backend na branch da revisão, **executado por mim em 25/11** | Executado só nos testes novos (mvnw -B -f apps/api/pom.xml clean verify, com -Dit.test para ClienteDetalheIT e 3 métodos de VeiculoIT) | ClienteDetalheIT 14 de 14, VeiculoIT (3 selecionados) 3 de 3, 0 falha, BUILD SUCCESS. A suíte inteira da branch (416 = 250 + 166, segundo o ESPRESSO) **não foi reexecutada por mim** |
 | Jest das 10 suítes de tela | Executado | 160 passando |
 | Jest dos 15 arquivos de componente e formatador | Executado | 139 passando, 34 ignorados (`f35-real-api`), 14 suítes passando e 1 ignorada |
 | Jest, suíte completa do app | Executado pelo CRIVO em 24/11 | `Test Suites: 1 skipped, 98 passed, 98 of 99 total` / `Tests: 34 skipped, 891 passed, 925 total` |
 | Jest, suíte completa, **repetida por mim em 25/11** (`npm --prefix apps/mobile test -- --silent`, 3 execuções) | Executado | Execuções 2 e 3: 891 passando, 34 ignorados, 98 suítes passando (47 s e 43 s). **Execução 1: 5 suítes e 6 testes falharam (885 passando), 138 s.** Na saída só ficou visível `src/integration/menu-routing.test.tsx:59`; não gravei os nomes dos outros 5 testes. `menu-routing` isolado passa (4 de 4, 6 s). Falha intermitente, talvez por carga (tempo 3x maior), **causa não provada**. Vira achado (LAC-10). |
 | `node --test docs/design/f26-frames/dados-ficticios.test.mjs` | Executado | 7 testes, 7 passando, 0 falha |
 | Frames do Figma (44 frames, contraste, alvo de toque) | **Só li** o relato do ESQUADRO (`docs/design/F45-conferencia-paridade-wcag-sprint-02.md`). Não abri o Figma. | sem evidência própria |
-| `f35-real-api.test.tsx` (34 testes) | **Não executado**: o arquivo se ignora sem a variável `QA_F35_API`. Li os títulos. | 34 skipped |
+| `f35-real-api.test.tsx` (34 testes) | **Não executado** (nem pelo ESPRESSO, rodada 2): o arquivo se ignora sem a variável `QA_F35_API`. Li os títulos. | 34 skipped |
 | Deadlock real do MySQL, leitor de tela, teclado externo, aparelho | Não executado | ver seção 10 |
 
 Ruído sem falha: o Jest imprime `console.error` de "not wrapped in act(...)" em `ClienteDetalheScreen` (`use-resource.ts:74`). Não derruba teste, mas vale limpar.
@@ -67,13 +68,13 @@ Fonte: `docs/product/F03b-clientes-detalhe.md`. Os critérios de tela (DET-01, 0
 | DET-02 | Cliente existente devolve os 6 campos (e `Cache-Control: no-store`) | S | `ClienteDetalheIT#shouldReturnFullDetailWithSixFieldsWhenClientExists`; `ClienteControllerTest#shouldReturnDetailWithSixFieldsAndNoStoreWhenAuthenticated` | PASS | Coberto |
 | DET-04 | Id inexistente: 404, não 500 | E | `ClienteDetalheIT#shouldReturnNotFoundNotServerErrorWhenIdDoesNotExist` | PASS | Coberto |
 | DET-05 | Id inválido: 400 | E | `ClienteDetalheIT#shouldReturnBadRequestWhenIdIsInvalid` | PASS | Coberto |
-| DET-06 | Sem token ou token inválido: 401 sem consultar o banco | E | `ClienteDetalheIT#shouldReturnUnauthorizedWithoutQueryingWhenTokenIsMissingOrInvalid`; `ClienteControllerTest#shouldReturnUnauthorizedWithoutQueryingWhenDetailHasNoOrInvalidToken` | PASS | Parcial: falta token **expirado** no detalhe (só testado na listagem) |
+| DET-06 | Sem token ou token inválido: 401 sem consultar o banco | E | `ClienteDetalheIT#shouldReturnUnauthorizedWithoutQueryingWhenTokenIsMissingOrInvalid`; `ClienteControllerTest#shouldReturnUnauthorizedWithoutQueryingWhenDetailHasNoOrInvalidToken` | PASS | Coberto (rodada 2, ESPRESSO): `ClienteDetalheIT#shouldReturn401WithoutPersonalDataWhenTokenIsExpired` |
 | DET-11 | Log do detalhe só com ids, sem dado pessoal (política 6.4) | S | `ClienteDetalheIT#shouldLogOnlyIdsWithoutAnyPersonalDataWhenDetailIsRequested`; `ClienteDetalheServiceTest#shouldNeverLogPersonalDataWhenClientExists` | PASS | Parcial: falta o 500 forçado no detalhe (vazamento no caminho de erro) |
 | DET-13 | Ids `abc`, `0`, `-1`, `99999999999999999999` e `1.5`: 400 | E/B | `ClienteDetalheIT#shouldReturnBadRequestWhenIdIsInvalid` (itera os 4 primeiros); `ClienteControllerTest#...IdIsInvalid[1..5]` (inclui `1.5`) | PASS | Coberto (confirmado na `main`) |
 | DET-14 | Cliente criado antes das colunas da V4 devolve CPF e endereço nulos, presentes no JSON | B | `ClienteDetalheIT#shouldReturnNullsPresentWhenClientWasCreatedBeforeV4Columns` | PASS | Coberto |
-| DET-15 | Cliente **anonimizado** no detalhe | B | **nenhum teste.** Não há teste de cliente com "anonim"; `ANONIMO` só aparece em `VeiculoIT:720` e em `shouldAllowAnonymizationMarkerWithVehicleIdForManyVehiclesOfSameClient` | n/a | **Lacuna** (confirmada na `main`) |
+| DET-15 | Cliente **anonimizado** no detalhe | B | `ClienteDetalheIT#shouldReturn200WithOnlyNameWhenClientIsAnonymized` (rodada 2, ESPRESSO; executado por mim) | PASS | Coberto, com ressalva: o teste modela anonimizado como linha com nome e os demais campos nulos. Essa forma vem da política de descarte, que está como **proposta (P1)**; se a política mudar o formato, o teste muda |
 | DET-16 | Colunas opcionais de CPF e endereço, com CHECK de 11 dígitos | S/E | `shouldCreateOptionalCpfAndAddressColumnsWhenMigrationsRanFromScratch`; `shouldRejectCpfOutsideElevenDigitsWhenInsertingDirectlyInDatabase` | PASS | Parcial: falta upgrade V3 para V4 com linha preexistente |
-| DET-17 | OpenAPI do `GET` detalhe documentado | S | **nenhum teste.** O único `/v3/api-docs` de cliente é o do PUT (`ClienteAtualizarIT:540`) e o do POST (`ClienteCriarIT:393`) | n/a | **Lacuna** (confirmada na `main`) |
+| DET-17 | OpenAPI do `GET` detalhe documentado | S | `ClienteDetalheIT#shouldDocumentGetClienteByIdWith200And400And401And404And500InOpenApi` (rodada 2, ESPRESSO) | PASS | Parcial: confere as 5 respostas e o `security`; não confere o schema dos 6 campos nem o exemplo do telefone (F-4) |
 | DET-19 | Id só com espaços: 400, não 500 | E/B | `ClienteDetalheIT#shouldReturnBadRequestNotServerErrorWhenIdIsOnlyWhitespace` | PASS | Coberto |
 | DET-01, 03, 07, 08, 09, 10, 12, 18 | Cenários de tela | — | F35 (seção 9) | — | Fora do aceite da F08 (8) |
 
@@ -131,9 +132,9 @@ Testes em `VeiculoIT` (abreviado `IT#`), `VeiculoControllerTest` (`CT#`), `Veicu
 | C4 | Placa fora dos dois padrões: 400 no campo, nada gravado | E | `IT#shouldReturn400OnPlateFieldAndStoreNothingWhenPlateFormatIsInvalid`; `IT#shouldReturn400WithUnicodeLookalikePlateAndStoreNothing` | Coberto |
 | C5 | Placa em branco ou ausente: 400 | E | `IT#shouldReturn400OnPlateFieldWhenPlateIsBlankOrAbsent` | Coberto |
 | C6 | Placa repetida em qualquer caixa: 409 sem a placa inteira | E | `IT#shouldReturn409WithoutFullPlateWhenPlateIsRepeatedInAnyCase` | Coberto |
-| C7 | Marca, modelo ou ano em branco: um erro por campo, **ordenados por campo**, nada gravado | E | `IT#shouldReturn400WithOneErrorPerFieldWhenBrandModelAndYearAreBlank` | Parcial: um erro por campo e a chave estão provados; a **ordem por campo não é afirmada** em nenhum teste (o código ordena em `GlobalExceptionHandler:103`; busca por `erros[1]` e por ordenação em `src/test` não achou nada) |
+| C7 | Marca, modelo ou ano em branco: um erro por campo, **ordenados por campo**, nada gravado | E | `IT#shouldReturn400WithOneErrorPerFieldWhenBrandModelAndYearAreBlank` | Coberto (rodada 2, ESPRESSO): `VeiculoIT#shouldOrderErrorsByFieldNameWhenSeveralFieldsAreInvalid` afirma `erros[0..2].campo` = ano, marca, placa, com entrada enviada fora de ordem |
 | C7a | Marca e modelo com espaços nas pontas gravados aparados (POST) | B | `IT#shouldStoreBrandAndModelWithoutEdgeSpacesWhenTheyComeWithSpaces` | Coberto |
-| C7b | Marca ou modelo só com espaços: 400 com chave `obrigatoria` | E | marca `" "` no POST: `IT#shouldReturn400WithOneErrorPerFieldWhenBrandModelAndYearAreBlank`; marca `"   "` no PUT: `IT#shouldReturn400AndKeepBrandWhenPutBrandHasOnlySpaces` | Parcial: **modelo só com espaços** não é testado (no POST o modelo vai vazio `""`; no PUT só a marca) |
+| C7b | Marca ou modelo só com espaços: 400 com chave `obrigatoria` | E | marca `" "` no POST: `IT#shouldReturn400WithOneErrorPerFieldWhenBrandModelAndYearAreBlank`; marca `"   "` no PUT: `IT#shouldReturn400AndKeepBrandWhenPutBrandHasOnlySpaces` | Coberto (rodada 2, ESPRESSO): `VeiculoIT#shouldReturn400OnModelFieldWhenModelHasOnlySpaces` (POST, modelo `"   "`) |
 | C7c | Limite de 100 conta depois de aparar (100 com espaços: 201; 101: 400) | B | `RT#shouldLimitBrandAndModelTo100Characters` (só o 101) | Parcial: falta o caso "100 caracteres com espaço nas pontas: 201" |
 | C8 | Ano fora da faixa: 400 `veiculo.form.ano.faixa` | E | `IT#shouldRejectYearOutsideRangeAndAcceptNextYear` | Coberto |
 | C8a | Limites da faixa aceitos (1900 e ano seguinte) | B | `IT#shouldRejectYearOutsideRangeAndAcceptNextYear` | Coberto |
@@ -167,10 +168,10 @@ Testes em `VeiculoIT` (abreviado `IT#`), `VeiculoControllerTest` (`CT#`), `Veicu
 | C24 | Log só com placa mascarada (`****D23`), sem marca, modelo, ano, cor nem nome do dono | S | `IT#shouldLogOnlyMaskedPlateOnCreateEditDetailListAndConflict`; `MascaraPlacaTest`; `VeiculoServiceTest` | Coberto |
 | C25 | 400 de campo traz `{campo, chave}` no formato `veiculo.form.<campo>.<texto>`, sem repetir o valor | E | `IT#shouldReturnEveryInvalidFieldWithKeyAndNeverRepeatSentValues` | Coberto |
 | C25a | 409 de placa usa a chave `veiculo.form.placa.duplicada` | E | `IT#shouldReturn409WithoutFullPlateWhenPlateIsRepeatedInAnyCase`; `CT#shouldReturn409WithFixedMessageAndPlateKeyWhenServiceReportsRepeatedPlate` | Coberto |
-| C25b | Erros de rota (400 de id, 400 de JSON, 404, 405, 415) com texto fixo e `erros[]` **presente e vazio** | E | 400 de JSON malformado com `erros.length()` 0: `IT#shouldKeepTodaysBehaviorForOtherFieldsAndGenericErrorForBrokenJson`; 415: `CT#shouldReturn415WhenContentTypeIsNotJson`; 404 e 400 de id: mensagem testada, `erros[]` vazio não afirmado | Parcial: **405 não é testado nas rotas de veículo**; `erros[]` vazio não é afirmado no 404 nem no 400 de id |
-| C26 | Placa inválida, marca em branco e ano 1899: 3 itens **ordenados por campo (ano, marca, placa)**, sem repetir valor | E | `CT#shouldReturn400WithOneErrorPerFieldAndNoRejectedValueWhenBodyIsInvalid` (mesma entrada do cenário: 3 itens, sem `AB12345` nem `1899`) | Parcial: a **ordem (ano, marca, placa) não é afirmada** (ver C7) |
+| C25b | Erros de rota (400 de id, 400 de JSON, 404, 405, 415) com texto fixo e `erros[]` **presente e vazio** | E | 400 de JSON malformado com `erros.length()` 0: `IT#shouldKeepTodaysBehaviorForOtherFieldsAndGenericErrorForBrokenJson`; 415: `CT#shouldReturn415WhenContentTypeIsNotJson`; 404 e 400 de id: mensagem testada, `erros[]` vazio não afirmado | Coberto (rodada 2, ESPRESSO): `VeiculoIT#shouldReturnEmptyErrorsArrayOn404And400OfIdAnd405WhenMethodIsNotAllowed` (404 e 400 de id com `erros[]` vazio; 405 em `DELETE` das duas rotas de leitura) |
+| C26 | Placa inválida, marca em branco e ano 1899: 3 itens **ordenados por campo (ano, marca, placa)**, sem repetir valor | E | `CT#shouldReturn400WithOneErrorPerFieldAndNoRejectedValueWhenBodyIsInvalid` (mesma entrada do cenário: 3 itens, sem `AB12345` nem `1899`) | Coberto pelo teste de ordem do C7 (rodada 2); a entrada do teste de ordem difere da do cenário (placa `AB12345`, marca `" "`, ano 1800), mas exercita as mesmas três chaves |
 
-Total: 44 cenários = 37 Coberto + 7 Parcial (C7, C7b, C7c, C19a, C19b, C25b, C26). Nenhum está sem teste algum.
+Total: 44 cenários = 41 Coberto + 3 Parcial (C7c, C19a, C19b). Nenhum está sem teste algum. Na rodada 2 saíram de Parcial: C7, C7b, C25b e C26. O C26 depende do teste de ordem do C7, cuja entrada não é idêntica à do cenário; se o PO exigir a entrada idêntica, volta a Parcial.
 
 ## 8. F26 — Protótipo de clientes e veículos (Figma)
 
@@ -253,15 +254,15 @@ Uma linha de tabela = um cenário (ou grupo de cenários com o mesmo teste, quan
 | Feature | Linhas | Coberto | Parcial | Lacuna | Manual |
 |---|---|---|---|---|---|
 | F03a (clientes, listar) | 18 | 14 | 4 | 0 | 0 |
-| F03b / F08 (clientes, detalhe) | 11 | 6 | 3 | 2 | 0 |
+| F03b / F08 (clientes, detalhe) | 11 | 8 | 3 | 0 | 0 |
 | F03c / F09 (clientes, criar) | 13 | 10 | 0 | 3 | 0 |
 | F03d / F10 (clientes, editar) | 11 | 10 | 1 | 0 | 0 |
-| F04 (veículos) | 44 | 37 | 7 | 0 | 0 |
+| F04 (veículos) | 44 | 41 | 3 | 0 | 0 |
 | F26 (protótipo) | 19 | 0 | 4 | 2 | 13 |
 | F35 (front mobile) | 30 | 20 | 5 | 2 | 3 |
-| **Total** | **146** | **97** | **24** | **9** | **16** |
+| **Total** | **146** | **103** | **20** | **7** | **16** |
 
-"Coberto" no backend significa: o teste existe e, **segundo o relato do CRIVO**, passou; eu não reproduzi o Maven (seção 2). No app significa: coberto no Jest **contra API simulada**; a prova contra a API real (`f35-real-api`) não foi executada.
+Totais recalculados em 25/11 depois dos testes da rodada 2 (antes: 97 / 24 / 9 / 16). "Coberto" no backend significa: o teste existe e passou no clone limpo da `main` (410, reproduzido pelo ESPRESSO) ou, para os 6 testes novos, na branch (executados por mim); a suíte completa da branch (416) é relato do ESPRESSO (seção 2). No app significa: coberto no Jest **contra API simulada**; a prova contra a API real (`f35-real-api`) não foi executada.
 
 ### 10.2 Lacunas abertas
 
@@ -270,22 +271,23 @@ Dono e prazo são **propostas do PO**, valem a partir do aceite da pessoa. Nenhu
 | ID | Lacuna | Onde na matriz | Dono proposto | Destino proposto | Prazo proposto |
 |---|---|---|---|---|---|
 | LAC-01 | `f35-real-api.test.tsx` (34 testes) não executado: sem `QA_F35_API` não liga app e API | seção 9 | ORLA com ESPRESSO | executar nesta revisão (critério 3) e anexar a saída | 2026-11-27 |
-| LAC-02 | DET-15: cliente anonimizado no detalhe sem teste (confirmei: `anonim` só aparece em `VeiculoIT`, 1 ocorrência, e não é de cliente) | F03b | ESPRESSO | teste novo, feature de correção ou aceite como ressalva | 2026-12-02 |
-| LAC-03 | DET-17: OpenAPI do `GET /clientes/{id}` sem teste (o PUT, o POST e o veículo têm: `ClienteAtualizarIT:542`, `ClienteCriarIT:398`, `VeiculoIT:746`) | F03b | ESPRESSO | teste novo, junto com LAC-02 | 2026-12-02 |
-| LAC-04 | Parciais da F03b: token **expirado** no detalhe (DET-06), 500 forçado sem vazar dado (DET-11), upgrade V3 para V4 com linha preexistente (DET-16) | F03b | ESPRESSO | teste novo, junto com LAC-02 | 2026-12-02 |
+| LAC-02 | DET-15: cliente anonimizado no detalhe sem teste (confirmei: `anonim` só aparece em `VeiculoIT`, 1 ocorrência, e não é de cliente) | F03b | ESPRESSO | **Fechada na rodada 2** (teste `shouldReturn200WithOnlyNameWhenClientIsAnonymized`) | 2026-12-02 |
+| LAC-03 | DET-17: OpenAPI do `GET /clientes/{id}` sem teste (o PUT, o POST e o veículo têm: `ClienteAtualizarIT:542`, `ClienteCriarIT:398`, `VeiculoIT:746`) | F03b | ESPRESSO | **Fechada na rodada 2**, em parte: o teste confere as 5 respostas e o `security`, não o schema dos 6 campos | 2026-12-02 |
+| LAC-04 | Parciais da F03b: token **expirado** no detalhe (DET-06), 500 forçado sem vazar dado (DET-11), upgrade V3 para V4 com linha preexistente (DET-16) | F03b | ESPRESSO | **Em parte**: o token expirado (DET-06) foi fechado na rodada 2; DET-11 e DET-16 seguem abertos | 2026-12-02 |
 | LAC-05 | IDs sem registro no repo: F03c 20.1, 20.2, 20.7; F03d 24 e 26 (a numeração salta); F35 crit. 15 e 25. Não sei se existem | seções 5, 6, 9 | BUSSOLA | recuperar o texto do painel e gravar em `docs/product`; se não existirem, registrar a numeração como salto | 2026-11-28 |
 | LAC-06 | F03a: sem texto no repo para os IDs 03, 04, 06 e 07 (e o resumo dos demais é derivado do teste). A revisão humana pediu o texto dos cards em `docs/product`; **não consegui copiá-lo, porque ele não está no repo e eu não tenho o painel nesta sessão** | seção 3 | BUSSOLA | copiar os cards de F03a, F03c, F03d e F35 para `docs/product` e reconferir as linhas Parcial (texto ausente) | 2026-11-28 |
 | LAC-07 | F03d 33: deadlock real do MySQL não provado; só o service com exceção simulada e o controller com 409 (ADR-027) | seção 6 | ESPRESSO com CRIVO | prova contra MySQL real, ou ressalva aceita pela pessoa | 2026-12-02 |
-| LAC-08 | F04 parciais (7): C7 e C26 (ordem dos erros por campo não afirmada), C7b (modelo só com espaços), C7c (100 caracteres com espaços nas pontas: 201), C19a (não consulta `ordens_servico`), C19b (sem asserção de ausência de dado do dono), C25b (405 em veículo e `erros[]` vazio no 404 e no 400 de id). C23a saiu da lista: confirmado coberto | seção 7 | ESPRESSO | testes novos, feature de correção (só teste, sem mudar produto) | 2026-12-02 |
+| LAC-08 | F04 parciais, **3 abertos**: C7c (100 caracteres com espaços nas pontas: 201), C19a (não consulta `ordens_servico`), C19b (sem asserção de ausência de dado do dono). **Fechados na rodada 2**: C7 e C26 (ordem dos erros), C7b (modelo só com espaços), C25b (405 e `erros[]` vazio). C23a: confirmado coberto | seção 7 | ESPRESSO | feature de correção só de teste, sem mudar produto | 2026-12-02 |
 | LAC-09 | F26: aprovação da seção 10 do PRD vazia (CLV-05) e N-07 (5 frames fora da seção); 13 critérios só pelo relato do ESQUADRO, sem eu abrir o Figma | seção 8 | PO (decisão) e ESQUADRO (conferência) | decisão da pessoa sobre N-02 e N-07; conferência no Figma com captura | 2026-11-28 |
-| LAC-10 | Jest intermitente: 1 de 3 execuções completas falhou em 6 testes (5 suítes), uma delas `menu-routing.test.tsx:59`; isolada passa | seção 2 | ORLA | investigar causa (tempo, timer, `act`); o `console.error` de "not wrapped in act" em `ClienteDetalheScreen` (`use-resource.ts:74`) é suspeito, **não provado** | 2026-12-02 |
-| LAC-11 | Contagem do backend (410) não reproduzida por mim; o `target` local tem 208 | seção 2 | ESPRESSO | `mvn clean verify` em clone limpo da `main`, com a contagem real (critério 2) | 2026-11-27 |
+| LAC-10 | Jest intermitente: 1 de 3 execuções completas falhou em 6 testes (5 suítes), uma delas `menu-routing.test.tsx:59`; isolada passa | seção 2 | ORLA | **Causa provada em parte (ESPRESSO, rodada 2):** com cache do Jest frio e 3 suítes concorrentes, 8 a 10 suítes caem por `Exceeded timeout of 5000 ms`. `testTimeout: 30000` em `jest.config.js` baixou isso para 0 a 2 falhas, não eliminou: restou 1 `waitFor` de `MenuLayout` e 1 timeout de `ClientesScreen` aos 30 s. Detalhes em `F45-espresso-rodada-2.md`. A hipótese anterior sobre `act` (`console.error` de not wrapped in act em `ClienteDetalheScreen`, `use-resource.ts:74`) não apareceu nos erros reproduzidos; o ruído segue sem investigação. A mudança é só configuração do runner e **não tem teste de regressão**; a evidência é a tabela do ESPRESSO | 2026-12-02 |
+| LAC-11 | Contagem do backend: **fechada em parte**. O ESPRESSO reproduziu 410 em clone limpo da `main` (e 416 na branch). Falta repetir no commit final da `main`; eu não rodei o clone limpo | seção 2 | ESPRESSO | repetir `mvn clean verify` no commit final da `main` e registrar a contagem | 2026-11-27 |
 | LAC-12 | F35 parciais: crit. 1 (contato na lista, ajuste sem confirmação escrita), 7 (P-02 sem aprovação), 12 (histórico de OS vazio até a F06), 18 e 23 (parte só em aparelho); manuais 14, 24 e 26 | seção 9 | ORLA e PO | aparelho com leitor de tela (critério 7); 12 fica "parcialmente coberto" até a F06 | 2026-12-02 |
 
 ### 10.3 O que esta matriz não prova
 
 - **Texto dos critérios.** Para F03a, F03c, F03d e F35 o resumo vem do nome do teste ou de comentário, não do card. Isso prova que existe teste para o comportamento descrito pelo nome; não prova que ele cobre o critério original.
-- **IDs L-02 a L-08.** A revisão humana pediu para confirmá-los "na ponta de cada branch". Procurei `L-02` a `L-08` em `docs/`: os que existem são da conferência de login da F41, outra feature. Não encontrei lista de lacunas com esses IDs para a Sprint 02. Não confirmei nada sobre eles; peço à pessoa que indique onde estão. DET-13, DET-15 e DET-17 foram confirmados na `main` `00f3236` (DET-13 coberto; DET-15 e DET-17 lacuna).
-- **Backend.** Não rodei `mvn clean verify`. Os resultados de Maven são do relato do CRIVO.
+- **IDs L-02 a L-08.** A revisão humana pediu para confirmá-los "na ponta de cada branch". Procurei `L-02` a `L-08` em `docs/`: os que existem são da conferência de login da F41, outra feature. Não encontrei lista de lacunas com esses IDs para a Sprint 02. Não confirmei nada sobre eles; peço à pessoa que indique onde estão. DET-13, DET-15 e DET-17 foram confirmados na `main` `00f3236` (DET-13 coberto; DET-15 e DET-17 eram lacuna) e reconferidos na branch em 25/11: DET-15 passou a Coberto e DET-17 a Parcial com os testes da rodada 2.
+- **Backend.** Não rodei `mvn clean verify` completo nem em clone limpo. Rodei só os testes novos da rodada 2 (17 testes, 0 falha). O 410 do clone limpo e o 416 da branch são relato do ESPRESSO.
+- **Rodada 2 sem HTTP sobre o jar.** Os testes novos usam MockMvc com o filtro de segurança real e MySQL real (Testcontainers), não o jar por HTTP; o critério 5 pede o jar e isso segue aberto.
 - **Aparelho, Figma, leitor de tela, teclado externo.** Não executados nesta etapa.
 - **Ordem de merge.** A matriz vale para a `main` `00f3236`. As observações da revisão humana sobre a ordem de merge de F03c, F04, F03d e F35 e sobre a F35 sem PR não foram verificadas por mim e não alteram as linhas acima.
