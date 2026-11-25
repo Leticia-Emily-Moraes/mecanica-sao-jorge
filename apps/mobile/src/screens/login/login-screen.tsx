@@ -4,8 +4,8 @@ import { useEffect } from 'react';
 
 import { BrandHeader } from '@/components/ui/brand-header';
 import { Button } from '@/components/ui/button';
-import { InlineActionButton } from '@/components/ui/inline-action-button';
 import { InlineAlert } from '@/components/ui/inline-alert';
+import { PasswordVisibilityToggle } from '@/components/ui/password-visibility-toggle';
 import { ScreenContainer } from '@/components/ui/screen-container';
 import { TextField } from '@/components/ui/text-field';
 import { useAuth } from '@/hooks/use-auth';
@@ -59,17 +59,12 @@ export default function LoginScreen(): ReactElement {
         secureTextEntry={!form.mostrarSenha}
         textContentType="password"
         rightAccessory={
-          <InlineActionButton
-            label={
-              form.mostrarSenha
-                ? t('login.campoSenha.ocultarTexto')
-                : t('login.campoSenha.mostrarTexto')
-            }
-            accessibilityLabel={
-              form.mostrarSenha ? t('login.campoSenha.ocultar') : t('login.campoSenha.mostrar')
-            }
+          <PasswordVisibilityToggle
+            visible={form.mostrarSenha}
+            showLabel={t('comum.campoSenha.mostrarSenha')}
+            hideLabel={t('comum.campoSenha.ocultarSenha')}
+            onToggle={form.alternarMostrarSenha}
             disabled={enviando}
-            onPress={form.alternarMostrarSenha}
           />
         }
       />

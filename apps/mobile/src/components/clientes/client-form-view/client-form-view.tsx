@@ -59,6 +59,7 @@ export function ClientFormView({ modo, form, guarda, onBack }: ClientFormViewPro
         stacked
         title={t('comum.descartar.titulo')}
         message={t('comum.descartar.mensagem')}
+        closeLabel={t('comum.botaoFechar.rotulo')}
         cancelLabel={t('comum.descartar.continuar')}
         confirmLabel={t('comum.descartar.confirmar')}
         onCancel={guarda.continuarEditando}

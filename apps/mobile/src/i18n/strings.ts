@@ -17,11 +17,6 @@ const strings = {
   'login.campoSenha.rotulo': 'Senha',
   'login.campoSenha.placeholder': 'Sua senha',
   'login.campoSenha.erroVazio': 'Informe sua senha',
-  /** Texto visível da ação (L1) e nome acessível completo (WCAG 2.5.3). */
-  'login.campoSenha.mostrarTexto': 'Mostrar',
-  'login.campoSenha.ocultarTexto': 'Ocultar',
-  'login.campoSenha.mostrar': 'Mostrar senha',
-  'login.campoSenha.ocultar': 'Ocultar senha',
   'login.botaoEntrar.rotulo': 'Entrar',
   'login.botaoEntrar.carregando': 'Entrando…',
   'login.erroCredencial.mensagem':
@@ -256,6 +251,11 @@ const strings = {
   'veiculos.detalhe.falhaAtualizar':
     'Não foi possível atualizar. Você está vendo a última versão carregada.',
   'veiculos.detalhe.sucesso.editado': 'Alterações salvas.',
+
+  /** Padrão F38: X de fechar dos popups e olho dos campos de senha, reusados no app todo. */
+  'comum.botaoFechar.rotulo': 'Fechar',
+  'comum.campoSenha.mostrarSenha': 'Mostrar senha',
+  'comum.campoSenha.ocultarSenha': 'Ocultar senha',
 } as const;
 
 export type ChaveTexto = keyof typeof strings;

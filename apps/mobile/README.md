@@ -144,7 +144,7 @@ npm run web      # navegador (suporte web do Expo Router)
 npm test
 ```
 
-895 testes em 91 suítes, 34 pulados na suíte `src/qa/f35-real-api.test.tsx`, que só roda contra a API real (execução de 2026-11-24, F35 sobre o ADR-015):
+925 testes em 99 suítes, 34 pulados na suíte `src/qa/f35-real-api.test.tsx`, que só roda contra a API real (execução de 2026-11-24, F35 sobre o ADR-015, com a F38 e a F40 da `main`):
 
 - `src/screens/**/*.test.tsx` e `src/layouts/**/*.test.tsx`: telas e layouts —
   reidratação de sessão, validação de campo vazio sem chamar a API, erro de
@@ -222,16 +222,18 @@ src/
 │   ├── ui/<nome>/         # base, sem texto próprio: button, text-field, screen-header,
 │   │                      #   header-icon-button, brand-header, screen-container, screen-footer,
 │   │                      #   state-view, state-illustration, error-state, inline-alert,
-│   │                      #   alert-icon, inline-action-button, confirm-dialog, tab-bar-item
+│   │                      #   alert-icon, inline-action-button, confirm-dialog, tab-bar-item,
+│   │                      #   icon-button, form-actions, read-only-field, close-button,
+│   │                      #   password-visibility-toggle (F38), avatar, info-card, list-row,
+│   │                      #   search-field, status-badge, section-title, empty-card,
+│   │                      #   inline-notice, not-found-state, vehicle-tile, detail-scroll (F35)
 │   ├── menu/<nome>/       # menu-tab-bar, menu-shell
-│   │                      #   avatar, info-card, list-row, search-field, status-badge,
-│   │                      #   section-title, empty-card, inline-notice, not-found-state,
-│   │                      #   vehicle-tile, detail-scroll (F35)
 │   ├── clientes/<nome>/   # client-list, client-search-bar, client-row, client-info-card,
 │   │                      #   client-form-fields, client-form-view, client-vehicles-section, vehicle-row
 │   ├── veiculos/<nome>/   # vehicle-form-fields, vehicle-form-view, vehicle-info-card,
 │   │                      #   vehicle-history-section
-│   └── perfil/<nome>/     # access-profile-badge (+ access-profile), profile-identity
+│   └── perfil/<nome>/     # access-profile-badge (+ access-profile), profile-identity,
+│                          #   profile-summary
 │                          # cada pasta: <nome>.tsx, <nome>.styles.ts (se o JSX tem `style`),
 │                          #   <nome>.test.tsx, index.ts
 ├── hooks/                 # use-auth (AuthProvider + useAuth), use-login

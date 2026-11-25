@@ -197,6 +197,8 @@ export const size = {
   iconButton: 36,
   /** Círculo do ícone de estado de tela cheia (P2). */
   stateIcon: 72,
+  /** Caixa visível do X de fechar dos popups (F38, 48 − 16); o toque chega a 48 por `hitSlop`. */
+  closeButton: 32,
   /** Caixa do indicador de carregamento dentro do botão (L2 `82:2137`). */
   loadingIndicator: 16,
   /** Avatar das listas (F35). */

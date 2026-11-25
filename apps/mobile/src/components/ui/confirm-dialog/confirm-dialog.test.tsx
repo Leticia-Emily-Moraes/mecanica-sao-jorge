@@ -19,6 +19,7 @@ function renderDialog(overrides: { visible?: boolean; message?: string } = {}): 
       message={overrides.message}
       cancelLabel="Cancelar"
       confirmLabel="Sair"
+      closeLabel="Fechar"
       onCancel={onCancel}
       onConfirm={onConfirm}
     />,
@@ -35,6 +36,7 @@ describe('ConfirmDialog stacked', () => {
         visible
         stacked
         title="Descartar alterações?"
+        closeLabel="Fechar"
         cancelLabel="Continuar editando"
         confirmLabel="Descartar"
         onCancel={onCancel}
@@ -47,8 +49,10 @@ describe('ConfirmDialog stacked', () => {
   it('should keep the safe action first and call each handler on its own button', () => {
     const { onCancel, onConfirm } = renderEmpilhado();
 
+    // O X do padrão F38 vem antes das ações; entre elas, a segura fica primeiro.
     const botoes = screen.getAllByRole('button');
     expect(botoes.map((botao) => botao.props.accessibilityLabel)).toEqual([
+      'Fechar',
       'Continuar editando',
       'Descartar',
     ]);
@@ -76,6 +80,15 @@ describe('ConfirmDialog', () => {
 
     expect(card.props.accessibilityLiveRegion).toBe('assertive');
     expect(card.props.accessibilityViewIsModal).toBe(true);
+  });
+
+  it('should close through the X button as an extra way to cancel (F38, US-POP-01)', () => {
+    const { onCancel, onConfirm } = renderDialog();
+
+    fireEvent.press(screen.getByRole('button', { name: 'Fechar' }));
+
+    expect(onCancel).toHaveBeenCalledTimes(1);
+    expect(onConfirm).not.toHaveBeenCalled();
   });
 
   it('should show the title with both actions when visible', () => {

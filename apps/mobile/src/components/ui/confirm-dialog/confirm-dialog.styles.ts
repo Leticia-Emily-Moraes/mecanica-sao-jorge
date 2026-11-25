@@ -1,6 +1,6 @@
 import { StyleSheet } from 'react-native';
 
-import { color, layout, radius, shadow, spacing, typography } from '@/theme/tokens';
+import { color, layout, radius, shadow, size, spacing, typography } from '@/theme/tokens';
 
 export const styles = StyleSheet.create({
   overlay: {
@@ -20,6 +20,8 @@ export const styles = StyleSheet.create({
     ...shadow.dialog,
   },
   title: {
+    // Reserva a faixa do X para o título nunca passar por baixo dele.
+    paddingRight: size.closeButton,
     fontFamily: typography.dialogTitle.fontFamily,
     fontSize: typography.dialogTitle.fontSize,
     color: color.text.primary,

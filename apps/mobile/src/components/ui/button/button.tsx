@@ -1,5 +1,5 @@
 import { Ionicons } from '@expo/vector-icons';
-import type { ComponentProps, ReactElement } from 'react';
+import type { ComponentProps, ReactElement, Ref } from 'react';
 import { ActivityIndicator, Pressable, Text, View } from 'react-native';
 
 import { useFocusRing } from '@/theme/use-focus-ring';
@@ -29,6 +29,8 @@ export interface ButtonProps {
   readonly accessibilityLabel?: string;
   /** Ícone decorativo antes do texto; o nome acessível continua sendo só o texto. */
   readonly icon?: ComponentProps<typeof Ionicons>['name'];
+  /** Ref do controle, usado para devolver o foco ao fechar um popup aberto por ele (F38). */
+  readonly triggerRef?: Ref<View>;
 }
 
 export function Button({
@@ -40,6 +42,7 @@ export function Button({
   disabled = false,
   accessibilityLabel,
   icon,
+  triggerRef,
 }: ButtonProps): ReactElement {
   const { focusRingStyle, onFocus, onBlur } = useFocusRing();
   const isDisabled = disabled || loading;
@@ -48,6 +51,7 @@ export function Button({
   return (
     <View style={[styles.ringWrapper, focusRingStyle]}>
       <Pressable
+        ref={triggerRef}
         accessibilityRole="button"
         accessibilityLabel={accessibilityLabel ?? label}
         accessibilityState={{ disabled: isDisabled, busy: loading }}
