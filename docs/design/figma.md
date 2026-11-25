@@ -792,3 +792,12 @@ Sessão Figma `86f0a3f5-bb26-4238-8a5a-2d3522946e42`, arquivo `FPdB8RymAnN81pbKf
 - **Capturas versionadas:** as 8 do app em `docs/design/f45-capturas/` foram abertas e não têm dado pessoal real; a E1 mostra o CPF fictício completo `529.982.247-25`, que tem dígito válido (recomendação de trocar por valor inválido).
 - **Frames novos:** nenhum. As lacunas (criar preenchido, editar vazio, P-12, P-13) estão descritas na seção 6 da especificação e só devem ser desenhadas depois da aprovação da F26.
 - **Resultado:** `docs/design/F45-especificacao-design-correcoes-rodada-2.md` (FC-A a FC-E, roteiro de leitor de tela, protocolo 360 × 740, decisões pedidas ao PO).
+
+#### F45 rodada 2 · Conferência dos estados de erro, carregando e descarte (2026-11-25, ESQUADRO, etapa 4 de 6)
+
+Sessão Figma `da323728-dbb7-408b-860a-a43c4422b53c`, arquivo `FPdB8RymAnN81pbKfizdzE`. **Somente leitura: nenhum nó foi criado, movido ou alterado.**
+
+- **Funcionou:** `get_metadata` de L4 `109:2402`, L5 `109:2453`, D3 `109:2574` e X2 `119:976` (a seção F26 inteira estourou o limite de tokens; extraí a lista de frames de primeiro nível do arquivo salvo), `get_screenshot` de L4, L5 e X2 e `get_variable_defs`.
+- **Não li:** estrutura de V4 `109:2723`; `get_design_context` (não usado, falhou antes); `get_comments` (negado antes), então a aprovação da F26 segue como "aguardando".
+- **Capturas versionadas:** `docs/design/f45-capturas/figma-f26-L4-carregando-109-2402.png`, `figma-f26-L5-erro-109-2453.png`, `figma-f26-X2-descartar-119-976.png` (só frames do Figma, sem dado pessoal real).
+- **Resultado:** PA-05 (posição do bloco de erro) e PA-06 (X de fechar do diálogo) em `docs/design/F45-conferencia-paridade-rodada-3.md`.
