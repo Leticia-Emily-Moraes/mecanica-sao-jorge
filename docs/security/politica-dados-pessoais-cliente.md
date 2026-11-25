@@ -1,13 +1,13 @@
 # Política de dados pessoais de cliente: retenção, descarte e mascaramento
 
-Dono: VIGIA (AppSec/LGPD). Criada em 2026-11-14 na F03a, antes de qualquer código do módulo Clientes. Revisada em 2026-11-17 três vezes: revisão 1 (contrato da máscara), revisão 2 (detalhe de cliente da F03b e colunas `cpf` e `endereco` da V4) e revisão 3 (criação de cliente da F03c, card F09: unicidade, CPF opcional, placa e log do POST). Ver seção 11.
+Dono: VIGIA (AppSec/LGPD). Criada em 2026-11-14 na F03a, antes de qualquer código do módulo Clientes. Revisada em 2026-11-17 três vezes: revisão 1 (contrato da máscara), revisão 2 (detalhe de cliente da F03b e colunas `cpf` e `endereco` da V4) e revisão 3 (criação de cliente da F03c, card F09: unicidade, CPF opcional, placa e log do POST). Revisão 4 em 2026-11-18 (F09: a premissa 3 do card cai em favor do ADR-020, retenção e descarte consolidados por dado na seção 3.1 e recadastro de titular anonimizado na 2.3). Revisão 5 em 2026-11-18 (F04, Veículos: placa classificada como dado pessoal, placa única com marcador de anonimização por linha, descarte do veículo junto com o cliente e máscara de placa em log). Ver seção 11.
 
 Vale para: F03a (listar), F03b (detalhe, card F08), F03c (criar, card F09, primeira escrita de CPF e endereço), F03d (editar), F04 (veículos), F35 (telas de cliente) e toda feature que leia ou grave `clientes` ou `veiculos`.
 
 Status:
 
 * Regras técnicas (seções 6 e 7): **vigentes desde já**. Feature que não as cumpre não passa na revisão do VIGIA.
-* Base legal e prazos (seções 2 a 5): **proposta do VIGIA**, aplicada como hipótese de trabalho até a validação jurídica (D2 da F03a) e a aprovação da oficina, que é a controladora. Mudança de prazo depois da validação altera só este arquivo e a rotina de descarte; nenhum contrato de API depende do prazo.
+* Base legal e prazos (seções 2 a 5, inclusive o resumo da 3.1): **proposta do VIGIA**, aplicada como hipótese de trabalho até a validação jurídica (D2 da F03a) e a aprovação da oficina, que é a controladora. Mudança de prazo depois da validação altera só este arquivo e a rotina de descarte; nenhum contrato de API depende do prazo.
 
 Relação com outros documentos: complementa `docs/security/lgpd-registro-dados-pessoais.md` (inventário do schema inteiro, criado na F44 e na `main` desde o merge do PR #14). As linhas `clientes` e `veiculos` do registro apontam para cá; se os dois divergirem, vale esta política. Nada aqui é jurídico definitivo: é a leitura técnica do VIGIA sobre a LGPD (Lei 13.709/2018) e as leis citadas, para a pessoa validar.
 
@@ -24,17 +24,17 @@ Relação com outros documentos: complementa `docs/security/lgpd-registro-dados-
 | `clientes.nome` | Sim (V2, NOT NULL) | Obrigatória | Identificar o cliente na OS e localizar o cadastro no balcão | V (execução de contrato e procedimentos preliminares, como orçamento) | Lista (F03a), detalhe (F03b), OS | Seção 3 | Substituir por texto fixo (seção 4) |
 | `clientes.telefone` | Sim (V2, NULL) | **Obrigatória na API de criação** (F03c, revisão 3): 10 ou 11 dígitos ASCII, gravado só com dígitos. A coluna continua `NULL` de propósito, porque a anonimização grava NULL (seção 4): proibido `NOT NULL` em migration. Não é único (2.1) | Contato sobre orçamento, valor final e veículo pronto | V | Lista (F03a), detalhe (F03b) e resposta 201 da criação (F03c), **completo** (só dígitos, como gravado) e só com token válido. A tela também mostra completo, para contato direto. Em log, nunca na F03a a F03c (6.3 a 6.5); só a máscara 6.2.1 se uma linha futura precisar | Seção 3 | NULL |
 | `clientes.email` | Sim (V2, NULL) | Opcional (F03c: até 120 caracteres, formato de email; em branco grava NULL). Não é único (2.1) | Mesmo do telefone | V | Lista, detalhe e resposta 201 da criação. Nunca em log, nem mascarado | Seção 3 | NULL |
-| `clientes.cpf` | **Coluna criada pela V4 da F08 (F03b)**: `VARCHAR(11) NULL` com `CHECK` de 11 dígitos ASCII ([ADR-018](../architecture/adr/ADR-018-guardar-cpf-e-endereco-do-cliente-como-colunas-opcionais.md)). Nenhuma escrita antes da F09 (F03c). **Linha aprovada pelo VIGIA na revisão 2** | **Opcional também na API de criação** (revisão 3, seção 2.2). Só quando o cliente pedir nota fiscal ou a emissão exigir. Proibido coletar "por garantia" e proibido tornar obrigatório sem a decisão P9. **Único quando preenchido**, com entrada provisória sem checagem na F03c (2.1) | Emissão de documento fiscal | II (obrigação legal fiscal) quando houver nota; sem nota, não se coleta | Só no detalhe (`GET /api/v1/clientes/{id}`, F03b) e na resposta 201 da criação (F03c, eco do que o próprio usuário enviou), **completo e sem máscara**, só com token válido, porque a edição (F03d) pré-preenche o valor. A máscara é da tela (seção 7). Nunca na lista, na OS resumida, em log (nem mascarado na linha 6.4), em mensagem de erro nem em exemplo do OpenAPI com dado real | Seção 3 (R4) | NULL |
+| `clientes.cpf` | **Coluna criada pela V4 da F08 (F03b)**: `VARCHAR(11) NULL` com `CHECK` de 11 dígitos ASCII ([ADR-018](../architecture/adr/ADR-018-guardar-cpf-e-endereco-do-cliente-como-colunas-opcionais.md)). Nenhuma escrita antes da F09 (F03c). **Linha aprovada pelo VIGIA na revisão 2** | **Opcional também na API de criação** (revisão 3, seção 2.2). Só quando o cliente pedir nota fiscal ou a emissão exigir. Proibido coletar "por garantia" e proibido tornar obrigatório sem a decisão P9. **Único quando preenchido**, com índice `uk_clientes_cpf` e 409 já na F03c (2.1, revisão 4) | Emissão de documento fiscal | II (obrigação legal fiscal) quando houver nota; sem nota, não se coleta | Só no detalhe (`GET /api/v1/clientes/{id}`, F03b) e na resposta 201 da criação (F03c, eco do que o próprio usuário enviou), **completo e sem máscara**, só com token válido, porque a edição (F03d) pré-preenche o valor. A máscara é da tela (seção 7). Nunca na lista, na OS resumida, em log (nem mascarado na linha 6.4), em mensagem de erro nem em exemplo do OpenAPI com dado real | Seção 3 (R4) | NULL |
 | `clientes.endereco` | **Coluna criada pela V4 da F08 (F03b)**: `VARCHAR(255) NULL`, campo único (ADR-018, decisão D-B). Nenhuma escrita antes da F09. **Linha aprovada pelo VIGIA na revisão 2** | Opcional. Só quando a nota exigir ou para busca e entrega do veículo | Emissão fiscal ou logística combinada com o cliente | II (nota) ou V (busca e entrega) | Só no detalhe, completo, só com token válido. Nunca em log, nem mascarado | Seção 3 (R4) | NULL |
 | `clientes.created_at` | Sim | Automática | Contar o prazo da regra R2 | Acessória às linhas acima | Não exposta na F03a | Junto do cliente | Mantida (sozinha não identifica) |
-| `veiculos.placa` | Sim (V2, NOT NULL, sem índice único) | Obrigatória (F04). Não é única (2.1) | Identificar o veículo atendido. Identifica o dono de forma indireta (DETRAN e `cliente_id`) | V | Detalhe e lista de veículos do cliente (F04), só com token válido. Nunca em log (nem mascarada), em mensagem de erro nem em exemplo do OpenAPI com placa real | Igual ao cliente dono (R1 ou R2) | Substituir por texto fixo `ANONIMO` (seção 4). Regra de troca de dono na 2.1 |
-| `veiculos.modelo/marca/ano/cor/quilometragem` | Sim | Obrigatória ou opcional (V2) | Execução do serviço | V | Detalhe do veículo | Igual ao cliente | Mantidos: sem placa e sem dono não identificam a pessoa |
+| `veiculos.placa` | Sim (V2, `VARCHAR(10) NOT NULL`). **Índice único `uk_veiculos_placa` e `CHECK` de formato pela V7 da F04** (revisão 5, seção 2.4) | Obrigatória (F04). Gravada normalizada: 7 caracteres ASCII maiúsculos, padrão antigo `ABC1234` ou Mercosul `ABC1D23`. **Única** (2.1) | Identificar o veículo atendido na abertura e no acompanhamento da OS. Identifica o dono de forma indireta (DETRAN e `cliente_id`) | V | Respostas da criação e da edição, detalhe e lista de veículos do cliente (F04), **completa**, só com token válido. Nunca em URL, em mensagem de erro (o 409 não repete a placa), em exemplo do OpenAPI com placa real nem inteira em log; em log, só a máscara da 6.2.2 nas linhas da 6.6 | Igual ao cliente dono (R1 ou R2) | Vira o marcador `ANON<id>` (seção 4). Nunca o texto fixo `ANONIMO`, que o índice único recusa (8.5) |
+| `veiculos.marca/modelo/ano/cor` | Sim (V2) | `marca`, `modelo` e `ano` obrigatórios na API da F04 (a coluna `ano` segue `NULL`); `cor` opcional (D3 do PRD; parecer favorável do VIGIA por minimização). `quilometragem` **não é coletada** na F04: fica fora do DTO, e a coluna segue `NULL` | Execução do serviço | V | Detalhe do veículo; a lista do cliente leva só `marca` e `modelo` | Igual ao cliente | Mantidos: são dado pessoal só enquanto ligados à placa ou a um cliente identificado. Sem placa e com o dono anonimizado, não identificam a pessoa (2.4) |
 
 Quem acessa: qualquer usuário autenticado (ADMIN ou FUNCIONARIO), porque o briefing não prevê diferença de permissão nesta fase. Esse acesso amplo é risco aceito e registrado no achado A3 (seção 8).
 
 Para onde vai: só da API para o app mobile, por HTTPS fora do ambiente local. Nenhum envio a terceiro. O app não grava a lista nem o detalhe em disco (seção 7).
 
-Regra de coleta: campo pessoal novo em `clientes` ou `veiculos` só entra com linha nesta tabela aprovada pelo VIGIA antes da migration. As linhas de CPF e endereço foram aprovadas na revisão 2 (2026-11-17), antes da V4 da F08. A aprovação cobre a **coluna** e a **leitura** no detalhe. A **coleta** continua presa à finalidade da linha (CPF só com nota fiscal); quem a implementa e prova é a F09 (F03c). A unicidade foi decidida na revisão 3 (2.1). Base legal e prazos seguem como proposta até a P1.
+Regra de coleta: campo pessoal novo em `clientes` ou `veiculos` só entra com linha nesta tabela aprovada pelo VIGIA antes da migration. As linhas de CPF e endereço foram aprovadas na revisão 2 (2026-11-17), antes da V4 da F08. A aprovação cobre a **coluna** e a **leitura** no detalhe. A **coleta** continua presa à finalidade da linha (CPF só com nota fiscal); quem a implementa e prova é a F09 (F03c). A unicidade foi decidida na revisão 3, e o momento em que ela entra, na revisão 4 (2.1). Base legal e prazos seguem como proposta até a P1.
 
 ### 2.1 Unicidade (decisão do VIGIA, revisão 3)
 
@@ -43,18 +43,27 @@ Regra de coleta: campo pessoal novo em `clientes` ou `veiculos` só entra com li
 | `clientes.cpf` | **Sim, quando preenchido** | Índice `UNIQUE` em `clientes.cpf`. O MySQL aceita vários NULL num índice único, então cliente sem CPF e cliente anonimizado não colidem. CPF repetido **bloqueia** com 409 e mensagem fixa `CPF ja cadastrado`, sem o valor e sem o id do cadastro existente. Não pede confirmação e não só alerta | Um CPF é uma pessoa. Dois cadastros da mesma pessoa fazem o pedido de acesso ou eliminação do titular (art. 18) achar só um, e a anonimização deixa uma cópia viva. Alerta ou confirmação pedem fluxo de dois passos na tela e ainda deixam o duplicado entrar |
 | `clientes.email` | Não | Sem índice e sem checagem | Opcional; família e empresa dividem email. Bloquear cadastro legítimo não protege o titular |
 | `clientes.telefone` | Não | Sem índice e sem checagem | Telefone de casa ou da empresa é dividido |
-| `veiculos.placa` | Não | Sem índice. A F04 pode avisar placa já cadastrada, sem bloquear | Veículo vendido volta com outro dono, e a anonimização grava `ANONIMO` em várias linhas |
+| `veiculos.placa` | **Sim** (revisão 5, revoga a linha da revisão 3) | Índice `UNIQUE` `uk_veiculos_placa` na V7, sobre a placa normalizada. Placa repetida **bloqueia** com 409 e mensagem fixa `Placa ja cadastrada` (chave `veiculo.form.placa.duplicada`), sem a placa, sem o id do veículo existente e sem o nome do dono. A anonimização grava `ANON<id>`, que é único por linha e não colide (seção 4, provado na 8.5) | Uma placa é um veículo. Dois registros da mesma placa dividem o histórico de OS entre cadastros e, se ficarem em clientes diferentes, a placa de uma pessoa aparece no cadastro de outra. O motivo antigo para não ser única (`ANONIMO` repetido) cai com o marcador por linha. O caso do veículo vendido fica na 2.4 |
 
 Como a regra do CPF entra:
 
-1. **A F03c segue o card**: sem índice e sem checagem, e dois POST com o mesmo CPF respondem 201 (US-CLI-20.6). É provisório e só vale com dado fictício, em ambiente local ou de teste.
-2. A regra entra numa fatia própria, ou na F03d, conforme BUSSOLA decidir com a pessoa, **antes do primeiro cliente real em produção**. É a mesma trava da P2 (pendência P10).
+1. **Decisão do VIGIA na revisão 4 (2026-11-18): a premissa 3 da F09 cai em favor do ADR-020.** A F03c entrega o índice e o 409 na mesma PR do POST: migration `V6__adicionar_indice_unico_cpf_em_clientes.sql` (a V5 é o `CHECK` de telefone), exceções, handler e o método único de gravação do ADR-020. Dois POST com o mesmo CPF respondem 201 e depois 409, e o `COUNT(*)` fica em 1. A revisão 3 deixava a F03c aceitar duplicado e empurrava a regra para outra fatia. Isso deixa de valer.
+2. Por que agora, e não numa fatia própria antes do primeiro cliente real:
+   * A premissa 3 e a dúvida 1 do card prendem a ausência de checagem à "política do VIGIA, ainda não definida". A regra foi definida na revisão 3, e só faltava a data. O US-CLI-20.6 se declara provisório "até a decisão do VIGIA", e a decisão é esta.
+   * A F03c é a primeira rota que grava CPF. Enquanto não houver índice, todo duplicado que entrar (teste manual, demonstração, primeiro uso) faz a migration do índice falhar no boot, e o Flyway escreve o CPF no log (ADR-020, Consequências).
+   * A trava "antes do primeiro cliente real" (P10) depende de alguém lembrar. O uso é interno e não há homologação entre o merge da F35 e o balcão da oficina. Trava que depende de memória não é controle.
+   * O teste de "dois 201" seria escrito para ser apagado na fatia seguinte. Com a regra agora, o teste de CPF repetido já nasce definitivo, e a F03d herda o método de gravação sem código de unicidade (ADR-020, F4).
+   * Custo: uma migration de uma linha, duas exceções, um handler e o IT que o ADR-020 já especifica (Confirmação). É proporcional ao tamanho da feature.
 3. Quem garante é o índice, não um `existsByCpf` antes do `save`: dois POST simultâneos passariam pela consulta. O service pode consultar antes para responder mais cedo, mas o 409 também tem de sair do `DataIntegrityViolationException` do índice, com mensagem fixa e sem `getMessage()`. O MySQL escreve `Duplicate entry '<cpf>' for key ...` nessa mensagem.
-4. Antes da migration do índice, procurar duplicados com uma consulta que só conta: `SELECT COUNT(*) FROM (SELECT cpf FROM clientes WHERE cpf IS NOT NULL GROUP BY cpf HAVING COUNT(*) > 1) d`. Nunca `SELECT cpf ...`. Se a migration falhar por duplicado, o Flyway escreve o CPF no log do boot. Duplicado se resolve caso a caso com a pessoa, antes da migration.
+4. Antes da migration do índice, procurar duplicados com uma consulta que só conta: `SELECT COUNT(*) FROM (SELECT cpf FROM clientes WHERE cpf IS NOT NULL GROUP BY cpf HAVING COUNT(*) > 1) d`. Nunca `SELECT cpf ...`. Se a migration falhar por duplicado, o Flyway escreve o CPF no log do boot. Duplicado se resolve caso a caso com a pessoa, antes da migration. Na F03c, se o banco local tiver duplicado de teste manual anterior, recria-se o volume local (só tem dado fictício) em vez de editar o CPF à mão.
 5. A edição (F03d) segue a mesma regra no PUT.
 6. O 409 confirma que o CPF já está na base. Risco aceito: qualquer token válido já lê o CPF inteiro pelo detalhe (B2).
 
-Troca de dono de veículo (F04): **proibido alterar `veiculos.cliente_id` de um veículo que já tem OS.** O veículo do dono novo é um registro novo em `veiculos`. Se o `cliente_id` mudasse, as OS do dono antigo ficariam ligadas a uma placa que não é anonimizada junto com ele (seção 4, passo 3, só alcança os veículos dele). A placa e o histórico da OS reidentificariam a pessoa anonimizada. O histórico de OS por veículo (objetivo da Sprint 02) filtra pelo `veiculo_id`, então cada dono vê só o seu período (pendência P11).
+Efeito da revisão 4 no card e na revisão humana: o critério 9 da revisão de 17/11 pediu "ambos criados com 201", com o comportamento registrado como provisório "até a decisão do VIGIA (dúvida 1)". Com a decisão, a prova pedida passa a ser outra: o segundo POST responde 409 com `mensagem` exatamente `CPF ja cadastrado`, sem o CPF nas duas formas e sem o id do primeiro, e nada é gravado. O texto final do critério é do BUSSOLA, e a pessoa confirma no aceite do ADR-020. Se ela recusar, vale a opção D do ADR-020 (201 provisório), a P10 volta a bloquear o primeiro cliente real e o PR perde só a migration, o `catch` e o handler do 409 (ADR-020, F6).
+
+A revisão 4 não muda a P9: o CPF segue opcional pelo parecer da 2.2. Vários cadastros sem CPF não colidem no índice (provado na 2.3).
+
+Troca de dono de veículo (F04, revisão 5): **proibido alterar `veiculos.cliente_id` depois da criação, por qualquer rota.** O PUT da F04 ignora `clienteId` no corpo (premissa 6 do card), e o mapper de edição não tem destino para `cliente` (seção 7, "API, veículos"). Se o `cliente_id` mudasse, as OS do dono antigo apareceriam no histórico do dono novo (o histórico filtra por `veiculo_id`), e a anonimização do dono antigo (seção 4, passo 3) não alcançaria mais a placa ligada às OS dele. O veículo vendido com o dono antigo ainda ativo é a P13 (2.4).
 
 ### 2.2 CPF obrigatório ou opcional na criação (parecer do VIGIA, revisão 3)
 
@@ -65,6 +74,64 @@ O card da F09 põe o CPF entre os obrigatórios (tarefa 3 e exemplo `CPF` do US-
 * Hipótese a validar com o contador (P1): a nota de serviço do município da oficina pode exigir CPF do tomador em toda emissão. Mesmo nesse caso, o CPF seria necessário quando a nota é emitida, não no cadastro.
 * Se a pessoa decidir pelo CPF obrigatório, contra este parecer, o fundamento escrito (norma da nota, com o contador) entra nesta seção antes do merge da F03c. A base do CPF passa a ser II para todos, e a retenção não muda.
 * Contrato enquanto a P9 não fecha: a validação de formato (US-CLI-17) é igual nos dois casos. Só muda a obrigatoriedade. Com CPF opcional, CPF ausente, `null`, `""` ou só espaços grava NULL e responde 201. Com CPF obrigatório, esses casos respondem 400. Dá para escrever o código, mas o aceite do exemplo `CPF` do US-CLI-16 espera a P9.
+
+### 2.3 Recadastro de titular anonimizado (revisão 4)
+
+O índice único (2.1) e a anonimização (seções 4 e 5) mexem na mesma coluna. Provei a interação em MySQL 8.4 descartável, com V1 a V5 deste ramo, o índice do ADR-020 e dois clientes fictícios (saída real na 8.4):
+
+| Situação do cadastro antigo | CPF no cadastro antigo | Novo cadastro do mesmo titular, com o mesmo CPF |
+|---|---|---|
+| Anonimizado por completo (seção 4: prazo vencido, ou pedido do titular sem OS dentro de R1) | NULL | Aceito (201). O cadastro antigo não identifica mais ninguém, e o novo é outro contrato |
+| Anonimizado em parte (pedido de eliminação dentro de R1, seção 5): contato NULL, nome e CPF retidos para a obrigação fiscal | Retido | **Recusado pelo índice** (erro 1062), que vira 409 `CPF ja cadastrado` |
+| Dois ou mais cadastros anonimizados por completo | NULL em todos | Não colidem entre si |
+
+Conduta no segundo caso. Ela vale quando existirem a F03d e o procedimento da P2; antes disso não existe anonimização parcial.
+
+* O funcionário não cria outro cadastro. Acha o cadastro retido pelo nome na lista (F03a; o nome também foi retido) e grava pela edição (F03d) o contato que o titular acabou de informar.
+* Base: o titular voltou para um serviço novo, que é contrato novo (art. 7º, V). O contato volta a ter finalidade, e o prazo de R1 recomeça com a nova OS. O pedido de eliminação anterior continua no registro de auditoria da seção 4.
+* Proibido contornar o 409. Apagar o CPF do cadastro retido quebra a obrigação fiscal que justificou retê-lo (art. 16, I). Gravar o novo cadastro sem CPF cria dois registros da mesma pessoa, que é o que a 2.1 evita.
+* A tela (F35) mostra o 409 no campo `cpf` e sugere buscar pela lista, sem dizer qual cliente tem o CPF (`docs/product/F35-recebido-da-F03c-criar-cliente.md`). A API não muda.
+
+### 2.4 Veículos (F04, revisão 5)
+
+**Classificação.** A placa é dado pessoal do titular dono do veículo: identifica a pessoa de forma indireta, pelo registro do DETRAN e, dentro do sistema, pelo `cliente_id`. Marca, modelo, ano e cor são dado pessoal por associação enquanto estiverem ligados à placa ou a um cliente não anonimizado, porque descrevem um bem de pessoa identificada. Nenhum deles é dado sensível (art. 5º, II). Base legal de todos: execução de contrato e procedimentos preliminares, como o orçamento (art. 7º, V). Finalidade: identificar o veículo na abertura e no acompanhamento da OS e no histórico de OS por veículo.
+
+**Ciclo do dado.**
+
+| Etapa | Regra |
+|---|---|
+| Coleta | No balcão, pelo funcionário, no `POST /api/v1/clientes/{clienteId}/veiculos`: placa, marca, modelo, ano e, se informada, cor. Nada além disso: sem quilometragem, chassi, RENAVAM ou foto |
+| Quem acessa | Qualquer usuário autenticado, ADMIN ou FUNCIONARIO (premissa 3 do card). Riscos aceitos A3, B2 e V7 |
+| Para onde vai | Só da API para o app, por HTTPS fora do ambiente local. Nenhum terceiro. Placa nunca em URL (as rotas da F04 só levam ids), inteira em log, em mensagem de erro ou em exemplo do OpenAPI com placa real |
+| Retenção | Segue o cliente dono (R1 ou R2). A OS do veículo conta como evento do cliente para o R1 (seção 3) |
+| Descarte | Junto com o cliente, na mesma transação (seção 4, passo 3): a placa vira `ANON<id>`; marca, modelo, ano, cor e quilometragem ficam; a linha de `veiculos` nunca é apagada (FK `ordens_servico.veiculo_id`) |
+
+**O que acontece com o veículo quando o cliente é descartado.**
+
+| Gatilho do descarte do cliente | Veículo |
+|---|---|
+| Prazo R1 ou R2 vencido | Todos os veículos do cliente, com ou sem OS: `placa` = `ANON` + `id` do veículo (o veículo 42 vira `ANON42`). Demais colunas mantidas. OS, junções, parcelas e pagamentos do veículo ficam intactos |
+| Pedido de eliminação do titular, cliente sem OS ou com último evento fora de R1 | Igual à linha acima, na hora |
+| Pedido de eliminação do titular com OS dentro de R1 | A placa vira `ANON<id>` **na hora** (revisão 4, mantida), mesmo com nome e CPF retidos: a placa não serve à obrigação fiscal nem a contato |
+| Depois do descarte | A placa original fica livre no índice. Se o mesmo carro voltar, com o mesmo dono ou com outro, é cadastro novo (201), sem ligação com o histórico anonimizado. A busca de OS por placa (F06) não acha o histórico antigo |
+
+Por que `ANON<id>` e não `ANONIMO`: com o índice único, o texto fixo repetido falha já no primeiro cliente com dois veículos (erro 1062, provado na 8.5). `ANON<id>` é único por linha, não carrega dado do titular (o id é interno), cabe no `VARCHAR(10)` até o veículo 999999 e nunca casa com placa válida, porque nos dois padrões o 4º caractere é dígito. Acima de 999999 a gravação falha com erro 1406 em vez de truncar (provado na 8.5); antes disso, a coluna precisa crescer em migration aditiva (P14). Por que não `NULL`: exigiria tirar o `NOT NULL` da coluna, e a única barreira contra placa ausente passaria a ser o Bean Validation.
+
+Regras do marcador:
+
+* É reservado à rotina de anonimização (P2). A API nunca aceita `ANON...` na entrada: o validador da F04 só aceita os dois padrões, e o `CHECK` da V7 aceita os dois padrões e o marcador.
+* A máscara de log (6.2.2) trata o marcador como valor inválido e escreve `*******`.
+* Como o app mostra um veículo anonimizado é decisão da feature da P2. Até lá não existe veículo anonimizado.
+
+**Veículo vendido com o dono antigo ativo (P13).** Com a placa única, o cadastro do dono novo recebe 409 enquanto existir o registro do dono antigo com a placa. A troca de dono está fora do escopo da F04. Conduta até a P13:
+
+* Proibido contornar: cadastrar a placa com caractere a mais ou trocado, gravar o carro do dono novo no cadastro do dono antigo ou editar a placa do registro antigo para outra placa real. Todos esses misturam o histórico e o contato de duas pessoas.
+* O funcionário registra o caso e encaminha ao ADMIN.
+* Direção recomendada para a P13 (decisão do BUSSOLA e do CARTOGRAFO, com revisão do VIGIA): "baixa" do registro do dono antigo, que grava `ANON<id>` na placa dele e mantém as OS dele ligadas a esse registro, e depois cadastro novo para o dono novo. Cada dono vê só o próprio histórico, e o índice continua simples.
+
+**Veículo de cliente anonimizado (P15).** Criar ou editar veículo de cliente anonimizado religaria dado novo a um cadastro que deixou de identificar alguém. Hoje não existe cliente anonimizado nem marcador para reconhecê-lo. A feature da P2 traz o marcador e faz o POST e o PUT de veículo desse cliente responderem erro. A F04 não precisa tratar.
+
+**`clienteNome` no detalhe do veículo (D4 do PRD): parecer favorável**, com condições: só `clienteId` e `clienteNome` (nunca telefone, email, CPF ou endereço), nome nunca em log e `toString()` do DTO sem o nome (seção 7). O mesmo token já lê o nome pelo detalhe do cliente, então nada novo é exposto, e a tela evita uma segunda chamada.
 
 ## 3. Retenção
 
@@ -81,6 +148,41 @@ Pendente: os prazos são hipótese. "Enquanto ativo" não se aplica porque não 
 
 Divergência do card da F09 (revisão 3): o card diz "enquanto o cliente estiver ativo; descartado sob pedido, exceto dado ligado a OS com obrigação fiscal (5 anos)". Vale R1 a R4 e a seção 5, que dizem o mesmo com prazo contável. A placa segue o dono (seção 2).
 
+### 3.1 Resumo de retenção e descarte por dado (revisão 4)
+
+Esta é a política de descarte que o "Pronto" da Sprint 02 exige antes da F09. Ela junta as seções 2 a 5 num lugar só. Se divergir delas, valem as seções de origem. Prazos e bases seguem como proposta até a P1.
+
+O descarte tem dois gatilhos: (a) prazo vencido (R1 ou R2), contado do último evento; (b) pedido de eliminação do titular (seção 5).
+
+| Dado | Base legal (art. 7º) | Prazo | O que acontece no descarte | Pedido do titular com OS dentro de R1 |
+|---|---|---|---|---|
+| `clientes.nome` | V | R1 ou R2 | Vira o texto fixo `Cliente anonimizado` | Retido até o fim de R1, sem uso para contato (art. 16, I) |
+| `clientes.telefone` | V | R1 ou R2 | NULL | NULL na hora |
+| `clientes.email` | V | R1 ou R2 | NULL | NULL na hora |
+| `clientes.cpf` | II, só com nota fiscal | Segue o cliente (R4) | NULL, o que libera o valor no índice `uk_clientes_cpf` (2.3) | Retido até o fim de R1, sem uso para contato. Continua ocupando o índice (2.3) |
+| `clientes.endereco` | II (nota) ou V (busca e entrega) | Segue o cliente (R4) | NULL | NULL na hora |
+| `clientes.created_at` | Acessória | Junto do cliente | Mantida: sozinha não identifica e conta o prazo | Mantida |
+| `veiculos.placa` | V | Igual ao dono | Vira o marcador `ANON<id>` (2.4), o que libera a placa no índice `uk_veiculos_placa` | `ANON<id>` na hora (revisão 4, com o marcador da revisão 5): a placa identifica o dono e não serve a contato nem, pela hipótese da P1, à nota de serviço. Se o titular voltar com o mesmo carro, o veículo é registro novo (2.4) |
+| Demais colunas de `veiculos` | V | Igual ao dono | Mantidas | Mantidas |
+| OS, junções, parcelas, pagamentos, financeiro | V e II (escrituração) | 5 anos (fiscal) | Mantidos: sem os campos acima, não identificam a pessoa | Mantidos |
+| Registro de auditoria da anonimização (`cliente_id`, data, motivo, `usuario_id`) | II (art. 37, registro das operações) | 5 anos após a anonimização (hipótese da P1) | `DELETE` da linha. Nunca guarda o valor antigo | Não se aplica |
+| Log de aplicação (linhas 6.3 a 6.5) | IX (`usuarioId`, controle de acesso) | 90 dias (P7) | Rotação do coletor. Hoje some quando o contêiner é recriado | Não se edita log: o `clienteId` passa a apontar para um cadastro anonimizado |
+| Backup (backlog) | Igual à do dado de origem | 35 dias | Expira. Depois de qualquer restauração, reaplicar todas as anonimizações do registro de auditoria antes de abrir o sistema | Igual |
+| Dado de cliente no app | Igual à do dado de origem | Enquanto a tela está aberta | Sai da memória ao sair da tela, depois do 201 e no logout (seção 7). Nada em disco | Igual |
+| Banco de teste e banco local | Não se aplica: só dado fictício (seção 7) | Duração do teste | O contêiner do Testcontainers é removido no fim. O volume local é recriado, sem dado real | Não se aplica |
+
+**R5. Texto livre.** Coluna de texto livre ligada a cliente, veículo ou OS entra com linha nesta política antes da migration, e a linha diz se a coluna ganha passo próprio na anonimização da seção 4 (texto fixo ou NULL). Hoje só existe `movimentacoes_estoque.motivo`; no futuro, por exemplo, diagnóstico ou observação da OS. `movimentacoes_estoque.motivo` fica fora da anonimização, porque é auditoria de estoque, e o app orienta a não digitar dado pessoal nele (P5 do registro LGPD).
+
+**O que o descarte não faz:** não apaga linha de `clientes` (FK da OS, seção 4); não guarda o valor antigo em outra coluna, tabela ou log, nem em backup por mais de 35 dias; e não depende de flag de "inativo", que não existe (D2 da F03a).
+
+**O que a F09 precisa entregar para o descarte funcionar depois.** A F09 só grava dado fictício, então nenhum descarte roda nela. Mas ela precisa:
+
+* gravar CPF, email e endereço ausentes como NULL, nunca como string vazia (string vazia passaria por dado presente na anonimização e na contagem);
+* gravar o `nome` sem espaços nas pontas;
+* entregar o índice único junto com o POST (2.1).
+
+A rotina de anonimização é a P2, que bloqueia o primeiro cliente real.
+
 ## 4. Descarte: anonimização, não exclusão
 
 Por que não `DELETE`: `veiculos.cliente_id` e `ordens_servico.cliente_id` são FK sem `ON DELETE`, e a OS precisa ficar para o relatório histórico de faturamento (CLAUDE.md, modelo de dados) e para a obrigação fiscal. Apagar o cliente apagaria ou quebraria a OS.
@@ -89,7 +191,7 @@ Procedimento, numa transação só, por cliente:
 
 1. `clientes.nome` recebe o texto fixo `Cliente anonimizado`, sem id nem parte do nome original.
 2. `clientes.telefone`, `clientes.email` e, depois da V4 da F08, `clientes.cpf` e `clientes.endereco` recebem NULL. O detalhe de cliente anonimizado devolve `nome` = `Cliente anonimizado` e os outros quatro campos pessoais `null` (US-CLI-DET-15).
-3. `veiculos.placa` de todos os veículos do cliente recebe o texto fixo `ANONIMO`. Modelo, marca, ano, cor e quilometragem ficam (estatística de serviço).
+3. `veiculos.placa` de todos os veículos do cliente recebe o marcador `ANON` seguido do `id` do veículo (`UPDATE veiculos SET placa = CONCAT('ANON', id) WHERE cliente_id = ?`), nunca um texto fixo repetido, que o índice `uk_veiculos_placa` recusa (2.4, revisão 5). Modelo, marca, ano, cor e quilometragem ficam (estatística de serviço). A linha de `veiculos` não é apagada.
 4. OS, parcelas, pagamentos e financeiro ficam intactos: sem os campos acima, deixam de identificar a pessoa.
 5. Registro de auditoria sem dado pessoal: `cliente_id`, data, motivo (`PRAZO` ou `PEDIDO_TITULAR`) e `usuario_id` de quem executou. Nunca o valor antigo.
 
@@ -112,7 +214,7 @@ Situação hoje: não existe rotina nem tabela de auditoria. Prazo para existir:
 * Correção (art. 18, III): pela edição de cliente (F03d).
 * Eliminação (art. 18, VI), duas situações:
   * Cliente sem OS, ou com último evento há mais de 5 anos: anonimização completa (seção 4) na hora.
-  * Cliente com OS dentro do prazo de R1: anonimizar já telefone, email e endereço; manter nome e CPF só para a obrigação legal (art. 16, I) até o fim de R1, sem uso para contato; anonimizar o resto no fim do prazo. Informar isso ao titular por escrito.
+  * Cliente com OS dentro do prazo de R1: anonimizar já telefone, email, endereço e a placa dos veículos dele (placa incluída na revisão 4, seção 3.1); manter nome e CPF só para a obrigação legal (art. 16, I) até o fim de R1, sem uso para contato; anonimizar o resto no fim do prazo. Informar isso ao titular por escrito. Se o titular voltar como cliente nesse intervalo, vale a 2.3.
 * Implementação: precisa de feature própria (procedimento manual primeiro, tela depois). Criar ou não essa feature é decisão da pessoa com BUSSOLA; o VIGIA não cria feature.
 
 ## 6. Mascaramento em log (vigente)
@@ -122,6 +224,7 @@ Situação hoje: não existe rotina nem tabela de auditoria. Prazo para existir:
 * Termo de busca (`q`), inteiro ou em parte, nem normalizado.
 * Nome, email e endereço de cliente.
 * Corpo de request ou response de `/api/v1/clientes/**`.
+* Placa inteira, normalizada ou não, e corpo de request ou response de `/api/v1/veiculos/**` (revisão 5). Na F04 a placa só aparece com a máscara da 6.2.2, nas linhas da 6.6.
 * URL com query string (o `q` está nela).
 * Token JWT, senha, `JWT_SECRET` (regra já vigente desde a F02 e a F44).
 * Mensagem de exceção de persistência (`DataAccessException`, `SQLException` e causas): o MySQL põe o valor na mensagem, por exemplo em `Duplicate entry` de chave única.
@@ -136,7 +239,7 @@ Usar o `id` interno (`clienteId`, `veiculoId`, `usuarioId`). Quando o dado em si
 | CPF | Só os 3 dígitos do meio (posições 5 a 7 dos 11) | `123.456.789-09` vira `***.*56.7**-**` |
 | Email | Nunca, nem mascarado | usar `clienteId` |
 | Nome | Nunca, nem mascarado | usar `clienteId` |
-| Placa | Nunca, nem mascarada | usar `veiculoId` |
+| Placa | Só os 3 últimos caracteres da placa normalizada, pelo contrato da 6.2.2 (revisão 5; antes era "nunca, nem mascarada"). O `veiculoId` continua sendo o identificador da linha | `ABC1D23` vira `****D23` |
 
 A máscara fica no utilitário único `security.MascaraDadoPessoal` (decisão do CARTOGRAFO em `docs/architecture/overview.md`, divergência 8: classe `final`, métodos estáticos, sem bean), seguindo o contrato da seção 6.2.1. Nada de máscara copiada em cada classe.
 
@@ -170,6 +273,34 @@ Tabela que o teste unitário cobre linha a linha (todos os valores são fictíci
 | cpf | `abc` | `***.***.***-**` |
 
 Uso na F03a: a linha de log da seção 6.3 não leva telefone nem CPF, então a F03a só cria o utilitário com o teste acima (tarefa 8). O primeiro uso real em log é da F03c em diante. Se uma classe precisar logar telefone ou CPF sem passar por este utilitário, a revisão do VIGIA reprova.
+
+#### 6.2.2 Contrato da máscara de placa (revisão 5, vigente)
+
+Método `placa(String)` no mesmo `security.MascaraDadoPessoal`, com as regras 1 e 5 da 6.2.1:
+
+1. Aceita `null`, nunca lança exceção e nunca escreve em log.
+2. Remove só o espaço ASCII (U+0020) e o hífen ASCII (U+002D) e converte para maiúscula só as letras ASCII de `a` a `z`. Não usa `toUpperCase`, `Character.isLetterOrDigit`, `Character.isDigit` nem `\d` em modo Unicode (8.5, V4).
+3. Se o resultado tiver exatamente 7 caracteres e casar com `[A-Z]{3}[0-9][A-Z0-9][0-9]{2}` (só ASCII), a saída é `****` seguido dos 3 últimos caracteres.
+4. Qualquer outro caso (`null`, vazio, formato inválido, marcador `ANON<id>`, caractere fora do ASCII) devolve o texto fixo `*******`.
+
+Por que a placa pode aparecer mascarada e o CPF e o telefone não: o critério 24 do card pede a máscara, e o risco é menor. Fixados os 3 últimos caracteres, sobram 175.760 placas possíveis em cada padrão (antigo: 26³ × 10⁴ ÷ 10³; Mercosul: 26⁴ × 10³ ÷ 2.600), e o trecho sozinho não chega ao titular. Na linha do 409 a máscara tem finalidade própria: é o único jeito de ligar uma reclamação do balcão ("não consigo cadastrar o carro de final D23") à linha, porque no 409 não existe `veiculoId` do chamador. Nas outras linhas ela é redundante com o `veiculoId`. Fica porque o card pede, e tirá-la depois não quebra contrato.
+
+| Entrada (fictícia) | Saída |
+|---|---|
+| `ABC1D23` | `****D23` |
+| `ABC1234` | `****234` |
+| `abc-1d23` | `****D23` |
+| ` ABC1D23 ` | `****D23` |
+| `null` | `*******` |
+| vazio | `*******` |
+| `AB12345` | `*******` |
+| `ABC12D3` | `*******` |
+| `ABCD123` | `*******` |
+| `ABC1D234` (8 caracteres) | `*******` |
+| `ANON42` | `*******` |
+| `ıBC1D23` (U+0131 no lugar do `A`) | `*******` |
+| `ABC` + U+0661 + `D23` (dígito arábico-índico no lugar do `1`) | `*******` |
+| Letras de largura total (U+FF21 e seguintes) | `*******` |
 
 ### 6.3 Linha de log da busca (F03a, US-CLI-08)
 
@@ -209,7 +340,7 @@ As seções 6.1 e 6.2 valem para `POST /api/v1/clientes` sem exceção. O corpo 
 |---|---|---|
 | 201 (cliente criado) | `clientes.criar clienteId={} usuarioId={}`, INFO, no service, depois do `save` | Rastrear quem criou cada cadastro e perceber criação em massa por um mesmo token (B2, E6) |
 
-Sem linha nos outros casos: 400 de validação, 400 ou 415 de corpo ilegível (E2), 401 (antes do controller), 409 futuro (2.1) e 405. O 500 segue a seção 7: classe da exceção e caminho, nada mais.
+Sem linha nos outros casos: 400 de validação, 400 ou 415 de corpo ilegível (E2), 401 (antes do controller), 409 (2.1 e ADR-020; entra na F03c pela revisão 4) e 405. O 500 segue a seção 7: classe da exceção e caminho, nada mais.
 
 Regras da linha:
 
@@ -218,6 +349,33 @@ Regras da linha:
 * **Divergência do card** (US-CLI-19 e tarefa 11 pedem CPF e telefone mascarados no log): é o mesmo caso da D-F da F08, e vale a política, que manda não logar. O critério se cumpre provando que o dado não aparece no log de jeito nenhum: inteiro, com máscara de digitação ou com a máscara 6.2.1. A máscara 6.2.1 não tem uso na criação, porque o `clienteId` já liga a linha ao cadastro, e 3 dígitos do CPF mais 4 do telefone num log sem rotina de descarte (B6, P7) não servem a nenhuma finalidade.
 * Se mesmo assim a pessoa exigir a máscara no log, só vale este formato: `clientes.criar clienteId={} usuarioId={} cpf={} telefone={}`, com `MascaraDadoPessoal.cpf` e `MascaraDadoPessoal.telefone`. O email fica fora. Qualquer outra máscara reprova (6.4).
 * "Configurar mascaramento nos logs" (tarefa 11 da F09) **não** é conversor do Logback com regex. Ele está proibido: uma regex de 11 dígitos mascara id e horário e deixa passar CPF com ponto, espaço ou hífen, o que só dá falsa segurança. Quem controla é a regra de não logar, provada pelo teste de captura de log, pelo `git grep` e pelo log real (seção 10.2).
+
+### 6.6 Linhas de log de veículos (F04, revisão 5, vigente)
+
+As seções 6.1 e 6.2 valem para as quatro rotas da F04 sem exceção. Linhas permitidas, todas INFO, emitidas pelo `VeiculoService`, só com estes campos:
+
+| Situação | Linha exata |
+|---|---|
+| POST 201 | `veiculos.criar veiculoId={} clienteId={} usuarioId={} placa={}` |
+| POST 409 (placa repetida, inclusive na corrida) | `veiculos.criar.placaDuplicada clienteId={} usuarioId={} placa={}` |
+| POST 404 (cliente inexistente) | `veiculos.criar.clienteNaoEncontrado clienteId={} usuarioId={}` |
+| PUT 200 | `veiculos.editar veiculoId={} usuarioId={} placa={} placaAlterada={}` |
+| PUT 409 | `veiculos.editar.placaDuplicada veiculoId={} usuarioId={} placa={}` |
+| PUT 404 | `veiculos.editar.naoEncontrado veiculoId={} usuarioId={}` |
+| GET detalhe 200 | `veiculos.detalhar veiculoId={} usuarioId={} placa={}` |
+| GET detalhe 404 | `veiculos.detalhar.naoEncontrado veiculoId={} usuarioId={}` |
+| GET lista do cliente 200 | `veiculos.listarPorCliente clienteId={} total={} usuarioId={}` |
+| GET lista do cliente 404 | `veiculos.listarPorCliente.clienteNaoEncontrado clienteId={} usuarioId={}` |
+
+Regras:
+
+* `placa={}` é sempre `MascaraDadoPessoal.placa(...)` aplicada à placa normalizada: a gravada (201, 200 e detalhe) ou a pedida (409). No PUT, a placa nova. Nunca a placa inteira, e nunca a anterior e a nova juntas: `placaAlterada` é só `true` ou `false`.
+* A lista não leva placa, nem mascarada: seriam várias placas numa linha só, sem finalidade.
+* Ids depois da conversão para `Long` positivo. `usuarioId` é o `sub` do JWT (art. 7º, IX).
+* Nunca marca, modelo, ano, cor, `clienteNome`, DTO, entidade, `BindingResult`, `getMessage()` de exceção de persistência ou `toString()` de nenhum deles. O erro 1062 do MySQL traz a placa inteira (8.5).
+* Sem linha no 400 de validação (o valor rejeitado pode ser qualquer texto), no 400 ou 415 de corpo ilegível, no 401 e no 405. O 500 segue a seção 7.
+* `org.hibernate.orm.jdbc.error` e `org.hibernate.engine.jdbc.spi.SqlExceptionHelper` continuam `OFF` no `application.yml` (F03c). Sem isso, o Hibernate escreve o `Duplicate entry '<placa>'` antes de o service traduzir o 409. Proibido religar em perfil versionado.
+* Conversor do Logback com regex de mascaramento continua proibido (6.5).
 
 ## 7. Configuração que protege a regra (vigente)
 
@@ -245,6 +403,17 @@ API, criação (F03c, card F09, vigente):
 * O `record` de entrada carrega CPF, telefone e endereço, então sobrescreve `toString()` e mostra só o nome do tipo. A regra do B1 também vale para DTO de entrada, com teste unitário.
 * A resposta 201 tem o formato do detalhe (`ClienteDetalheResponse`, que já tem o `toString()` do B1), com `Cache-Control: no-store` afirmado no teste. O CPF volta inteiro porque é o eco do que o próprio usuário acabou de enviar: nenhum dado novo sai. O `Location` é montado com o id gerado pelo banco (`/api/v1/clientes/{id}`), nunca com texto do corpo.
 
+API, veículos (F04, revisão 5, vigente):
+
+* **Normalização e validação da placa (V4).** Ordem obrigatória: (1) rejeitar com 400 a entrada bruta com mais de 20 caracteres ou com qualquer caractere fora de letras ASCII, dígitos ASCII, espaço U+0020 e hífen U+002D; (2) remover espaços e hífens; (3) converter `a` a `z` para maiúscula, só no ASCII; (4) conferir `^[A-Z]{3}[0-9][A-Z0-9][0-9]{2}$`. Só depois vem a unicidade. Proibido converter para maiúscula antes do passo 1: no JDK 21, `"ıbc1d23".toUpperCase(Locale.ROOT)` dá `IBC1D23`, que passaria (8.5, V4). Tab, espaço não separável e outros espaços Unicode dão 400.
+* **`CHECK` de formato na V7** (`ck_veiculos_placa_formato`), com `REGEXP_LIKE(..., 'c')` para diferenciar maiúscula: a collation da coluna é `utf8mb4_0900_ai_ci` e, sem o `'c'`, minúscula passaria. Aceita os dois padrões e o marcador `ANON[0-9]{1,6}`. É a última barreira, como o `CHECK` de CPF da V4. Antes da V7, contar duplicados e linhas fora do formato só com `COUNT(*)`, nunca com `SELECT placa`.
+* **409 (V3).** Um único ponto de gravação no service, com `saveAndFlush` dentro de `try`, como o `ClienteService.gravar` da F03c. Traduzir para `PlacaJaCadastradaException` (subclasse de `ConflitoException`) só a violação de `uk_veiculos_placa`, pelo nome da restrição, com exceção sem causa e sem `getMessage()`. Uma consulta prévia de existência pode responder mais cedo, mas o 409 da corrida (critério 10) sai do índice. Na edição, a consulta prévia exclui o próprio `id` (critério 14).
+* **Atribuição em massa (V1 e V2).** `VeiculoRequest` só com `placa`, `marca`, `modelo`, `ano` e `cor`: sem `id`, `clienteId`, `cliente` e `quilometragem`. O cliente vem só do caminho do POST. O PUT carrega a entidade por `findById` e copia os campos com `@MappingTarget`, ignorando `id`, `cliente` e `quilometragem` de forma explícita, com `unmappedTargetPolicy = ReportingPolicy.ERROR`. Proibido montar `new Veiculo` com o `id` do caminho e chamar `save`: o `merge` apagaria a quilometragem ou trocaria o dono.
+* **`toString()` (V8).** `VeiculoRequest` mostra só o nome do tipo. Os DTOs de resposta (detalhe, lista e criação) mostram só o nome do tipo e o `id`. O builder de `Veiculo` não imprime a placa. Teste unitário com placa fictícia, como o do B1.
+* **Erro por campo (critérios 25 e 26).** O formato com `erros[]` é decisão do CARTOGRAFO (D2 do PRD). Condições do VIGIA: `campo` vem de `FieldError.getField()` de DTO sem `Map` e sem lista, para que o nome do campo não seja controlado por quem ataca; `chave` é texto fixo no `message` da anotação, sem `{}` e sem `${}`, o que evita interpolação de Expression Language (E5); nenhum `rejectedValue`; a `mensagem` atual continua sem valor. No corpo ilegível (`"ano": "abc"`), se o handler apontar o campo, usa só o nome da propriedade já mapeada no DTO, nunca o valor nem o `getMessage()` do Jackson.
+* **Respostas.** 409 com `mensagem` exatamente `Placa ja cadastrada` e chave `veiculo.form.placa.duplicada`; 404 com mensagem fixa (`Veiculo nao encontrado`, `Cliente nao encontrado`), sem repetir o id. O `Location` do 201 é montado com o id gerado (`/api/v1/veiculos/{id}`). `Cache-Control: no-store` nas quatro rotas, afirmado em teste.
+* **Exemplos do OpenAPI.** Placa inventada, marcada como fictícia (`ABC1D23` e `ABC1234`, as do card). Nunca placa vista na rua ou em foto.
+
 App (F35):
 
 * Não logar a URL da busca nem o termo (`console`, ferramenta de erro futura).
@@ -266,10 +435,17 @@ App, criação (F35, vinda da F03c; insumo do VIGIA para a tarefa 17 da F09):
 * Enquanto o funcionário digita, o CPF aparece inteiro, porque precisa ser conferido com o cliente. Depois do 201 vale a máscara da D-C no detalhe. A máscara de digitação é do ESQUADRO (F26).
 * Aviso de privacidade (P4): quem usa o app é o funcionário, não o titular, então o aviso ao cliente vai no balcão (cartaz ou texto entregue) e, quando existir, na OS impressa (backlog). Conteúdo mínimo pelo art. 9º: quem é a controladora e o contato dela; para que serve cada dado (telefone e email para contato; CPF e endereço só para nota ou entrega); que CPF, email e endereço são opcionais; por quanto tempo o dado fica (seção 3); que não há compartilhamento; e como pedir acesso, correção ou eliminação (seção 5). O texto é do BUSSOLA. Um lembrete ao funcionário na tela é opcional e fica com o ESQUADRO.
 
+App, veículos (F35, insumo da F04):
+
+* Placa, marca, modelo e `clienteNome` ficam só na memória da tela. Nada em `AsyncStorage`, cache de arquivo, `console`, parâmetro de rota ou deep link: a rota do detalhe leva só o `veiculoId`.
+* Campo de placa sem sugestão que guarde histórico (`autoComplete="off"`, `autoCorrect={false}`, `importantForAutofill="no"` e `textContentType="none"`), quando a plataforma permitir.
+* A tela mostra a placa inteira, porque o funcionário confere com o carro. A máscara da 6.2.2 vale só para log.
+
 Teste e ambiente local:
 
 * Fixture só com dado fictício: nome inventado, telefone de 11 dígitos inventado, email em `@example.com`. Proibido copiar dado de produção para teste, seed ou captura de tela.
 * Prefira telefone com DDD que não existe (20, 23, 25, 26 ou 29, por exemplo `20912345678`) e CPF com dígito verificador inválido (`12345678900`). Um celular de 11 dígitos inventado pode ser de alguém, e um CPF com dígito válido pode existir. Isso pesa mais em captura de tela, demonstração e na futura integração com WhatsApp.
+* Placa de teste inventada, nunca de carro real nem tirada de foto ou de captura de tela.
 
 ## 8. Achados AppSec do desenho da F03a
 
@@ -377,16 +553,88 @@ Premissa 6 do card ("CPF e endereço não existem na V2", "migration com as colu
 | E4 | Alta se acontecer (preventivo) | A01 / A08 | Atribuição em massa: se o DTO ou o mapper deixar `id` chegar à entidade, `save` vira `merge` | Qualquer token sobrescreve nome, CPF e telefone de outro cliente mandando `"id"` no POST: acesso ao objeto de outra pessoa, que o teste de 401 não pega | DTO sem `id`, `@Mapping(target = "id", ignore = true)`, `unmappedTargetPolicy = ERROR` e teste de ataque (seção 7) | ESPRESSO |
 | E5 | Baixa | A04 / A09 | O 400 de corpo usa só `getDefaultMessage()`. A mensagem padrão não identifica o campo, e a do `@Pattern` expõe a regex | US-CLI-16 a 20.4 não conseguem identificar o campo, e a F35 não consegue apontar o erro | `message` explícito com o nome do campo em toda anotação do DTO de criação, sem mudar o handler (o login já segue esse padrão) | ESPRESSO |
 | E6 | Média, risco a aceitar | A01 / A07 | O B2 vale para escrita: o token de usuário com `ativo=0` continua válido até expirar (7 dias). A leitura foi provada na 8.2. A escrita passa pela mesma cadeia, mas é inferência, porque o POST não existe | Ex-funcionário cria cadastros falsos ou grava dado de terceiros por até 7 dias | Aceite junto com a P8. Correção de verdade: no conversor do JWT, conferir `usuarios.ativo` a cada requisição (uma consulta pela chave). ADR do CARTOGRAFO antes do primeiro cliente real. A linha 6.5 com `usuarioId` mitiga | Pessoa, CARTOGRAFO |
-| E7 | Baixa | LGPD | O CPF repetido é aceito de propósito na F03c (US-CLI-20.6, provisório) | Se for para produção assim, o pedido do titular acha um cadastro só e a anonimização deixa cópia viva | Índice único e 409 antes do primeiro cliente real (2.1, P10) | BUSSOLA, pessoa |
+| E7 | Baixa, **decidido na revisão 4** | LGPD | O CPF repetido era aceito de propósito na F03c (US-CLI-20.6, provisório) | Se fosse para produção assim, o pedido do titular acharia um cadastro só e a anonimização deixaria cópia viva | Índice único e 409 na própria F03c, pelo ADR-020 (2.1, itens 1 e 2) | ESPRESSO (código e IT), pessoa (aceite do ADR-020) |
 | E8 | Baixa | A04 | Confirma o A8: `clientes.telefone` sem `CHECK` | Outro caminho (script, F03d) grava telefone com máscara, e a busca por dígitos da F03a não acha | `CHECK (CHAR_LENGTH(telefone) BETWEEN 10 AND 11 AND telefone NOT REGEXP '[^0-9]')`, que deixa passar NULL como o da V4. Antes, contar as linhas fora do formato sem mostrar o valor | ESPRESSO, CARTOGRAFO |
 
 Conferido sem achado, por leitura:
 
 * `SecurityConfig`: `/api/v1/clientes` fica fora de `PUBLIC_PATHS`, e `anyRequest().authenticated()` cobre o POST. A cadeia de 401 (sem token, outra chave, expirado, `alg: none`) foi provada com GET na revisão 2. A prova no POST é do CRIVO.
 * CSRF desligado está correto: o token vai no cabeçalho `Authorization`, sem cookie de sessão. Sem CORS configurado, navegador de outra origem é bloqueado, e o app nativo não é afetado.
-* `veiculos.placa` não tem índice único, então a anonimização pode repetir `ANONIMO`. `clientes.telefone` é NULL, então a anonimização pode gravar NULL.
+* `veiculos.placa` não tem índice único, então a anonimização pode repetir `ANONIMO` (superado na revisão 5: placa única e marcador `ANON<id>`, 2.4). `clientes.telefone` é NULL, então a anonimização pode gravar NULL.
 * Segredo: `gitleaks git --log-opts=main..HEAD` em 111 commits não achou vazamento.
 * Dependências: a F03c não precisa de dependência nova (Bean Validation, MapStruct e Flyway já estão no pom). Vale o `osv-scanner` da 8.2 (só o B5) enquanto o `pom.xml` não mudar. O `osv-scanner` não está instalado nesta máquina hoje: se o pom mudar, o CRIVO ou o ANCORA roda de novo.
+
+### 8.4 Revisão 4 (F09, 2026-11-18): índice único contra a anonimização
+
+Escopo: decidir se a premissa 3 da F09 cai em favor do ADR-020 (decidido: cai, seção 2.1) e consolidar retenção e descarte (3.1). Não revisei nem executei o código da F03c, que segue sem commit neste ramo. Li só o `ClienteService` em andamento (diff local, ver observação abaixo).
+
+Ambiente: contêiner `mysql:8.4` (8.4.13) descartável, `--network none`, sem porta publicada, sem volume, removido no fim com `docker rm -f`. Apliquei V1 a V5 deste ramo pelo cliente `mysql`, a partir dos arquivos; a V5 ainda está sem commit. Não usei o Flyway: a prova de que a V6 roda pelo Flyway com `ddl-auto: validate` é do IT do ESPRESSO. Dados fictícios, com DDD 20, que não existe: `Ana Exemplo` (CPF `12345678900`, telefone `20912345678`) e `Bia Exemplo` (CPF `98765432100`, telefone `20987654321`).
+
+| Passo | Saída real |
+|---|---|
+| Contagem de duplicados antes do índice (2.1, item 4) | `cpf_duplicados 0` |
+| `ALTER TABLE clientes ADD CONSTRAINT uk_clientes_cpf UNIQUE (cpf)` | Aplicado. Restrições de `clientes`: `ck_clientes_cpf_digitos CHECK`, `ck_clientes_telefone_digitos CHECK`, `PRIMARY`, `uk_clientes_cpf UNIQUE` |
+| Ana anonimizada por completo; Bia em parte (contato NULL, nome e CPF retidos) | `1 Cliente anonimizado tel_null=1 cpf_null=1` e `2 Bia Exemplo tel_null=1 cpf_null=0` |
+| Ana volta com o mesmo CPF | `caso1_inseridas 1` |
+| Bia volta com o mesmo CPF | `ERROR 1062 (23000) at line 1: Duplicate entry '98765432100' for key 'clientes.uk_clientes_cpf'` |
+| A nova Ana também anonimizada por completo | `linhas_cpf_null 2` e `total 3`: dois NULL convivem no índice |
+
+A mensagem 1062 repete o CPF inteiro, como o CARTOGRAFO já tinha visto no ADR-020. Isso reforça as regras 4 e 6 do ADR: nada de `getMessage()`, e a exceção do 409 vai sem causa.
+
+| ID | Severidade | OWASP | Achado | Impacto concreto | Correção específica | Dono |
+|---|---|---|---|---|---|---|
+| E9 | Baixa | LGPD / A04 | Com o índice, o titular anonimizado em parte (CPF retido dentro de R1) que volta como cliente recebe 409 | O funcionário contorna o 409 gravando o cadastro sem CPF (duplicado da mesma pessoa) ou apagando o CPF retido (quebra a obrigação fiscal) | Conduta da 2.3: reusar o cadastro retido pela edição (F03d). A API não muda. Entra no procedimento da P2 e no texto do BUSSOLA para a F35 (P12) | BUSSOLA (texto), ESPRESSO (P2) |
+
+Observação de leitura sobre o código em andamento, sem execução: o `criar` do `ClienteService` grava com `clienteRepository.save(...)` direto, e o Javadoc diz "Nao checa CPF repetido: comportamento provisorio ate a decisao D2/P10". Com a revisão 4, o método passa a seguir as regras 3 a 6 do ADR-020: método privado único com `saveAndFlush` dentro de `try`, tradução só de `uk_clientes_cpf`, sem causa e sem `getMessage()`, e Javadoc atualizado.
+
+### 8.5 Parecer e achados AppSec de Veículos (F04, revisão 5)
+
+Escopo revisado por leitura, no ramo `feat/f03c-clientes-criar` (`f119c67`): o card da F04, o repasse do BUSSOLA, `V2` a `V6`, `Veiculo`, `MascaraDadoPessoal`, `GlobalExceptionHandler`, `ClienteService` (método `gravar`), `SecurityConfig`, `application.yml` e a matriz do `overview.md`. O código da F04 ainda não existe, então nada foi executado contra endpoint de veículo. Os achados são de desenho, para o ESPRESSO resolver no código.
+
+Decisão do D1 do PRD (contradição entre o card e a política): **vale o card na unicidade** (placa única com 409) e na máscara de log (`****D23`, pelo contrato da 6.2.2). **Vale a política no descarte**, com o marcador `ANON<id>` no lugar de `ANONIMO`. Ficam revogados a linha `veiculos.placa` da 2.1 da revisão 3 e o "placa nunca em log, nem mascarada" da 6.2.
+
+Evidência executada em 2026-11-18. MySQL 8.4 descartável (`mysql:8.4`, `--network none`, sem porta publicada e sem volume, removido com `docker rm -f`). V1 a V6 do ramo aplicadas pelo cliente `mysql`, não pelo Flyway, mais a V7 candidata abaixo. Dados fictícios: clientes `Ana Exemplo`, `Bia Exemplo` e `Caio Exemplo`, com DDD 20.
+
+```sql
+ALTER TABLE veiculos
+  ADD CONSTRAINT uk_veiculos_placa UNIQUE (placa),
+  ADD CONSTRAINT ck_veiculos_placa_formato
+    CHECK (REGEXP_LIKE(placa, '^([A-Z]{3}[0-9][A-Z0-9][0-9]{2}|ANON[0-9]{1,6})$', 'c'));
+```
+
+| Passo | Saída real |
+|---|---|
+| Contagem de duplicados antes da V7 | `P0 0` |
+| V7 aplicada | Restrições de `veiculos`: `ck_veiculos_placa_formato CHECK`, `fk_veiculos_cliente FOREIGN KEY`, `PRIMARY`, `uk_veiculos_placa UNIQUE`. Collation de `placa`: `utf8mb4_0900_ai_ci` |
+| `ABC1234` e `BCD2E34` no cliente 1, `ABC1D23` no cliente 2 | `P2 3` |
+| `ABC1D23` de novo | `ERROR 1062 (23000): Duplicate entry 'ABC1D23' for key 'veiculos.uk_veiculos_placa'`. A mensagem traz a placa inteira |
+| `abc1d23`, `abc9z99`, `AB12345`, `ABC12D3`, `ABCD123`, `ANONIMO` e `ABC-1D2` | `ERROR 3819 (HY000): Check constraint 'ck_veiculos_placa_formato' is violated.` nos sete, sem o valor. `total 3` |
+| Anonimização com texto fixo (`ANON0`) nos dois veículos do cliente 1 | `ERROR 1062 ... Duplicate entry 'ANON0'`. Nenhuma linha alterada |
+| `CONCAT('ANON', id)` no cliente 1 e depois no cliente 2 | 2 linhas no cliente 1. Resultado: `ANON1`, `ANON2`, `ANON3`, com marca e modelo mantidos |
+| `ABC1234` cadastrada de novo, para o cliente 3 | Aceita (`total 4`, `abc1234 1`): a placa foi liberada |
+| Marcador do veículo de id 1000000 | `ERROR 1406 (22001): Data too long for column 'placa'`. Placa original mantida (`sql_mode` com `STRICT_TRANS_TABLES`) |
+
+JDK 21.0.10, no `jshell`: `((char) 0x131 + "bc1d23").toUpperCase(Locale.ROOT)` dá `IBC1D23`; `Character.isLetterOrDigit(0xFF21)` e `Character.isDigit(0x661)` dão `true`; `"ABC" + (char) 0x661 + "D23"` casa com `\d` só em modo Unicode (`(?U)`).
+
+| ID | Severidade | OWASP | Achado | Impacto concreto | Correção específica | Dono |
+|---|---|---|---|---|---|---|
+| V1 | Alta se acontecer (preventivo) | A01 / A08 | PUT montado como entidade nova com o `id` do caminho e `save` (`merge`), ou DTO com `clienteId` mapeado | Com `clienteId` mapeado, qualquer token move o veículo e todo o histórico de OS de uma pessoa para o cadastro de outra: o dono novo passa a ver as OS do antigo, e a anonimização do antigo deixa de alcançar a placa. Sem `clienteId`, o `merge` grava `cliente` nulo (500) e apaga a `quilometragem` em silêncio | Seção 7, "API, veículos", atribuição em massa. Teste do lado de quem ataca: PUT com `"clienteId"` de outro cliente, `"cliente": {"id": ...}` e `"id"` de outro veículo; depois, pelo `JdbcTemplate`, `cliente_id` original, o outro veículo intacto e a `quilometragem` semeada no banco mantida | ESPRESSO |
+| V2 | Alta se acontecer (preventivo) | A01 / A08 | O mesmo risco no POST, como o E4: `"id"` de veículo existente no corpo vira `merge` | Qualquer token sobrescreve placa, marca e modelo do veículo de outro cliente | DTO sem `id`; mapper de criação com `id` e `cliente` ignorados; cliente só do caminho. Teste: POST com `"id"` de veículo existente e `"clienteId"` diferente do caminho cria veículo novo no cliente do caminho e não altera o existente | ESPRESSO |
+| V3 | Média | A09 / LGPD | O erro 1062 do MySQL traz a placa inteira (provado acima) | Se o 409 usar `getMessage()`, propagar a causa ou se o log do Hibernate for religado, a placa inteira vai para o log ou para a resposta, contra o critério 24 | Seção 7 (409) e 6.6. Teste de captura de log no 409 e na corrida de 10 POST: nenhuma ocorrência da placa inteira, só `****D23` | ESPRESSO |
+| V4 | Média | A03 / A04 | Normalização com `toUpperCase` ou `Character.isLetterOrDigit` antes de restringir os caracteres (provado no JDK acima) | `ıBC1D23` grava `IBC1D23`, placa que o funcionário não digitou. Letra de largura total e dígito de outro alfabeto criam ambiguidade na unicidade e na busca por placa da F06 | Ordem da seção 7. Teste em tabela com `ıBC1D23`, letras de largura total, `ABC` + U+0661 + `D23`, tab, espaço não separável e 21 caracteres: 400 em todos, sem o valor no corpo | ESPRESSO |
+| V5 | Média | LGPD | A anonimização da política gravava `ANONIMO`, incompatível com o índice único (provado: falha no primeiro cliente com dois veículos) | A rotina da P2 falharia, e o titular ficaria sem descarte | Marcador `ANON<id>` (2.4 e seção 4), decidido nesta revisão. O script da P2 é revisado pelo VIGIA | VIGIA (feito), ESPRESSO (P2) |
+| V6 | Baixa | A04 | `veiculos.placa` sem `CHECK` na V2 | Um script ou uma rota futura grava `ABC-1D23` ou placa com espaço. O índice compara o texto, então essa linha não colide com `ABC1D23` e o duplicado entra | `CHECK` da V7 com `'c'` (seção 7), provado acima | ESPRESSO, CARTOGRAFO |
+| V7 | Baixa, risco a aceitar | A01 | O 409 responde se uma placa é de cliente da oficina | Qualquer token confirma se um carro é atendido ali. Não abre nada novo: o mesmo token lê todos os veículos percorrendo os ids (B2) | Aceite junto com a P8. Mitigação: linha 6.6 do 409 com `usuarioId` | Pessoa |
+| V8 | Baixa | A09 / LGPD | `record` de entrada e de saída e o builder de `Veiculo` imprimem placa e `clienteNome` no `toString()` gerado | Um log em DEBUG, ou o Spring MVC em DEBUG, grava a placa inteira | Seção 7 (`toString()`), com teste | ESPRESSO |
+| V9 | Média, risco a aceitar até a P13 | LGPD / A04 | Placa única sem troca de dono: o veículo vendido com o dono antigo ativo dá 409 para o dono novo | Pressão no balcão para contornar (placa alterada, carro no cadastro errado), o que mistura dado e histórico de duas pessoas | Conduta da 2.4 e P13 | Pessoa (aceite), BUSSOLA e CARTOGRAFO (P13) |
+| V10 | Baixa | A04 | Edição simultânea sem `@Version`: a última gravação vence | Uma correção de placa pode ser desfeita por outra edição aberta antes, sem aviso | Aceitável no porte atual. Se o CARTOGRAFO quiser, `@Version` em migration aditiva numa fatia futura | CARTOGRAFO |
+
+Conferido sem achado, por leitura:
+
+* `SecurityConfig`: `anyRequest().authenticated()` e `PUBLIC_PATHS` só com login, OpenAPI e `health`. `/api/v1/veiculos/**` e `/api/v1/clientes/{id}/veiculos` exigem token sem configuração nova. A prova do 401 nas quatro rotas, com o `COUNT(*)` sem mudar, é do IT da F04 (critério 11).
+* O `application.yml` da F03c já desliga o log de erro JDBC do Hibernate, que escreveria o 1062.
+* A F04 não precisa de dependência nova: Bean Validation, MapStruct e Flyway já estão no pom. Vale o `osv-scanner` da 8.2 enquanto o `pom.xml` não mudar. Não reexecutei.
+* Segredo: a F04 não cria configuração nova. Vale o ADR-009.
 
 ## 9. Pendências e donos
 
@@ -399,10 +647,14 @@ Conferido sem achado, por leitura:
 | P5 | Datas de OS e pagamento (A6) | CARTOGRAFO | Rotina automática de R1 |
 | P6 | ~~Merge do PR #14 na `main` (A0)~~. **Fechada** na revisão 2: a `main` b1f29fc está em Boot 4.1.2 | Pessoa | — |
 | P7 | Retenção de log de aplicação (seção 7, achado B6): validar os 90 dias e definir onde o log fica quando houver deploy | Pessoa, ANCORA | Primeiro deploy com coletor ou arquivo de log |
-| P8 | Aceite do risco B2 (CPF e endereço inteiros para qualquer token válido, inclusive o de usuário já desativado até o JWT expirar, provado na 8.2) registrado na PR da F08. Na revisão 3, estendido à escrita (E6) | Pessoa | Merge da F08; a parte de escrita, o merge da F03c |
+| P8 | Aceite do risco B2 (CPF e endereço inteiros para qualquer token válido, inclusive o de usuário já desativado até o JWT expirar, provado na 8.2) registrado na PR da F08. Na revisão 3, estendido à escrita (E6). Na revisão 5, estendido ao oráculo de placa do 409 (V7) | Pessoa | Merge da F08; a parte de escrita, o merge da F03c |
 | P9 | CPF obrigatório ou opcional na criação (2.2, E1). Parecer do VIGIA: opcional | Pessoa, com BUSSOLA (e o contador, se for obrigatório) | Aceite do exemplo `CPF` do US-CLI-16 da F03c |
-| P10 | Índice único em `clientes.cpf` e 409 (2.1, E7): em fatia própria ou na F03d | BUSSOLA (onde entra), CARTOGRAFO (migration), ESPRESSO | Primeiro cliente real em produção |
-| P11 | Regra de troca de dono de veículo (2.1) no card da F04 | BUSSOLA, CARTOGRAFO | F04 |
+| P10 | ~~Índice único em `clientes.cpf` e 409 em fatia própria ou na F03d~~. **Decidida na revisão 4**: entra na própria F03c (2.1, E7). Falta o aceite do ADR-020 pela pessoa. Se ela recusar, a P10 volta a valer como era, bloqueando o primeiro cliente real | ESPRESSO (código e IT), pessoa (aceite) | Merge da F03c |
+| P11 | ~~Regra de troca de dono de veículo (2.1) no card da F04~~. **Fechada na revisão 5**: `cliente_id` imutável depois da criação (2.1), como a premissa 6 do card | BUSSOLA, CARTOGRAFO | — |
+| P12 | Conduta de recadastro do titular anonimizado em parte (2.3, E9) no procedimento da P2 e no texto da F35 | BUSSOLA, ESPRESSO | Primeira anonimização parcial |
+| P13 | Troca de dono de veículo vendido com o dono antigo ativo (2.4, V9). Feature própria; direção recomendada: "baixa" do registro antigo com `ANON<id>` | BUSSOLA e CARTOGRAFO decidem; VIGIA revisa | Primeiro carro vendido entre clientes. Não bloqueia a F04 |
+| P14 | O marcador `ANON<id>` cabe até o veículo 999999 (2.4). Ampliar `placa` em migration aditiva antes disso | CARTOGRAFO | Nada hoje |
+| P15 | Marcador de cliente anonimizado e bloqueio do POST e do PUT de veículo desse cliente (2.4), dentro da feature da P2 | ESPRESSO, VIGIA | P2 |
 
 ## 10. Como verificar esta política na F03a
 
@@ -437,6 +689,30 @@ Cada item gera evidência executada, com comando e saída na entrega:
 * `Cache-Control: no-store` no 201, e `toString()` do DTO de entrada sem CPF, telefone e endereço fictícios.
 * Log real da API em contêiner depois de um 201 e de um 400, como na 8.2: `grep -c` dos valores fictícios igual a 0, e uma linha `clientes.criar`.
 * Exemplos do OpenAPI só com dado fictício (CPF `12345678900`, telefone com DDD que não existe, email `@example.com`), e os exemplos de 400 sem valor rejeitado.
+* Revisão 4 (índice e 409 na F03c), pelo IT com Testcontainers:
+  * o Flyway aplica V1 a V6 e a API sobe com `ddl-auto: validate`;
+  * POST com `12345678900` e depois com `123.456.789-00` dá 201 e 409, com `mensagem` exatamente `CPF ja cadastrado`, corpo e cabeçalhos sem o CPF nas duas formas e sem o id do primeiro, e `COUNT(*)` igual a 1;
+  * 10 POST simultâneos dão um 201, nove 409 e nenhum 500;
+  * dois POST sem CPF dão 201.
+* Captura de log no 409: nenhuma linha `clientes.criar`, nenhum ERROR e nenhuma ocorrência do CPF (6.5).
+* `git grep -nE "existsByCpf|findByCpf" -- apps/api/src/main` sem ocorrência, e nenhum `getMessage` no `ClienteService` (ADR-020, Confirmação).
+* Nenhum teste da suíte afirma 201 para CPF repetido: o teste de "dois 201" é substituído pelo do 409.
+
+### 10.3 Na F04 (veículos)
+
+Cada item gera evidência executada, com comando e saída na entrega:
+
+* O Flyway aplica V1 a V7 com `ddl-auto: validate` (IT com Testcontainers). Antes da V7, `COUNT(*)` de placas duplicadas e de placas fora do formato, sem `SELECT placa`.
+* `git grep -nE "LOG\.(info|debug|warn|error|trace)" -- apps/api/src/main`: as linhas novas são só as da 6.6.
+* Teste unitário de `MascaraDadoPessoal.placa` com todas as linhas da tabela da 6.2.2.
+* Teste de normalização em tabela (V4), incluindo os casos do card (critérios 3 a 5).
+* Captura de log (`ListAppender` ou `OutputCaptureExtension`) no 201, no 200 da edição, no detalhe, no 409, no 404, no 400 e no 401: as linhas da 6.6 aparecem exatamente no formato da tabela; nenhuma linha contém a placa inteira (com e sem hífen, maiúscula e minúscula) nem marca, modelo ou `clienteNome` fictícios; no 400 e no 401 não há linha de veículo.
+* IT do 409: o segundo POST, com `abc1d23` depois de `ABC1D23`, dá 409 com `mensagem` exatamente `Placa ja cadastrada`, corpo e cabeçalhos sem a placa nas duas formas e sem o id do primeiro, e `COUNT(*)` igual a 1. Dez POST simultâneos: um 201, nove 409 e nenhum 500.
+* Testes de ataque V1 e V2, com conferência pelo `JdbcTemplate`.
+* 401 nas quatro rotas com token ausente, malformado, expirado, assinado com outra chave e `alg: none`, com o `COUNT(*)` sem mudar.
+* `Cache-Control: no-store` nas quatro rotas, e `toString()` dos DTOs e do builder sem a placa fictícia (V8).
+* Log real da API em contêiner depois de um 201 e de um 409, como na 8.2: `grep -c` da placa inteira igual a 0.
+* `git grep -n "ANONIMO" -- apps/api` sem uso como valor de anonimização.
 
 ## 11. Histórico
 
@@ -447,4 +723,6 @@ Cada item gera evidência executada, com comando e saída na entrega:
 | 2026-11-17 | Revisão 1: A0 e P6 apontam para o PR #14 (o #13 foi mergeado no ramo do #14, e a `main` segue em Boot 4.1.0); local do utilitário de máscara fixado em `security.MascaraDadoPessoal`; contrato exato da máscara (6.2.1); A0 e A1 reconferidos abertos na `main` dfab787. Base legal e prazos seguem como proposta (P1) | PR #17, merge 20fb438 |
 | 2026-11-17 | Revisão 2 (F03b): linhas de `cpf` e `endereco` aprovadas para a V4 da F08; CPF e telefone completos no detalhe autenticado registrados na seção 2; linhas de log do detalhe (6.4), incluindo o 404; regras de `toString()`, `Cache-Control` e retenção de log (seção 7); regras do app para o detalhe; parecer, evidência executada e achados B1 a B6 (8.1); A0, A1, A5 e P6 fechados; P7 e P8 novas. Base legal e prazos seguem como proposta (P1) | commit `b42d71b` |
 | 2026-11-17 | Revisão do código da F08 (8.2): log real do 200 e do 404 sem CPF nem telefone; B1 fechado, com C1 (`toString` da lista) e C2 (500 preservado no `MissingPathVariableException` de rota) corrigidos; token de usuário desativado lendo CPF inteiro registrado no B2 e no P8. Nada muda em coleta, base legal ou retenção | commit `42d9193` |
-| 2026-11-17 | Revisão 3 (F03c, card F09): unicidade decidida (CPF único quando preenchido, com 409, entrando antes do primeiro cliente real; email, telefone e placa não únicos) e regra de troca de dono de veículo (2.1); parecer de CPF opcional na criação (2.2); telefone obrigatório na API com a coluna NULL; linha de log da criação sem dado, nem mascarado (6.5); regras de validação, normalização, atribuição em massa e corpo ilegível do POST (seção 7); insumo do app para a F35 e aviso de privacidade; achados E1 a E8 (8.3); P4 revista e P9 a P11 novas; roteiro de verificação da F03c (10.2). Base legal e prazos seguem como proposta (P1) | esta revisão |
+| 2026-11-17 | Revisão 3 (F03c, card F09): unicidade decidida (CPF único quando preenchido, com 409, entrando antes do primeiro cliente real; email, telefone e placa não únicos) e regra de troca de dono de veículo (2.1); parecer de CPF opcional na criação (2.2); telefone obrigatório na API com a coluna NULL; linha de log da criação sem dado, nem mascarado (6.5); regras de validação, normalização, atribuição em massa e corpo ilegível do POST (seção 7); insumo do app para a F35 e aviso de privacidade; achados E1 a E8 (8.3); P4 revista e P9 a P11 novas; roteiro de verificação da F03c (10.2). Base legal e prazos seguem como proposta (P1) | commit `01af04f` |
+| 2026-11-18 | Revisão 4 (F09): a premissa 3 cai e o índice único de CPF com 409 entra na própria F03c (2.1; decisão do VIGIA registrada no ADR-020); resumo de retenção e descarte por dado, regra R5 de texto livre, o que o descarte não faz e o que a F09 entrega para ele (3.1); recadastro de titular anonimizado, provado em MySQL 8.4 (2.3 e 8.4); placa anonimizada na hora no pedido do titular dentro de R1 (seção 5); E7 decidido, E9 novo, P10 decidida, P12 nova e roteiro da 10.2 ampliado. Base legal e prazos seguem como proposta (P1) | commits `1cfecdb` e `ec8de65` |
+| 2026-11-18 | Revisão 5 (F04, Veículos): placa classificada como dado pessoal, e marca, modelo, ano e cor como dado pessoal por associação, com o ciclo do dado (2.4); placa única com 409 e `CHECK` de formato na V7, revogando a linha da revisão 3 (2.1); descarte do veículo junto com o cliente pelo marcador `ANON<id>` no lugar de `ANONIMO`, provado em MySQL 8.4 (2.4, 3.1, seção 4 e 8.5); `cliente_id` imutável depois da criação; máscara de placa `****D23` (6.2.2) e linhas de log da F04 (6.6); regras de API e de app para veículos (seção 7); achados V1 a V10 (8.5); P11 fechada, P13 a P15 novas; roteiro da 10.3. Base legal e prazos seguem como proposta (P1) | esta revisão |
