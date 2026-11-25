@@ -10,7 +10,7 @@ const doc = readFileSync(daRaiz('docs/design/F27-conferencia-componentes-f40.md'
 
 describe('conferência F27 x F40: caminhos de código citados', () => {
   const lidos = doc.slice(doc.indexOf('Código lido por inteiro'), doc.indexOf('Protótipo:'));
-  const caminhos = [...doc.matchAll(/`((?:ui|perfil|menu)\/[a-z-]+\.tsx)`/g)].map((m) => m[1]);
+  const caminhos = [...doc.matchAll(/`((?:ui|perfil|menu)\/[a-z-]+\/[a-z-]+\.tsx)`/g)].map((m) => m[1]);
 
   it('should cite at least the components compared when scanning the tables', () => {
     for (const nome of ['button', 'text-field', 'state-view', 'confirm-dialog', 'tab-bar-item']) {
@@ -22,9 +22,9 @@ describe('conferência F27 x F40: caminhos de código citados', () => {
     const existentes = new Set(
       [...lidos.matchAll(/`src\/components\/([^`]+)`/g)].flatMap((m) => {
         const bloco = m[1];
-        const chaves = bloco.match(/^(\w+)\/\{(.+)\}\.tsx$/);
+        const chaves = bloco.match(/^(\w+)\/\{(.+)\}$/);
         return chaves
-          ? chaves[2].split(',').map((n) => `${chaves[1]}/${n}.tsx`)
+          ? chaves[2].split(',').map((n) => `${chaves[1]}/${n}/${n}.tsx`)
           : [bloco];
       }),
     );
@@ -38,7 +38,7 @@ describe('conferência F27 x F40: caminhos de código citados', () => {
   });
 
   it('should list as nonexistent only the files marked as new when reading verdicts', () => {
-    for (const novo of ['ui/badge.tsx', 'ui/list-card.tsx', 'ui/segmented-control.tsx']) {
+    for (const novo of ['ui/badge/badge.tsx', 'ui/list-card/list-card.tsx', 'ui/segmented-control/segmented-control.tsx']) {
       assert.ok(doc.includes(novo), `proposta ausente: ${novo}`);
       assert.equal(existsSync(daRaiz(`apps/mobile/src/components/${novo}`)), false);
     }
