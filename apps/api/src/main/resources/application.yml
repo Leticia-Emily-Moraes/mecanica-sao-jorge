@@ -36,3 +36,11 @@ management:
     web:
       exposure:
         include: health
+
+# Dado pessoal fora do log (politica de dados do cliente, secao 6; ADR-020): o Hibernate loga a
+# mensagem do MySQL, que traz o CPF em "Duplicate entry '<cpf>'". O erro continua tratado e
+# registrado pelo handler global, so com a classe da excecao e o caminho.
+logging:
+  level:
+    org.hibernate.orm.jdbc.error: "OFF"
+    org.hibernate.engine.jdbc.spi.SqlExceptionHelper: "OFF"
