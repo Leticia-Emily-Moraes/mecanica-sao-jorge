@@ -770,3 +770,15 @@ Achados: o F26 já tinha a lista de veículos no detalhe do cliente (D1); a bord
 Sessão Figma `6d02d9a3-9142-4fde-841c-c791263c3366`, arquivo `FPdB8RymAnN81pbKfizdzE`. **Somente leitura (`get_metadata` e `use_figma` sem escrita): nenhum nó foi criado, movido ou alterado.** Comparação estática do Figma contra o código; não há captura do app dessas telas. Resultado, divergências N-01 a N-09 e auditoria: `docs/design/F45-conferencia-paridade-wcag-sprint-02.md`.
 
 Correção de registro (N-07): os frames propostos D6 `135:937`, D7 `135:1022`, D8 `135:1107`, V6 `135:1144`, L8 `135:1182` (x 60, 502, 944, 1386, 1828; y 8900) e as anotações `136:888` a `136:897` estão na página `20:2131` "01 — Wireframes", e **não** na seção F26 `106:2097` da página `20:2132`, como o parágrafo da F35 acima diz. A seção F26 tem 130 filhos e nenhum id `135:*` ou `136:*`. Não movi; aguarda decisão da pessoa.
+
+#### F45 rodada 2 · Paridade das 7 telas contra o app no simulador (2026-11-25, ESQUADRO)
+
+Sessão Figma `315e213e-428c-43cc-ac71-9022e1ca7134`, arquivo `FPdB8RymAnN81pbKfizdzE`. **Somente leitura: nenhum nó foi criado, movido ou alterado.**
+
+- **Funcionou:** `get_metadata` (D1 `106:2159`, V2 `109:3030`, E1 `106:2300`), `get_screenshot` (inclusive L1 `106:2098` com a camada de foco ligada) e `get_variable_defs` (título de seção e cabeçalho do D1).
+- **Não funcionou:** `get_design_context` (a instrução da ferramenta ficou inacessível) e `use_figma` (não usado: só leitura). Por isso não li código de referência do Figma e as medidas vêm do metadata.
+- **Lido nesta rodada:** camada "Foco por controle" do V2 (`120:1449`, ordem 1 Voltar, 2 Editar) e do E1 (`120:1706`, ordem 1 a 8); espaçador `106:2329` e grupo de botões `106:2330` do E1 (botões a 16 pt do fim do corpo); cartão vazio `109:3100` do V2 (textos em x 21, 286 de largura); título de seção `109:3065` com variáveis `font size/15`, `letter spacing/0_9` e `Flint`.
+- **Variáveis:** o arquivo mistura semânticas com primitivas geradas (`color/cyan/18` = petro `#1E3A3F`; `color/grey/42` e "Flint" = `#6E6A66`). Não renomeei nem criei variável.
+- **App:** 8 capturas do simulador iOS (iPhone 17, 402×874 pt) em `docs/design/f45-capturas/`, comparadas com `docs/design/f35-capturas/`.
+- **Resultado:** divergências PA-01 a PA-04 com especificação para a ORLA, cobertura de estados e lacunas de design em `docs/design/F45-auditoria-codigo-i18n-tokens-a11y.md`, seção 7.
+- **Não feito:** capturas de carregando, erro, diálogo de descarte e erro de campo no app; leitor de tela; teclado externo; 360×740 exato.
