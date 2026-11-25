@@ -1,0 +1,17 @@
+import type { ReactElement, ReactNode } from 'react';
+import { View } from 'react-native';
+
+import { styles } from './form-actions.styles';
+
+export interface FormActionsProps {
+  readonly children: ReactNode;
+}
+
+/**
+ * Área de ações do formulário (ex.: botão Entrar). Afasta as ações dos campos:
+ * 24 do último campo até o botão (Figma 29:79), já descontado o espaço de 6
+ * que todo campo reserva abaixo de si.
+ */
+export function FormActions({ children }: FormActionsProps): ReactElement {
+  return <View style={styles.actions}>{children}</View>;
+}

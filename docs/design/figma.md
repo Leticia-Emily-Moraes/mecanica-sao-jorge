@@ -577,6 +577,12 @@ implementado por ORLA (`menu-tab-bar.tsx`, `(menu)/_layout.tsx`): bate ponto
 a ponto. Detalhe completo, incluindo o gap de verificação de foco em item
 desabilitado que fica para CRIVO, na seção 13 do documento de especificação.
 
+### F39 · Redesenho dos wireframes (2026-11-13, ESQUADRO)
+
+**Nenhum nó deste arquivo foi alterado na F39.** A versão nomeada da F24 aprovada, exigida antes de qualquer edição (US-WFR-15), não pôde ser criada: `figma.saveVersionHistoryAsync` respondeu `"saveVersionHistoryAsync" is not a supported API`. Pelo US-WFR-15b, as páginas `3:2`, `28:2` e `39:2` ficaram intactas (a página `3:2` continua com 94 filhos).
+
+Leitura (somente) feita: referência `FPdB8RymAnN81pbKfizdzE` (páginas `20:2131`, `20:2132`, `1:66`), variáveis da coleção `28:3` e amostra da página `3:2`. Resultado, quadro comparativo de tokens, contraste, débito com o F33 e lista de impacto: `docs/design/F39-redesenho-wireframes-navegacao.md`. Achado principal: a paleta de marca da referência (`#1E3A3F`, `#B5453D`) é igual à vigente; mudam neutros, estados, tipografia e forma.
+
 ### F41 · Conferência de paridade (2026-11-13, ESQUADRO)
 
 **Rodada 2 (ESQUADRO, 2026-11-13): dois frames foram editados na F41, só no Figma.** Em `39:31` e `39:58` os ícones dos cinco itens estavam com `x` negativo (absoluto da página, fora do frame), então a tab bar saía sem ícone na captura. Somei o `x` do frame a 10 nós (`39:34`, `39:40`, `39:44`, `39:51`, `39:56`, `39:62`, `39:69`, `39:73`, `39:80`, `39:85`); agora x = 28, 98, 171, 244, 316, como em `39:3`. Nenhum outro nó foi alterado; nenhuma variável foi criada ou alterada. Na leitura da coleção `28:3` constam as variáveis numéricas (`font/*`, `border/width/*`, `space/*`, `size/*`) e as cores `color/surface/errorTint` e `color/focus/ring-on-brand`, que a rodada 1 dizia não existirem (autor e data desconhecidos). Faltam `color/text/placeholder` e `color/border/divider`, que aguardam decisão. Detalhes: `docs/design/F41-conferencia-paridade.md` §12.
