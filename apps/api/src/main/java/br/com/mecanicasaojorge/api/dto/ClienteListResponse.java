@@ -11,7 +11,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 public record ClienteListResponse(
     @Schema(example = "7") Long id,
     @Schema(example = "Ana Exemplo") String nome,
-    @Schema(description = "Somente digitos, como gravado", example = "11912345678", nullable = true)
+    @Schema(description = "Somente digitos, como gravado", example = "20912345678", nullable = true)
         String telefone,
     @Schema(example = "ana@example.com", nullable = true) String email) {
 

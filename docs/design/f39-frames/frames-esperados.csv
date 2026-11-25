@@ -1,0 +1,111 @@
+nome;tipo;tela;estado
+01 Login / Vazio;canonico;01;Vazio
+01 Login / Carregando;canonico;01;Carregando
+01 Login / Erro;canonico;01;Erro
+01 Login / Preenchido;canonico;01;Preenchido
+02 Perfil / Vazio;canonico;02;Vazio
+02 Perfil / Carregando;canonico;02;Carregando
+02 Perfil / Erro;canonico;02;Erro
+02 Perfil / Preenchido;canonico;02;Preenchido
+03 Clientes · lista / Vazio;canonico;03;Vazio
+03 Clientes · lista / Carregando;canonico;03;Carregando
+03 Clientes · lista / Erro;canonico;03;Erro
+03 Clientes · lista / Preenchido;canonico;03;Preenchido
+04 Clientes · detalhe / Vazio;canonico;04;Vazio
+04 Clientes · detalhe / Carregando;canonico;04;Carregando
+04 Clientes · detalhe / Erro;canonico;04;Erro
+04 Clientes · detalhe / Preenchido;canonico;04;Preenchido
+05 Clientes · criar / Vazio;canonico;05;Vazio
+05 Clientes · criar / Carregando;canonico;05;Carregando
+05 Clientes · criar / Erro;canonico;05;Erro
+05 Clientes · criar / Preenchido;canonico;05;Preenchido
+06 Clientes · editar / Vazio;canonico;06;Vazio
+06 Clientes · editar / Carregando;canonico;06;Carregando
+06 Clientes · editar / Erro;canonico;06;Erro
+06 Clientes · editar / Preenchido;canonico;06;Preenchido
+07 Veículos · criar / Vazio;canonico;07;Vazio
+07 Veículos · criar / Carregando;canonico;07;Carregando
+07 Veículos · criar / Erro;canonico;07;Erro
+07 Veículos · criar / Preenchido;canonico;07;Preenchido
+08 Veículos · editar / Vazio;canonico;08;Vazio
+08 Veículos · editar / Carregando;canonico;08;Carregando
+08 Veículos · editar / Erro;canonico;08;Erro
+08 Veículos · editar / Preenchido;canonico;08;Preenchido
+09 Veículos · detalhe com histórico de OS / Vazio;canonico;09;Vazio
+09 Veículos · detalhe com histórico de OS / Carregando;canonico;09;Carregando
+09 Veículos · detalhe com histórico de OS / Erro;canonico;09;Erro
+09 Veículos · detalhe com histórico de OS / Preenchido;canonico;09;Preenchido
+10 Serviços · lista / Vazio;canonico;10;Vazio
+10 Serviços · lista / Carregando;canonico;10;Carregando
+10 Serviços · lista / Erro;canonico;10;Erro
+10 Serviços · lista / Preenchido;canonico;10;Preenchido
+11 Serviços · criar / Vazio;canonico;11;Vazio
+11 Serviços · criar / Carregando;canonico;11;Carregando
+11 Serviços · criar / Erro;canonico;11;Erro
+11 Serviços · criar / Preenchido;canonico;11;Preenchido
+12 Serviços · editar / Vazio;canonico;12;Vazio
+12 Serviços · editar / Carregando;canonico;12;Carregando
+12 Serviços · editar / Erro;canonico;12;Erro
+12 Serviços · editar / Preenchido;canonico;12;Preenchido
+13 Peças · lista / Vazio;canonico;13;Vazio
+13 Peças · lista / Carregando;canonico;13;Carregando
+13 Peças · lista / Erro;canonico;13;Erro
+13 Peças · lista / Preenchido;canonico;13;Preenchido
+14 Peças · criar / Vazio;canonico;14;Vazio
+14 Peças · criar / Carregando;canonico;14;Carregando
+14 Peças · criar / Erro;canonico;14;Erro
+14 Peças · criar / Preenchido;canonico;14;Preenchido
+15 Peças · editar / Vazio;canonico;15;Vazio
+15 Peças · editar / Carregando;canonico;15;Carregando
+15 Peças · editar / Erro;canonico;15;Erro
+15 Peças · editar / Preenchido;canonico;15;Preenchido
+16 Movimentação de estoque / Vazio;canonico;16;Vazio
+16 Movimentação de estoque / Carregando;canonico;16;Carregando
+16 Movimentação de estoque / Erro;canonico;16;Erro
+16 Movimentação de estoque / Preenchido;canonico;16;Preenchido
+17 Ordens de Serviço · lista / Vazio;canonico;17;Vazio
+17 Ordens de Serviço · lista / Carregando;canonico;17;Carregando
+17 Ordens de Serviço · lista / Erro;canonico;17;Erro
+17 Ordens de Serviço · lista / Preenchido;canonico;17;Preenchido
+18 Ordens de Serviço · criar / Vazio;canonico;18;Vazio
+18 Ordens de Serviço · criar / Carregando;canonico;18;Carregando
+18 Ordens de Serviço · criar / Erro;canonico;18;Erro
+18 Ordens de Serviço · criar / Preenchido;canonico;18;Preenchido
+19 Ordens de Serviço · detalhe / Vazio;canonico;19;Vazio
+19 Ordens de Serviço · detalhe / Carregando;canonico;19;Carregando
+19 Ordens de Serviço · detalhe / Erro;canonico;19;Erro
+19 Ordens de Serviço · detalhe / Preenchido;canonico;19;Preenchido
+20 Ordens de Serviço · transição de status / Vazio;canonico;20;Vazio
+20 Ordens de Serviço · transição de status / Carregando;canonico;20;Carregando
+20 Ordens de Serviço · transição de status / Erro;canonico;20;Erro
+20 Ordens de Serviço · transição de status / Preenchido;canonico;20;Preenchido
+21 Ordens de Serviço · parcelas / Vazio;canonico;21;Vazio
+21 Ordens de Serviço · parcelas / Carregando;canonico;21;Carregando
+21 Ordens de Serviço · parcelas / Erro;canonico;21;Erro
+21 Ordens de Serviço · parcelas / Preenchido;canonico;21;Preenchido
+22 Financeiro · parcelas / Vazio;canonico;22;Vazio
+22 Financeiro · parcelas / Carregando;canonico;22;Carregando
+22 Financeiro · parcelas / Erro;canonico;22;Erro
+22 Financeiro · parcelas / Preenchido;canonico;22;Preenchido
+23 Financeiro · pagamento / Vazio;canonico;23;Vazio
+23 Financeiro · pagamento / Carregando;canonico;23;Carregando
+23 Financeiro · pagamento / Erro;canonico;23;Erro
+23 Financeiro · pagamento / Preenchido;canonico;23;Preenchido
+24 Financeiro · lançamentos / Vazio;canonico;24;Vazio
+24 Financeiro · lançamentos / Carregando;canonico;24;Carregando
+24 Financeiro · lançamentos / Erro;canonico;24;Erro
+24 Financeiro · lançamentos / Preenchido;canonico;24;Preenchido
+01 Login / Erro · validação;variante;01;Erro · validação
+05 Clientes · criar / Erro · validação;variante;05;Erro · validação
+06 Clientes · editar / Erro · validação;variante;06;Erro · validação
+07 Veículos · criar / Erro · validação;variante;07;Erro · validação
+08 Veículos · editar / Erro · validação;variante;08;Erro · validação
+11 Serviços · criar / Erro · validação;variante;11;Erro · validação
+12 Serviços · editar / Erro · validação;variante;12;Erro · validação
+14 Peças · criar / Erro · validação;variante;14;Erro · validação
+15 Peças · editar / Erro · validação;variante;15;Erro · validação
+16 Movimentação de estoque / Erro · validação;variante;16;Erro · validação
+18 Ordens de Serviço · criar / Erro · validação;variante;18;Erro · validação
+23 Financeiro · pagamento / Erro · validação;variante;23;Erro · validação
+24 Financeiro · lançamentos / Erro · validação;variante;24;Erro · validação
+24 Financeiro · lançamentos / Preenchido · formulário;variante;24;Preenchido · formulário

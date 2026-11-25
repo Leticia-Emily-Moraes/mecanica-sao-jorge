@@ -1,13 +1,13 @@
 # F40 — Componentização do front mobile e camada de serviço
 
-PRD — dono: BUSSOLA (Product Owner). Revisão: 2026-11-13 (retorno da revisão humana das 14:41).
+PRD — dono: BUSSOLA (Product Owner). Revisão: 2026-11-13 (retorno da revisão humana das 14:41; ajustes R6 a R10 da revisão das 20:44, aplicados por ORLA em §3.2).
 Rota da feature: BUSSOLA → ORLA → CRIVO. Implementação: ORLA. Especificação de componentes: `docs/design/F40-componentes-base-especificacao.md` (ESQUADRO).
 Prioridade P1 · Frontend · Sprint 01: Fundação e Login (agrupamento, ver dúvida 3).
 
 **Depende de:** [[F00]], [[F30]], [[F33]], [[F34]] e **[[F41]] (para o fechamento, não para a escrita de código; ver §3.1).**
 **Bloqueia:** [[F35]], [[F36]], [[F42]], [[F43]].
 
-> **Status:** em revisão. **Não está entregue.** Tem pendências abertas em US-COMP-01, 10, 11 e 12 (§8). O US-COMP-11 **não é aceito como parcial** (decisão em §3.1).
+> **Status:** em revisão. **Não está entregue.** A rodada das 20:44 foi aplicada no código (US-COMP-01, 06) e nos critérios (US-COMP-10, 11, 12); falta o aceite do CRIVO e da pessoa. O US-COMP-11 foi **reescrito e não exige mais captura** (R8); o que vale de §3.1 é só a dependência da F41 no fechamento.
 
 ## 1. Visão
 
@@ -33,8 +33,17 @@ O app Expo já tem Login, Perfil e tab bar. Esta feature é uma refatoração se
 | R3 | Critério 11: só login vazio, com stub | **Reescrito** com matriz de estados, API real e ferramenta operável. **Aceite parcial rejeitado.** | US-COMP-11 |
 | R4 | Critério 12 conflita com o modal | **Reescrito** em cenários separados (carregando sem mover foco; vazio; erro como modal aprovado em F30, que move o foco), mais validação em leitor de tela real. | US-COMP-12 |
 | R5 | Quebra do pré-requisito da linha de base da F41 | Ver §3.1. | §3.1 |
+| R6 | Revisão 20:44, critério 1: estilo no mesmo arquivo do JSX; pastas e telas | Estendido além das telas: nenhum componente de `ui/` nem o item da tab bar declara `StyleSheet` no arquivo do JSX; cada um tem `<nome>.styles.ts` na pasta do componente, lendo só do `tokens.ts`; telas em `src/screens`, `app/` só roteia. Estrutura em ADR-015 (CARTOGRAFO), imposta por lint e por teste. | US-COMP-01, §3.2 |
+| R7 | Critério 6: mover arquivos só pode mudar import e renderização | Diff dos testes de F30 e F33 registrado em `docs/design/F40-evidencia-estrutura-ui.md`: só linhas de import. | US-COMP-06, §3.2 |
+| R8 | Critério 11 obsoleto (design descartado em 13/11) | **Reescrito**: sem matriz de capturas; prova por suíte, árvore renderizada idêntica e fluxo real a cargo do CRIVO. Não bloqueia a entrega. | US-COMP-11, §3.2 |
+| R9 | Critério 12: foco do modal e anúncio do carregando | Reescrito: modal de erro mantém o foco aprovado em F30; só o carregando exige anúncio sem mover o foco. VoiceOver e TalkBack seguem sem teste em aparelho. | US-COMP-12, §3.2 |
+| R10 | Critério 10: sessão expirada sem gatilho | Registrado: o destino pós-expiração fica para a primeira feature que usar API autenticada (F35). `fetchAutenticado` continua sem chamador em produção; não liguei a chamada de propósito, para não inventar fluxo. | US-COMP-10, §3.2 |
+
+### 3.2 Rodada de 13/11 20:44 (R6 a R10): o que mudou e onde
+Ordem seguida: CARTOGRAFO registrou a estrutura no ADR-015 (status **proposto**) e só então a ORLA moveu os arquivos, em ramo próprio a partir da ponta da F41 (`1490234`). Nenhum texto de interface, valor de token ou comportamento foi alterado; a única mudança de contrato foi `ScreenContainer.topSpacing`, que passou de número para variante `'default' | 'form'` (valores 24 e 30, os mesmos de antes), porque a tela não pode mais importar token. Evidência (comandos, saídas e diff dos testes) em `docs/design/F40-evidencia-estrutura-ui.md`.
 
 ### 3.1 Quebra do pré-requisito e decisão sobre o US-COMP-11
+*(Item 3 da decisão abaixo, que negava o aceite parcial do US-COMP-11, foi superado por R8. O restante, inclusive F41 como dependência de fechamento, segue valendo.)*
 
 **O que foi verificado** (leitura do repositório em 2026-11-13; não rodei o app):
 - Não existe arquivo de F41 em `docs/`, e nenhum commit do histórico a cita. A F41 está "Pronta", sem execução.
@@ -76,7 +85,7 @@ O app Expo já tem Login, Perfil e tab bar. Esta feature é uma refatoração se
 5. Dado pessoal: ver §6.
 6. A acessibilidade herdada pode manter ou melhorar o que o F30 aprovou, nunca piorar. Toda mudança de anúncio é listada na entrega. Já há uma declarada na spec: o carregando da sessão (`app/index.tsx`) passa a ter região viva e `announceForAccessibility`.
 7. O estado vazio é validado só por teste de componente: nenhuma tela atual o exibe. Decisão da pessoa, porque a F35 o usa na primeira lista.
-8. **Regra sobre estilo (nova, decide R1):** arquivo de **tela** (`app/**`) não declara estilo nenhum. Arquivo de `components/<área>/` pode declarar apenas estilo de **contêiner de composição** (ex.: a barra e a área segura do `MenuTabBar`). Todo elemento que se repete ou que terá mais instâncias (item de aba, selo, campo) vira componente em `ui/`.
+8. **Regra sobre estilo (decide R1, estendida por R6):** nenhum arquivo `.tsx` (tela, layout ou componente) declara estilo; o estilo de cada componente fica em `<nome>.styles.ts`, na pasta do componente, e `app/` só roteia. *(Texto anterior permitia estilo de contêiner de composição no `.tsx` de `components/<área>/`; revogado por R6.)* Todo elemento que se repete ou que terá mais instâncias (item de aba, selo, campo) vira componente.
 9. **O "depois" do US-COMP-11 é o commit final da F40.** Como R1 muda código em `apps/mobile` depois de `a153494`, as capturas "depois" só valem se tiradas depois da extração do `TabBarItem`. Capturar em `a153494` e depois mudar a tab bar invalidaria a prova.
 10. Verificado em 2026-11-13: `git diff --stat a153494 HEAD -- apps/mobile` sai vazio, ou seja, `apps/mobile` não mudou desde `a153494`.
 
@@ -118,7 +127,7 @@ Formato `US-COMP-NN`, Gherkin em português. **Bloco (a)**: componentes base e t
 
 ```gherkin
 Cenário: telas sem estilo próprio
-  Dado os arquivos de tela em app/**
+  Dado os arquivos de tela em src/screens/** e src/layouts/** (R6: antes viviam em app/**)
   Quando busco por StyleSheet.create e por style com valor literal
   Então não há ocorrência
   E todo botão, campo, cabeçalho e estado de vazio, carregando ou erro vem do componente base correspondente
@@ -127,7 +136,7 @@ Cenário: item da tab bar é componente base
   Dado a tab bar do menu principal
   Quando reviso components/menu/menu-tab-bar.tsx
   Então o item (ícone, rótulo, estado selecionado e indisponível, anel de foco) vem do componente TabBarItem em components/ui
-  E menu-tab-bar.tsx declara só o estilo de contêiner da barra e da área segura
+  E menu-tab-bar.tsx não declara estilo: o contêiner da barra e a área segura vêm de menu-tab-bar.styles.ts (R6)
   E TabBarItem não contém texto fixo nem importa i18n, hooks ou services
 
 Cenário: tab bar preservada
@@ -135,12 +144,26 @@ Cenário: tab bar preservada
   Quando rodo a suíte da F33 e abro o app
   Então a ordem de foco é Perfil, Clientes e Veículos, Catálogo, Ordens de Serviço, Financeiro
   E cada aba mantém papel tab, rótulo acessível e estado selected e disabled de hoje
-  E a captura da tab bar (US-COMP-11, linha 11.12) é idêntica à de c815235
+  E a árvore renderizada da tab bar é idêntica à da ponta da F41 (US-COMP-11, R8)
 
 Cenário: teste do TabBarItem
   Dado o TabBarItem
   Quando rodo a suíte
   Então existe teste de componente com rótulo e papel, selecionado, indisponível (não dispara onPress) e anel de foco
+
+Cenário: estilo fora do arquivo do JSX (R6, ADR-015)
+  Dado qualquer componente de src/components, inclusive ui/ e o item da tab bar
+  Quando busco StyleSheet.create e objeto de estilo inline no .tsx
+  Então não há ocorrência, e o estilo está em <nome>.styles.ts na pasta do componente
+  E o .tsx não importa @/theme/tokens; o .styles.ts importa só StyleSheet, tipos de estilo e tokens
+  E npm run lint falha, com mensagem própria, quando uma dessas regras é violada de propósito
+
+Cenário: app/ só roteia (R6, ADR-015)
+  Dado os arquivos de app/
+  Quando os leio
+  Então cada um contém só export { default } from "@/screens/..." ou "@/layouts/..."
+  E as telas estão em src/screens e os layouts em src/layouts
+  E não há teste nem estilo dentro de app/
 ```
 
 #### US-COMP-03 — Tokens centralizados
@@ -227,6 +250,7 @@ Cenário: F30 e F33 passam sem mudar o que verificam
   Quando a rodo depois da refatoração
   Então passa
   E o diff dos testes antigos mostra só import e renderização (premissa 4)
+  E o diff vem registrado na entrega (R7): em F30 e F33 só mudaram linhas de import
 ```
 
 #### US-COMP-07 — Fluxo principal idêntico
@@ -245,7 +269,7 @@ Cenário: git status limpo
   Quando rodo git status
   Então não há pendência
   E nenhum arquivo gerado, segredo ou binário grande está versionado
-  E as únicas imagens versionadas são as capturas do US-COMP-11, em docs/design/f40-capturas/, com o tamanho de cada uma registrado na entrega
+  E esta rodada não versiona imagem nova (R8: sem captura)
 ```
 
 #### US-COMP-10 — Erros preservados (revisado, R2)
@@ -275,58 +299,40 @@ Cenário: sessão expirada, o gatilho real (NÃO VERIFICÁVEL HOJE)
   Então a resposta registrada na entrega é "não verificável hoje"
   E o gatilho passa a existir na F35 (dúvida 9)
   E o mesmo gap já é aceito em US-LGN-FRONT-07 (F30) e US-MENU-07 (F33)
+  E o destino pós-expiração fica registrado aqui para a primeira feature que usar API autenticada (R10)
 ```
 
 Verificado nesta revisão por busca no código (Grep em `apps/mobile/{app,src}`): `tratarSessaoExpirada` e `SessaoExpiradaError` só têm consumidor em teste; `fetchAutenticado` só aparece em `http-client.test.ts` e `auth-service-logging.test.ts`. Não rodei a suíte.
 
-#### US-COMP-11 — Aparência idêntica (reescrito, R3; alcance explícito)
-**Como** Product Owner, **quero** prova visual de que a refatoração não mudou nada, **para** não aceitar na fé.
+#### US-COMP-11 — Aparência idêntica (reescrito, R8: prova sem captura)
+**Como** Product Owner, **quero** prova de que a refatoração de estrutura não mudou nada do que o app mostra, **para** não aceitar na fé.
 
-**Alcance:** todos os estados da matriz abaixo, antes (`c815235`) e depois (commit final da F40), no **mesmo aparelho ou simulador**, **contra a API real** (nada de stub: para erro de credencial a API real responde 401, e para erro de rede ela é derrubada), com ferramenta operável (dúvida 7).
+**Retirada a matriz de 13 capturas.** Em 13/11 a pessoa descartou o design atual: Login, Perfil e tab bar serão redesenhados na F39 e reprogramados depois da F41. Capturar os 12 estados restantes mediria um visual que vai ser trocado, e a F41 já fixou a linha de base visual em `docs/design/F41-conferencia-paridade.md` (8 capturas e md5). O critério deixa de exigir captura e **não bloqueia a entrega**.
 
-**Situação atual:** o que existe, `login-vazio-antes-c815235.png` e `login-vazio-depois-a153494.png`, vale **só** para a linha 11.1 e com ressalva: foi feito com stub e o "depois" é `a153494`, não o commit final. A linha 11.1 também precisa ser refeita. Resultado: **0 de 13 linhas com valor de aceite.**
-
-| ID | Estado | Tela |
-|---|---|---|
-| 11.1 | Vazio | Login |
-| 11.2 | Foco no campo e-mail | Login |
-| 11.3 | Foco no botão Entrar | Login |
-| 11.4 | Erro de validação nos campos | Login |
-| 11.5 | Preenchido | Login |
-| 11.6 | Senha visível | Login |
-| 11.7 | Carregando (latência controlada na API) | Login |
-| 11.8 | Erro de credencial (aviso inline) | Login |
-| 11.9 | Erro de rede (modal) | Login |
-| 11.10 | Perfil preenchido | Perfil |
-| 11.11 | Diálogo de confirmação de saída | Perfil |
-| 11.12 | Tab bar (selecionada, indisponíveis e foco na aba selecionada) | Menu |
-| 11.13 | Retorno ao login após o logout | Login |
+**Prova que o substitui**, sobre a mudança de estrutura do ADR-015 (pasta por componente, `*.styles.ts`, `src/screens`):
 
 ```gherkin
-Cenário: um estado, duas capturas, sem diferença
-  Dado a linha N da matriz, a API real no ar e o mesmo aparelho nos dois commits
-  Quando capturo o estado em c815235 e no commit final da F40
-  Então a diferença de pixels, fora da barra de status, é zero
-  E cada captura tem hash diferente das capturas dos outros estados
-  E o par e o resultado ficam anexados em docs/design/f40-capturas/
+Cenário: suíte inteira verde depois da mudança
+  Dado a suíte do app antes da mudança de estrutura (30 suítes, 170 testes, ponta da F41)
+  Quando a rodo depois, no mesmo ramo
+  Então passa com o mesmo número de testes ou mais (31 suítes, 176 testes)
+  E os testes de F30 e F33 só mudam o caminho de import (US-COMP-06)
 
-Cenário: captura que não chegou ao estado é descartada
-  Dado duas capturas de estados diferentes com o mesmo hash
-  Quando comparo
-  Então a comparação é inválida e o estado volta a "não provado"
+Cenário: a árvore renderizada não mudou
+  Dado Login (vazio e com erro de validação), reidratação de sessão, tab bar, Perfil e diálogo de saída
+  Quando renderizo cada estado na ponta da F41 (1490234) e no commit final, com o mesmo harness
+  Então o JSON da árvore (elementos, estilos achatados e props de acessibilidade) é byte a byte idêntico
+  E o hash dos dois arquivos é o mesmo
 
-Cenário: a feature só fecha com a matriz completa
-  Dado que alguma linha da matriz está sem par de capturas válido
-  Quando se pede o aceite do US-COMP-11
-  Então o aceite é negado
-  E a F40 permanece em revisão
+Cenário: fluxo real contra a API (a cargo do CRIVO)
+  Dado a API real no ar e um usuário fictício
+  Quando faço login válido, abro o Perfil, confirmo o logout e volto ao login
+  Então cada passo se comporta como aprovado em F30 e F33
 ```
 
-Por que o segundo cenário existe: em 2026-11-13 uma comparação de foco e de erro deu "idêntico" porque as três fotos eram o mesmo arquivo (login vazio), registrado em `docs/design/F40-evidencia-paridade-visual.md`.
+Declarado **não coberto**: captura de pixels em simulador ou aparelho; fluxo real contra a API (não executado pela ORLA nesta entrega, fica com o CRIVO); o lado Figma (F41). O resultado e o método estão em `docs/design/F40-evidencia-estrutura-ui.md`.
 
-Fora do alcance e declarado **não coberto** (não vira critério): larguras de 360, 768 e 1280 px (a refatoração não altera largura; a spec registra que em 1280 o formulário já estica hoje); o aviso de sessão expirada no login (mesmo gap do US-COMP-10); o lado Figma (F41).
-
-#### US-COMP-12 — Acessibilidade do componente de estado (reescrito, R4)
+#### US-COMP-12 — Acessibilidade do componente de estado (reescrito, R4 e R9)
 **Como** pessoa que usa leitor de tela, **quero** ser avisada de carregando e de erro sem perder o contexto onde não precisa, **para** usar o app sem ver a tela.
 
 O texto anterior ("entrada em carregando ou erro anunciada sem o foco sair do lugar") conflitava com o modal de erro aprovado em F30 (US-DES-13), que por definição move o foco para o diálogo. Fica assim:
@@ -361,15 +367,14 @@ Cenário: nenhum anúncio de F30 piorou
   Então o anúncio é igual ou melhor
   E cada mudança fica listada na entrega
 
-Cenário: validação em leitor de tela real
-  Dado VoiceOver em aparelho iOS real, ou TalkBack em Android (aparelho ou emulador)
-  Quando percorro Login, erro de rede, Perfil, diálogo de saída e tab bar
-  Então o que foi anunciado é registrado na entrega, passo a passo
-  E qualquer diferença da matriz da spec §5 é listada
-  E sem aparelho disponível o cenário fica "não verificado" e a F40 não fecha (dúvida 8)
+Cenário: leitor de tela real (R9: segue sem teste em aparelho)
+  Dado que não há VoiceOver em aparelho iOS real nem TalkBack em Android disponíveis para esta entrega
+  Quando se pergunta o que o leitor anuncia de fato
+  Então a resposta registrada é "não verificado em aparelho": só as props de acessibilidade são provadas, por teste de componente
+  E quando houver aparelho, percorro Login, erro de rede, Perfil, diálogo de saída e tab bar, registro o anunciado passo a passo e listo diferenças da matriz da spec §5
 ```
 
-Nota para o CRIVO: o teste de componente prova que as props de acessibilidade existem; só o leitor real prova o que é anunciado. Os dois são exigidos.
+Nota para o CRIVO: o teste de componente prova que as props de acessibilidade existem; só o leitor real prova o que é anunciado. Nesta entrega só o primeiro foi feito (R9); a F40 não declara o segundo como verificado.
 
 #### US-COMP-16 — Tokens novos também no Figma (proposto, depende da dúvida 10)
 ```gherkin
@@ -391,7 +396,7 @@ Cenário: Figma inacessível
 Marcação: o código das tarefas 1 a 16 existe em commits, mas a revisão humana de 13/11 as devolveu como não aceitas. **Nenhuma é marcada aqui**; quem marca é o CRIVO, depois da evidência.
 
 1. [ ] Verificar no `tokens.ts` o que existe e completar sem mudar valores (commit `1b1939d`)
-2. [ ] Capturas "antes" em `c815235`: agora a matriz inteira do US-COMP-11, com API real
+2. [ ] ~~Capturas "antes"~~ **Obsoleta (R8):** substituída pelo dump da árvore renderizada na ponta da F41 (`1490234`), comparado com o commit final
 3. [ ] Componente de botão
 4. [ ] Componente de campo
 5. [ ] Componente de cabeçalho
@@ -402,8 +407,8 @@ Marcação: o código das tarefas 1 a 16 existe em commits, mas a revisão human
 10. [ ] Teste de componente para cada componente
 11. [ ] Teste de serviço e de hooks
 12. [ ] tsc estrito, lint e suíte de F30 e F33, com saída real
-13. [ ] Buscas de verificação (fetch em tela, hex, tamanho fixo, texto literal, `StyleSheet.create` em `app/**`)
-14. [ ] Capturas "depois" e comparação, listando mudança de anúncio
+13. [ ] Buscas de verificação (fetch em tela, hex, tamanho fixo, texto literal, `StyleSheet.create` fora de `*.styles.ts`)
+14. [ ] ~~Capturas "depois"~~ **Obsoleta (R8):** comparação das árvores renderizadas e lista de mudança de anúncio (nenhuma: as props de acessibilidade estão idênticas no dump)
 15. [ ] Commits pequenos em Conventional Commits, sem trailer de coautor
 16. [ ] `git status` limpo no fechamento
 17. [ ] **(novo, R1)** Extrair `TabBarItem` para `components/ui/`, com teste de componente; `MenuTabBar` passa a compô-lo. Alinhar com ESQUADRO a seção 4.10 da spec, que hoje diz que o `MenuTabBar` só troca valores fixos. **Fazer antes das tarefas 2 e 14.**
@@ -423,7 +428,7 @@ Marcação: o código das tarefas 1 a 16 existe em commits, mas a revisão human
 
 1. `git log --oneline -- docs/product/F40-componentizacao-front-mobile.md` mostra o commit deste texto.
 2. `grep -n "F41" docs/product/F40-componentizacao-front-mobile.md` mostra a dependência no cabeçalho e em §3.1.
-3. `grep -c "^| 11\." docs/product/F40-componentizacao-front-mobile.md` devolve 13 (a matriz do US-COMP-11).
+3. `grep -c "^| 11\." docs/product/F40-componentizacao-front-mobile.md` devolve 0 (a matriz do US-COMP-11 foi retirada em R8).
 4. `git diff --stat a153494 HEAD -- apps/mobile` sai vazio (premissa 10) enquanto o `TabBarItem` não for extraído.
 
 README sem mudança: este commit só adiciona um PRD em `docs/product/`; não muda como instalar, rodar, testar ou configurar o projeto.
