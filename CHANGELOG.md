@@ -112,7 +112,16 @@ Só API e contrato. As telas de Veículos são da F35.
 - Placa única entre todos os clientes. Placa repetida responde `409` com
   `Placa ja cadastrada`, sem repetir a placa.
 - Chaves de mensagem para o app, no formato `veiculo.form.<campo>.<erro>`
-  (10 chaves; lista em `docs/api/veiculos.md`).
+  (11 chaves; lista em `docs/api/veiculos.md`).
+- `ano` só aceita número inteiro. `2015.9`, `2015.0` e `"2015"` (texto)
+  respondem `400` com `erros[]` = `{campo: "ano", chave:
+  "veiculo.form.ano.tipo"}`, no `POST` e no `PUT`. Vale só para o veículo;
+  `Cliente` e o resto da API não mudaram. Com ano de tipo errado, os outros
+  campos inválidos só aparecem depois de corrigir o ano.
+- `marca`, `modelo` e `cor` são gravados sem espaço nas pontas
+  (`" Fiat "` vira `Fiat`).
+- `PUT` sem `cor`, ou com `cor` em branco, apaga a cor (grava vazio). Quem
+  edita pelo app deve reenviar a cor para mantê-la.
 - Referência de API com exemplos reais: `docs/api/veiculos.md`. Repasse de
   contrato para a F35: `docs/product/F35-recebido-da-F04-veiculos.md`.
 
@@ -139,9 +148,18 @@ Só API e contrato. As telas de Veículos são da F35.
 - Telas de Veículos: não existem; a F35 as entrega.
 - Descarte de dado pessoal (placa vira `ANON<id>` quando o cliente é
   descartado): é regra da política do VIGIA, **sem código nesta feature**.
-- Lint e formatação: `mvn checkstyle:check` falha em 2 linhas com mais de
-  100 caracteres (`ClockConfig.java:7`, `VeiculoService.java:94`) e
-  `mvn spotless:check` aponta 7 arquivos da F04. Pendência do ESPRESSO.
+- Chave de mensagem só no `400` de validação de campo e no `409` de placa.
+  Erros de rota (parâmetro inválido, `404`, `405`, `415`, JSON malformado)
+  seguem com texto fixo e `erros: []`; viram chave se a F35 pedir.
+- Os ADRs 022 a 025 e 028 continuam "Proposto": falta o aceite formal da
+  pessoa dona do produto. O risco de o `409` confirmar que a placa existe
+  (P8/V7) não tem aceite nominal registrado.
+- A V7 não foi testada em dados reais. Antes de qualquer deploy, contar placas
+  duplicadas e testar a migration numa cópia (responsável pelo banco).
+- Rebase sobre a F03c ainda não feito.
+- Verificação de 2026-11-19: `mvnw verify` com `BUILD SUCCESS`, 242 testes
+  unitários e 140 de integração, 0 falhas (inclui Checkstyle e Spotless). A
+  nota anterior sobre lint com falhas ficou superada por essa execução.
 
 ### Adicionado (commitado no histórico git)
 

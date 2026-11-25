@@ -1,6 +1,6 @@
 # Política de dados pessoais de cliente: retenção, descarte e mascaramento
 
-Dono: VIGIA (AppSec/LGPD). Criada em 2026-11-14 na F03a, antes de qualquer código do módulo Clientes. Revisada em 2026-11-17 três vezes: revisão 1 (contrato da máscara), revisão 2 (detalhe de cliente da F03b e colunas `cpf` e `endereco` da V4) e revisão 3 (criação de cliente da F03c, card F09: unicidade, CPF opcional, placa e log do POST). Revisão 4 em 2026-11-18 (F09: a premissa 3 do card cai em favor do ADR-020, retenção e descarte consolidados por dado na seção 3.1 e recadastro de titular anonimizado na 2.3). Revisão 5 em 2026-11-18 (F04, Veículos: placa classificada como dado pessoal, placa única com marcador de anonimização por linha, descarte do veículo junto com o cliente e máscara de placa em log). Revisão 6 em 2026-11-18 (F10, F03d, edição de cliente: cobertura da edição confirmada, valor anterior nunca guardado, email único com 409 no POST e no PUT, normalização de email e linhas de log do PUT). Ver seção 11.
+Dono: VIGIA (AppSec/LGPD). Criada em 2026-11-14 na F03a, antes de qualquer código do módulo Clientes. Revisada em 2026-11-17 três vezes: revisão 1 (contrato da máscara), revisão 2 (detalhe de cliente da F03b e colunas `cpf` e `endereco` da V4) e revisão 3 (criação de cliente da F03c, card F09: unicidade, CPF opcional, placa e log do POST). Revisão 4 em 2026-11-18 (F09: a premissa 3 do card cai em favor do ADR-020, retenção e descarte consolidados por dado na seção 3.1 e recadastro de titular anonimizado na 2.3). Revisão 5 em 2026-11-18 (F04, Veículos: placa classificada como dado pessoal, placa única com marcador de anonimização por linha, descarte do veículo junto com o cliente e máscara de placa em log). Revisão 6 em 2026-11-18 (F10, F03d, edição de cliente: cobertura da edição confirmada, valor anterior nunca guardado, email único com 409 no POST e no PUT, normalização de email e linhas de log do PUT). Revisão 8 em 2026-11-18 (F04, ajustes da revisão humana de 18/11: classificação, descarte e máscara reafirmados e conferidos no código; marca, modelo e cor aparados; ano só inteiro com as condições da chave `veiculo.form.ano.tipo`; PUT sem cor; D4, D7 e o procedimento da V7 em cópia de dados reais, seções 2.6 e 8.9). Ver seção 11.
 
 Revisão 7 em 2026-11-19 (F10, depois da revisão humana): linha `campo=concorrencia` aprovada como condição de merge, U+200B provado no índice de email, aparo Unicode do email registrado e revisão do código com achados W1 a W6. Ver seção 11.
 
@@ -182,6 +182,72 @@ Por que o valor anterior não fica: histórico de alteração está fora do esco
 **CPF na edição.** O PUT herda o `@NotBlank` do CPF da F03c (overview, contrato do POST). Com isso, o titular não consegue pedir a retirada do CPF pela correção, só pela eliminação (seção 5). Isso contraria o parecer da 2.2 e continua na P9. A F10 não decide a P9: se a pessoa a fechar como opcional, o mesmo DTO passa a aceitar CPF ausente no PUT, que grava NULL.
 
 **Cliente anonimizado.** Hoje não existe. Quando a P2 existir, o PUT de cliente anonimizado por completo tem de responder erro, porque religaria dado novo a um cadastro que deixou de identificar alguém. No cadastro anonimizado em parte (2.3), o PUT pode regravar o contato, mas não pode trocar nem apagar o CPF retido. Fica na P15, ampliada nesta revisão. A F10 não precisa tratar.
+
+### 2.6 Revisão humana da F04 de 18/11 (revisão 8)
+
+**Pedido do comandante: classificação, descarte e máscara.** Os três foram decididos na revisão 5 e continuam valendo sem mudança. Nesta revisão conferi o código atual da F04 contra eles (8.9). Resumo para quem chega pela F04:
+
+| Tema | Regra vigente | Onde está |
+|---|---|---|
+| Classificação | A placa ligada a cliente é dado pessoal do dono: identifica a pessoa de forma indireta, pelo DETRAN e pelo `cliente_id`. Marca, modelo, ano e cor são dado pessoal por associação enquanto estiverem ligados à placa ou a cliente não anonimizado. Nenhum deles é dado sensível. Base: execução de contrato (art. 7º, V). Retenção: a do dono (R1 ou R2), pendente da P1 | 2.4 e 3.1 |
+| O que acontece com o veículo quando o cliente é descartado | Na mesma transação do cliente (seção 4, passo 3), todos os veículos dele, com ou sem OS, recebem `placa = CONCAT('ANON', id)`. Marca, modelo, ano, cor e quilometragem ficam. A linha não é apagada (FK da OS), e OS, parcelas e pagamentos ficam intactos. No pedido do titular com OS dentro de R1, a placa vai na hora, mesmo com nome e CPF retidos. A placa fica livre no índice: se o carro voltar, é cadastro novo, sem ligação com o histórico anonimizado | 2.4, 3.1 e seção 4 |
+| Máscara em log | `MascaraDadoPessoal.placa`: `****` mais os 3 últimos caracteres da placa normalizada (`ABC1D23` vira `****D23`). Placa inválida, `null` ou `ANON<id>` viram `*******`. Só nas linhas da 6.6, e a lista nunca leva placa. Placa proibida em URL, em mensagem de erro e em exemplo com placa real | 6.2.2 e 6.6 |
+
+Os ajustes da revisão humana não coletam dado novo, não criam destino novo e não mudam prazo. Parecer de cada um:
+
+**Critério 7: marca, modelo e cor aparados (C7a a C7c e C16a; D1 do PRD).** Parecer favorável, incluindo a `cor`. A D1 amplia o critério, e o VIGIA concorda, porque o motivo é o mesmo nos três campos. Condições:
+
+* `strip()` no construtor do `VeiculoRequest`, antes do Bean Validation, no mesmo lugar em que a placa já é normalizada. Assim `@NotBlank` e `@Size` olham o valor que será gravado. Usar `strip()`, e não `trim()`, como faz o `ClienteMapper` (conferido: `strip()` nas linhas 62 e 83). Depois do `strip()`, valor vazio continua virando `null`.
+* Não mexer em caixa, acento nem espaço interno: o atendente grava o que digitou, só sem as pontas.
+* A mudança fica só no veículo. O Cliente já apara nome e endereço no mapper (conferido), então não há dívida a avisar ao dono do contrato do Cliente.
+
+**Critério 8: ano só como inteiro JSON (C8c a C8e; D2 e D3 do PRD).** Parecer favorável à coerção estrita **só no campo `ano` do `VeiculoRequest`**. Mudar o `ObjectMapper` global alteraria sem revisão o contrato do login e do Cliente. `2015.0` também é recusado (D2), porque a regra olha o tipo do token, não o valor. Resposta à pergunta do BUSSOLA sobre a opção A da D3: **ler só o nome da propriedade no erro de desserialização não vaza o corpo, desde que estas condições sejam cumpridas.** Sem elas, vaza (achado Y1):
+
+1. O handler só preenche `erros[]` quando três coisas valem juntas: a classe de destino da raiz é `VeiculoRequest`; o caminho do erro tem exatamente uma referência; e o nome dessa referência está numa lista fixa no código (hoje só `ano`). A chave sai de constante (`veiculo.form.ano.tipo` em `VeiculoChaves`), nunca da concatenação do nome lido. Fora desses casos, fica como hoje: mensagem fixa e `erros[]` vazio.
+2. Da exceção do Jackson, só se lê o caminho, ou seja, o nome da propriedade. Proibido ler `getMessage()`, `getOriginalMessage()`, `getValue()` (que carrega o valor recusado no `InvalidFormatException`), localização ou trecho da fonte. Proibido logar a exceção. A mensagem do Jackson cita o valor recebido (E2, seção 7).
+3. Por que a lista fixa: hoje o nome vem de propriedade declarada no DTO, que não tem `Map` nem lista, e o Jackson ignora propriedade desconhecida. Mas basta um `Map` num DTO futuro, ou ligar a leitura de propriedade sem diferenciar maiúscula, para o nome virar texto de quem ataca, refletido na resposta. A lista fixa corta esse caminho sem depender do DTO.
+4. Recebem 400 com o mesmo erro: decimal (`2015.9` e `2015.0`), texto (`"2015"`), booleano, objeto, array e inteiro que estoura o `Integer` (20 dígitos). O estouro nunca pode virar 500. `null` e ausência continuam sendo `veiculo.form.ano.obrigatorio`.
+5. Sem linha de log, como todo corpo ilegível (6.6).
+6. Chave nova `veiculo.form.ano.tipo` aprovada: segue o formato `veiculo.form.*` e não tem marcador de interpolação (E5).
+
+A opção B (receber o `ano` num tipo genérico e validar depois) também não vaza, mas troca o `Integer` tipado por uma estrutura que aceita qualquer coisa no DTO. O VIGIA recomenda a A, com as condições acima. A decisão técnica é do CARTOGRAFO.
+
+**Critério 17 e C17a: PUT sem `cor` limpa a cor.** Parecer favorável. O PUT total (ADR-024) grava `NULL` na cor omitida, o que é minimização: o dado sai na hora, sem cópia. A R6 (2.5) também vale para veículo: a cor anterior não fica em coluna, log, resposta nem auditoria. A linha `veiculos.editar` continua só com `placaAlterada` e não ganha indicador de outro campo. O IT confere pelo `JdbcTemplate` que a coluna ficou `NULL`, e não com string vazia.
+
+**Critério 25 e C25a, C25b: chave só no 400 de campo.** Parecer favorável. Conferi no `GlobalExceptionHandler` que os erros de rota já usam texto fixo sem valor: o 400 de parâmetro cita só o nome (`ex.getName()`, o nome do parâmetro do método), e o 404, o 405 e o 415 têm mensagem fixa. Se a F35 pedir chave nesses erros, a chave sai de constante por tipo de erro, nunca de texto da requisição.
+
+**D4: descarte `ANON<id>` ainda sem código. Parecer: não bloquear a F04 e abrir card com prazo.** A decisão é da pessoa responsável. Motivos:
+
+* O descarte do veículo não é uma rotina separada. Ele é o passo 3 do procedimento do cliente (seção 4), que é a P2. A P2 já bloqueia o primeiro cliente real em produção (seção 9), e sem cliente real não existe veículo real para descartar.
+* A parte de banco do descarte já está pronta e provada: o `CHECK` da V7 aceita o marcador, o validador recusa `ANON42` na entrada (`PlacaVeiculoTest`) e o `VeiculoIT` roda o `UPDATE ... CONCAT('ANON', id)` em MySQL real com dois veículos do mesmo cliente, sem erro 1062. Li esse teste nesta revisão, mas não o reexecutei. Bloquear a F04 não adianta o descarte.
+* Condição: o card da P2 nasce com data fixada pela pessoa, antes do primeiro cliente real em produção, e traz o passo 3, a tabela de auditoria e o bloqueio da P15. Sem data, a promessa de descarte desta política fica sem entrega, e o VIGIA passa a pedir o bloqueio do primeiro deploy com dado real.
+
+**D7: aceite do risco V7 com nome.** O VIGIA não aceita risco em nome de ninguém, e esta revisão não registra aceite. Abaixo, um texto proposto para a pessoa responsável copiar na descrição do PR da F04-a (a fatia que traz o 409), ou nesta seção, e assinar:
+
+> Eu, [nome completo], responsável pela Mecânica São Jorge, aceito em [data] os riscos V7 e P8 da política de dados pessoais de cliente: (1) o 409 de placa confirma a qualquer usuário autenticado que uma placa é de cliente da oficina; (2) qualquer usuário autenticado, ADMIN ou FUNCIONARIO, lê, cria e edita os veículos de qualquer cliente. Mitigação vigente: as linhas de log `veiculos.*` com `usuarioId` (6.6). Reavaliar quando entrar permissão por perfil.
+
+Até haver nome e data, o V7 segue aberto e a P8 bloqueia o merge da F04-a.
+
+**V7 em cópia de dados reais, antes de qualquer deploy (P17).** A seção 7 do PRD da F04 manda rodar `SELECT placa, COUNT(*) ... GROUP BY placa`, que imprime as placas repetidas na tela de quem roda. Vale esta política, que só permite contagem (achado Y4). O procedimento abaixo foi provado em MySQL 8.4 descartável, com placas fictícias (8.9):
+
+1. **Quando:** antes de aplicar a V7 em qualquer banco com dado que não foi criado por teste. Os documentos não registram nenhum deploy (não consultei nenhum servidor).
+2. **Onde:** numa cópia restaurada em contêiner sem rede publicada e sem volume persistente, removido no fim. A cópia é dado pessoal real: só quem administra o banco tem acesso, e nada sai dela além das três contagens e do status do Flyway.
+3. **Contar, nunca listar valor:**
+
+```sql
+-- C1: grupos que o índice recusaria (a collation já junta maiúscula e minúscula)
+SELECT COUNT(*) FROM (SELECT placa FROM veiculos GROUP BY placa HAVING COUNT(*) > 1) d;
+-- C2: linhas que o CHECK recusaria
+SELECT COUNT(*) FROM veiculos
+ WHERE NOT REGEXP_LIKE(placa, '^([A-Z]{3}[0-9][A-Z0-9][0-9]{2}|ANON[0-9]{1,6})$', 'c');
+-- C3: grupos que colidem depois de tirar hífen e espaço
+SELECT COUNT(*) FROM (SELECT REPLACE(REPLACE(placa, '-', ''), ' ', '') p FROM veiculos
+  GROUP BY p HAVING COUNT(*) > 1) d;
+```
+
+4. **As três contagens em zero:** aplicar o Flyway na cópia e registrar só a versão aplicada e o status.
+5. **Alguma contagem diferente de zero: não rodar a V7.** Com placa duplicada, a V7 falha com `Duplicate entry '<placa>'`, e a placa vai inteira para o log do boot. Com placa fora do formato, falha com o erro 3819, que não traz o valor. Nos dois casos a tabela fica intacta (provado na 8.9). Para achar as linhas, consultar só o `id` (`SELECT id FROM veiculos WHERE ...`), e o ADMIN abre cada id pelo app. Placa fora do formato se corrige pela edição da F04, que normaliza. Duplicado se resolve caso a caso com a pessoa, pela conduta da P13 (2.4): é proibido inventar placa ou trocar caractere para passar no índice.
+6. O resultado (as três contagens e o status do Flyway) vai para a entrega do deploy e é revisado pelo VIGIA.
 
 ## 3. Retenção
 
@@ -871,18 +937,60 @@ Não executado: `osv-scanner`, que não está instalado (vale a última varredur
 * **Email só com NBSP virar `null`.** Recomendo manter. É o mesmo tratamento que o email só com espaço ASCII já recebe (`emBrancoParaNulo`). Como o PUT substitui tudo, `null` já quer dizer "apagar o email". Recusar com 400 só o NBSP criaria uma regra diferente para cada tipo de espaço. O efeito colateral é que a F35, ao reenviar um campo que só tem NBSP, apaga o email, exatamente como faria com o campo vazio. Não há impacto em LGPD: apagar reduz dado. A decisão é da pessoa.
 * **Qual corpo vale.** O rascunho do ESPRESSO não está versionado, então não consigo conferir nele o W1 nem o W6. Recomendo o corpo consolidado e versionado em `docs/product/F10-pr-rascunho-corpo.md`, que traz a contagem do W1 e o tipo certo da resposta (W6). A confirmação é da pessoa.
 
+### 8.9 Revisão 8: conferência do código da F04 e ajustes da revisão humana
+
+Escopo revisado por leitura, na branch `docs/f04-bussola-prd-revisao` (`9425b50`, que contém a F04 até `7250be2` e a F10): `VeiculoRequest`, `AnoModelo`, `VeiculoChaves`, `PlacaVeiculo`, `MascaraDadoPessoal`, `VeiculoService`, `VeiculoMapper`, `GlobalExceptionHandler`, `ErroCampo`, V7, `application.yml` (loggers JDBC), `VeiculoControllerTest`, trechos do `VeiculoIT` e o PRD da F04. O código dos ajustes N1 a N3 ainda não existe. Os achados abaixo são de desenho, para o ESPRESSO resolver.
+
+#### Evidência executada (2026-11-18)
+
+| Verificação | Comando | Resultado real |
+|---|---|---|
+| Contrato da máscara e da normalização | `./mvnw -o test -Dtest=MascaraDadoPessoalTest,PlacaVeiculoTest,VeiculoRequestTest` | 68 testes, 0 falhas, 0 erros, `BUILD SUCCESS` |
+| Tabela da 6.2.2 | `./mvnw -o -q test -Dtest=MascaraPlacaTest` | 12 execuções, 0 falhas: as 9 linhas parametrizadas, `null` e vazio, e uma execução com os três casos fora do ASCII (U+0131, U+0661 e U+FF21) |
+| Contagens antes da V7 | MySQL 8.4 descartável (`--network none`, sem volume), tabela com `placa VARCHAR(10)` em `utf8mb4_0900_ai_ci` e 7 placas fictícias simulando legado sem `CHECK` (`ABC1234`, `abc1234`, `ABC-1D23`, `ABC1D23`, `XYZ9A87`, `QWE 1234`, `QWE1234`) | C1 = 1, C2 = 3, C3 = 3. Nenhuma placa na saída |
+| V7 do repositório sobre esse legado | arquivo da V7 aplicado pelo cliente `mysql` | `ERROR 3819 (HY000) at line 7: Check constraint 'ck_veiculos_placa_formato' is violated.`, sem o valor. Restrições depois: só `PRIMARY` |
+| V7 só com duplicado (linhas fora do formato removidas e `ABC1234` repetida) | o mesmo arquivo | `ERROR 1062 (23000) at line 7: Duplicate entry 'ABC1234' for key 'veiculos.uk_veiculos_placa'`, **com a placa inteira na mensagem**. Restrições depois: 1 (só a PK). O `ALTER` não deixa restrição pela metade |
+| Limpeza | `docker rm -f vigia-f04-v7` | Contêiner removido |
+
+Não executado:
+
+* A sonda do Jackson 3 com `"ano": 2015.9`, `"2015"`, objeto e estouro. O filtro de permissão desta sessão recusou gravar o arquivo de teste temporário, e não o contornei. O que a exceção carrega vem do achado E2 (a mensagem do Jackson cita o valor) e da leitura do handler. A prova passa a ser condição de aceite (Y1 e 10.3).
+* `VeiculoIT` e `VeiculoControllerTest` não foram reexecutados nesta revisão. Ficam com o ESPRESSO, junto com N1 a N3.
+* `osv-scanner`: os ajustes não mudam o `pom.xml`, então vale a última varredura registrada (8.2).
+* O que o Flyway faz quando a V7 falha no MySQL (linha `success = 0` no histórico e necessidade de `repair`) é suposição, não verificada.
+
+#### Achados
+
+| ID | Severidade | OWASP | Achado | Impacto concreto | Correção específica | Dono |
+|---|---|---|---|---|---|---|
+| Y1 | Média se acontecer (preventivo) | A09 / A05 / LGPD | A opção A da D3 implementada lendo a mensagem ou o valor da exceção do Jackson, ou refletindo o nome do caminho sem lista fixa | O 400 devolve o que veio no corpo, por exemplo uma placa ou um nome colado no campo `ano`. Com um `Map` futuro no DTO, quem ataca escolhe o texto refletido em `erros[].campo` | Condições 1 a 6 da 2.6. IT com valores fáceis de distinguir (`"ano": "SEGREDO2015X"`, `"ano": 2015.9` e `"ano"` como objeto com uma placa fictícia dentro): 400 com `erros[]` de um item só, campo `ano` e chave `veiculo.form.ano.tipo`, corpo e log sem o valor e `COUNT(*)` sem mudar. Inteiro de 20 dígitos dá 400, nunca 500 | ESPRESSO |
+| Y2 | Baixa | Qualidade da prova | Os testes de corpo ilegível usam `"ano": "abc"` e afirmam `not(containsString("abc"))` (`VeiculoControllerTest.java:129` e `VeiculoIT.java:567`) | Três letras provam pouco que o valor não ecoa. O teste pode passar por acaso, ou quebrar por acaso se a mensagem fixa um dia contiver `abc` | Trocar por um valor longo e único, como no Y1 | ESPRESSO |
+| Y3 | Baixa, risco a aceitar | A03 / A04 | `marca`, `modelo` e `cor` aceitam caractere de controle (quebra de linha, tab) e caractere invisível. O `strip()` só tira as pontas, e um valor feito só de espaço de largura zero talvez passe no `@NotBlank` (não verificado) | Nenhum hoje: o app mostra texto puro, e os três campos nunca vão para log. Quando entrar PDF da OS ou WhatsApp (backlog), uma quebra de linha injetada muda o texto da mensagem | Aceitável na F04. Quem fizer PDF ou WhatsApp escapa a saída no contexto (seção 7) e revê com o VIGIA a entrada desses campos | CARTOGRAFO (registrar no backlog) |
+| Y4 | Média | LGPD | A seção 7 do PRD da F04 manda rodar `SELECT placa, COUNT(*) FROM veiculos GROUP BY placa HAVING COUNT(*) > 1` na cópia de dados reais | As placas repetidas de clientes reais aparecem na tela, no histórico do terminal e em qualquer captura anexada à entrega | Usar só as contagens C1 a C3 da 2.6. O BUSSOLA corrige a linha do PRD (P19). Até lá, vale esta política | BUSSOLA |
+| Y5 | Baixa | A09 / LGPD | Reconfirmado: se a V7 rodar sobre placa duplicada, o erro 1062 leva a placa inteira para o log do boot (provado acima). Com placa fora do formato, o 3819 não traz o valor | Placa real no log do contêiner, que hoje não tem retenção definida (P7) | Procedimento da 2.6: contar antes e nunca rodar a V7 com contagem diferente de zero | Responsável pelo banco, ANCORA |
+
+Conferido sem achado, por leitura:
+
+* `MascaraDadoPessoal.placa` segue o contrato da 6.2.2: normaliza com `PlacaVeiculo.normalizar` (só espaço e hífen ASCII, maiúscula só de `a` a `z`), confere a regex só em ASCII e devolve `*******` em qualquer outro caso. Os testes passaram (tabela acima).
+* `VeiculoService`: as dez linhas de log batem com a tabela da 6.6. A placa só sai por `MascaraDadoPessoal.placa`, a lista não leva placa, e o 409 nasce do índice (`saveAndFlush` no ponto único `gravar`, com exceção sem causa). Outra violação de integridade cai no 500, que loga só a classe e o caminho.
+* `VeiculoMapper`: `id`, `cliente` e `quilometragem` ignorados de forma explícita no `toEntity` e no `atualizar`, com `ReportingPolicy.ERROR`. A edição copia sobre a entidade carregada (V1 e V2).
+* `VeiculoRequest`: só os cinco campos e `toString()` fixo (V8). As chaves de `VeiculoChaves` não têm marcador de interpolação (E5).
+* `GlobalExceptionHandler`: `erros[]` usa `FieldError.getField()` e só leva a chave quando a mensagem tem formato de chave, nunca `rejectedValue`. Corpo ilegível, 404, 405 e 415 com mensagem fixa.
+* A V7 do repositório é igual à candidata provada na 8.5. O `application.yml` mantém `org.hibernate.orm.jdbc.error` e `SqlExceptionHelper` em `OFF`.
+* ADR-022 a ADR-025 continuam sem arquivo em `docs/architecture/adr/` (conferido com `ls` e `git log --all`), embora o código os cite. As condições do VIGIA que esses ADRs precisam levar estão na 2.4, na 2.6 e na seção 7.
+
 ## 9. Pendências e donos
 
 | ID | Pendência | Dono | Bloqueia |
 |---|---|---|---|
 | P1 | Validar base legal e prazos R1 e R2 (D2 da F03a) | Pessoa, com jurídico ou contador da oficina | Rotina automática de descarte. Não bloqueia a F03a (só leitura) |
-| P2 | Procedimento manual de anonimização (script SQL revisado pelo VIGIA) e tabela de auditoria | Pessoa decide a feature; ESPRESSO implementa; VIGIA revisa | Primeiro cliente real em produção |
+| P2 | Procedimento manual de anonimização (script SQL revisado pelo VIGIA) e tabela de auditoria. Na revisão 8 (D4, 2.6): card com data fixada pela pessoa, antes do primeiro cliente real, trazendo o passo 3 da seção 4 (veículos) e a P15 | Pessoa decide a feature; ESPRESSO implementa; VIGIA revisa | Primeiro cliente real em produção |
 | P3 | Canal do titular e quem responde (seção 5, D3 da F03a) | Pessoa, com BUSSOLA | Primeiro cliente real em produção |
 | P4 | Aviso de privacidade ao cliente no cadastro (art. 9º), com o conteúdo mínimo da seção 7 ("App, criação") | BUSSOLA (texto), pessoa (balcão), F35 | Primeiro cadastro real. Não bloqueia a F03c, que é só API (revisão 3) |
 | P5 | Datas de OS e pagamento (A6) | CARTOGRAFO | Rotina automática de R1 |
 | P6 | ~~Merge do PR #14 na `main` (A0)~~. **Fechada** na revisão 2: a `main` b1f29fc está em Boot 4.1.2 | Pessoa | — |
 | P7 | Retenção de log de aplicação (seção 7, achado B6): validar os 90 dias e definir onde o log fica quando houver deploy | Pessoa, ANCORA | Primeiro deploy com coletor ou arquivo de log |
-| P8 | Aceite do risco B2 (CPF e endereço inteiros para qualquer token válido, inclusive o de usuário já desativado até o JWT expirar, provado na 8.2) registrado na PR da F08. Na revisão 3, estendido à escrita (E6). Na revisão 5, estendido ao oráculo de placa do 409 (V7). Na revisão 6, estendido à edição de qualquer cliente por qualquer token (U5) e ao oráculo de CPF e email do 409 (U8), com aceite antes do merge da F10 | Pessoa | Merge da F08; a parte de escrita, o merge da F03c |
+| P8 | Aceite do risco B2 (CPF e endereço inteiros para qualquer token válido, inclusive o de usuário já desativado até o JWT expirar, provado na 8.2) registrado na PR da F08. Na revisão 3, estendido à escrita (E6). Na revisão 5, estendido ao oráculo de placa do 409 (V7). Na revisão 6, estendido à edição de qualquer cliente por qualquer token (U5) e ao oráculo de CPF e email do 409 (U8), com aceite antes do merge da F10. Na revisão 8, texto de aceite proposto para a F04, a assinar com nome e data (2.6, D7) | Pessoa | Merge da F08; a parte de escrita, o merge da F03c; na F04, o merge da F04-a |
 | P9 | CPF obrigatório ou opcional na criação (2.2, E1). Parecer do VIGIA: opcional | Pessoa, com BUSSOLA (e o contador, se for obrigatório) | Aceite do exemplo `CPF` do US-CLI-16 da F03c |
 | P10 | ~~Índice único em `clientes.cpf` e 409 em fatia própria ou na F03d~~. **Decidida na revisão 4**: entra na própria F03c (2.1, E7). Falta o aceite do ADR-020 pela pessoa. Se ela recusar, a P10 volta a valer como era, bloqueando o primeiro cliente real | ESPRESSO (código e IT), pessoa (aceite) | Merge da F03c |
 | P11 | ~~Regra de troca de dono de veículo (2.1) no card da F04~~. **Fechada na revisão 5**: `cliente_id` imutável depois da criação (2.1), como a premissa 6 do card | BUSSOLA, CARTOGRAFO | — |
@@ -891,6 +999,9 @@ Não executado: `osv-scanner`, que não está instalado (vale a última varredur
 | P14 | O marcador `ANON<id>` cabe até o veículo 999999 (2.4). Ampliar `placa` em migration aditiva antes disso | CARTOGRAFO | Nada hoje |
 | P15 | Marcador de cliente anonimizado e bloqueio do POST e do PUT de veículo desse cliente (2.4), dentro da feature da P2. Na revisão 6, também o bloqueio do PUT de cliente anonimizado por completo e da troca ou retirada do CPF retido do anonimizado em parte (2.5) | ESPRESSO, VIGIA | P2 |
 | P16 | Aceite do email único com 409 no POST e no PUT (2.1 e 2.5). Muda o contrato aprovado da F09: o POST passa a responder 409 `Email ja cadastrado`. Parecer do VIGIA: favorável. Se a pessoa recusar, vale a revisão 3 para o email e os critérios 6, 7 e a parte de email do 8 da F10 caem | Pessoa, com BUSSOLA | Critérios de email da F10 e a migration do índice de email |
+| P17 | V7 em cópia de dados reais antes de qualquer deploy, pelo procedimento da 2.6: só as contagens C1 a C3, nunca `SELECT placa` | Responsável pelo banco, com ANCORA; VIGIA revisa o resultado | Primeiro deploy da V7 em banco com dado real |
+| P18 | Nomear o dono de P13, P14 e P15. O VIGIA concorda com a sugestão do BUSSOLA (D5 do PRD) | Pessoa | Nada hoje; a P15 entra com a P2 |
+| P19 | Corrigir a seção 7 do PRD da F04, que manda listar placas repetidas com `SELECT placa` (Y4) | BUSSOLA | P17 |
 
 ## 10. Como verificar esta política na F03a
 
@@ -950,6 +1061,15 @@ Cada item gera evidência executada, com comando e saída na entrega:
 * Log real da API em contêiner depois de um 201 e de um 409, como na 8.2: `grep -c` da placa inteira igual a 0.
 * `git grep -n "ANONIMO" -- apps/api` sem uso como valor de anonimização.
 
+Revisão 8 (ajustes N1 a N3 da revisão humana), cada item com saída na entrega:
+
+* `" Fiat "`, `" Uno "` e `" Prata "` gravam `Fiat`, `Uno` e `Prata`, conferido pelo `JdbcTemplate`, no POST e no PUT. Valor só com espaço dá 400 em marca e modelo e grava `NULL` em cor.
+* Y1: os casos do achado, com corpo e captura de log sem o valor e `erros[]` com um único item (`ano`, `veiculo.form.ano.tipo`). Do lado de quem ataca: corpo ilegível em outro campo (`"placa"` como array) continua com `erros[]` vazio, e o POST de cliente com `"nome"` de tipo errado também. A mudança não pode vazar para o Cliente.
+* C17a: PUT sem `cor` num veículo com `Prata` dá 200, e a coluna fica `NULL` pelo `JdbcTemplate`. A linha `veiculos.editar` não muda de formato.
+* Y2: valores fáceis de distinguir em todo `not(containsString(...))` de veículo.
+* Teste da virada do ano mantido (C8b).
+* `git grep -nE "spring.jackson|JsonMapper.builder|ObjectMapper" -- apps/api/src/main` sem configuração global nova de coerção.
+
 ### 10.4 Na F03d (editar, card F10)
 
 Cada item gera evidência executada, com comando e saída na entrega:
@@ -989,3 +1109,4 @@ Cada item gera evidência executada, com comando e saída na entrega:
 | 2026-11-18 | Revisão 6 (F10, F03d, edição de cliente): cobertura da edição confirmada, com o ciclo do dado no PUT, valor anterior nunca guardado, edição que não reinicia R1 nem R2 e regra R6 de histórico de alteração (2.5). Email único quando preenchido, com 409 no POST e no PUT, revogando a linha de email da revisão 3 (2.1 e 2.5, aceite na P16). Normalização do email só em ASCII. Respostas às três dúvidas do card. Linhas de log do PUT sem valor, nem mascarado, nem anterior (6.7). Regras de API da edição (seção 7). Evidência em MySQL 8.4 e JDK 21 e achados U1 a U9 (8.6). P8 e P15 ampliadas, P16 nova e roteiro da 10.4. Base legal e prazos seguem como proposta (P1) | commits `1161f9a` e `c4d112e` |
 | 2026-11-19 | Revisão 7 (F10, depois da revisão humana): a linha `campo=concorrencia` foi aprovada e vira condição de merge, porque não existe no código (6.7). Provado em MySQL 8.4.13 que o índice de email ignora U+200B, U+200D, U+FEFF e U+00AD (2.5 e 8.7). O aparo Unicode do email (`AparoUnicode`) substitui o `strip()` da revisão 6 (2.5). Revisão do código em `738f04b`, com a autorização conferida pelo lado de quem ataca (por leitura e pelos testes existentes) e os achados W1 a W6 (8.7). Roteiro da 10.4 ampliado. Coleta, base legal, retenção e descarte não mudam. Base legal e prazos seguem como proposta (P1) | esta revisão |
 | 2026-11-19 | Revisão do código da segunda rodada da F10 (8.8), sem revisão nova da política: W2 conferido; controle positivo de token e U+200B em três posições e sem conflito (200, gravado) acrescentados; lint isolado verde; achados X1 a X6; parecer sobre o NBSP e sobre o corpo da PR. Coleta, base legal, retenção e descarte não mudam | commits `8fa0d3c`, `3caf42c` e este |
+| 2026-11-18 | Revisão 8 (F04, ajustes da revisão humana de 18/11): classificação da placa, descarte do veículo junto com o cliente e máscara de log reafirmados sem mudança e conferidos no código atual (2.6 e 8.9). Pareceres: marca, modelo e cor aparados com `strip()` antes da validação; ano só inteiro JSON, com coerção restrita ao campo e as seis condições da chave `veiculo.form.ano.tipo` (D3, opção A); PUT sem cor grava NULL sem guardar o valor anterior; chave i18n só no 400 de campo; D4 sem bloquear a F04, com card da P2 com data; texto de aceite do V7 para a pessoa assinar (D7); procedimento da V7 em cópia de dados reais só com contagem, provado em MySQL 8.4 descartável. Achados Y1 a Y5; P2 e P8 ampliadas; P17 a P19 novas; roteiro da 10.3 ampliado. Base legal e prazos seguem como proposta (P1). Numerada 8 na integração com a `main` (24/11): foi escrita em paralelo à revisão 7 da F10, que entrou antes; a seção 8.7 da F04 virou 8.9 e os achados W1 a W5 da F04 viraram Y1 a Y5, sem mudança de conteúdo | esta revisão |

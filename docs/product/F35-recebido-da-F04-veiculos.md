@@ -39,6 +39,7 @@ Formato: `timestamp, status, erro, mensagem, path, erros[]`. `erros[]` está sem
 | `veiculo.form.modelo.tamanho` | modelo | acima do limite |
 | `veiculo.form.ano.obrigatorio` | ano | ausente |
 | `veiculo.form.ano.faixa` | ano | fora de 1900..ano+1 |
+| `veiculo.form.ano.tipo` | ano | não é inteiro JSON (`2015.9`, `"2015"`) |
 | `veiculo.form.cor.tamanho` | cor | mais de 40 caracteres |
 
 O contrato OpenAPI sai em `/v3/api-docs` (springdoc) e é conferido por `VeiculoIT.shouldDocumentFourRoutesWithI18nErrorsInOpenApi`. Os textos em português de cada chave são da F35; a API só devolve a chave.
@@ -48,3 +49,12 @@ O contrato OpenAPI sai em `/v3/api-docs` (springdoc) e é conferido por `Veiculo
 - Lista de veículos dentro do detalhe do cliente: usa `GET /api/v1/clientes/{id}/veiculos` (o detalhe do cliente não traz veículos, D-E do PRD).
 - Mensagem de placa duplicada sem mostrar a placa de outro cliente.
 - Seção "Histórico de OS" do veículo: vazia nesta entrega.
+
+## Mudanças da revisão de 18/11 (já no código, conferidas em 2026-11-19)
+
+Exemplos reais de requisição e resposta: `docs/api/veiculos.md`. O OpenAPI (`/v3/api-docs`) descreve as regras de `marca`, `modelo`, `ano` e `cor` no schema `VeiculoRequest`.
+
+- `marca`, `modelo` e `cor` chegam aparados: `" Fiat "` vira `Fiat` na resposta (N1).
+- `ano` só aceita inteiro JSON. `2015.9` e `"2015"` respondem 400 com `{campo: "ano", chave: "veiculo.form.ano.tipo"}` (N2). Com ano de tipo errado, só ele aparece em `erros[]`; os outros campos inválidos aparecem depois que o ano for corrigido.
+- PUT sem `cor` (ou com `cor` em branco) limpa a cor (PUT total, ADR-024) (N3).
+- A chave i18n vale só para o 400 de validação de campo e para o 409 de placa. Erros de rota (400 de parâmetro, 404, 405, 415, JSON malformado) seguem com texto fixo e `erros[]` vazio; **viram chave se a F35 pedir** (N4).
