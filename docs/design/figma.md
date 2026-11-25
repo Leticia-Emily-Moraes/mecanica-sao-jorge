@@ -410,6 +410,166 @@ pode pedir "Confirmar saída" na revisão sem implicar retrabalho estrutural.
 tabela de registro de execução do PRD F25 (US-PROTO-LGN-05/06), incluindo
 decidir as duas divergências de escopo/copy registradas acima.
 
+#### Correção F38 — X de fechar e ícone de olho (2026-11-12, ESQUADRO)
+
+A pedido direto do comandante, reaplicados no protótipo F25 os dois padrões
+novos de UI da F38 (botão X em popup, ícone de olho em campo de senha),
+restritos ao recorte que a instrução pediu: popup de erro de login e
+confirmação de logout. `whoami` confirmado sem bloqueio antes de qualquer
+leitura ou edição (handle "Leticia Moraes", plano `team::1274094162661077353`).
+
+**US-POP-06 — Popup de erro de login (`29:35` → `29:48`)**: adicionado
+`Alvo de toque · Fechar (44×44)` (`79:2`, retângulo invisível, mesmo padrão
+do alvo de toque do olho) com um ícone X de dois traços (`79:3`/`79:4`,
+`color/text/secondary`, 1,5 px, mesmo estilo do contorno do olho) no canto
+superior direito. Para abrir espaço sem sobrepor o ícone de alerta, todo o
+conteúdo do popup (`29:49` a `29:53`) foi deslocado 44 px para baixo e a
+altura do popup cresceu de 206 para 250 px; o frame do popup subiu 44 px
+(`y` 297→253) para manter a borda inferior exatamente onde estava (503 px),
+sem mexer na legenda de leitor de tela abaixo. Nenhum texto, botão ou cor
+existente foi alterado — só reposicionado. Legenda (`29:55`) reescrita para
+descrever o novo controle e a ordem de foco (Fechar → Tentar novamente).
+
+**US-POP-07 — Confirmação de logout (`33:49` → `33:62`)**: mesmo padrão,
+ids `79:5`/`79:6`/`79:7`. Conteúdo do diálogo (`33:63` a `33:68`) deslocado
+44 px para baixo, altura 192→236 px, frame subiu 44 px (`y` 304→260,
+borda inferior mantida em 496 px). Cancelar (`33:65`/`33:66`) e Sair/confirmar
+(`33:67`/`33:68`) preservados sem nenhuma alteração de posição relativa,
+texto ou cor — o X é ação adicional, não substitui nenhum botão. Legenda
+(`33:70`) reescrita: ordem de foco passa a ser Fechar (X) → título →
+mensagem → Cancelar → Sair, com o X documentado como equivalente a
+"Cancelar" (fecha sem encerrar sessão).
+
+**US-PWD-06 — Ícone de olho**: reli a página inteira (`28:2`) antes de
+mexer e confirmei que o ícone de olho **já existia** nos três frames de
+Login com campo de senha (`29:2`, `29:56`, `29:79` — "Olho · contorno" +
+"Olho · pupila" + "Olho · barra (ocultar)", construídos desde a criação
+original da F25 em 2026-11-07, antes mesmo da F38 existir). Ou seja, o
+código mobile usava texto "mostrar senha" até a F38 corrigir, mas o Figma
+já estava correto nesse ponto — não precisei adicionar o ícone fechado,
+só o estado aberto que faltava.
+
+Criei o frame `80:2` ("Anotação · olho aberto (variante US-PWD-06)"),
+360×256, posicionado em `x=1680, y=900` (coluna de Login, na faixa vazia
+entre a linha de Login e a linha de Perfil, sem sobrepor nenhum frame
+existente). Contém o ícone de olho aberto (sem a barra — `olhoContorno`/
+`olhoPupila` sem o traço "ocultar"), o alvo de toque 44×44 e o texto do
+nome acessível no estado ativo ("Ocultar senha").
+
+> **Atualização 2026-11-12 (rodada 2, abaixo):** o conflito descrito neste
+> parágrafo foi decidido por BUSSOLA (US-PWD-06 prevalece, só no frame `80:2`,
+> com senha fictícia) e o frame `80:2` foi refeito. O texto original fica como
+> histórico.
+
+**Conflito que encontrei e não resolvi sozinho**: o PRD do F25
+(`docs/product/F25-prototipo-login-perfil.md`, §8) já fixa, como decisão
+aprovada, que a senha "nunca" aparece como string literal visível no frame,
+"mesmo no estado Preenchido" — só mascarada/pontos. A US-PWD-06 da F38 pede
+literalmente uma variante "mostrando o olho aberto **com a senha em texto
+claro**". As duas instruções se contradizem. Não escolhi uma por conta
+própria: implementei a troca de ícone e de nome acessível (que não conflita
+com nada) e documentei o impasse na própria nota do frame `80:2`, pedindo
+que BUSSOLA decida qual decisão prevalece antes de eu desenhar a senha em
+texto legível de fato.
+
+**O que verifiquei**: `get_metadata` antes e depois de cada edição (nenhum
+nó existente apagado, ids antigos preservados); `get_screenshot` dos três
+frames (`29:35`, `33:49`, `80:2`) depois de cada etapa, conferindo que não
+há sobreposição de texto, que os botões Cancelar/Sair/Tentar novamente
+continuam legíveis e sem alteração visual além da nova posição, e que o
+X não é cortado pelo canto arredondado do popup. Cores do X e do olho
+aberto lidas com `boundVariables` antes de criar (herdadas de
+`color/text/secondary`, `VariableID:28:18`), não digitadas de cabeça —
+mesmo token já usado no ícone de olho fechado.
+
+**Fora desta rodada** (resolvido na rodada 2, abaixo): o retrofit do X nos
+24 frames de "Erro de rede" do F24 e do olho no Login do F24.
+
+#### Correção F38 — rodada 2 (2026-11-12, ESQUADRO)
+
+`whoami` sem bloqueio; sessão Figma aberta. Reli a página `28:2` e a página
+F24 (`3:2`) com `get_metadata`/`use_figma` somente leitura antes de editar, e
+conferi `29:35`, `33:49` e `80:2` com `get_screenshot` (não aceitei o relato
+da rodada 1 sem ver).
+
+**O que a leitura real mostrou (defeitos da rodada 1, corrigidos)**
+- O ícone de olho dos 3 frames de Login do F25 (`29:2`, `29:56`, `29:79`)
+  estava na borda direita do campo, com a barra de "ocultar" torta, e o alvo
+  de toque de 44×44 (x 320–364) **passava da largura do quadro (360)**.
+  Reposicionado dentro do campo: alvo em x=300 (borda direita em 344), olho
+  centralizado no alvo, barra diagonal centralizada no olho. Mesmos nós,
+  mesmos ids (`29:12–29:15`, `29:70–29:73`, `29:89–29:92`).
+- O popup de erro de rede do Perfil no F25 (`33:23`) **não tinha X**, embora
+  o app use o mesmo componente de popup, com X, na tela de Perfil. Aplicado o
+  mesmo tratamento do `29:48`: conteúdo deslocado 44 px, popup 206→250 px de
+  altura, frame subiu 44 px (borda inferior mantida em 503). Novo X: alvo
+  `85:2`, traços `85:3`/`85:4`. Legenda `33:32` reescrita (foco abre em
+  "Fechar"; "Sair" continua visível e tocável).
+
+**US-PWD-06 — frame `80:2` refeito.** BUSSOLA decidiu o conflito do §8: a
+senha em texto claro aparece **só neste frame**, com a string fictícia
+`senha-exemplo` (não é a senha do seed nem credencial real); nos demais
+frames continua mascarada. O frame agora mostra o campo "Senha" completo
+(`83:2`–`83:4`), o olho aberto dentro do campo (`83:5`–`83:7`, alvo 44×44) e
+o texto do nome acessível ("Ocultar senha" / padrão "Mostrar senha"). Frame
+360×315, mesma posição (x=1680, y=900). Nota `80:9` reescrita com a decisão.
+
+**US-POP-08 — X nos popups do F24.** Os 24 frames "Erro de rede" são popups
+de fato (um por tela, 01 a 24). Em cada um adicionei, dentro do frame
+`Popup · Erro de rede ou carregamento`, um alvo `Alvo de toque · Fechar
+(44×44)` (invisível, x=240, y=6) e um vetor `Botão Fechar · X` (14×14, traço
+1,5 px, cor `#1C1C1C` da própria tela). Sem deslocar nenhum conteúdo: o X fica
+ao lado do ícone de alerta, que é centralizado. Legenda de cada frame
+reescrita: "Foco inicial no X "Fechar" (canto superior direito do popup); Tab
+segue para "Tentar novamente"." e, onde o texto cresceu, o fundo da legenda
+foi redimensionado junto. Frames de erro como mensagem inline (Erro de
+validação) **não foram tocados**, exceto o Login (item seguinte, que é sobre
+o olho, não sobre o X).
+
+**US-PWD-07 — olho no Login do F24.** Dois frames do Login têm campo de
+senha interativo: `3:45` (Preenchido) e `3:29` (Erro de validação). Em ambos
+o olho fechado (alvo 44×44 em x=300, olho + barra de ocultar) está dentro do
+campo. Em `3:45` removi a legenda solta `Botão "Mostrar senha" / "Ocultar
+senha" ao lado` (o texto que a US manda trocar por ícone) e passei a regra
+para a legenda de foco (`3:57`). `3:3` (Carregando) e `3:15` (Erro de rede)
+ficam sem o controle porque o campo está desabilitado, igual ao F25.
+Divergência de forma: no F24 o olho é preto/cinza do wireframe, não o token
+`color/text/secondary` (o F24 não usa variáveis).
+
+**Verificado por varredura (script `use_figma`, saída lida):** 94 frames no
+F24 (nenhum criado nem apagado); 24 popups com X; 24 alvos de 44×44; 0 X fora
+de popup; 0 alvos fora do popup; 0 frame "Erro de rede" sem X; 0 frame com X
+que não seja "Erro de rede"; F25 com X em 3 popups (`29:48`, `33:23`, `33:62`).
+
+**Screenshots** (lidos um a um, em `docs/design/screenshots/F38/`):
+
+| Arquivo | Nó | O que mostra |
+|---|---|---|
+| `f25-29-35-login-erro-de-rede.png` | `29:35` | X no popup de erro de login (US-POP-06) |
+| `f25-33-49-confirmar-saida.png` | `33:49` | X + Cancelar + Sair (US-POP-07) |
+| `f25-33-14-perfil-erro-de-rede.png` | `33:14` | X no popup de erro do Perfil |
+| `f25-29-79-login-preenchido.png` | `29:79` | olho fechado dentro do campo, anel de foco no botão |
+| `f25-80-2-olho-aberto.png` | `80:2` | olho aberto, senha fictícia, "Ocultar senha" (US-PWD-06) |
+| `f24-3-15-login-erro-de-rede.png` | `3:15` | X no popup do F24 (US-POP-08) |
+| `f24-8-278-os-criar-erro-de-rede.png` | `8:278` | X na tela mais alta (826 px) |
+| `f24-3-45-login-preenchido.png` | `3:45` | olho no Login F24 (US-PWD-07) |
+| `f24-3-29-login-erro-validacao.png` | `3:29` | olho com erro de validação |
+
+**O que não verifiquei**: só olhei por screenshot os 4 frames do F24 acima
+(Login ×3 e OS · criar); nos outros 21 popups confio na varredura
+estrutural, não em captura. Não rodei o protótipo em modo Present nem
+leitor de tela real (VoiceOver/TalkBack): as legendas dizem o que *deve* ser
+anunciado. O "foco volta ao elemento anterior" e o "foco preso no popup"
+(US-POP-02/03) são comportamento do app, não do Figma. Atualização ORLA
+(2026-11-12): o retorno de foco ao botão que abriu o popup foi implementado
+(`useRestoreFocusOnClose`, testado em jest); o foco preso fica por conta do
+`Modal` nativo (`accessibilityViewIsModal` no iOS, janela própria no Android)
+e **não foi verificado em dispositivo**. A F39 redesenha as mesmas 24 telas: ela precisa
+herdar o X e o olho, senão o redesenho os perde.
+
+**Próximo passo**: ORLA confere o app contra estes frames; CRIVO revalida
+US-POP-06/07/08 e US-PWD-06/07.
+
 ### `F34 · Tab bar alta fidelidade` (2026-11-07, ESQUADRO)
 
 Protótipo de alta fidelidade do Menu principal (tab bar inferior), a partir
@@ -577,6 +737,18 @@ implementado por ORLA (`menu-tab-bar.tsx`, `(menu)/_layout.tsx`): bate ponto
 a ponto. Detalhe completo, incluindo o gap de verificação de foco em item
 desabilitado que fica para CRIVO, na seção 13 do documento de especificação.
 
+### F39 · Redesenho dos wireframes (2026-11-13, ESQUADRO)
+
+**Nenhum nó deste arquivo foi alterado na F39.** A versão nomeada da F24 aprovada, exigida antes de qualquer edição (US-WFR-15), não pôde ser criada: `figma.saveVersionHistoryAsync` respondeu `"saveVersionHistoryAsync" is not a supported API`. Pelo US-WFR-15b, as páginas `3:2`, `28:2` e `39:2` ficaram intactas (a página `3:2` continua com 94 filhos).
+
+Leitura (somente) feita: referência `FPdB8RymAnN81pbKfizdzE` (páginas `20:2131`, `20:2132`, `1:66`), variáveis da coleção `28:3` e amostra da página `3:2`. Resultado, quadro comparativo de tokens, contraste, débito com o F33 e lista de impacto: `docs/design/F39-redesenho-wireframes-navegacao.md`. Achado principal: a paleta de marca da referência (`#1E3A3F`, `#B5453D`) é igual à vigente; mudam neutros, estados, tipografia e forma.
+
+### F41 · Conferência de paridade (2026-11-13, ESQUADRO)
+
+**Rodada 2 (ESQUADRO, 2026-11-13): dois frames foram editados na F41, só no Figma.** Em `39:31` e `39:58` os ícones dos cinco itens estavam com `x` negativo (absoluto da página, fora do frame), então a tab bar saía sem ícone na captura. Somei o `x` do frame a 10 nós (`39:34`, `39:40`, `39:44`, `39:51`, `39:56`, `39:62`, `39:69`, `39:73`, `39:80`, `39:85`); agora x = 28, 98, 171, 244, 316, como em `39:3`. Nenhum outro nó foi alterado; nenhuma variável foi criada ou alterada. Na leitura da coleção `28:3` constam as variáveis numéricas (`font/*`, `border/width/*`, `space/*`, `size/*`) e as cores `color/surface/errorTint` e `color/focus/ring-on-brand`, que a rodada 1 dizia não existirem (autor e data desconhecidos). Faltam `color/text/placeholder` e `color/border/divider`, que aguardam decisão. Detalhes: `docs/design/F41-conferencia-paridade.md` §12.
+
+**Rodada 1 (ESQUADRO, 2026-11-13): nenhum nó foi alterado.** `whoami` respondeu sem bloqueio. Leitura (somente) das páginas `28:2` e `39:2` e dos frames `29:2`, `29:20`, `29:35`, `29:56`, `29:79`, `33:2`, `33:14`, `33:33`, `33:49`, `39:3`, `39:31`, `39:58`, com 12 capturas em `docs/design/f41-capturas/`. Lista de divergências (28 reais, 3 de plataforma), contraste e decisões pendentes da pessoa: `docs/design/F41-conferencia-paridade.md`. As capturas do app no aparelho não foram feitas (aparelho e ferramenta de toque indisponíveis). O Figma só será editado nas divergências que a pessoa decidir a favor do código (ex.: ícones da tab bar).
+
 ### F40 · Componentes base do app (2026-11-13, ESQUADRO)
 
 **Nenhum nó deste arquivo foi alterado na F40.** Leitura (somente) da página `28:2` (`get_metadata`, `get_screenshot` de `29:79` e `33:33`, `get_variable_defs` de `29:79`). Achado: o código de Login e Perfil não tem a faixa petro, o subtítulo, o avatar nem o ícone de olho que os frames aprovados têm; a correção é da F41. Especificação dos componentes, tokens a acrescentar (sem alterar valor) e matriz de anúncio ao leitor de tela: `docs/design/F40-componentes-base-especificacao.md`. Variáveis numéricas no Figma para os tokens novos ficam pendentes até ORLA commitar os valores e a F41 liberar a linha de base.
@@ -584,3 +756,17 @@ desabilitado que fica para CRIVO, na seção 13 do documento de especificação.
 ### F26 · Protótipo de alta fidelidade de Clientes e Veículos (2026-11-17, ESQUADRO)
 
 Seção nova `106:2097` na página `20:2132` do arquivo de referência `FPdB8RymAnN81pbKfizdzE`: 39 frames de alta fidelidade (33 da entrega inicial mais L7, C7 e os diálogos X1 a X4 da revisão de 17/11), o frame de apoio PF (`117:2636`, cópia do Perfil, destino do Voltar do L5) e a folha de foco (`113:2666`), fluxo iniciado em `109:2402`. Cada frame tem a camada de foco por controle com a ordem numerada. **Aguardando aprovação; a F39 ainda não está aprovada (US-PROTO-CLV-07 aberto).** Nenhum nó fora da seção foi alterado. Detalhe, ids, decisões e o que não foi verificado: `docs/design/F26-prototipo-clientes-veiculos.md`.
+
+### F35 · Especificação das telas de Clientes e Veículos (2026-11-19, ESQUADRO)
+
+Leitura (somente) dos frames F26 da seção `106:2097` (página `20:2132`) por `use_figma` e `get_screenshot`: textos, medidas, cores, tipografia e ordem dos nós das 7 telas. **Nenhum frame do F26 foi alterado.** Para cobrir estados que o F26 não tinha, criei 5 frames novos na seção, numa linha própria em y=8900 (rótulos em y=8876; seção estendida a 10000 de altura): D6 `135:937` (cliente sem veículos), D7 `135:1022` (dados ausentes, "Não informado"), D8 `135:1107` (cliente não encontrado), V6 `135:1144` (veículo não encontrado) e L8 `135:1182` (lista com "Carregar mais"), mais as anotações `136:888–897` com a ordem de foco. São **propostas, aguardando aprovação**; não têm camada de foco desenhada.
+
+Durante a exportação das capturas, a camada "Foco por controle" dos frames F26 ficou oculta e foi **restaurada** na mesma sessão (39 de 39 visíveis, conferido por contagem, não por screenshot).
+
+Achados: o F26 já tinha a lista de veículos no detalhe do cliente (D1); a borda do campo Endereço no E1 `106:2300` usa `#E2DEDA` (1,34:1, reprova 1.4.11) em vez de `border/default`; `#3E6E4A` e `#2C5258` (aviso de sucesso e selos) não têm variável. Especificação completa, mapa de componentes, divergências e o que não foi lido: `docs/design/F35-especificacao-telas-clientes-veiculos.md`. Capturas de referência: `docs/design/f35-capturas/` (44 PNGs).
+
+### F45 · Conferência de paridade e WCAG da Sprint 02 (2026-11-20, ESQUADRO)
+
+Sessão Figma `6d02d9a3-9142-4fde-841c-c791263c3366`, arquivo `FPdB8RymAnN81pbKfizdzE`. **Somente leitura (`get_metadata` e `use_figma` sem escrita): nenhum nó foi criado, movido ou alterado.** Comparação estática do Figma contra o código; não há captura do app dessas telas. Resultado, divergências N-01 a N-09 e auditoria: `docs/design/F45-conferencia-paridade-wcag-sprint-02.md`.
+
+Correção de registro (N-07): os frames propostos D6 `135:937`, D7 `135:1022`, D8 `135:1107`, V6 `135:1144`, L8 `135:1182` (x 60, 502, 944, 1386, 1828; y 8900) e as anotações `136:888` a `136:897` estão na página `20:2131` "01 — Wireframes", e **não** na seção F26 `106:2097` da página `20:2132`, como o parágrafo da F35 acima diz. A seção F26 tem 130 filhos e nenhum id `135:*` ou `136:*`. Não movi; aguarda decisão da pessoa.
