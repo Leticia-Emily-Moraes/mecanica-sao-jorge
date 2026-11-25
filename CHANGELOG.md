@@ -50,7 +50,10 @@ Só API e contrato. A tela de edição é da F35. Referência com exemplos reais
   espaço nas pontas** (`Carla@EXAMPLE.com` volta como `carla@example.com`),
   no `POST` e no `PUT`. Letras com acento não mudam.
 - Espaço nas pontas do email é aparado antes da validação de formato.
-  `" beto@example.com "` deixa de dar `400` e passa a valer.
+  `" beto@example.com "` deixa de dar `400` e passa a valer. O aparo inclui
+  espaço sem quebra (NBSP, U+00A0), U+2007 e U+202F, para que
+  `"beto@example.com "` seja o mesmo email e dê `409`, não um cliente
+  novo. Caractere de largura zero (U+200B) **não** é aparado.
 
 #### Banco de dados (ação necessária)
 
@@ -77,6 +80,16 @@ Só API e contrato. A tela de edição é da F35. Referência com exemplos reais
 - Telas de edição: não existem; a F35 as entrega.
 - Deadlock real do MySQL: não consegui provocá-lo nos testes de corrida. O
   `409` de deadlock está testado só com exceção simulada.
+- U+200B (largura zero) no email não é aparado pelo código. Teste de
+  caracterização (`ClienteAtualizarIT`): `U+200B` no início, no fim ou no
+  meio do domínio de um email que já pertence a outro cliente responde `409`,
+  porque o índice único do MySQL o ignora na comparação. Não passa na
+  unicidade. Sem conflito, o `PUT` responde `200` e grava o email com o
+  `U+200B` (risco aceito, W5 e X3 da política de dados do cliente).
+- A linha de log `campo=concorrencia` (conflito por gravação simultânea) estava
+  não implementada na entrega anterior; agora está no `ClienteService` e
+  coberta por teste unitário (`ClienteAtualizarServiceTest`). Vista rodando só
+  com exceção simulada, não com deadlock real do MySQL.
 - A `description` geral do `POST` no OpenAPI ainda cita só o CPF no `409`.
 
 ### F04 — Veículos (API) — branch `feat/f04-veiculos`

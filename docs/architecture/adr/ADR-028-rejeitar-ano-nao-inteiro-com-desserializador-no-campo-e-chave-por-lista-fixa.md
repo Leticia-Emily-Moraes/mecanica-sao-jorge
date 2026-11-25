@@ -1,7 +1,7 @@
 ---
 status: proposto   # 2026-11-19 proposto (F04, CARTOGRAFO, decisão D3 do PRD rev 2); aguarda aceite formal da pessoa dona do produto
 date: 2026-11-19
-decision-makers: [CARTOGRAFO (Arquiteto, o como), VIGIA (condições W1 da revisão 7 da política), pessoa dona do produto (aceite)]
+decision-makers: [CARTOGRAFO (Arquiteto, o como), VIGIA (condições Y1 da revisão 8 da política), pessoa dona do produto (aceite)]
 consulted: [BUSSOLA (N2, D2, D3 do PRD F04 rev 2)]
 informed: [ESPRESSO, CRIVO, PERGAMINHO, dono da F35]
 ---
@@ -16,7 +16,7 @@ A revisão humana de 18/11 (critério 8) constatou que `"ano": 2015.9` e `"ano":
 
 * F1. Escopo: só `VeiculoRequest.ano`; login, cliente e F30 inalterados (ex.: `"marca": 123` continua com o comportamento de hoje).
 * F2. Mesmo 400, com `erros[0].campo = "ano"` e `erros[0].chave = "veiculo.form.ano.tipo"`, para `2015.9`, `2015.0`, `"2015"`, booleano, objeto, array e inteiro de 20 dígitos; nunca 500. `null` ou ausente segue `veiculo.form.ano.obrigatorio`.
-* F3. Nada refletido: o handler não lê `getMessage`, `getOriginalMessage`, valor nem `location`, e não loga (condições 1 a 6 da seção 2.6 da política rev 7, W1).
+* F3. Nada refletido: o handler não lê `getMessage`, `getOriginalMessage`, valor nem `location`, e não loga (condições 1 a 6 da seção 2.6 da política rev 8, Y1).
 * F4. Simples de manter: uma classe pequena e uma regra no handler, testáveis por IT.
 
 ## Opções consideradas
@@ -50,7 +50,7 @@ flowchart TD
    3. `null` não chega ao método (o Jackson usa `getNullValue`, que devolve `null`), então `@NotNull` responde `ano.obrigatorio`.
 2. **Ligação**: `@JsonDeserialize(using = AnoInteiroDeserializer.class)` no componente `ano` do `VeiculoRequest`. Nenhuma mudança em `JsonMapper`, builder de `ObjectMapper` ou `spring.jackson.*`.
 3. **Chave**: constante `VeiculoChaves.ANO_TIPO = "veiculo.form.ano.tipo"`, incluída em `VeiculoChaves.TODAS`.
-4. **Handler** (`handleUnreadableBody`), condições do VIGIA (W1):
+4. **Handler** (`handleUnreadableBody`), condições do VIGIA (Y1):
    1. percorre as causas até achar `tools.jackson.databind.DatabindException`;
    2. preenche `erros[]` só se o caminho tem exatamente uma referência, a classe raiz é `VeiculoRequest` (pelo `getFrom()` da referência, seja instância ou `Class`) e o nome da propriedade está no mapa fixo em código `Map.of(VeiculoRequest.class, Map.of("ano", VeiculoChaves.ANO_TIPO))`;
    3. o `campo` devolvido é a chave do mapa, nunca o nome lido do caminho; a `chave` é a constante, nunca concatenação;
@@ -104,6 +104,6 @@ flowchart TD
 
 ## Mais informações
 
-* Complementa ADR-011 (formato do erro) e ADR-023 (`erros[]` com campo e chave). PRD `docs/product/F04-veiculos.md` (N2, D2, D3, C8c a C8e, C16a); política rev 7, seção 2.6 (W1).
+* Complementa ADR-011 (formato do erro) e ADR-023 (`erros[]` com campo e chave). PRD `docs/product/F04-veiculos.md` (N2, D2, D3, C8c a C8e, C16a); política rev 8, seção 2.6 (Y1).
 * **Não verificado**: a prova isolada no Jackson 3.1.7 (desserializador, A' e `getFrom()` em record) não foi executada; a escrita do arquivo de prova foi bloqueada pela permissão do ambiente e não foi contornada. A confirmação passa a ser o IT do ESPRESSO, e a regra 5 da especificação cobre o caso de falha.
 * Revisitar se outro campo numérico precisar de regra de tipo, ou se a API migrar para um formato de erro único (ADR-023).

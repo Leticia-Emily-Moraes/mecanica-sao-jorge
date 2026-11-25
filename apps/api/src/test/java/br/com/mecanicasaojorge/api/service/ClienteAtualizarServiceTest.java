@@ -15,6 +15,10 @@ import br.com.mecanicasaojorge.api.exception.CpfJaCadastradoException;
 import br.com.mecanicasaojorge.api.exception.EmailJaCadastradoException;
 import br.com.mecanicasaojorge.api.mapper.ClienteMapperImpl;
 import br.com.mecanicasaojorge.api.repository.ClienteRepository;
+import ch.qos.logback.classic.Logger;
+import ch.qos.logback.classic.spi.ILoggingEvent;
+import ch.qos.logback.core.read.ListAppender;
+import java.util.List;
 import java.util.Optional;
 import org.hibernate.exception.ConstraintViolationException;
 import org.junit.jupiter.api.BeforeEach;
@@ -22,6 +26,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.slf4j.LoggerFactory;
+import org.springframework.dao.CannotAcquireLockException;
 import org.springframework.dao.DataIntegrityViolationException;
 
 /** Edicao de cliente (F03d): mapper real, traducao dos indices e escolha da entidade carregada. */
@@ -114,6 +120,30 @@ class ClienteAtualizarServiceTest {
     clienteService.atualizar(ID, requisicao("KAİ@Example.com"), "3");
 
     assertThat(existente.getEmail()).isEqualTo("Kaİ@example.com");
+  }
+
+  @Test
+  void shouldLogOnlyConcurrencyFieldAndRethrowSameErrorWhenDatabaseReportsDeadlock() {
+    Logger logger = (Logger) LoggerFactory.getLogger(ClienteService.class);
+    ListAppender<ILoggingEvent> logs = new ListAppender<>();
+    logs.start();
+    logger.addAppender(logs);
+    try {
+      given(clienteRepository.findById(ID)).willReturn(Optional.of(clienteExistente()));
+      CannotAcquireLockException original =
+          new CannotAcquireLockException("Deadlock found; valor ficticio@example.com");
+      given(clienteRepository.saveAndFlush(any(Cliente.class))).willThrow(original);
+
+      assertThatThrownBy(() -> clienteService.atualizar(ID, requisicao("a@example.com"), "3"))
+          .isSameAs(original);
+
+      List<String> mensagens = logs.list.stream().map(ILoggingEvent::getFormattedMessage).toList();
+      assertThat(mensagens)
+          .containsExactly("clientes.editar.conflito clienteId=10 usuarioId=3 campo=concorrencia");
+      assertThat(mensagens).noneMatch(m -> m.contains("Deadlock") || m.contains("@example.com"));
+    } finally {
+      logger.detachAppender(logs);
+    }
   }
 
   private static DataIntegrityViolationException violacao(String restricao) {

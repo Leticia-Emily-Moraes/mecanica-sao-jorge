@@ -9,6 +9,8 @@ Exige usuário autenticado. ADMIN e FUNCIONARIO têm o mesmo acesso.
 - **Contrato de arquitetura:** `docs/architecture/overview.md`, seção "Contrato de API — Clientes editar (F03d)".
 
 > **Como os exemplos foram obtidos.** Em 2026-11-18 reconstruí o `apps/api/target/api.jar` a partir desta branch (`./mvnw -DskipTests package`) e o subi contra um MySQL 8.4 descartável (Docker, já removido). Inseri à mão um usuário e dois clientes fictícios (`Ana Antiga`, id 1; `Beto Exemplo`, id 2). Rodei as chamadas com `curl` e colei as respostas. Mudei só o seguinte: tirei o token, cortei cabeçalhos irrelevantes e a coluna `timestamp` muda a cada chamada. Todo dado é fictício.
+>
+> **O que mudou depois dessas chamadas.** O commit `0c78365` passou a aparar também espaços Unicode nas pontas do email (ver "Regras"). Os exemplos abaixo vieram de uma execução anterior a ele e continuam valendo: usam só espaço comum, e a mudança não altera status nem formato de resposta. Em 2026-11-19 tentei repetir as chamadas com `curl` e não consegui, porque o ambiente bloqueou subir a API em segundo plano. O aparo Unicode está verificado só por teste (ver "Pontos em aberto"), não por `curl`.
 
 ## Resumo
 
@@ -28,7 +30,7 @@ Peça o token em `POST /api/v1/auth/login` e envie `Authorization: Bearer <token
 - **O `id` vem só do caminho.** `id`, `createdAt` ou qualquer campo desconhecido no corpo é ignorado.
 - **Mesmas validações do `POST`.** O corpo é o mesmo `ClienteRequest`.
 - **CPF** vale com ou sem máscara e é gravado só com dígitos. **Telefone** idem.
-- **Email** perde os espaços das pontas e as letras `A` a `Z` viram minúsculas. Outras letras (acentos, por exemplo) não mudam.
+- **Email** perde os espaços das pontas e as letras `A` a `Z` viram minúsculas. Outras letras (acentos, por exemplo) não mudam. "Espaço" inclui o espaço sem quebra (NBSP, U+00A0), U+2007 e U+202F. **Caractere de largura zero (U+200B) não é aparado**, mas o índice único do MySQL o ignora na comparação: `"beto@example.com​"` colide com `beto@example.com` e responde `409`.
 - **CPF e email são únicos entre clientes.** A comparação ignora o próprio cliente: reenviar o seu CPF ou email, com outra pontuação ou caixa, não gera conflito.
 - **Última gravação vence.** Não há controle de concorrência otimista: duas edições do mesmo cliente não se avisam.
 - **Nada do valor antigo é guardado** (log, coluna ou histórico).
@@ -155,7 +157,7 @@ A edição mudou a criação em dois pontos. Ambos foram vistos na mesma execuç
    {"id":4,"nome":"Carla","cpf":"33333333333","telefone":"11912345678","email":"carla@example.com","endereco":null}
    ```
 
-Também vale para o `POST`: espaços nas pontas do email são aparados antes da validação de formato.
+Também vale para o `POST`: espaços nas pontas do email (inclusive NBSP) são aparados antes da validação de formato.
 
 ## Log
 
@@ -187,4 +189,6 @@ Conferi o `/v3/api-docs` da execução:
 
 - **P16 (pessoa):** aceite do email único no `POST` e no `PUT`. Sem ele, o 409 de email e a normalização caem.
 - **Base com dados:** a V8 falha se já houver email repetido (ver o `CHANGELOG.md`). Não testei contra base com dados.
+- **Verificado só por teste (2026-11-19):** `AparoUnicodeTest` (7 testes) e `ClienteAtualizarIT` (25) e `ClienteCriarIT` (30), com MySQL 8.4 em Testcontainers: 0 falhas. Cobrem NBSP nas pontas do email no `PUT` e no `POST`. Não há chamada `curl` com NBSP.
+- **U+200B (largura zero):** não é aparado, mas agora tem teste de caracterização no `ClienteAtualizarIT`: no início, no fim ou no meio do domínio de um email que já é de outro cliente, o `PUT` responde `409`, porque o índice do MySQL o ignora. Sem conflito, o `PUT` responde `200` e o email é gravado com o U+200B (risco aceito).
 - **Não verificado:** comportamento do `@Email` com caracteres fora do ASCII e o 500 do `PUT`.

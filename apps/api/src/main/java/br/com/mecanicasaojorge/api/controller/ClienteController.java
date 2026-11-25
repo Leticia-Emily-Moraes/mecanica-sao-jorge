@@ -101,7 +101,7 @@ public class ClienteController {
                               value =
                                   """
                                   {"nome": "Ana Exemplo", "cpf": "123.456.789-00",
-                                   "telefone": "(11) 91234-5678", "email": "ana@example.com",
+                                   "telefone": "(20) 91234-5678", "email": "ana@example.com",
                                    "endereco": "Rua Modelo, 100 - Jardim Exemplo"}"""))))
   @ApiResponse(
       responseCode = "201",

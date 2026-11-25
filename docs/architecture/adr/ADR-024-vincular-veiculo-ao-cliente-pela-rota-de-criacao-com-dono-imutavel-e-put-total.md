@@ -2,7 +2,7 @@
 status: proposto   # 2026-11-19 proposto (F04, CARTOGRAFO); aguarda aceite formal da pessoa dona do produto
 date: 2026-11-19
 decision-makers: [CARTOGRAFO (Arquiteto), pessoa dona do produto (aceite)]
-consulted: [BUSSOLA (PRD F04 rev 2, N1 e N3), VIGIA (revisão 7 da política, seção 2.6)]
+consulted: [BUSSOLA (PRD F04 rev 2, N1 e N3), VIGIA (revisão 8 da política, seção 2.6)]
 informed: [ESPRESSO, CRIVO, PERGAMINHO, ORLA, dono da F35, dono da F18 (OS)]
 ---
 
@@ -88,5 +88,5 @@ Opção escolhida: "A", porque o dono sai do caminho validado no servidor (F1), 
 ## Mais informações
 
 * Complementa ADR-001 (camadas), ADR-022 (placa), ADR-025 (histórico de OS).
-* PRD `docs/product/F04-veiculos.md` (C7a a C7c, C11a, C16a, C17 a C17b, C19b); política rev 7, seção 2.6.
+* PRD `docs/product/F04-veiculos.md` (C7a a C7c, C11a, C16a, C17 a C17b, C19b); política rev 8, seção 2.6.
 * Revisitar quando a P13 (veículo vendido) for decidida ou quando a F18 criar a OS.

@@ -1,5 +1,6 @@
 package br.com.mecanicasaojorge.api.mapper;
 
+import br.com.mecanicasaojorge.api.dto.AparoUnicode;
 import br.com.mecanicasaojorge.api.dto.ClienteDetalheResponse;
 import br.com.mecanicasaojorge.api.dto.ClienteListResponse;
 import br.com.mecanicasaojorge.api.dto.ClienteRequest;
@@ -59,7 +60,7 @@ public interface ClienteMapper {
     if (valor == null) {
       return null;
     }
-    StringBuilder normalizado = new StringBuilder(valor.strip());
+    StringBuilder normalizado = new StringBuilder(AparoUnicode.aparar(valor));
     for (int i = 0; i < normalizado.length(); i++) {
       char atual = normalizado.charAt(i);
       if (atual >= 'A' && atual <= 'Z') {

@@ -1,7 +1,7 @@
 ---
 status: proposto   # 2026-11-19 proposto (F04, CARTOGRAFO); aguarda aceite formal da pessoa dona do produto
 date: 2026-11-19
-decision-makers: [CARTOGRAFO (Arquiteto, o como), VIGIA (AppSec/LGPD, revisão 7 da política), pessoa dona do produto (aceite)]
+decision-makers: [CARTOGRAFO (Arquiteto, o como), VIGIA (AppSec/LGPD, revisão 8 da política), pessoa dona do produto (aceite)]
 consulted: [BUSSOLA (PRD F04 rev 2), ESPRESSO (código do commit 4becbb2)]
 informed: [CRIVO, PERGAMINHO, ANCORA, ORLA, dono da F35]
 ---
@@ -48,13 +48,13 @@ Opção escolhida: "A", porque é a única que atende F1 e F4 juntas: o InnoDB s
 3. **Defesa em profundidade** no banco: `ck_veiculos_placa_formato` com flag `'c'` (sensível a caixa), que recusa gravação fora do formato vinda de qualquer caminho que não a API.
 4. **Unicidade** só por `uk_veiculos_placa`. O `VeiculoService.gravar` faz `saveAndFlush` e traduz `DataIntegrityViolationException` cujo nome de constraint termina em `uk_veiculos_placa` para `PlacaJaCadastradaException`, **sem causa**. Qualquer outra violação segue para o handler genérico.
 5. **Resposta 409**: `mensagem` e `erros[0].chave` = `veiculo.form.placa.duplicada`, `erros[0].campo` = `placa` (ADR-023). Nunca devolve id nem dono do veículo existente.
-6. **Proibido**: `existsByPlaca*` no repository; `SELECT placa` em diagnóstico (contagem só com `COUNT(*)`, W4); placa em log sem máscara.
+6. **Proibido**: `existsByPlaca*` no repository; `SELECT placa` em diagnóstico (contagem só com `COUNT(*)`, Y4); placa em log sem máscara.
 
 ### Consequências
 
 * Bom, porque a corrida fecha no banco e o PUT de mesma placa não precisa de exclusão por id.
 * Bom, porque o `CHECK` barra placa fora do formato mesmo em carga manual ou script.
-* Ruim, porque a V7 falha no deploy se a base real tiver placa duplicada ou fora do formato; o erro 1062 do Flyway escreve a placa no log de boot (W5/P17). Antes de qualquer deploy: contar duplicadas e fora do formato só com `COUNT(*)` e testar a V7 numa cópia dos dados reais (P8/V7, aceite nominal pendente).
+* Ruim, porque a V7 falha no deploy se a base real tiver placa duplicada ou fora do formato; o erro 1062 do Flyway escreve a placa no log de boot (Y5/P17). Antes de qualquer deploy: contar duplicadas e fora do formato só com `COUNT(*)` e testar a V7 numa cópia dos dados reais (P8/V7, aceite nominal pendente).
 * Ruim, porque o 409 é oráculo de existência de placa para usuário autenticado (V7 da política); aceito porque não há perfil externo e o 409 não devolve dono.
 * Ruim, porque `VARCHAR(10)` limita o `ANON<id>` a 6 dígitos (veículo 999999, P14).
 
@@ -96,5 +96,5 @@ Opção escolhida: "A", porque é a única que atende F1 e F4 juntas: o InnoDB s
 ## Mais informações
 
 * Complementa: ADR-003 (migrations aditivas), ADR-011 (formato do erro), ADR-020 e ADR-026 (padrão do 409), ADR-023 (chave no `erros[]`), ADR-024 (vínculo com cliente).
-* PRD: `docs/product/F04-veiculos.md`. Política: `docs/security/politica-dados-pessoais-cliente.md` rev 7 (V7, W4, W5, P13, P14, P17).
+* PRD: `docs/product/F04-veiculos.md`. Política: `docs/security/politica-dados-pessoais-cliente.md` rev 8 (V7, Y4, Y5, P13, P14, P17).
 * Revisitar se surgir placa estrangeira ou de outro padrão, ou quando a P13 (baixa de veículo vendido) for decidida.

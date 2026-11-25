@@ -2,7 +2,7 @@
 status: proposto   # 2026-11-19 proposto (F04, CARTOGRAFO); aguarda aceite formal da pessoa dona do produto
 date: 2026-11-19
 decision-makers: [CARTOGRAFO (Arquiteto), pessoa dona do produto (aceite)]
-consulted: [BUSSOLA (PRD F04 rev 2, ajuste N4), VIGIA (revisão 7 da política), dono da F35 (tradução no app)]
+consulted: [BUSSOLA (PRD F04 rev 2, ajuste N4), VIGIA (revisão 8 da política), dono da F35 (tradução no app)]
 informed: [ESPRESSO, CRIVO, PERGAMINHO, ORLA]
 ---
 

@@ -142,15 +142,18 @@ npm run web      # navegador (suporte web do Expo Router)
 npm test
 ```
 
-114 testes em 23 suítes (execução de 2026-11-13, F40):
+321 testes em 45 suítes (execução de 2026-11-24, ADR-015 sobre a main com os componentes extras da F41):
 
-- `app/*.test.tsx` e `app/(menu)/*.test.tsx`: telas — reidratação de sessão,
-  validação de campo vazio sem chamar a API, erro de credencial, erro de rede
-  com retry, login com sucesso, mostrar/ocultar senha, Perfil e logout com
-  confirmação, guard do menu.
+- `src/screens/**/*.test.tsx` e `src/layouts/**/*.test.tsx`: telas e layouts —
+  reidratação de sessão, validação de campo vazio sem chamar a API, erro de
+  credencial, erro de rede, login com sucesso, mostrar/ocultar senha, Início,
+  Perfil e logout com confirmação, guard do menu.
 - `src/components/**/*.test.tsx`: um teste de componente para cada componente
   de `ui/`, `menu/` e `perfil/` (rótulo, papel, estado, foco, `onPress`);
   `StateView` cobre carregando, vazio e erro.
+- `src/integration/ui-structure.test.ts`: confere a posição dos arquivos
+  (ADR-015): pasta por componente com `index.ts` e `*.styles.ts`, tela com
+  `<nome>-screen.tsx`, nada de teste ou estilo em `app/`.
 - `src/hooks/*.test.tsx`: `useAuth` (restauração, login, logout, sessão
   expirada, falha do SecureStore) e `useLogin` (validação, sucesso, erro de
   credencial, erro de rede, retry).
@@ -177,13 +180,16 @@ npm run typecheck      # tsc --noEmit
 
 Definidas em `.eslintrc.js`, só com regras core do ESLint 8:
 
-| Camada               | Não pode                                                                                                                      |
-| -------------------- | ----------------------------------------------------------------------------------------------------------------------------- |
-| `app/` (telas)       | importar `@/services/*` ou `expo-secure-store`; `fetch`; hex de cor, tamanho/espaçamento numérico fixo e texto literal em JSX |
-| `src/components/**`  | `fetch`; hex, numérico fixo e texto literal (mesmas regras das telas)                                                         |
-| `src/components/ui/` | importar `@/i18n`, `@/hooks`, `@/services`, `@/config` ou componentes de área                                                 |
-| `src/hooks/`         | importar `@/components`, `@/i18n` ou `@/theme`                                                                                |
-| `src/services/`      | importar React, React Native, Expo Router, componente, hook, i18n ou tema; `console.*`                                        |
+| Camada                         | Não pode                                                                                                                                             |
+| ------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `app/`                         | qualquer coisa além de `export { default } from '...'` (sem import, função, JSX nem lógica)                                                          |
+| `src/screens/`, `src/layouts/` | importar `@/services/*`, `expo-secure-store` ou `*.styles`; `fetch`; `StyleSheet.create`, estilo inline, token, hex, numérico fixo e texto literal   |
+| `src/components/**/*.tsx`      | `fetch`; `StyleSheet.create`, objeto de estilo inline, import de `@/theme/tokens` e de `*.styles` de outra pasta; hex, numérico fixo e texto literal |
+| `src/**/*.styles.ts`           | importar algo além de `StyleSheet` (e tipos) de `react-native` e de `@/theme/tokens`; `export default`                                               |
+| `src/components/**/index.ts`   | reexportar `*.styles`                                                                                                                                |
+| `src/components/ui/`           | importar `@/i18n`, `@/hooks`, `@/services`, `@/config` ou componentes de área                                                                        |
+| `src/hooks/`                   | importar `@/components`, `@/i18n` ou `@/theme`                                                                                                       |
+| `src/services/`                | importar React, React Native, Expo Router, componente, hook, i18n ou tema; `console.*`                                                               |
 
 `src/theme/tokens.ts` é o único arquivo que pode ter hex. Arquivos de teste
 ficam fora destas regras.
@@ -191,23 +197,28 @@ ficam fora destas regras.
 ## Estrutura de pastas
 
 ```
-app/                      # rotas (Expo Router): compõem componentes e orquestram o fluxo
-├── _layout.tsx            # layout raiz (Stack + AuthProvider)
-├── index.tsx              # reidratação de sessão (decide Login x Início)
-├── login.tsx
-├── perfil.tsx             # fora do grupo (menu): sem tab bar, guard de sessão próprio
-└── (menu)/                # grupo pós-login: guard de sessão + tab bar
-    ├── _layout.tsx
-    └── inicio.tsx
+app/                      # só rotas do Expo Router: cada arquivo é um re-export
+├── _layout.tsx            # -> src/layouts/root-layout
+├── index.tsx              # -> src/screens/session-restore (decide Login x Início)
+├── login.tsx              # -> src/screens/login
+├── perfil.tsx             # -> src/screens/profile (fora do grupo (menu): sem tab bar)
+└── (menu)/                # grupo pós-login
+    ├── _layout.tsx        # -> src/layouts/menu-layout (guard de sessão + tab bar)
+    └── inicio.tsx         # -> src/screens/home
 
 src/
+├── layouts/               # root-layout (Stack + AuthProvider), menu-layout (guard + MenuShell)
+├── screens/               # session-restore, login, profile, home: só compõem componentes
 ├── components/
-│   ├── ui/                # base, sem texto próprio: button, text-field, screen-header,
-│   │                      #   header-icon-button, brand-header, screen-container, state-view,
-│   │                      #   inline-alert, alert-icon, inline-action-button, confirm-dialog,
-│   │                      #   tab-bar-item
-│   ├── menu/              # menu-tab-bar, menu-shell
-│   └── perfil/            # avatar, access-profile-badge, info-card, get-initials, access-profile
+│   ├── ui/<nome>/         # base, sem texto próprio: button, text-field, screen-header,
+│   │                      #   header-icon-button, brand-header, screen-container, screen-footer,
+│   │                      #   state-view, state-illustration, error-state, inline-alert,
+│   │                      #   alert-icon, inline-action-button, confirm-dialog, tab-bar-item,
+│   │                      #   icon-button, form-actions, read-only-field
+│   ├── menu/<nome>/       # menu-tab-bar, menu-shell
+│   └── perfil/<nome>/     # avatar (+ get-initials), access-profile-badge (+ access-profile),
+│                          #   info-card, profile-identity, profile-summary
+│                          # cada pasta: <nome>.tsx, <nome>.styles.ts, <nome>.test.tsx, index.ts
 ├── hooks/                 # use-auth (AuthProvider + useAuth), use-login
 ├── services/              # TS puro: auth-service, http-client, session-storage, auth-types
 ├── theme/                 # tokens.ts (única fonte de valor visual), use-focus-ring.ts,
@@ -221,17 +232,24 @@ __mocks__/
 └── expo-secure-store.ts   # mock manual (node_modules), aplicado automaticamente pelo Jest
 ```
 
-Teste de cada arquivo fica ao lado dele (`*.test.ts(x)`). A estrutura segue a
-proposta de camadas do CARTOGRAFO para a F40 (ADR-015, **ainda "proposto" e não
-gravado em `docs/architecture/adr/` quando esta entrega foi feita**).
+Teste de cada arquivo fica ao lado dele (`*.test.ts(x)`). A estrutura segue o
+[ADR-015](../../docs/architecture/adr/ADR-015-separar-rota-tela-e-estilo-no-app-mobile.md)
+(status **proposto**, aguardando revisão humana): `app/` só roteia, a tela fica
+em `src/screens`, e o estilo de cada componente fica em `<nome>.styles.ts`,
+lendo só de `src/theme/tokens.ts`. O import do consumidor não muda
+(`@/components/ui/button` resolve para `button/index.ts`).
 
-## Divergência registrada em relação à proposta inicial do CARTOGRAFO
+Para criar um componente novo: pasta `src/components/<grupo>/<nome>/` com
+`<nome>.tsx` (JSX, sem `StyleSheet` e sem token), `<nome>.styles.ts` (exporta
+`styles`, `visual` quando um token entra em prop que não é `style`, como a cor
+de um ícone, e funções puras para valor de runtime, como `bottomInset`),
+`<nome>.test.tsx` e `index.ts`. O `npm run lint` e o `ui-structure.test.ts`
+barram o que fugir disso.
 
-A árvore de pastas proposta para o mobile listava `src/screens/` para as
-telas. Esta etapa segue, em vez disso, a convenção explícita da casa
-("Navegação com Expo Router (`app/`), telas em arquivos por rota"): as telas
-ficam em `app/`, e `src/` guarda código que não é rota (config, e depois api,
-componentes, tema, hooks, utils).
+Divergência registrada: o ADR-015 reverte a decisão anterior desta pasta de
+manter as telas em `app/` (que seguia a convenção "telas em arquivos por rota").
+A rota continua definida pelo nome do arquivo em `app/`; só o conteúdo passou
+para `src/screens` e `src/layouts`, por pedido da revisão humana da F40.
 
 ## Verificação manual (F30, 2026-11-07)
 
