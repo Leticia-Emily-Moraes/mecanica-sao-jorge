@@ -51,8 +51,12 @@ evitar fluxo órfão) em [`diagrams/navegacao-wireframe-f24.md`](diagrams/navega
 | [ADR-019](adr/ADR-019-mapear-recurso-nao-encontrado-para-404-por-excecao-de-dominio.md) | Mapear recurso de domínio não encontrado para 404 com exceção dedicada no handler global | Proposto | 2026-11-17 |
 | [ADR-020](adr/ADR-020-garantir-cpf-unico-por-indice-no-banco-com-409-no-service.md) | Garantir CPF único com índice no banco e traduzir a violação para 409 no service (F03c; momento de ligar depende de D2/P10) | Proposto | 2026-11-17 |
 | [ADR-021](adr/ADR-021-compartilhar-dto-de-entrada-clienterequest-entre-criar-e-editar.md) | Compartilhar um único DTO de entrada `ClienteRequest` entre criar (F09) e editar (F10) | Proposto | 2026-11-17 |
+| [ADR-026](adr/ADR-026-garantir-email-unico-por-indice-na-v8-com-409-no-ponto-unico-de-gravacao.md) | Garantir email único com o índice `uk_clientes_email` na V8 e 409 no ponto único de gravação (F03d; depende da P16) | Proposto | 2026-11-18 |
+| [ADR-027](adr/ADR-027-responder-409-a-deadlock-na-gravacao-sem-nova-tentativa.md) | Responder 409 a deadlock e espera de lock na gravação, sem nova tentativa (F03d, U6) | Proposto | 2026-11-18 |
 
 ADR-014 foi trazido de `docs/f39-wireframe-redesenho` (`18efb4e`) pela branch `docs/f41-adr014-referencia-aprovada`, aceito em 2026-11-16 na F41 e levado à `main` pela #16. O ADR-016 chega com a #14 (a F44 usa o número 016; o ADR-012 é a remoção do template, da F38). O ADR-015 entra pela branch `integracao/f40-i2-sobre-pr10`, com a estrutura reaplicada sobre o mobile da `main`.
+
+**Lacuna de numeração (conferida em 2026-11-18 por `git log --all`).** O código e o `docs/api/veiculos.md` da F04 citam o ADR-022 (placa), o ADR-023 (`erros[]`), o ADR-024 (rotas) e o ADR-025 (`historicoOs`), mas nenhum desses arquivos existe em nenhuma branch, e eles não estão nesta tabela. Os números 022 a 025 ficam reservados para a F04 materializar, e a F03d usa 026 e 027.
 
 > Nota de materialização: a F00 referenciou ADR-004/006/010/011 em código mas
 > não gravou os arquivos (ver `README.md`). Esta entrega da F02 materializa todo
@@ -76,7 +80,7 @@ pela F00 (`usuarios`, PK `id`, snake_case). O script é referência de **estrutu
 | Entidade | Tabela | Migration | Observações |
 |---|---|---|---|
 | Usuario | `usuarios` | V1 (F00) | PK `id`; `perfil` VARCHAR+CHECK (enum STRING); `created_at`/`updated_at` |
-| Cliente | `clientes` | V2 (+ V3 na F03a; + V4 na F03b, aplicada no ramo `feat/f03b-clientes-detalhe`; + V5 na F03c, especificada, não escrita) | nome, telefone, email, created_at; `cpf` e `endereco` opcionais pela V4 ([ADR-018](adr/ADR-018-guardar-cpf-e-endereco-do-cliente-como-colunas-opcionais.md)); collation `utf8mb4_0900_ai_ci` fixada pela V3 ([ADR-017](adr/ADR-017-padronizar-listagem-com-busca-e-paginacao.md)); `CHECK` de telefone pela V5 da F03c; `UNIQUE` em `cpf` numa V6 ([ADR-020](adr/ADR-020-garantir-cpf-unico-por-indice-no-banco-com-409-no-service.md)), quando D2/P10 decidir o momento |
+| Cliente | `clientes` | V2 (+ V3 na F03a; + V4 na F03b, aplicada no ramo `feat/f03b-clientes-detalhe`; + V5 e V6 na F03c, aplicadas no ramo `feat/f03c-clientes-criar`) | nome, telefone, email, created_at; `cpf` e `endereco` opcionais pela V4 ([ADR-018](adr/ADR-018-guardar-cpf-e-endereco-do-cliente-como-colunas-opcionais.md)); collation `utf8mb4_0900_ai_ci` fixada pela V3 ([ADR-017](adr/ADR-017-padronizar-listagem-com-busca-e-paginacao.md)); `CHECK` de telefone pela V5 da F03c; `UNIQUE` em `cpf` numa V6 ([ADR-020](adr/ADR-020-garantir-cpf-unico-por-indice-no-banco-com-409-no-service.md)), quando D2/P10 decidir o momento |
 | Veiculo | `veiculos` | V2 | FK `cliente_id`; placa, modelo, marca, ano, cor, quilometragem |
 | Servico | `servicos` | V2 | valor_padrao_mao_obra, tempo_estimado_horas, ativo |
 | Peca | `pecas` | V2 | codigo UNIQUE, custo, preco_venda, quantidade_estoque, estoque_minimo, ativo |
@@ -116,7 +120,7 @@ coluna a coluna por CARTOGRAFO em 2026-11-12, lendo os três arquivos SQL.
 | Tabela | Colunas no script que faltam em V1/V2 | Feature dona |
 |---|---|---|
 | `clientes` | nenhuma (só nomes divergem, ver abaixo) | n/a |
-| `veiculos` | `data_cadastro` | F04 |
+| `veiculos` | `data_cadastro` — **fechada na F04: não adotada** (nenhuma tela ou regra da F04 usa; coluna nova só quando a feature de histórico pedir). Linha `veiculos.placa` (UNIQUE + CHECK) fechada pela V7 | F04 |
 | `servicos` | `nome VARCHAR(150) NOT NULL`, `descricao VARCHAR(255)` | F05 / F11 / F12 |
 | `pecas` | `nome VARCHAR(150) NOT NULL`, `categoria VARCHAR(80)`, `fabricante VARCHAR(100)`, `unidade VARCHAR(20) NOT NULL DEFAULT 'UN'` | F17 / F14 / F15 |
 | `ordens_servico` | `descricao_problema TEXT`, `diagnostico TEXT`, `data_abertura`, `data_previsao_entrega DATE`, `data_fechamento` | F18 / F19 / F20 |
@@ -135,8 +139,9 @@ copiadas do script às cegas: `CASCADE` apaga histórico.
 
 | Onde | Script | Migrations hoje | Feature dona |
 |---|---|---|---|
-| `veiculos.cliente_id` | `ON DELETE CASCADE` | sem ação (bloqueia o delete) | F04 |
-| `veiculos.modelo`, `veiculos.marca` | `NULL` | `NOT NULL` (mais restrito) | F04 |
+| `veiculos.cliente_id` | `ON DELETE CASCADE` | sem ação (bloqueia o delete) — **F04: `CASCADE` não adotado**, apagar cliente não apaga histórico; descarte de cliente anonimiza a placa (`ANON<id>`) | F04 |
+| `veiculos.modelo`, `veiculos.marca` | `NULL` | `NOT NULL` (mais restrito) — **F04: mantido**, o DTO exige os dois | F04 |
+| `veiculos.placa` | sem índice, sem formato | V7: `UNIQUE uk_veiculos_placa` + `CHECK ck_veiculos_placa_formato` (padrão antigo, Mercosul ou `ANON<1..6 dígitos>`, `REGEXP_LIKE` com `'c'`) | F04 |
 | `pecas.codigo` | `NULL`, `UNIQUE` | `NOT NULL`, `UNIQUE` | F14 |
 | `ordens_servico.status` | `VARCHAR(30) DEFAULT 'ABERTA'` | `VARCHAR(20)`, sem default | F18 / F20 |
 | `ordens_servico_servicos.ordem_id`, `ordens_servico_pecas.ordem_id` | `ON DELETE CASCADE` | sem ação | F19 |
@@ -149,6 +154,7 @@ copiadas do script às cegas: `CASCADE` apaga histórico.
 | `clientes.nome`, `telefone`, `email` (collation) | sem `COLLATE` | sem `COLLATE`; no `mysql:8.4` padrão herdam `utf8mb4_0900_ai_ci` (verificado em 2026-11-14); num servidor com `--character-set-server=latin1` herdam `latin1_swedish_ci` (verificado em 2026-11-17) | F03a: a V3 fixa `utf8mb4_0900_ai_ci` nos dois casos (ADR-017, achado A7) |
 | `clientes.telefone` (formato) | `VARCHAR(20)` sem `CHECK` | `VARCHAR(20)` sem `CHECK` | F03c: `V5__adicionar_check_telefone_em_clientes.sql` com `ADD CONSTRAINT ck_clientes_telefone_digitos CHECK (CHAR_LENGTH(telefone) BETWEEN 10 AND 11 AND telefone NOT REGEXP '[^0-9]')`, sem `NOT NULL` (mesmo padrão do `CHECK` de `cpf` do ADR-018; a obrigatoriedade fica no `ClienteRequest`, ADR-021). DDL provado em MySQL 8.4 sobre V1–V4 pelo CARTOGRAFO em 2026-11-17 (achado A8); prova por Flyway é do IT da F03c |
 | `clientes.cpf`, `clientes.endereco` | ausentes (não estão no script, ver "Fora do script") | ausentes; a V4 da F08 cria `cpf VARCHAR(11) NULL` com `CHECK` de 11 dígitos e `endereco VARCHAR(255) NULL` ([ADR-018](adr/ADR-018-guardar-cpf-e-endereco-do-cliente-como-colunas-opcionais.md)) | F08 (F03b) cria. `UNIQUE` em `cpf`: índice `uk_clientes_cpf` em migration própria (hoje V6), conforme o [ADR-020](adr/ADR-020-garantir-cpf-unico-por-indice-no-banco-com-409-no-service.md); entra quando D2/P10 decidir o momento, junto com o código do 409 |
+| `clientes.email` (unicidade) | sem índice | sem índice; nenhuma restrição sobre `email` da V2 à V7 (conferido no `information_schema` em 2026-11-18) | F03d (F10): `V8__adicionar_indice_unico_email_em_clientes.sql` com `ADD CONSTRAINT uk_clientes_email UNIQUE (email)`, vários `NULL` aceitos, contagem prévia sem `SELECT email` ([ADR-026](adr/ADR-026-garantir-email-unico-por-indice-na-v8-com-409-no-ponto-unico-de-gravacao.md), DDL provado em MySQL 8.4). Depende da P16 |
 | `ordens_servico.data_abertura`, `pagamentos.data_pagamento` | `TIMESTAMP DEFAULT CURRENT_TIMESTAMP` | ausentes | F18 e F22: entram como `NOT NULL DEFAULT CURRENT_TIMESTAMP`, porque sustentam o prazo R1 da política de dados de cliente (achado A6). A `data_fechamento` da OS (F20) entra no cálculo quando existir |
 
 Os 8 índices do script que ficam sobre colunas de FK são cobertos pelo índice
@@ -290,10 +296,10 @@ Decisões em [ADR-021](adr/ADR-021-compartilhar-dto-de-entrada-clienterequest-en
 
 `POST /api/v1/clientes`, autenticado (fora de `PUBLIC_PATHS`), `Content-Type: application/json`.
 
-* Corpo `dto.ClienteRequest` (record), 5 campos. Validação e normalização normativas na tabela do ADR-021. Em resumo: `nome` obrigatório, até 120; `telefone` obrigatório, 10 ou 11 dígitos, com ou sem máscara; `cpf` opcional (P9 em aberto), 11 dígitos, com ou sem máscara; `email` opcional, até 120, formato de e-mail; `endereco` opcional, até 255. Campo em branco vira `null` antes da validação. O banco recebe só dígitos em `cpf` e `telefone`.
+* Corpo `dto.ClienteRequest` (record), 5 campos. Validação e normalização normativas na tabela do ADR-021. Em resumo: `nome` obrigatório, até 120; `telefone` obrigatório, 10 ou 11 dígitos, com ou sem máscara; `cpf` **obrigatório** (implementado assim, conforme o critério 2 do card; a P9 segue aberta para a pessoa confirmar, verificado na F09 pelo QA: sem `cpf` a API responde 400 `cpf e obrigatorio`), 11 dígitos, com ou sem máscara; `email` opcional, até 120, formato de e-mail; `endereco` opcional, até 255. Campo em branco vira `null` antes da validação. O banco recebe só dígitos em `cpf` e `telefone`.
 * Campo desconhecido no JSON (ex.: `id`, `createdAt`) é ignorado, porque o record não o tem e o mapper não o lê (ADR-021, regra 4, achado E4). O id é sempre do `AUTO_INCREMENT`.
 * Resposta 201 com `dto.ClienteDetalheResponse` (os mesmos 6 campos do detalhe da F03b, valores já normalizados), cabeçalho `Location: /api/v1/clientes/{id}` **relativo** e `Cache-Control` com `no-store` (padrão do Spring Security, como na F03b). Relativo porque o URI absoluto seria montado a partir do `Host` da requisição, que o cliente controla.
-* CPF repetido: **201 provisório** na F03c, como pede a revisão humana (critério 9), até a pessoa decidir D2/P10. Quando decidir, o ADR-020 liga índice e 409 juntos, sem mudar este contrato além da linha 409 abaixo.
+* CPF repetido: **409** com `mensagem` fixa `CPF ja cadastrado`, por decisão do VIGIA em 2026-11-18 (ADR-020, ainda "proposto" até o aceite da pessoa). Implementado na F03c com a `V6` (`uk_clientes_cpf`). Se a pessoa recusar o ADR-020, volta o 201 provisório: remover a V6, o `catch` do `ClienteService.gravar` e o handler do 409.
 * Não idempotente: dois `POST` iguais criam dois clientes (com CPF vazio ou enquanto o índice não existir). A proteção contra toque duplo é da F35 (`docs/product/F35-recebido-da-F03c-criar-cliente.md`).
 
 Exemplo (dados fictícios; CPF com dígito verificador inválido de propósito):
@@ -315,7 +321,7 @@ Erros, todos no formato do ADR-011:
 | 400 | campo inválido no `ClienteRequest` | `handleValidation` existente | mensagens fixas do ADR-021, unidas por "; ", sem ordem garantida e sem o valor rejeitado (ex.: "telefone deve ter 10 ou 11 digitos") |
 | 400 | corpo ausente, JSON malformado ou tipo errado num campo | **handler novo** de `HttpMessageNotReadableException`, sem log | "Corpo da requisicao invalido" (fixa: a mensagem do Jackson ecoa trecho do corpo) |
 | 401 | sem token, token malformado ou expirado | `RestAuthenticationEntryPoint`, antes do controller | a do entry point |
-| 409 | CPF já cadastrado, **só depois de D2/P10** | `CpfJaCadastradoException` (ADR-020), sem log | "CPF ja cadastrado" |
+| 409 | CPF já cadastrado (ativo desde a F03c, ADR-020; verificado contra a API real) | `CpfJaCadastradoException` (ADR-020), sem log | "CPF ja cadastrado" |
 | 415 | `Content-Type` diferente de JSON | **handler novo** de `HttpMediaTypeNotSupportedException`, sem log | "Tipo de conteudo nao suportado" |
 | 500 | falha inesperada, inclusive violação de `CHECK` que escapou da validação | handler genérico; loga só a classe e o `path` | "Erro interno inesperado" |
 
@@ -325,13 +331,64 @@ Log (política, revisão 3): uma linha INFO no service, depois do `saveAndFlush`
 
 Pontos de integração da F03c (todos em pacotes já existentes, ADR-001):
 
-* `controller.ClienteController.criar(@Valid @RequestBody ClienteRequest, Jwt)`: fino; chama o service e devolve `ResponseEntity.created(URI.create("/api/v1/clientes/" + id)).body(...)`. OpenAPI com `@ApiResponse` para 201, 400, 401, 415 e 500 (409 entra com o ADR-020).
+* `controller.ClienteController.criar(@Valid @RequestBody ClienteRequest, Jwt)`: fino; chama o service e devolve `ResponseEntity.created(URI.create("/api/v1/clientes/" + id)).body(...)`. OpenAPI com `@ApiResponse` para 201, 400, 401, 409, 415 e 500.
 * `service.ClienteService.criar(ClienteRequest, String usuarioId)`: `@Transactional`; mapper, método privado de gravação com `saveAndFlush` (ADR-020, regra 3, compartilhado com a F10), mapper de saída e a linha de log.
 * `mapper.ClienteMapper.toEntity(ClienteRequest)`: com `unmappedTargetPolicy = ERROR`, ignora `id` e `createdAt`; métodos `@Named` `somenteDigitos` e `aparado` (ADR-021, regras 3 e 4).
 * `repository.ClienteRepository`: sem método novo (`saveAndFlush` vem do `JpaRepository`); sem `existsByCpf` nem `findByCpf` (ADR-020, regra 6).
 * `exception.GlobalExceptionHandler`: handlers de 400 (corpo ilegível) e 415; o de 409 (`ConflitoException`) só com o ADR-020.
-* Migration `V5__adicionar_check_telefone_em_clientes.sql` (matriz acima). Nada muda no diagrama C4 de contêineres: a F03c não cria contêiner, fila nem dependência externa.
+* Migrations `V5__adicionar_check_telefone_em_clientes.sql` e `V6__adicionar_indice_unico_cpf_em_clientes.sql` (matriz acima). O logger `org.hibernate.orm.jdbc.error` fica em `OFF` no `application.yml`, porque o Hibernate loga o `Duplicate entry '<cpf>'` do MySQL. Nada muda no diagrama C4 de contêineres: a F03c não cria contêiner, fila nem dependência externa.
 * App (F35): consome o contrato acima. Os pontos de tela que a F03c deixa para a F35 estão em `docs/product/F35-recebido-da-F03c-criar-cliente.md` (tarefa 17).
+
+## Contrato de API — Clientes editar (F03d)
+
+Decisões: [ADR-021](adr/ADR-021-compartilhar-dto-de-entrada-clienterequest-entre-criar-e-editar.md) (DTO e semântica de substituição inteira), [ADR-019](adr/ADR-019-mapear-recurso-nao-encontrado-para-404-por-excecao-de-dominio.md) (404), [ADR-020](adr/ADR-020-garantir-cpf-unico-por-indice-no-banco-com-409-no-service.md) (CPF), [ADR-026](adr/ADR-026-garantir-email-unico-por-indice-na-v8-com-409-no-ponto-unico-de-gravacao.md) (email) e [ADR-027](adr/ADR-027-responder-409-a-deadlock-na-gravacao-sem-nova-tentativa.md) (deadlock). Política: `docs/security/politica-dados-pessoais-cliente.md`, revisão 6 (2.5, 6.7, seção 7 "API, edição" e 8.6). Status: **proposto**. O código de email espera a P16, e o resto do PUT não depende dela.
+
+Referência de uso com requisições e respostas reais capturadas da API rodando: `docs/api/clientes.md`.
+
+`PUT /api/v1/clientes/{id}`, autenticado (fora de `PUBLIC_PATHS`), `Content-Type: application/json`.
+
+* `id`: `@PathVariable @Positive Long`, como no detalhe. É o único id que vale. `id`, `createdAt` ou qualquer outra propriedade do corpo é ignorada (o `ClienteRequest` não tem `id`).
+* Corpo: o mesmo `dto.ClienteRequest` do POST, com as mesmas validações, sem DTO paralelo (ADR-021). Substituição inteira: opcional omitido ou em branco grava `NULL`.
+* Resposta 200 com `dto.ClienteDetalheResponse` já com os valores gravados e `Cache-Control: no-store`.
+* O contrato do POST não muda de formato. Com a P16 aceita, o POST passa a responder 409 `Email ja cadastrado` para email de outro cliente e grava o email com `A` a `Z` em minúsculas (ADR-026, "O que o cliente da API percebe no POST").
+
+Erros, todos no formato do ADR-011 (`timestamp, status, erro, mensagem, path, erros[]`):
+
+| Status | Quando | Quem responde | `mensagem` |
+|---|---|---|---|
+| 400 | campo inválido no `ClienteRequest`, `id` não positivo ou não numérico, corpo ilegível | handlers existentes | as do POST; sem o valor rejeitado |
+| 401 | sem token, token malformado, expirado, de outra chave ou `alg: none` | `RestAuthenticationEntryPoint`, antes do controller | a do entry point |
+| 404 | `id` sem cliente | `ClienteNaoEncontradoException` (ADR-019) | "Cliente nao encontrado" |
+| 409 | CPF de outro cliente | `CpfJaCadastradoException` (ADR-020) | "CPF ja cadastrado" |
+| 409 | email de outro cliente, sem diferença de caixa, acento ou espaço nas pontas | `EmailJaCadastradoException` (ADR-026) | "Email ja cadastrado" |
+| 409 | deadlock ou espera de lock na corrida | handler de `PessimisticLockingFailureException` (ADR-027) | "Conflito de gravacao simultanea, tente novamente" |
+| 415 | `Content-Type` diferente de JSON | handler existente | "Tipo de conteudo nao suportado" |
+
+Nenhum 409 traz `erros[]` preenchido, o valor em conflito ou o id do outro cliente.
+
+Pontos de integração da F03d (todos em pacotes já existentes, ADR-001):
+
+* `controller.ClienteController.atualizar(@PathVariable @Positive Long id, @Valid @RequestBody ClienteRequest, Jwt)`: fino; `ResponseEntity.ok(clienteService.atualizar(id, request, jwt.getSubject()))`. OpenAPI com `@ApiResponse` para 200, 400, 401, 404, 409, 415 e 500. O exemplo de telefone troca para DDD que não existe (U9).
+* `service.ClienteService.atualizar(Long id, ClienteRequest, String usuarioId)`: `@Transactional`. Faz `findById` (ausente: log `clientes.editar.naoEncontrado` e 404), copia os campos com `clienteMapper.atualizar(request, cliente)`, grava pelo mesmo `gravar` do ADR-020 e emite as linhas da 6.7. Nunca `new Cliente` nem `toEntity` com `setId` (U1).
+* `mapper.ClienteMapper.atualizar(ClienteRequest, @MappingTarget Cliente)`: `unmappedTargetPolicy = ERROR`, ignora `id` e `createdAt`, e usa os mesmos `@Named` do `toEntity`, com `email` em `emailNormalizado` (ADR-026, regra 5).
+* `exception.EmailJaCadastradoException` (ADR-026) e o handler de `PessimisticLockingFailureException` (ADR-027).
+* Migration `V8__adicionar_indice_unico_email_em_clientes.sql` (matriz acima).
+* Nada muda no diagrama C4 de contêineres: a F03d não cria contêiner, fila nem dependência externa.
+
+## Threat model — edição de cliente (STRIDE, F03d)
+
+Onde o dado pessoal entra, circula e sai: nome, CPF, telefone, email e endereço entram pelo corpo do `PUT`, por HTTPS fora do ambiente local. Circulam só em memória, do `ClienteRequest` para a entidade carregada. Saem para o MySQL, sobrescrevendo o valor anterior, que não fica guardado em lugar nenhum (política 2.5), e voltam ao app no corpo do 200. Nenhum vai para log: só `clienteId`, `usuarioId` e, no 409, `campo` (6.7). Base legal, finalidade e retenção: política, seções 2, 2.5 e 3.
+
+| STRIDE | Ameaça | Controle | Risco residual |
+|---|---|---|---|
+| Spoofing | Editar sem token ou com token inválido | Rota fora de `PUBLIC_PATHS`; 401 antes do controller, sem tocar o banco | Token vazado ou de usuário desativado vale até expirar (ADR-004) e edita qualquer cliente (U5, P8) |
+| Tampering | Id do corpo diferente do id do caminho; atribuição em massa (`createdAt`); PUT montado como entidade nova | Id só do caminho; record sem `id`; `findById` com `@MappingTarget` e `ReportingPolicy.ERROR` (U1) | `FAIL_ON_UNKNOWN_PROPERTIES` ligado no futuro muda a resposta para 400; o teste de ataque quebra e avisa |
+| Tampering (corrida) | Duas edições simultâneas gravam o mesmo CPF ou email | Índices `uk_clientes_cpf` e `uk_clientes_email` (ADR-020, ADR-026); deadlock vira 409 (ADR-027) | Última gravação vence entre edições do mesmo cliente (sem `@Version`, fora do escopo) |
+| Repudiation | Troca de contato sem rastro | Linha `clientes.editar clienteId usuarioId` depois do `saveAndFlush` | Sem valor anterior e sem lista de campos alterados, por desenho (R6 da política): a linha diz quem editou, não o que mudou |
+| Information disclosure | CPF ou email no 409, no log ou na causa; 1062 com o valor | Exceções sem causa e com mensagem fixa; tradução pelo nome da restrição; loggers JDBC em `OFF`; corpo nunca logado | O 409 confirma que o valor já é de algum cliente (U8, P8) |
+| Denial of service | Edições repetidas ou concorrentes | Volume pequeno; deadlock responde 409 e não 500 | Sem rate limiting (backlog, igual ao login) |
+| Elevation of privilege | FUNCIONARIO editando CPF | Sem diferença de perfil por decisão do briefing | Revisar quando entrar permissão por perfil (U5) |
+
 
 ## Threat model — criação de cliente (STRIDE, F03c)
 
@@ -344,7 +401,7 @@ flowchart LR
   ctl --> svc["ClienteService.criar<br/>log: clienteId, usuarioId"]
   svc --> map["ClienteMapper.toEntity<br/>so digitos em cpf e telefone"]
   svc --> repo["ClienteRepository.saveAndFlush"]
-  repo --> db[("MySQL clientes<br/>CHECK cpf V4, CHECK telefone V5<br/>uk_clientes_cpf quando D2/P10")]
+  repo --> db[("MySQL clientes<br/>CHECK cpf V4, CHECK telefone V5<br/>UNIQUE uk_clientes_cpf V6")]
   svc -- "201 ClienteDetalheResponse<br/>Location relativo, no-store" --> app
 ```
 
@@ -355,7 +412,7 @@ flowchart LR
 | Repudiation | Negar ter cadastrado o cliente | Linha `clientes.criar clienteId usuarioId` | Log não é trilha de auditoria imutável nem persistida (fora de escopo); a tabela não tem `created_by` |
 | Information disclosure | Dado pessoal em log, `toString`, mensagem de validação, erro do MySQL (1062 e 3819 ecoam valor ou nome de constraint), `Location` absoluto, cache | Log só com ids; `toString` fixos; mensagens do ADR-021 sem valor; 500 sem `getMessage()`; 400 de corpo ilegível com mensagem fixa; 409 sem causa anexada (ADR-020); `Location` relativo; `no-store` | Com o 409 ligado, o 409 confirma que um CPF existe na base (enumeração por usuário autenticado; ADR-020, riscos); o 201 devolve CPF inteiro a quem acabou de digitá-lo |
 | Denial of service | Corpo enorme; criação em laço | `@Size` em todos os campos de texto; regex linear (200 mil caracteres em cerca de 10 ms, jshell) | O corpo é lido inteiro antes do `@Size`; limite de tamanho do corpo e rate limiting ficam fora de escopo (backlog, igual ao login), **não verificado** o limite padrão do Jackson 3 |
-| Integridade (duplicidade) | Toque duplo, rede lenta ou repetição criam o mesmo cliente duas vezes | Botão desabilitado e trava no hook (F35); índice `uk_clientes_cpf` quando ligado (ADR-020) | Até D2/P10, e para sempre quando o CPF vier vazio, a API aceita duplicata; limpeza manual |
+| Integridade (duplicidade) | Toque duplo, rede lenta ou repetição criam o mesmo cliente duas vezes | Botão desabilitado e trava no hook (F35); índice `uk_clientes_cpf` (V6, ADR-020) barra CPF repetido com 409 | Toque duplo com o mesmo CPF vira 409 na segunda chamada; resposta perdida depois do `INSERT` ainda leva a novo envio e a 409, sem duplicata |
 | Elevation of privilege | FUNCIONARIO criar cliente | Não se aplica: perfis sem diferença nesta fase | A3 aceito |
 
 ## Threat model — detalhe de cliente (STRIDE, F03b)

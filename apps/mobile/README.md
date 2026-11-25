@@ -142,7 +142,7 @@ npm run web      # navegador (suporte web do Expo Router)
 npm test
 ```
 
-305 testes em 40 suítes (execução de 2026-11-24, ADR-015 sobre a main):
+321 testes em 45 suítes (execução de 2026-11-24, ADR-015 sobre a main com os componentes extras da F41):
 
 - `src/screens/**/*.test.tsx` e `src/layouts/**/*.test.tsx`: telas e layouts —
   reidratação de sessão, validação de campo vazio sem chamar a API, erro de
@@ -213,10 +213,11 @@ src/
 │   ├── ui/<nome>/         # base, sem texto próprio: button, text-field, screen-header,
 │   │                      #   header-icon-button, brand-header, screen-container, screen-footer,
 │   │                      #   state-view, state-illustration, error-state, inline-alert,
-│   │                      #   alert-icon, inline-action-button, confirm-dialog, tab-bar-item
+│   │                      #   alert-icon, inline-action-button, confirm-dialog, tab-bar-item,
+│   │                      #   icon-button, form-actions, read-only-field
 │   ├── menu/<nome>/       # menu-tab-bar, menu-shell
 │   └── perfil/<nome>/     # avatar (+ get-initials), access-profile-badge (+ access-profile),
-│                          #   info-card, profile-identity
+│                          #   info-card, profile-identity, profile-summary
 │                          # cada pasta: <nome>.tsx, <nome>.styles.ts, <nome>.test.tsx, index.ts
 ├── hooks/                 # use-auth (AuthProvider + useAuth), use-login
 ├── services/              # TS puro: auth-service, http-client, session-storage, auth-types

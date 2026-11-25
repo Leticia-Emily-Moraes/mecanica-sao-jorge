@@ -19,6 +19,7 @@ function renderDialog(overrides: { visible?: boolean; message?: string } = {}): 
       message={overrides.message}
       cancelLabel="Cancelar"
       confirmLabel="Sair"
+      closeLabel="Fechar"
       onCancel={onCancel}
       onConfirm={onConfirm}
     />,
@@ -34,6 +35,15 @@ describe('ConfirmDialog', () => {
 
     expect(card.props.accessibilityLiveRegion).toBe('assertive');
     expect(card.props.accessibilityViewIsModal).toBe(true);
+  });
+
+  it('should close through the X button as an extra way to cancel (F38, US-POP-01)', () => {
+    const { onCancel, onConfirm } = renderDialog();
+
+    fireEvent.press(screen.getByRole('button', { name: 'Fechar' }));
+
+    expect(onCancel).toHaveBeenCalledTimes(1);
+    expect(onConfirm).not.toHaveBeenCalled();
   });
 
   it('should show the title with both actions when visible', () => {

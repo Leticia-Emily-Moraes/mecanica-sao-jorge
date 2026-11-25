@@ -13,6 +13,7 @@ import { ScreenFooter } from '@/components/ui/screen-footer';
 import { ScreenHeader } from '@/components/ui/screen-header';
 import { getAppVersion } from '@/config/app-version';
 import { useAuth } from '@/hooks/use-auth';
+import { useRestoreFocusOnClose } from '@/hooks/use-restore-focus-on-close';
 import { t } from '@/i18n/strings';
 
 /**
@@ -24,6 +25,7 @@ export default function ProfileScreen(): ReactElement | null {
   const { status, logout } = useAuth();
   const router = useRouter();
   const [dialogoVisivel, setDialogoVisivel] = useState(false);
+  const botaoSairRef = useRestoreFocusOnClose(dialogoVisivel);
 
   useEffect(() => {
     if (status.tipo !== 'autenticado' && status.tipo !== 'carregando') {
@@ -80,6 +82,7 @@ export default function ProfileScreen(): ReactElement | null {
             label={t('perfil.botaoSair.rotulo')}
             onPress={() => setDialogoVisivel(true)}
             variant="outlineAccent"
+            triggerRef={botaoSairRef}
           />
         </ScreenFooter>
 
@@ -89,6 +92,7 @@ export default function ProfileScreen(): ReactElement | null {
           message={t('perfil.dialogoLogout.mensagem')}
           cancelLabel={t('perfil.dialogoLogout.botaoCancelar')}
           confirmLabel={t('perfil.dialogoLogout.botaoConfirmar')}
+          closeLabel={t('comum.botaoFechar.rotulo')}
           onCancel={() => setDialogoVisivel(false)}
           onConfirm={() => void confirmarSaida()}
         />

@@ -24,6 +24,125 @@ não corta a primeira tag, as entregas ficam em `[Não lançado]`.
 > para quem usa". Detalhe completo da auditoria, por feature, PR e teste:
 > `docs/product/F37-auditoria-sprint-01.md`.
 
+### F10 — Clientes: editar (API) — branch `feat/f03d-clientes-editar`
+
+Só API e contrato. A tela de edição é da F35. Referência com exemplos reais:
+`docs/api/clientes.md`.
+
+#### Adicionado
+
+- Edição de cliente: `PUT /api/v1/clientes/{id}`. É edição total (sem
+  `PATCH`): campo opcional omitido grava vazio. O `id` vem só do caminho e
+  `id` no corpo é ignorado. Responde `200` com o mesmo corpo do detalhe.
+- CPF e email de outro cliente respondem `409` (`CPF ja cadastrado` ou
+  `Email ja cadastrado`), sem repetir o valor nem identificar o outro
+  cliente. Reenviar o próprio CPF ou email, com outra pontuação ou caixa, não
+  gera conflito.
+- Gravação simultânea que o MySQL derrubar por deadlock responde `409`
+  (`Conflito de gravacao simultanea, tente novamente`) e não `500`. Quem
+  recebe reenvia; a API não repete sozinha.
+
+#### Alterado (quebra de comportamento no `POST /api/v1/clientes`)
+
+- **Email de outro cliente no `POST` passa de `201` para `409`.** Ação para o
+  app: tratar `409` com `mensagem` `Email ja cadastrado` na tela de cadastro.
+- **O email passa a ser gravado e devolvido com `A` a `Z` em minúsculas e sem
+  espaço nas pontas** (`Carla@EXAMPLE.com` volta como `carla@example.com`),
+  no `POST` e no `PUT`. Letras com acento não mudam.
+- Espaço nas pontas do email é aparado antes da validação de formato.
+  `" beto@example.com "` deixa de dar `400` e passa a valer. O aparo inclui
+  espaço sem quebra (NBSP, U+00A0), U+2007 e U+202F, para que
+  `"beto@example.com "` seja o mesmo email e dê `409`, não um cliente
+  novo. Caractere de largura zero (U+200B) **não** é aparado.
+
+#### Banco de dados (ação necessária)
+
+- Migration `V8__adicionar_indice_unico_email_em_clientes.sql`: índice único
+  `uk_clientes_email`. Vários clientes sem email continuam permitidos.
+  **Se a tabela `clientes` de algum ambiente já tiver email repetido, a V8
+  falha ao subir a API.** Antes de atualizar um ambiente com dados, conte os
+  repetidos (só a contagem, sem listar os emails). O índice compara sem
+  diferenciar caixa nem acento: `joao@x.com` e `joão@x.com` contam como
+  repetidos. Não testei a V8 contra dados sujos; os testes rodam em banco
+  vazio.
+
+#### Privacidade
+
+- O valor antigo é sobrescrito e não fica em log, coluna nem histórico. O log
+  da edição traz só `clienteId`, `usuarioId` e, no conflito, `campo=cpf` ou
+  `campo=email`, sem valor, nem mascarado (política do VIGIA, revisão 6; o
+  card pedia mascarado).
+
+#### Não verificado / pendente
+
+- **Email único depende do aceite da pessoa (P16).** Sem ele, o `409` de
+  email e a normalização do email caem.
+- Telas de edição: não existem; a F35 as entrega.
+- Deadlock real do MySQL: não consegui provocá-lo nos testes de corrida. O
+  `409` de deadlock está testado só com exceção simulada.
+- U+200B (largura zero) no email não é aparado pelo código. Teste de
+  caracterização (`ClienteAtualizarIT`): `U+200B` no início, no fim ou no
+  meio do domínio de um email que já pertence a outro cliente responde `409`,
+  porque o índice único do MySQL o ignora na comparação. Não passa na
+  unicidade. Sem conflito, o `PUT` responde `200` e grava o email com o
+  `U+200B` (risco aceito, W5 e X3 da política de dados do cliente).
+- A linha de log `campo=concorrencia` (conflito por gravação simultânea) estava
+  não implementada na entrega anterior; agora está no `ClienteService` e
+  coberta por teste unitário (`ClienteAtualizarServiceTest`). Vista rodando só
+  com exceção simulada, não com deadlock real do MySQL.
+- A `description` geral do `POST` no OpenAPI ainda cita só o CPF no `409`.
+
+### F04 — Veículos (API) — branch `feat/f04-veiculos`
+
+Só API e contrato. As telas de Veículos são da F35.
+
+#### Adicionado
+
+- Cadastro de veículo do cliente: `POST /api/v1/clientes/{clienteId}/veiculos`
+  (`201` com `Location`).
+- Lista de veículos do cliente: `GET /api/v1/clientes/{clienteId}/veiculos`,
+  ordenada por placa, sem paginação (`[]` quando o cliente não tem veículo).
+- Detalhe do veículo: `GET /api/v1/veiculos/{id}`, com o dono (`clienteId`,
+  `clienteNome`) e `historicoOs`, que vem sempre `[]` até existir a feature
+  de Ordens de Serviço.
+- Edição do veículo: `PUT /api/v1/veiculos/{id}`. É edição total (sem
+  `PATCH`); o dono nunca muda e `clienteId` no corpo é ignorado.
+- Placa aceita no padrão antigo (`ABC1234`) e no Mercosul (`ABC1D23`). A API
+  normaliza antes de validar: `abc-1d23` e `" ABC1D23 "` viram `ABC1D23`.
+- Placa única entre todos os clientes. Placa repetida responde `409` com
+  `Placa ja cadastrada`, sem repetir a placa.
+- Chaves de mensagem para o app, no formato `veiculo.form.<campo>.<erro>`
+  (10 chaves; lista em `docs/api/veiculos.md`).
+- Referência de API com exemplos reais: `docs/api/veiculos.md`. Repasse de
+  contrato para a F35: `docs/product/F35-recebido-da-F04-veiculos.md`.
+
+#### Alterado
+
+- **Todo erro da API passa a trazer `erros[]`**, uma lista de
+  `{campo, chave}`. Fica `[]` quando não há erro por campo. `mensagem`
+  continua como antes, então quem lê `mensagem` não precisa mudar nada.
+  Ação para o app: ao mostrar erro de campo, use `chave`, não `mensagem`.
+  Nas mensagens de cliente (F03a a F03c) a `chave` pode vir nula até a F10.
+- No log, a placa aparece só com os 3 últimos caracteres (`****D23`).
+
+#### Banco de dados (ação necessária)
+
+- Migration `V7__adicionar_indice_unico_e_check_de_placa_em_veiculos.sql`:
+  índice único `uk_veiculos_placa` e `CHECK` de formato na placa. **Se a
+  tabela `veiculos` de algum ambiente já tiver placa repetida ou fora do
+  formato, a V7 falha ao subir a API.** Antes de atualizar um ambiente com
+  dados, confira duplicatas. Não testei a V7 contra dados sujos; os testes
+  rodam em banco vazio.
+
+#### Não verificado
+
+- Telas de Veículos: não existem; a F35 as entrega.
+- Descarte de dado pessoal (placa vira `ANON<id>` quando o cliente é
+  descartado): é regra da política do VIGIA, **sem código nesta feature**.
+- Lint e formatação: `mvn checkstyle:check` falha em 2 linhas com mais de
+  100 caracteres (`ClockConfig.java:7`, `VeiculoService.java:94`) e
+  `mvn spotless:check` aponta 7 arquivos da F04. Pendência do ESPRESSO.
+
 ### Adicionado (commitado no histórico git)
 
 - Fundação do backend (`apps/api`): scaffold Maven em Java 21 + Spring Boot

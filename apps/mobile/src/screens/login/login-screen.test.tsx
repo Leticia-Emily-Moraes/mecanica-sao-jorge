@@ -1,3 +1,4 @@
+import { Ionicons } from '@expo/vector-icons';
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react-native';
 import * as SecureStore from 'expo-secure-store';
 import { useEffect } from 'react';
@@ -266,20 +267,23 @@ describe('LoginScreen', () => {
 
     expect(screen.getByLabelText('Senha').props.secureTextEntry).toBe(false);
     expect(screen.getByRole('button', { name: 'Ocultar senha' })).toBeTruthy();
+
+    fireEvent.press(screen.getByRole('button', { name: 'Ocultar senha' }));
+
+    expect(screen.getByLabelText('Senha').props.secureTextEntry).toBe(true);
+    expect(screen.getByRole('button', { name: 'Mostrar senha' })).toBeTruthy();
   });
 
-  it('should show the short visible words Mostrar and Ocultar, keeping the long accessible name (L1)', async () => {
+  it('should draw the eye icon instead of a text action in the password field (F38, US-PWD-01/02)', async () => {
     await renderLoginScreen();
 
-    expect(screen.getByText('Mostrar')).toBeTruthy();
-    expect(screen.queryByText('Mostrar senha')).toBeNull();
-    expect(screen.getByRole('button', { name: 'Mostrar senha' })).toBeTruthy();
+    expect(screen.queryByText('Mostrar')).toBeNull();
+    expect(screen.UNSAFE_getByType(Ionicons).props.name).toBe('eye-off-outline');
 
     fireEvent.press(screen.getByRole('button', { name: 'Mostrar senha' }));
 
-    expect(screen.getByText('Ocultar')).toBeTruthy();
-    expect(screen.queryByText('Ocultar senha')).toBeNull();
-    expect(screen.getByRole('button', { name: 'Ocultar senha' })).toBeTruthy();
+    expect(screen.queryByText('Ocultar')).toBeNull();
+    expect(screen.UNSAFE_getByType(Ionicons).props.name).toBe('eye-outline');
   });
 
   it.each([320, 430])(

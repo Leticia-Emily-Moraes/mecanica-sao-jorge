@@ -2,6 +2,7 @@ import type { ReactElement } from 'react';
 import { Modal, Text, View } from 'react-native';
 
 import { Button } from '@/components/ui/button';
+import { CloseButton } from '@/components/ui/close-button';
 
 import { styles } from './confirm-dialog.styles';
 
@@ -11,6 +12,8 @@ export interface ConfirmDialogProps {
   readonly message?: string;
   readonly cancelLabel: string;
   readonly confirmLabel: string;
+  /** Nome acessível do X de fechar (padrão F38). */
+  readonly closeLabel: string;
   readonly onCancel: () => void;
   readonly onConfirm: () => void;
 }
@@ -18,7 +21,8 @@ export interface ConfirmDialogProps {
 /**
  * Diálogo de confirmação (US-PRF-FRONT-02/03) — nenhuma ação é destrutiva de
  * dado. Título à esquerda, mensagem e as duas ações lado a lado: Cancelar
- * (contorno petro) e Sair (Crail), como no frame `10:3886`.
+ * (contorno petro) e Sair (Crail), como no frame `10:3886`. O X de fechar
+ * (padrão F38) é fechamento adicional equivalente ao Cancelar.
  */
 export function ConfirmDialog({
   visible,
@@ -26,6 +30,7 @@ export function ConfirmDialog({
   message,
   cancelLabel,
   confirmLabel,
+  closeLabel,
   onCancel,
   onConfirm,
 }: ConfirmDialogProps): ReactElement {
@@ -38,6 +43,7 @@ export function ConfirmDialog({
           accessibilityRole="alert"
           accessibilityLiveRegion="assertive"
         >
+          <CloseButton label={closeLabel} onPress={onCancel} />
           <Text accessibilityRole="header" style={styles.title}>
             {title}
           </Text>

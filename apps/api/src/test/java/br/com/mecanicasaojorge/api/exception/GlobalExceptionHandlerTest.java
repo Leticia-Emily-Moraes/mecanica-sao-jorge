@@ -1,6 +1,7 @@
 package br.com.mecanicasaojorge.api.exception;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.Mockito.when;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -12,7 +13,10 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.BeanPropertyBindingResult;
+import org.springframework.validation.FieldError;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 @ExtendWith(MockitoExtension.class)
@@ -158,5 +162,37 @@ class GlobalExceptionHandlerTest {
     assertThat(response.getStatusCode()).isEqualTo(HttpStatus.INTERNAL_SERVER_ERROR);
     assertThat(response.getBody()).isNotNull();
     assertThat(response.getBody().mensagem()).isEqualTo("Erro interno inesperado");
+  }
+
+  @Test
+  void shouldListFieldErrorsSortedWithNullKeyWhenMessageIsNotAnI18nKeyAndNeverEchoRejectedValue()
+      throws Exception {
+    when(request.getRequestURI()).thenReturn("/api/v1/veiculos/1");
+    var alvo = new Object();
+    var binding = new BeanPropertyBindingResult(alvo, "veiculoRequest");
+    binding.addError(
+        new FieldError(
+            "veiculoRequest", "placa", "ZZZ-valor-sensivel", false, null, null, "Texto livre"));
+    binding.addError(
+        new FieldError(
+            "veiculoRequest", "marca", null, false, null, null, "veiculo.form.marca.obrigatoria"));
+    binding.addError(
+        new FieldError("veiculoRequest", "ano", null, false, null, null, "veiculo.form.ano.faixa"));
+    var parametro =
+        new org.springframework.core.MethodParameter(
+            GlobalExceptionHandlerTest.class.getDeclaredMethod("alvo", Long.class), 0);
+
+    ResponseEntity<ErrorResponse> response =
+        handler.handleValidation(new MethodArgumentNotValidException(parametro, binding), request);
+
+    assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+    assertThat(response.getBody()).isNotNull();
+    assertThat(response.getBody().erros())
+        .extracting(ErroCampo::campo, ErroCampo::chave)
+        .containsExactly(
+            tuple("ano", "veiculo.form.ano.faixa"),
+            tuple("marca", "veiculo.form.marca.obrigatoria"),
+            tuple("placa", null));
+    assertThat(response.getBody().toString()).doesNotContain("ZZZ-valor-sensivel");
   }
 }

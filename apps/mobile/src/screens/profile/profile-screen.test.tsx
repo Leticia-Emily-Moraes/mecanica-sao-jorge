@@ -1,6 +1,6 @@
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react-native';
 import * as SecureStore from 'expo-secure-store';
-import { StyleSheet } from 'react-native';
+import { AccessibilityInfo, StyleSheet } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import { getAppVersion } from '@/config/app-version';
@@ -8,6 +8,12 @@ import { AuthProvider } from '@/hooks/use-auth';
 import type { TestStyle } from '@/test-utils/flat-style';
 
 import PerfilScreen from './profile-screen';
+
+// No renderer de teste não há tag nativa; devolve uma tag fixa quando o ref existe.
+jest.mock('react-native/Libraries/ReactNative/RendererProxy', () => ({
+  ...jest.requireActual('react-native/Libraries/ReactNative/RendererProxy'),
+  findNodeHandle: jest.fn((ref: unknown) => (ref ? 42 : null)),
+}));
 
 const mockReplace = jest.fn();
 const mockBack = jest.fn();
@@ -148,6 +154,33 @@ describe('PerfilScreen', () => {
     expect(screen.queryByText('Sair da conta?')).toBeNull();
     expect(await SecureStore.getItemAsync('mecanicaSaoJorge.auth.token')).toBe('token-existente');
     expect(mockReplace).not.toHaveBeenCalledWith('/login');
+  });
+
+  it('should close the logout confirmation dialog with the X button and keep the session (F38, US-POP-05)', async () => {
+    await renderPerfilScreen();
+
+    fireEvent.press(screen.getByRole('button', { name: 'Sair da conta' }));
+    expect(screen.getByText('Sair da conta?')).toBeTruthy();
+
+    fireEvent.press(screen.getByRole('button', { name: 'Fechar' }));
+
+    expect(screen.queryByText('Sair da conta?')).toBeNull();
+    expect(await SecureStore.getItemAsync('mecanicaSaoJorge.auth.token')).toBe('token-existente');
+    expect(mockReplace).not.toHaveBeenCalledWith('/login');
+  });
+
+  it('should return screen reader focus to "Sair da conta" when the dialog closes via X (F38, US-POP-02)', async () => {
+    const setFocusSpy = jest.spyOn(AccessibilityInfo, 'setAccessibilityFocus');
+    await renderPerfilScreen();
+
+    fireEvent.press(screen.getByRole('button', { name: 'Sair da conta' }));
+    expect(setFocusSpy).not.toHaveBeenCalled();
+
+    fireEvent.press(screen.getByRole('button', { name: 'Fechar' }));
+
+    expect(setFocusSpy).toHaveBeenCalledTimes(1);
+    expect(setFocusSpy).toHaveBeenCalledWith(42);
+    setFocusSpy.mockRestore();
   });
 
   it('should clear the token and navigate to /login when logout is confirmed', async () => {

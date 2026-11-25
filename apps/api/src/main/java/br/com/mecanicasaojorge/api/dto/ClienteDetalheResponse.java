@@ -14,7 +14,7 @@ public record ClienteDetalheResponse(
     @Schema(example = "Ana Exemplo") String nome,
     @Schema(description = "11 digitos, sem mascara", example = "12345678900", nullable = true)
         String cpf,
-    @Schema(description = "Somente digitos, como gravado", example = "11912345678", nullable = true)
+    @Schema(description = "Somente digitos, como gravado", example = "20912345678", nullable = true)
         String telefone,
     @Schema(example = "ana@example.com", nullable = true) String email,
     @Schema(example = "Rua Modelo, 100 - Jardim Exemplo", nullable = true) String endereco) {
