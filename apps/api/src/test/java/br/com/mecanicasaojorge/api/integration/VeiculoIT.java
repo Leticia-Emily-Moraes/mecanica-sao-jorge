@@ -244,6 +244,82 @@ class VeiculoIT {
     criar(clienteId, corpo(PLACA_ANTIGA, proximoAno)).andExpect(status().isCreated());
   }
 
+  @Test
+  void shouldStoreBrandAndModelWithoutEdgeSpacesWhenTheyComeWithSpaces() throws Exception {
+    criar(
+            clienteId,
+            "{\"placa\":\"ABC1D23\",\"marca\":\" Fiat \",\"modelo\":\"  Uno\\t\",\"ano\":2015,"
+                + "\"cor\":\" Prata \"}")
+        .andExpect(status().isCreated())
+        .andExpect(jsonPath("$.marca").value("Fiat"))
+        .andExpect(jsonPath("$.modelo").value("Uno"))
+        .andExpect(jsonPath("$.cor").value("Prata"));
+
+    assertThat(
+            jdbcTemplate.queryForObject(
+                "SELECT CONCAT(marca, '|', modelo, '|', cor) FROM veiculos", String.class))
+        .isEqualTo("Fiat|Uno|Prata");
+  }
+
+  @ParameterizedTest
+  @ValueSource(
+      strings = {
+        "2015.9",
+        "2015.0",
+        "\"2015\"",
+        "true",
+        "{\"x\":1}",
+        "[2015]",
+        "12345678901234567890"
+      })
+  void shouldReturn400OnYearFieldAndStoreNothingWhenYearIsNotAJsonInteger(String ano)
+      throws Exception {
+    String corpo =
+        "{\"placa\":\"ABC1D23\",\"marca\":\"Fiat\",\"modelo\":\"Uno\",\"ano\":" + ano + "}";
+    long id = inserirVeiculo(clienteId, PLACA_ANTIGA);
+    logs.list.clear();
+
+    MvcResult criacao =
+        criar(clienteId, corpo)
+            .andExpect(status().isBadRequest())
+            .andExpect(jsonPath("$.mensagem").value("veiculo.form.ano.tipo"))
+            .andExpect(jsonPath("$.erros.length()").value(1))
+            .andExpect(jsonPath("$.erros[0].campo").value("ano"))
+            .andExpect(jsonPath("$.erros[0].chave").value("veiculo.form.ano.tipo"))
+            .andReturn();
+    editar(id, corpo)
+        .andExpect(status().isBadRequest())
+        .andExpect(jsonPath("$.erros[0].campo").value("ano"))
+        .andExpect(jsonPath("$.erros[0].chave").value("veiculo.form.ano.tipo"));
+
+    assertThat(criacao.getResponse().getContentAsString()).doesNotContain("2015", "1234567890");
+    assertThat(totalVeiculos()).isEqualTo(1);
+    assertThat(placaNoBanco(id)).isEqualTo(PLACA_ANTIGA);
+    assertThat(mensagens()).isEmpty();
+  }
+
+  @Test
+  void shouldKeepTodaysBehaviorForOtherFieldsAndGenericErrorForBrokenJson() throws Exception {
+    // Nao regressao do ADR-028: so o ano muda; "marca": 123 segue coagido para texto como hoje.
+    criar(clienteId, "{\"placa\":\"ABC1D23\",\"marca\":123,\"modelo\":\"U\",\"ano\":2015}")
+        .andExpect(status().isCreated())
+        .andExpect(jsonPath("$.marca").value("123"));
+    criar(clienteId, "{\"placa\":")
+        .andExpect(status().isBadRequest())
+        .andExpect(jsonPath("$.mensagem").value("Corpo da requisicao invalido"))
+        .andExpect(jsonPath("$.erros.length()").value(0));
+  }
+
+  @Test
+  void shouldAnswerYearRequiredWhenYearIsNullOrAbsent() throws Exception {
+    criar(clienteId, "{\"placa\":\"ABC1D23\",\"marca\":\"F\",\"modelo\":\"U\",\"ano\":null}")
+        .andExpect(status().isBadRequest())
+        .andExpect(jsonPath("$.erros[0].chave").value("veiculo.form.ano.obrigatorio"));
+    criar(clienteId, "{\"placa\":\"ABC1D23\",\"marca\":\"F\",\"modelo\":\"U\"}")
+        .andExpect(status().isBadRequest())
+        .andExpect(jsonPath("$.erros[0].chave").value("veiculo.form.ano.obrigatorio"));
+  }
+
   // criterio 9
 
   @Test
@@ -437,6 +513,61 @@ class VeiculoIT {
     assertThat(placaNoBanco(outro)).isEqualTo(PLACA_ANTIGA);
     assertThat(clienteDoVeiculo(outro)).isEqualTo(outroClienteId);
     assertThat(totalVeiculos()).isEqualTo(2);
+  }
+
+  @Test
+  void shouldStoreNullColorWhenPutOmitsOrBlanksColor() throws Exception {
+    long id = inserirVeiculo(clienteId, PLACA);
+    jdbcTemplate.update("UPDATE veiculos SET cor = 'Prata' WHERE id = ?", id);
+
+    editar(id, "{\"placa\":\"ABC1D23\",\"marca\":\"Fiat\",\"modelo\":\"Uno\",\"ano\":2015}")
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.cor").doesNotExist());
+    assertThat(corNoBanco(id)).isNull();
+
+    jdbcTemplate.update("UPDATE veiculos SET cor = 'Prata' WHERE id = ?", id);
+    editar(
+            id,
+            "{\"placa\":\"ABC1D23\",\"marca\":\"Fiat\",\"modelo\":\"Uno\",\"ano\":2015,\"cor\":\"  \"}")
+        .andExpect(status().isOk());
+    assertThat(corNoBanco(id)).isNull();
+  }
+
+  @Test
+  void shouldStoreBrandModelAndColorWithoutEdgeSpacesWhenPutComesWithSpaces() throws Exception {
+    long id = inserirVeiculo(clienteId, PLACA);
+
+    editar(
+            id,
+            "{\"placa\":\"ABC1D23\",\"marca\":\" Fiat \",\"modelo\":\"\\tPalio \",\"ano\":2015,"
+                + "\"cor\":\"  Preto\"}")
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.marca").value("Fiat"))
+        .andExpect(jsonPath("$.modelo").value("Palio"))
+        .andExpect(jsonPath("$.cor").value("Preto"));
+
+    assertThat(
+            jdbcTemplate.queryForObject(
+                "SELECT CONCAT(marca, '|', modelo, '|', cor) FROM veiculos WHERE id = ?",
+                String.class,
+                id))
+        .isEqualTo("Fiat|Palio|Preto");
+  }
+
+  @Test
+  void shouldReturn400AndKeepBrandWhenPutBrandHasOnlySpaces() throws Exception {
+    long id = inserirVeiculo(clienteId, PLACA);
+
+    editar(id, "{\"placa\":\"ABC1D23\",\"marca\":\"   \",\"modelo\":\"Uno\",\"ano\":2015}")
+        .andExpect(status().isBadRequest())
+        .andExpect(jsonPath("$.erros.length()").value(1))
+        .andExpect(jsonPath("$.erros[0].campo").value("marca"))
+        .andExpect(jsonPath("$.erros[0].chave").value("veiculo.form.marca.obrigatoria"));
+
+    assertThat(
+            jdbcTemplate.queryForObject(
+                "SELECT marca FROM veiculos WHERE id = ?", String.class, id))
+        .isEqualTo("Fiat");
   }
 
   @Test
@@ -683,6 +814,10 @@ class VeiculoIT {
   private long clienteDoVeiculo(long id) {
     return jdbcTemplate.queryForObject(
         "SELECT cliente_id FROM veiculos WHERE id = ?", Long.class, id);
+  }
+
+  private String corNoBanco(long id) {
+    return jdbcTemplate.queryForObject("SELECT cor FROM veiculos WHERE id = ?", String.class, id);
   }
 
   private Integer quilometragem(long id) {

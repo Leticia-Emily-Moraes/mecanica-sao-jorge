@@ -2,8 +2,9 @@
 
 - Autor: ESQUADRO (etapa 3 de 4: BUSSOLA → CARTOGRAFO → ESQUADRO → CRIVO)
 - Data: 2026-11-13
-- PRD: `docs/product/F39-redesenho-wireframes-navegacao-figma.md` (ainda na v1; ver seção 9)
-- ADR: `docs/architecture/adr/ADR-014-adotar-referencia-figma-como-nova-identidade-visual.md` (não rastreado no git)
+- PRD: `docs/product/F39-redesenho-wireframes-navegacao-figma.md` (v3, commit `3956ba1`; as seções 8 a 11 abaixo foram escritas contra a v1 e valem como leitura, não como decisão)
+- ADR: `docs/architecture/adr/ADR-014-adotar-referencia-figma-como-nova-identidade-visual.md` (Proposto, rastreado desde `a9a364c`)
+- Grafo alvo: `docs/architecture/diagrams/navegacao-wireframe-f24.md`, seção 8 (CARTOGRAFO, `fed86b3`); a linha "mapa não reescrito" da tabela abaixo refere-se ao Figma, que continua intacto
 - Referência: `https://www.figma.com/design/FPdB8RymAnN81pbKfizdzE/Untitled` (file_key `FPdB8RymAnN81pbKfizdzE`, node `1:66`)
 - Arquivo do wireframe: `DLqbSzzKRxiN2eyvXG73Lr` (página `3:2` "F24 · Wireframe baixa fidelidade")
 
@@ -11,9 +12,14 @@
 
 | Parte | Situação |
 |---|---|
-| Acesso ao Figma | OK nesta sessão (`whoami`, `get_metadata`, `get_design_context`, `get_screenshot`, `get_variable_defs`) |
+| Acesso ao Figma | OK nas sessões anteriores. **Na sessão de 2026-11-13 (quarta, após o PRD v3): sem autenticação**, nenhuma ferramenta do Figma utilizável (seção 1.3) |
+| Captura do "antes" de F24, F25 e F34 (US-WFR-21) | **Não feita**: exige Figma, que está sem login. Pré-requisito de qualquer edição (seção 1.3) |
 | Versão nomeada da F24 aprovada (pré-requisito de qualquer edição) | **BLOQUEADA**. Nenhum nó do arquivo foi alterado |
+| Reconfirmação do bloqueio (2026-11-13, segunda sessão) | Repetida a mesma chamada: mesma saída, `not a supported API`; páginas continuam com 94, 10 e 6 filhos (seção 1.1) |
+| Terceira conferência (etapa 3 de 4, somente leitura) | G1 ainda vazio no PRD v2; páginas com 94, 10 e 6 filhos, 1 coleção, 0 estilos; nada editado (seção 1.2) |
 | Redesenho dos 96 frames | **Não feito**, consequência do item acima |
+| Cabeçalho e navegação inferior da referência (US-WFR-16 e 17) | Lidos com node-ids, medidas e regra de exibição (seção 6.3 e 6.4); não aplicados |
+| Escala tipográfica fechada | Proposta com base em 755 textos medidos (seção 4.2.1) |
 | Quadro comparativo de tokens | Feito (seção 4) |
 | Contraste da paleta da referência | Feito (seção 5) |
 | Agrupamento, hierarquia e node-ids da referência | Feito (seção 6) |
@@ -43,6 +49,59 @@ Consequência, conforme US-WFR-15b: nenhuma página da F24 foi editada. A chamad
 **O que destrava (qualquer uma, decisão da pessoa):**
 1. A pessoa abre o arquivo `DLqbSzzKRxiN2eyvXG73Lr` no Figma e salva a versão pelo menu (nome sugerido: `F24 aprovada (pré-F39)`), e informa o nome e o id (o id aparece na URL ao abrir a versão no histórico, parâmetro `version-id`). Eu não consigo ler o histórico por esta ferramenta, então vou conferir só pelo que a pessoa informar, e isso fica escrito como "informado, não verificado".
 2. A pessoa autoriza trocar a D4 por "duplicar a página F24 como `F24 · aprovada (arquivo morto)` dentro do mesmo arquivo". É um desvio da D4, por isso só com autorização escrita.
+
+### 1.1 Reconfirmação em 2026-11-13 (segunda sessão do ESQUADRO)
+
+Antes de qualquer outra coisa, repeti a chamada (somente leitura de fato, porque a API não existe) e conferi a contagem de filhos das páginas. Saída real:
+
+```
+{"pages":[{"id":"3:2","name":"F24 · Wireframe baixa fidelidade","n":94},
+          {"id":"28:2","name":"F25 · Protótipo alta fidelidade","n":10},
+          {"id":"39:2","name":"F34 · Tab bar alta fidelidade","n":6}],
+ "typeofFn":"function",
+ "error":"in saveVersionHistoryAsync: \"saveVersionHistoryAsync\" is not a supported API"}
+```
+
+O PRD (`docs/product/F39-…md`) continua sem nome nem id de versão, e o briefing desta etapa não os traz. Nenhuma versão foi informada pela pessoa, então a US-WFR-15b segue valendo: **nenhuma página da F24 foi editada, nem variável, nem estilo, nem coleção foi criada** no arquivo `DLqbSzzKRxiN2eyvXG73Lr`.
+
+Não usei a API REST de versões do Figma: não há token no ambiente (o acesso é só por OAuth do MCP) e contornar a ferramenta não é o caminho previsto.
+
+O que está pronto aqui é a leitura (tokens, cabeçalho, navegação inferior, escala tipográfica). Para o redesenho começar falta só a pessoa salvar a versão nomeada e informar o id, ou autorizar por escrito a cópia da página (seção 1, opção 2).
+
+### 1.2 Terceira conferência em 2026-11-13 (etapa 3 de 4, após PRD v2 e ADR-014)
+
+Antes de tocar em qualquer coisa, procurei o nome e o id da versão no repositório (`grep` por `version-id` e pelo nome sugerido em `docs/`): só aparecem como instrução, nunca preenchidos. A tabela G1 da seção 13 do PRD v2 continua com "Pendente: ESQUADRO não liberado". O briefing desta etapa também não traz versão nem autorização escrita para a opção 2.
+
+Leitura de verificação (somente leitura, nenhum nó criado ou alterado). `whoami` respondeu normalmente (plano `team::1274094162661077353`). Saída real do `use_figma` de leitura, sessão `67452991-47b8-4c4a-a3bf-927a1b7e09cf`:
+
+```
+pages: 3:2 "F24 · Wireframe baixa fidelidade" = 94 filhos
+       28:2 "F25 · Protótipo alta fidelidade" = 10
+       39:2 "F34 · Tab bar alta fidelidade"    = 6
+collections: VariableCollectionId:28:3 "OP-002 Tokens de cor" (22 variáveis)   ← única coleção
+paintStyles: 0   textStyles: 0
+primeiros filhos de 3:2: "01 Login / Carregando", "01 Login / Erro de rede", "01 Login / Erro de validação"
+```
+
+Leitura: os nomes ainda são os da F24 aprovada (sem `Vazio`, sem `Erro · validação`), a coleção v2 não existe e não há estilo de pintura nem de texto. Ou seja, o arquivo está intacto e o gate G1 não foi cumprido. **Decisão: nenhuma edição, incluindo a coleção v2**, porque criar variável também é editar o arquivo antes da versão nomeada (lista de liberação, itens 1 e 3 do PRD). Também não usei `saveVersionHistoryAsync` de novo: já está comprovado que a API não existe nesta ferramenta.
+
+O que faltou para seguir: nome e `version-id` da versão salva pela pessoa (com captura do histórico), ou autorização escrita para duplicar a página como `F24 · aprovada (arquivo morto)`.
+
+### 1.3 Quarta sessão em 2026-11-13: Figma sem autenticação (após o PRD v3)
+
+Contexto: o PRD v3 (`3956ba1`) mantém o G1 fechado (seção 13 dele): sem versão nomeada e sem resposta da D12, o ESQUADRO não está liberado para editar. A instrução recebida era redesenhar os 96 frames; ela depende desse gate.
+
+Fato desta sessão: o ambiente informou que o servidor `figma-remote` exige autenticação e que a sessão é não interativa. As ferramentas do Figma (`create_session`, `get_metadata`, `get_screenshot`, `use_figma` e as demais) **não estavam disponíveis para mim**, e eu não tinha como chamar `whoami`; por isso **não existe saída de `whoami` nesta sessão para citar**, só o aviso do ambiente. Não tentei contornar (sem API REST, sem token, sem cópia por outro caminho).
+
+Consequências, sem inferir nada:
+- Nenhum nó, variável, estilo ou coleção do arquivo `DLqbSzzKRxiN2eyvXG73Lr` foi lido ou alterado nesta sessão. A contagem de 94, 10 e 6 filhos das páginas `3:2`, `28:2` e `39:2` é a da conferência anterior (seção 1.2), **não** conferida de novo.
+- A captura do antes (US-WFR-21, premissa 21 do PRD v3) não foi feita; a tabela de node-ids capturados na seção 13 do PRD segue vazia.
+- D9 (papel de `20:968` e `20:2131`): não abri esses frames. A seção 2 abaixo, escrita em sessão anterior com Figma aberto, **leu `20:2131` como página** "01 — Wireframes" da referência. Isso é fato lido naquela sessão; o briefing da regra "Inspiração visual" atribui `20:968` ao baixa e `20:2131` ao alta. Os dois textos não cabem juntos e eu não escolho. Quem destrava é a pessoa, com a D9.
+
+Para destravar (nesta ordem):
+1. Pessoa ou operador roda o login do Figma: `claude mcp login figma-remote`.
+2. Pessoa responde a D12 (versão nomeada continua exigida ou a dispensa de 2026-11-13 vale) e informa nome e id da versão, se houver.
+3. ESQUADRO captura o antes de F24, F25 e F34 e registra os node-ids na seção 13 do PRD, só então edita.
 
 ## 2. Acesso e leitura da referência
 
@@ -123,6 +182,27 @@ Resultado: marca escura e primária são **idênticas**. A referência não "sub
 | Mensagem de erro | `caption` 12 | Inter Regular 14 (entrelinha 19,6) |
 
 Tamanhos usados na referência (lidos nas variáveis): 10, 10,5, 11, 12, 13, 14, 15, 17, 18, 20, 22, 24, 26, 30, 32, 44. A referência tem 17 tamanhos; para virar escala, a feature de migração precisa reduzir para um conjunto fechado (proposta da seção 11, não decidida aqui).
+
+### 4.2.1 Correções e escala fechada (leitura de 2026-11-13)
+
+**Correção da cor de erro.** O ADR-014 e a linha "Erro (texto)" da seção 4.1 propõem El Salva `#923631` para a mensagem sob o campo, a partir do banner. Lendo as mensagens de campo da alta fidelidade (`10:1861` "Obrigatório." e `10:1872` "Ano inválido.", por `use_figma` somente leitura), a cor é **Crail `#B5453D`, Inter Regular 13**, e não El Salva. El Salva `#923631` aparece só no texto do banner de erro (`10:976`, Inter Regular 14, entrelinha 19,6). Contraste da mensagem de campo: 5,41:1 sobre branco e 4,97:1 sobre Pampas (seção 5), passa AA. Consequência para a migração: dois papéis, `text.error` (Crail, mensagem de campo) e `text.errorOnBanner` (El Salva, banner). A tabela da seção 4.2 também erra ao dar 14 para "Mensagem de erro": 14 é o banner; o campo é 13.
+
+**A referência tem dois estilos.** A página `20:2131` "01 — Wireframes" da própria referência é de baixa fidelidade em estilo rascunho: fonte manuscrita Patrick Hand, cinzas, botão azul-claro, erro em tom rosado (lido em `1:106` com `get_variable_defs` e captura). Barlow Condensed, Inter e a paleta quente são da alta fidelidade (`20:2132`). A D1 diz que paleta e tipografia da referência são a nova identidade, e os tokens que levantei vêm da alta fidelidade. **Pergunta para a pessoa:** o wireframe revisado de baixa fidelidade deve usar os tokens da alta fidelidade (como proponho e como a D1 pede) ou o estilo rascunho da página `20:2131`? Sigo com a primeira leitura; a segunda mudaria o quadro de tokens inteiro. Não decidi sozinho.
+
+**Escala tipográfica proposta.** Contei família, peso e tamanho dos 755 textos dentro dos 49 frames `Tela / …` da alta fidelidade (não conta as anotações de módulo):
+
+| Tamanho e família | Textos | Papel observado |
+|---|---|---|
+| Inter 15 (SemiBold 129, Regular 72, Medium 4) | 205 | botão, nome em lista, texto de campo |
+| Inter 13 (Regular 98, Medium 96, SemiBold 9) | 203 | rótulo de campo, texto secundário, mensagem de erro de campo |
+| Inter 14 (Regular 45, Medium 40, SemiBold 37) | 122 | corpo, banner de erro |
+| Inter 12 (SemiBold 35, Regular 20) | 55 | detalhe, badge |
+| Inter 11 (Medium 36, SemiBold 12) | 48 | rótulo da navegação inferior |
+| Barlow Condensed SemiBold 21 | 47 | título do cabeçalho |
+| Barlow Condensed SemiBold 17 | 19 | título de cartão |
+| Demais (Barlow 15, 18, 20, 22, 24, 30, 32, 44; Inter 18, 20, 22) | 56 | uso isolado |
+
+Escala fechada proposta: **Inter 11, 12, 13, 14, 15** e **Barlow Condensed 17, 21 e 30** (30 é a marca no login, `Barlow Bold 30`, lida na seção 4.2). Inter 11 a 15 e Barlow 17 e 21 cobrem 699 dos 755 textos (92,6%); o 30 entra por ser a marca (2 usos). Os 56 restantes (7,4%, incluindo esses 2) são arredondados na migração para o vizinho mais próximo da escala, com exceção do `Barlow Bold 44` (1 uso, destaque numérico), que fica como decisão da migração. Proposta, não decisão: a feature de migração fecha com os valores reais de `tokens.ts`.
 
 ### 4.3 Espaçamento, raio, borda, sombra e medidas
 
@@ -244,6 +324,48 @@ Mapeamento tela do inventário → tela da referência: 01→1a; 02→1v; 03→1
 
 **Telas da referência fora do inventário de 24** (não somadas, conforme premissa 2): `1j` Detalhe da Peça, `1p` Selecionar Serviços/Peças e, na alta fidelidade, `1ag` Adicionar Peça na OS (id `10:2899`, lido na seleção). Entram como pergunta para BUSSOLA (seção 9, item 4), porque sem elas dois gaps do mapa seguem abertos.
 
+### 6.3 Cabeçalho da referência (US-WFR-16)
+
+Leitura por `use_figma` somente leitura e captura de `10:1373` (Detalhe do Cliente) e `10:1052` (Lista de Clientes), na página `20:2132`.
+
+| Item | Valor lido |
+|---|---|
+| Medidas | 360 × 56, fundo petro `#1E3A3F`, padding 0/12/0/16, espaço entre elementos 10 |
+| Título | Barlow Condensed SemiBold 21, branco, à esquerda |
+| Botão de ícone | 36 × 36, fundo claro translúcido sobre o petro (a leitura deu fill branco; a opacidade exata não li, a captura mostra tom discreto), ícone de 18 em traço branco de 1,5 |
+| Variante lista (aba raiz) | título + ícone de **pessoa** à direita (Perfil). Ex.: `20:1174` "Clientes", `20:1080` "Ordens de Serviço" |
+| Variante detalhe | **seta de voltar** à esquerda + título + botão de **editar** (lápis) à direita. Ex.: `20:1435` "Roberto Alves" |
+| Variante formulário | seta de voltar + título, sem ação à direita. Ex.: `20:1455` "Novo cliente", `20:2084` "Perfil" |
+| Variante detalhe de OS ou parcela | seta de voltar + título + **badge de status** à direita (`20:1726` "OS #0142" + "EM ANDAMENTO", fundo `#2C5258`; `20:1922` "Parcela 1/1" + "ATRASADO") |
+
+O cabeçalho indica onde a pessoa está pelo título e por haver ou não seta de voltar; é o que a US-WFR-16 pede.
+
+Duas coisas que a referência faz e que não vou copiar:
+1. **Não é um componente só.** Cada título é uma instância de componente com nome próprio (`Cabeçalho / Roberto Alves`, `Cabeçalho / Perfil` e assim por diante), resultado da importação de HTML. No wireframe revisado o cabeçalho é **um** componente com propriedade de texto (título), booleano (voltar), e um slot (nenhum, ação, badge), como a US-WFR-16 exige ("mesmo componente em todas as telas, sem cópia solta").
+2. **Botão de 36 × 36** fica abaixo do mínimo do projeto (48). No wireframe a área de toque é 48 × 48 com ícone de 18 e fundo visível de 36 (o preenchimento não precisa ocupar a área inteira).
+
+Gap de leitura: em 10 dos 49 frames da referência não achei instância de cabeçalho (Editar Cliente `10:1494`, Detalhe do Veículo `10:1651`, Editar Veículo `10:1778`, Editar Serviço `10:2015`, Detalhe da Peça `10:2193`, Editar Peça `10:2305`, Adicionar Serviço na OS `10:2971`, Alterar Status bloqueado `10:3139`, Cancelar OS `10:3184`, Pagamento acima do saldo `10:3508`). Pode ser omissão da importação ou estrutura diferente que a minha busca por nome de instância não pegou; não conferi um a um. Não inferi: no wireframe revisado essas telas usam o mesmo cabeçalho das telas irmãs.
+
+O ícone do botão de ação nos detalhes (`I20:1435;10:1381`, vetor 11 × 11) li como lápis na captura; o ícone de pessoa nas listas também é pela captura, não pelo nome do vetor.
+
+### 6.4 Navegação inferior da referência (US-WFR-17)
+
+| Item | Valor lido |
+|---|---|
+| Componente | `20:1103` "Navegação inferior / Ordens · Clientes · Catálogo · Financeiro", 360 × 62, fundo petro, 4 itens de 90 × 62 |
+| Itens e ordem | 1 Ordens · 2 Clientes · 3 Catálogo · 4 Financeiro |
+| Item | ícone 22 acima do rótulo, espaço de 4; rótulo Inter 11 |
+| Ativo | ícone e rótulo em Crail `#B5453D`, rótulo **SemiBold** (inativo: Tide `#B7B2AC`, Medium). Distingue por cor e peso; não há indicador de forma (pill, barra) |
+| Variantes | uma por aba ativa: `20:1103`/`20:1126`/`20:1149` (Ordens), `20:1341`/`20:1364`/`20:1387`/`20:1410` (Clientes, "/ 2"), `20:1545`/`20:1568` (Catálogo, "/ 3"), `20:1851`/`20:1874`/`20:1897` (Financeiro, "/ 4"). Servem de nó de origem |
+| Aparece em | só nas telas raiz de cada módulo: lista de Clientes e seus estados (`10:1052`, `10:1157`, `10:1214`, `10:1269`), Lista de Serviços `10:1889`, Lista de Peças `10:2092`, Lista de OS e filtro `10:2480`, `10:2599`, Parcelas `10:3277`, `10:3383`, Lançamentos `10:3647` e Sem conexão `10:986` |
+| Oculta em | Login, detalhes, formulários, validações, confirmações e Perfil |
+| Perfil | **não está na barra**: é aberto pelo ícone de pessoa no cabeçalho das telas raiz |
+
+Aplicação no wireframe revisado (decisão minha, fundamentada no que li):
+- O item ativo mantém a cor Crail da referência **e** ganha um indicador que não é cor: o pill do F34, que já resolve o contraste (Crail sobre petro é 2,24:1, falha 3:1; texto branco sobre pill Crail é 5,41:1). Peso do rótulo SemiBold continua. Assim o ativo se distingue por forma, peso e cor (US-WFR-17).
+- Cada item tem nome acessível ("Ordens, aba 1 de 4, selecionada"), alvo de 90 × 62 (acima do mínimo de 24 × 24 do WCAG 2.5.8 e acima de 48). Rótulo Inter 11 é o menor tamanho da escala; manter sempre visível, nunca só ícone.
+- Divergência com o F33 (4 abas sem Perfil, Ordens primeiro, contra 5 posições com Perfil primeiro) já está no débito da seção 10 e fica como pergunta à REGENTE, sem tocar na tab bar do app. Consequência prática no wireframe: o acesso ao Perfil muda (ícone no cabeçalho), então o grafo precisa de uma aresta "Lista raiz → Perfil" que a F24 não tem. Registrado; não desenhado.
+
 ## 7. Componentes de navegação e motivo estrutural (US-WFR-08)
 
 Proposta com base no que a referência já faz. Nada disso foi aplicado nos frames.
@@ -273,7 +395,7 @@ Estados carregando e erro com saída: na referência, `2b` oferece "Tentar novam
 
 ## 9. Pendências para BUSSOLA e decisões que não são minhas
 
-1. **PRD ainda na v1** (`docs/product/F39-…md`, de 2026-11-11): continua dizendo "visual excluído", "página nova" e "link não recebido". As decisões D1 e D4 e o link já existem. BUSSOLA precisa gravar a v2 e registrar nela o bloqueio da seção 1.
+1. **PRD na v3** (`3956ba1`, ramo `docs/f39-wireframe-redesenho`): já incorpora D1, D4, o link, as premissas 19 a 24 e os critérios US-WFR-19 a 22. Pendem na v3: D9 (papel de `20:968` e `20:2131`), D10 e D11 (frase de F25 a F29 e local da marcação), D12 (versão nomeada), D13 (frames de alta) e D14 (o que foi editado). Esta seção 9 foi escrita contra a v1; o que ela diz do PRD está superado por este item.
 2. **A premissa de "troca de identidade" precisa ser reescrita** (ADR-014 e PRD v2): petro e primary **não mudam** (seção 4.1). O que muda é neutros, estados, tipografia e forma. Isso afeta a leitura da D1 e o tamanho da lista de impacto. Registrado aqui; a decisão de manter, reduzir ou refazer a D1 é da pessoa, com a REGENTE.
 3. **D2** segue em aberto (seção 3).
 4. **96 frames contra 93 células** (D7 de BUSSOLA): o inventário aplicável da F24 tem 93 células e a página tem 94 frames de tela. US-WFR-01 pede 96 (24 × 4). A conta fecha em 96 só se cada tela tiver exatamente os quatro estados, e hoje 16 telas não têm "Vazio" aplicável (formulários e detalhes). Preciso de decisão: (a) criar o "Vazio" dessas telas como formulário em branco ou detalhe sem dados, ou (b) corrigir o critério para a matriz de aplicabilidade. Fica registrado aqui porque a decisão de BUSSOLA muda o número de frames a editar.
@@ -312,8 +434,14 @@ D3 (ordem e fatiamento) continua com quem prioriza o backlog e a REGENTE.
 
 Verificado nesta sessão (saída real): `whoami`; leitura das três páginas da referência; `get_variable_defs`; `get_design_context` do frame `20:1066`; coleção de variáveis e amostra de fills, fontes e raios do arquivo da F24 por `use_figma` somente leitura; contraste por script; versões dos pacotes Expo de fonte por `npm view`; `git status` (ADR-014 não rastreado, nenhum arquivo de código tocado).
 
+Verificado na segunda sessão (2026-11-13), saída real: `whoami` OK; `saveVersionHistoryAsync` de novo "not a supported API" (seção 1.1); contagem de filhos das 3 páginas inalterada; `get_variable_defs` e captura de `1:106`; `get_metadata` de `20:1066`; `use_figma` somente leitura na referência (mensagens de erro de campo, 755 textos por tamanho, 49 telas com cabeçalho e navegação, estrutura de `20:1103`, `20:1080`, `20:1435`, `20:1726`, `20:2084`); capturas de `10:1373` e `10:1052`.
+
+Quarta sessão (2026-11-13): nada verificado no Figma, porque o `figma-remote` estava sem autenticação (seção 1.3). Só li o repositório (`git log`, `git diff` entre ramos, PRD v3 e este documento).
+
 Não verificado ou não feito:
-- Versão nomeada: bloqueada (seção 1). Nenhuma edição no Figma.
+- Captura do antes de F24, F25 e F34 (US-WFR-21): não feita.
+- Versão nomeada: bloqueada (seção 1). Nenhuma edição no Figma, nem coleção de variáveis.
+- Contraste dos novos pares da seção 4.2.1 além dos já medidos na seção 5: não medi o par "Crail sobre Pampas em 13 px" separadamente; vale o 4,97:1 da seção 5.
 - Os 96 frames, estilos/variáveis v2, anotações de acessibilidade por estado (US-WFR-06) e grafo reescrito (US-WFR-03): não feitos.
 - Texto pequeno de botões nas telas de módulo da referência: só visual.
 - Titularidade da referência: não provada.

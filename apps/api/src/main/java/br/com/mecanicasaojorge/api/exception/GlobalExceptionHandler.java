@@ -117,7 +117,10 @@ public class GlobalExceptionHandler {
   @ExceptionHandler(HttpMessageNotReadableException.class)
   public ResponseEntity<ErrorResponse> handleUnreadableBody(
       HttpMessageNotReadableException ex, HttpServletRequest request) {
-    return buildResponse(HttpStatus.BAD_REQUEST, "Corpo da requisicao invalido", request);
+    return CampoDeTipoVeiculo.identificar(ex)
+        .map(erro -> buildResponse(HttpStatus.BAD_REQUEST, erro.chave(), request, List.of(erro)))
+        .orElseGet(
+            () -> buildResponse(HttpStatus.BAD_REQUEST, "Corpo da requisicao invalido", request));
   }
 
   /** Content-Type diferente de JSON (achado E2): 415 com mensagem fixa. */

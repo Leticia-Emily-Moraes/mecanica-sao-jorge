@@ -7,7 +7,7 @@ Quatro rotas para cadastrar, editar, detalhar e listar os veículos de um client
 - **Decisões:** ADR-022 (placa), ADR-023 (`erros[]`), ADR-024 (rotas), ADR-025 (`historicoOs`), em `docs/architecture/adr/`
 - **Chaves i18n para o app:** `docs/product/F35-recebido-da-F04-veiculos.md`
 
-> **Como os exemplos foram obtidos.** Em 2026-11-18, subi o `apps/api/target/api.jar` contra um MySQL 8.4 descartável (Docker, já removido), com um usuário e dois clientes fictícios inseridos à mão. Rodei as chamadas com `curl` e colei as respostas sem edição. O que mudei: tirei o token e recortei cabeçalhos irrelevantes. Os `timestamp` mudam a cada chamada. Placas e nomes são fictícios.
+> **Como os exemplos foram obtidos.** Em 2026-11-19, recompilei o `apps/api/target/api.jar` com o código da branch e o subi contra um MySQL 8.4 descartável (Docker, removido ao fim), com um usuário e dois clientes fictícios inseridos à mão. Rodei as chamadas com `curl` e colei as respostas sem edição de conteúdo. O que mudei: tirei o token, recortei cabeçalhos irrelevantes e formatei o JSON onde indicado. Os `timestamp` mudam a cada chamada. Placas e nomes são fictícios.
 
 ## Resumo das rotas
 
@@ -18,7 +18,7 @@ Quatro rotas para cadastrar, editar, detalhar e listar os veículos de um client
 | `GET` | `/veiculos/{id}` | `200` | 400, 401, 404 |
 | `PUT` | `/veiculos/{id}` | `200` | 400, 401, 404, 409, 415 |
 
-Os códigos da coluna "Erros possíveis" batem com o `/v3/api-docs` da API que subi. Exemplos reais abaixo cobrem 400, 401, 404 e 409. O **415** está declarado no OpenAPI, mas **não o exercitei** nesta captura.
+Os códigos da coluna "Erros possíveis" batem com o `/v3/api-docs` da API que subi (conferi rota a rota). Exemplos reais abaixo cobrem 400, 401, 404, 409 e 415.
 
 ## Autenticação
 
@@ -45,10 +45,10 @@ Nos exemplos abaixo, `$TOKEN` guarda o valor do campo `token` dessa resposta.
 | Campo | Obrigatório | Regra |
 |---|---|---|
 | `placa` | sim | formatos acima |
-| `marca` | sim | até 100 caracteres |
-| `modelo` | sim | até 100 caracteres |
-| `ano` | sim | de 1900 até o ano corrente + 1 |
-| `cor` | não | até 40 caracteres |
+| `marca` | sim | até 100 caracteres; espaço nas pontas é removido (`" Fiat "` grava `Fiat`) |
+| `modelo` | sim | até 100 caracteres; espaço nas pontas é removido |
+| `ano` | sim | **inteiro JSON** de 1900 até o ano corrente + 1. `2015.9`, `2015.0` e `"2015"` dão 400 |
+| `cor` | não | até 40 caracteres; espaço nas pontas é removido; em branco grava vazio |
 
 Qualquer outro campo é ignorado, inclusive `id`, `clienteId`, `cliente` e `quilometragem`.
 
@@ -61,8 +61,10 @@ Cria um veículo vinculado ao cliente do caminho.
 ```bash
 curl -i -X POST http://localhost:8080/api/v1/clientes/1/veiculos \
   -H "Authorization: Bearer $TOKEN" -H "Content-Type: application/json" \
-  -d '{"placa":"ABC1234","marca":"Fiat","modelo":"Uno","ano":2012,"cor":"Prata"}'
+  -d '{"placa":"ABC1234","marca":" Fiat ","modelo":"Uno","ano":2012,"cor":"Prata"}'
 ```
+
+Repare que `marca` foi enviada como `" Fiat "`. A resposta traz `Fiat`, sem os espaços.
 
 ### Resposta `201`
 
@@ -90,14 +92,14 @@ curl -i -X POST http://localhost:8080/api/v1/clientes/1/veiculos \
 
 ### Erro `400`: vários campos inválidos
 
-Enviei placa `ABC12D3`, marca com espaço, modelo vazio e ano `1899`. Vem um item em `erros[]` por campo, ordenado por campo:
+Enviei placa `ABC12D3`, marca só com espaço, modelo vazio e ano `1899`. Vem um item em `erros[]` por campo, ordenado por campo. A ordem das chaves em `mensagem` não é estável (mudou entre capturas): leia sempre `erros[]`.
 
 ```json
 {
-  "timestamp": "2026-11-18T19:59:58.35741-03:00",
+  "timestamp": "2026-11-19T08:42:21.924781-03:00",
   "status": 400,
   "erro": "Bad Request",
-  "mensagem": "veiculo.form.marca.obrigatoria; veiculo.form.modelo.obrigatorio; veiculo.form.placa.erro; veiculo.form.ano.faixa",
+  "mensagem": "veiculo.form.ano.faixa; veiculo.form.placa.erro; veiculo.form.modelo.obrigatorio; veiculo.form.marca.obrigatoria",
   "path": "/api/v1/clientes/1/veiculos",
   "erros": [
     {"campo": "ano", "chave": "veiculo.form.ano.faixa"},
@@ -108,7 +110,26 @@ Enviei placa `ABC12D3`, marca com espaço, modelo vazio e ano `1899`. Vem um ite
 }
 ```
 
-Corpo que não é JSON válido (`{"placa":`) responde 400 com `"mensagem": "Corpo da requisicao invalido"` e `"erros": []`.
+### Erro `400`: ano que não é inteiro
+
+`"ano": 2015.9` e `"ano": "2015"` respondem o mesmo corpo, no POST e no PUT. Só `ano` aparece em `erros[]`: o parser para no primeiro erro de tipo, então outros campos inválidos só aparecem depois que o ano for corrigido. O valor enviado não volta no corpo.
+
+```json
+{
+  "timestamp": "2026-11-19T08:42:21.948566-03:00",
+  "status": 400,
+  "erro": "Bad Request",
+  "mensagem": "veiculo.form.ano.tipo",
+  "path": "/api/v1/clientes/1/veiculos",
+  "erros": [{"campo": "ano", "chave": "veiculo.form.ano.tipo"}]
+}
+```
+
+Também dão essa resposta `2015.0`, booleano, objeto, array e inteiro grande demais (cobertos por `VeiculoIT`; à mão testei `2015.9` e `"2015"`).
+
+### Erro `400`: JSON inválido ou tipo errado em outro campo
+
+Corpo que não é JSON válido (`{"placa":`) responde 400 com `"mensagem": "Corpo da requisicao invalido"` e `"erros": []`. O mesmo vale para tipo errado em qualquer campo que não seja `ano` (testei `placa` como array): sem chave, porque a chave de tipo existe só para `ano`.
 
 ### Erro `409`: placa já cadastrada
 
@@ -116,7 +137,7 @@ Enviei `abc1d23` para o cliente 2, mas `ABC1D23` já existe no cliente 1. A resp
 
 ```json
 {
-  "timestamp": "2026-11-18T19:59:58.37338-03:00",
+  "timestamp": "2026-11-19T08:42:22.015483-03:00",
   "status": 409,
   "erro": "Conflict",
   "mensagem": "Placa ja cadastrada",
@@ -131,7 +152,7 @@ Dois cadastros simultâneos com a mesma placa: um recebe 201 e o outro 409, porq
 
 ```json
 {
-  "timestamp": "2026-11-18T19:59:58.385232-03:00",
+  "timestamp": "2026-11-19T08:42:22.02819-03:00",
   "status": 404,
   "erro": "Not Found",
   "mensagem": "Cliente nao encontrado",
@@ -144,13 +165,21 @@ Dois cadastros simultâneos com a mesma placa: um recebe 201 e o outro 409, porq
 
 ```json
 {
-  "timestamp": "2026-11-18T19:59:58.397148-03:00",
+  "timestamp": "2026-11-19T08:42:22.037536-03:00",
   "status": 401,
   "erro": "Unauthorized",
   "mensagem": "Nao autenticado",
   "path": "/api/v1/clientes/1/veiculos",
   "erros": []
 }
+```
+
+### Erro `415`: Content-Type que não é JSON
+
+Enviei `Content-Type: text/plain`:
+
+```json
+{"timestamp":"2026-11-19T08:42:22.047508-03:00","status":415,"erro":"Unsupported Media Type","mensagem":"Tipo de conteudo nao suportado","path":"/api/v1/clientes/1/veiculos","erros":[]}
 ```
 
 ## GET /clientes/{clienteId}/veiculos
@@ -217,9 +246,9 @@ curl -s -X PUT http://localhost:8080/api/v1/veiculos/1 \
 {"id":1,"clienteId":1,"placa":"ABC1D24","marca":"Fiat","modelo":"Uno Mille","ano":2012,"cor":"Cinza"}
 ```
 
-### Mesma placa e sem `cor`
+### Sem `cor`, com a própria placa
 
-Repetir a própria placa não gera conflito. Como `cor` foi omitida, voltou `null`:
+O veículo tinha cor `Cinza`. Reenviei sem `cor`. Repetir a própria placa não gera conflito. A cor voltou `null`, e conferi no banco que a coluna ficou `NULL` (não texto vazio). `cor` em branco tem o mesmo efeito (coberto por `VeiculoIT`; não repeti à mão):
 
 ```json
 {"id":1,"clienteId":1,"placa":"ABC1D24","marca":"Fiat","modelo":"Uno","ano":2012,"cor":null}
@@ -231,7 +260,7 @@ Troquei a placa do veículo 1 por `ABC1D23`, que é do veículo 2. O veículo 1 
 
 ```json
 {
-  "timestamp": "2026-11-18T19:59:58.532552-03:00",
+  "timestamp": "2026-11-19T08:42:22.208924-03:00",
   "status": 409,
   "erro": "Conflict",
   "mensagem": "Placa ja cadastrada",
@@ -242,17 +271,18 @@ Troquei a placa do veículo 1 por `ABC1D23`, que é do veículo 2. O veículo 1 
 
 ### Outros erros
 
-- `400` com `erros[]`: mesmo formato do POST.
+- `400` com `erros[]`: mesmo formato do POST, inclusive `veiculo.form.ano.tipo` para `"ano":2015.9` (testei no PUT; o registro não muda).
 - `404` com `"mensagem": "Veiculo nao encontrado"` quando o id não existe (testei `999`).
 
 ## Formato de erro
 
 Todo erro da API traz `timestamp`, `status`, `erro`, `mensagem`, `path` e `erros[]`. Desde a F04, `erros[]` está **sempre** presente (`[]` quando não há erro por campo), inclusive em erros de outros módulos, como o 401 do login. `mensagem` continua existindo.
 
+- **Quando existe chave (N4):** só no 400 de validação de campo de veículo (`veiculo.form.*`) e no 409 de placa. Erros de rota (400 de parâmetro, 404, 405, 415, JSON malformado) seguem com texto fixo em `mensagem` e `erros: []`. Eles **viram chave se a F35 pedir**, o que exige ADR novo.
 - O app deve resolver o texto pela `chave` de cada item, não por `mensagem`.
 - As mensagens de erro de cliente (F03a a F03c) ainda não são chaves: nelas `chave` pode vir nula até a F10 (ADR-023).
 
-Chaves de veículo (texto em português é da F35; a API devolve só a chave):
+São 11 chaves de veículo (texto em português é da F35; a API devolve só a chave):
 
 | Chave | Campo | Quando |
 |---|---|---|
@@ -265,6 +295,7 @@ Chaves de veículo (texto em português é da F35; a API devolve só a chave):
 | `veiculo.form.modelo.tamanho` | modelo | mais de 100 caracteres |
 | `veiculo.form.ano.obrigatorio` | ano | ausente |
 | `veiculo.form.ano.faixa` | ano | fora de 1900..ano+1 |
+| `veiculo.form.ano.tipo` | ano | não é inteiro JSON (`2015.9`, `"2015"`, booleano, objeto, array, número grande demais) |
 | `veiculo.form.cor.tamanho` | cor | mais de 40 caracteres |
 
 ## Dado pessoal e log (LGPD)
@@ -276,10 +307,12 @@ Chaves de veículo (texto em português é da F35; a API devolve só a chave):
 
 ## Evidência
 
-Em 2026-11-18, `./apps/api/mvnw -f apps/api/pom.xml verify`: `BUILD SUCCESS`, 217 testes unitários e web, 108 de integração, 0 falhas. `VeiculoIT` (38) usa MySQL 8.4 real via Testcontainers, com V1 a V7 aplicadas pelo Flyway. Inclui o cadastro simultâneo com a mesma placa.
+Em 2026-11-19, `./apps/api/mvnw -f apps/api/pom.xml verify` (inclui Checkstyle e Spotless): `BUILD SUCCESS`, 242 testes unitários e web e 140 de integração, 0 falhas. `VeiculoIT` (49 casos) usa MySQL 8.4 real via Testcontainers, com as migrations aplicadas pelo Flyway. Inclui o cadastro simultâneo com a mesma placa, o ano não inteiro em POST e PUT, o aparo de `marca`, `modelo` e `cor` e o PUT sem `cor` gravando `NULL`.
 
 ## Não verificado
 
-- Resposta `415` (Content-Type diferente de JSON): consta no OpenAPI, sem chamada real minha.
+- ADR-022 a 025 e 028 continuam "Proposto": o contrato aqui descrito segue o código, mas o aceite formal é da pessoa dona do produto.
+- A V7 não foi testada contra dados reais: se a base tiver placa repetida ou fora do formato, a migration falha ao subir.
+- Tipo errado em `marca`, `modelo` e `cor` (ex.: `"marca": 123`) não gera 400: continua gravando como texto. Não é regressão, mas o app não deve depender disso.
 - Cabeçalho `Cache-Control: no-store`: `VeiculoIT` verifica, mas filtrei cabeçalhos na minha captura e não o conferi à mão.
 - Rate limit ou proteção contra enumeração de placa por força bruta: não existe nesta feature.

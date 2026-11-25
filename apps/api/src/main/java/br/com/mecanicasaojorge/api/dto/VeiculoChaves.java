@@ -18,6 +18,7 @@ public final class VeiculoChaves {
   public static final String MODELO_TAMANHO = "veiculo.form.modelo.tamanho";
   public static final String ANO_OBRIGATORIO = "veiculo.form.ano.obrigatorio";
   public static final String ANO_FAIXA = "veiculo.form.ano.faixa";
+  public static final String ANO_TIPO = "veiculo.form.ano.tipo";
   public static final String COR_TAMANHO = "veiculo.form.cor.tamanho";
 
   /** Todas as chaves publicadas, na ordem do catalogo. */
@@ -32,6 +33,7 @@ public final class VeiculoChaves {
           MODELO_TAMANHO,
           ANO_OBRIGATORIO,
           ANO_FAIXA,
+          ANO_TIPO,
           COR_TAMANHO);
 
   private VeiculoChaves() {}
