@@ -1,7 +1,7 @@
 # Mapa de navegação entre telas — Wireframe F24 (24 telas)
 
 - Autor: CARTOGRAFO (Arquiteto)
-- Data: 2026-11-07
+- Data: 2026-11-07 (F24). Revisão F39 em 2026-11-13: grafo alvo na seção 8.
 - Fonte de verdade das telas: `docs/product/F24-wireframe-baixa-fidelidade.md`
   (seção 4) e `docs/design/F24-wireframe-baixa-fidelidade.md` (seção 6).
 - Instrução que originou este artefato: comandante — "confirmar o mapa de
@@ -209,3 +209,188 @@ ADR novo: é aplicação direta da decisão de schema aditivo já aceita.
   as arestas dos gaps 3 e 5 mudam de destino.
 - Toda nova tela de módulo (sprints seguintes) entra aqui com entrada e saída
   antes de o front da feature começar.
+- Quando o ESQUADRO concluir a edição da F39 e o CRIVO conferir, a seção 8 deixa
+  de ser alvo e passa a descrever o Figma. Quando a REGENTE decidir os débitos 1
+  e 2 da F39, as arestas tracejadas de 8.2 são fixadas.
+
+## 8. Revisão F39: grafo alvo (2026-11-13)
+
+- Autor: CARTOGRAFO (etapa 2 da rota da F39).
+- Status: **alvo proposto**. É o contrato de navegação que o ESQUADRO desenha nos
+  frames da F39. Só passa a descrever o Figma depois da edição (gate G1 do PRD) e
+  da conferência do CRIVO (US-WFR-03). As seções 2 a 5 ficam como registro da F24
+  aprovada e não são editadas.
+- Fontes: PRD F39 v2 (D6, US-WFR-03, US-WFR-16, US-WFR-17, débitos 1 e 2 da seção
+  11), spec `docs/design/F39-redesenho-wireframes-navegacao.md` §6.2, §6.4, §7 e §8
+  (node-ids da referência `FPdB8RymAnN81pbKfizdzE`, lidos pelo ESQUADRO; CARTOGRAFO
+  não reabriu o Figma, acesso negado nesta sessão).
+- Decisões de contrato visual (cabeçalho, navegação inferior, tokens): ADR-014,
+  seção "Coleção v2 e componentes estruturais no Figma".
+
+### 8.1 O que muda em relação à F24
+
+| # | Mudança | Origem | Fecha |
+|---|---|---|---|
+| 1 | Navegação inferior com 4 abas, na ordem Ordens, Clientes, Catálogo, Financeiro | `20:1103` | Nota A |
+| 2 | Perfil sai da barra e entra pelo ícone de pessoa do cabeçalho das 6 telas raiz | `20:1174`, `20:1080` | Aresta nova; depende do débito 1 |
+| 3 | Catálogo: 10 e 13 alternados por controle segmentado na mesma aba | spec §6.2 | Gap 2 |
+| 4 | Financeiro: 22 e 24 alternados por controle segmentado | spec §6.2 | Gap 2 |
+| 5 | 04 → 07 pelo botão "+ Veículo" do detalhe do cliente | `1:970` (1c) | Gap 1 (órfã 07) |
+| 6 | 10 → 12 e 13 → 15 pelo toque no item da lista | spec §8 | Gap 3 |
+| 7 | 09 → 19 pelo item do histórico de OS | `1:1053` (1e) | Gap 4 |
+| 8 | 13 → 16 pela ação "Registrar movimentação" no item da lista ou em bottom sheet | D6 do PRD | Gap 5 (órfã 16) |
+| 9 | 22 → 23 pelo toque na parcela | `1:1605` → `1:1660` (1r → 1s) | Gap 6 |
+| 10 | 18 "Cancelar" → 17. Na F24, cancelar levava a 19, o detalhe de uma OS que não chegou a existir | Correção deste mapa | Aresta inválida da F24 |
+| 11 | 20 vira bottom sheet sobre 19. Não muda aresta: continua 19 → 20 → 19 | `1:1568` (1q), spec §7 | — |
+
+### 8.2 Grafo
+
+```mermaid
+flowchart TD
+    L[01 Login] -->|sucesso| POUSO[Aba de pouso - debito 2]
+    POUSO -.->|referencia| OL
+    POUSO -.->|F33| P
+
+    subgraph NAV[Navegacao inferior - 4 abas, so nas telas raiz]
+        OL[17 OS lista]
+        CL[03 Clientes lista]
+        SL[10 Servicos lista]
+        PL[13 Pecas lista]
+        FP[22 Financeiro parcelas]
+        FL[24 Financeiro lancamentos]
+    end
+    SL <-->|segmentado Catalogo| PL
+    FP <-->|segmentado Financeiro| FL
+
+    NAV -->|icone Perfil no cabecalho| P[02 Perfil]
+    P -->|voltar| NAV
+    P -->|Sair e confirmar no modal| L
+
+    CL -->|Novo cliente| CC[05 Clientes criar]
+    CC -->|salva ou cancela| CL
+    CL -->|toca item| CD[04 Clientes detalhe]
+    CD -->|voltar| CL
+    CD -->|editar no cabecalho| CE[06 Clientes editar]
+    CE -->|salva ou cancela| CD
+    CD -->|+ Veiculo| VC[07 Veiculos criar]
+    VC -->|salva ou cancela| CD
+    CD -->|toca veiculo| VD[09 Veiculos detalhe e historico]
+    VD -->|voltar| CD
+    VD -->|editar no cabecalho| VE[08 Veiculos editar]
+    VE -->|salva ou cancela| VD
+    VD -->|toca item do historico| OD
+
+    SL -->|Novo servico| SC[11 Servicos criar]
+    SL -->|toca item| SE[12 Servicos editar]
+    SC -->|salva ou cancela| SL
+    SE -->|salva ou cancela| SL
+
+    PL -->|Nova peca| PC[14 Pecas criar]
+    PL -->|toca item| PE[15 Pecas editar]
+    PL -->|Registrar movimentacao| ME[16 Movimentacao de estoque]
+    PC -->|salva ou cancela| PL
+    PE -->|salva ou cancela| PL
+    ME -->|confirma ou cancela| PL
+
+    OL -->|Nova OS| OC[18 OS criar]
+    OC -->|cria| OD[19 OS detalhe]
+    OC -->|cancela| OL
+    OL -->|toca item| OD
+    OD -->|voltar para a origem| OL
+    OD -->|Alterar status - bottom sheet| OT[20 OS transicao de status]
+    OT -->|confirma ou cancela| OD
+    OD -->|Parcelas| OP[21 OS parcelas]
+    OP -->|voltar| OD
+    OP -->|Registrar pagamento| PG[23 Financeiro pagamento]
+
+    FP -->|toca parcela| PG
+    PG -->|confirma ou cancela, volta a origem| OP
+    PG -->|confirma ou cancela, volta a origem| FP
+    FL -->|Novo lancamento - variante formulario| FL
+```
+
+Legenda: linha cheia é aresta obrigatória do wireframe revisado. Linha tracejada
+depende de decisão da REGENTE (débito 2), e só uma das duas fica. Sobreposições
+(modal, bottom sheet) não são nós: fecham para a tela de baixo ou seguem a aresta
+da ação.
+
+### 8.3 Entrada, saída, cabeçalho e navegação inferior por tela
+
+O cabeçalho é descrito pelas propriedades do componente único do ADR-014
+(`voltar`, `acao`). "Voltar" leva à tela de origem na pilha, e não a um destino
+fixo. Formulário de criação concluído sai da pilha: depois de 18 → 19, voltar
+em 19 leva a 17.
+
+| # | Tela | Entra a partir de | Sai para | Cabeçalho (`voltar`, `acao`) | Navegação inferior |
+|---|---|---|---|---|---|
+| 01 | Login | raiz | aba de pouso (débito 2) | não, nenhuma (D8) | oculta |
+| 02 | Perfil | ícone do cabeçalho das 6 raiz; pouso, se o débito 2 ficar com o F33 | raiz de origem (voltar); 01 (sair, com modal) | sim, nenhuma (`20:2084`) | oculta |
+| 03 | Clientes · lista | aba Clientes | 04, 05, 02 | não, perfil (`20:1174`) | visível, Clientes ativo |
+| 04 | Clientes · detalhe | 03 | 06, 07, 09, 03 | sim, editar (`20:1435`) | oculta |
+| 05 | Clientes · criar | 03 | 03 | sim, nenhuma (`20:1455`) | oculta |
+| 06 | Clientes · editar | 04 | 04 | sim, nenhuma | oculta |
+| 07 | Veículos · criar | 04 | 04 | sim, nenhuma | oculta |
+| 08 | Veículos · editar | 09 | 09 | sim, nenhuma | oculta |
+| 09 | Veículos · detalhe com histórico de OS | 04 | 08, 19, 04 | sim, editar | oculta |
+| 10 | Serviços · lista | aba Catálogo; 13 (segmentado) | 11, 12, 13, 02 | não, perfil | visível, Catálogo ativo |
+| 11 | Serviços · criar | 10 | 10 | sim, nenhuma | oculta |
+| 12 | Serviços · editar | 10 (item) | 10 | sim, nenhuma | oculta |
+| 13 | Peças · lista | aba Catálogo; 10 (segmentado) | 14, 15, 16, 10, 02 | não, perfil | visível, Catálogo ativo |
+| 14 | Peças · criar | 13 | 13 | sim, nenhuma | oculta |
+| 15 | Peças · editar | 13 (item) | 13 | sim, nenhuma | oculta |
+| 16 | Movimentação de estoque | 13 (ação do item ou bottom sheet, D6) | 13 | sim, nenhuma | oculta |
+| 17 | Ordens de Serviço · lista | aba Ordens; pouso, se o débito 2 ficar com a referência | 18, 19, 02 | não, perfil (`20:1080`) | visível, Ordens ativo |
+| 18 | Ordens de Serviço · criar | 17 | 19 (cria), 17 (cancela) | sim, nenhuma | oculta |
+| 19 | Ordens de Serviço · detalhe | 17, 09, 18 | 20, 21, origem | sim, badge (`20:1726`) | oculta |
+| 20 | Ordens de Serviço · transição de status | 19 (bottom sheet) | 19 | o de 19, por baixo da sobreposição | oculta |
+| 21 | Ordens de Serviço · parcelas | 19 | 23, 19 | sim, nenhuma | oculta |
+| 22 | Financeiro · parcelas | aba Financeiro; 24 (segmentado) | 23, 24, 02 | não, perfil | visível, Financeiro ativo |
+| 23 | Financeiro · pagamento | 21, 22 | origem (21 ou 22) | sim, badge (`20:1922`) | oculta |
+| 24 | Financeiro · lançamentos | aba Financeiro; 22 (segmentado) | 22, 02 e a variante `Preenchido · formulário` (volta a 24) | não, perfil; na variante formulário, sim, nenhuma | visível, Financeiro ativo; oculta na variante formulário (ESQUADRO confirma em `1:1751`) |
+
+Conferência: 24 linhas, todas com entrada e saída. Visível em 6 telas (03, 10,
+13, 17, 22, 24) e oculta em 18, a mesma regra da US-WFR-17.
+
+### 8.4 Invariantes que o CRIVO confere
+
+1. Toda tela da tabela 8.3 tem ao menos uma entrada e uma saída (24 de 24).
+2. Toda tela com navegação inferior oculta tem `voltar` no cabeçalho, salvo 01
+   (raiz) e 20 (sobreposição que fecha para 19). Assim nenhuma tela é beco sem saída.
+3. Estado Erro: "Tentar novamente" mais a saída de nível da tela (voltar ou aba).
+   Estado Carregando: voltar nas telas que o têm; aba e ícone de Perfil nas raiz.
+4. **Lacuna aberta: 01 Login no estado Carregando** não tem voltar nem aba, e a
+   US-WFR-03 pede saída em Carregando. Ou o frame ganha "Cancelar", ou a anotação
+   declara o tempo limite que leva ao estado Erro (que tem "Tentar novamente").
+   A escolha é do ESQUADRO e fica registrada na anotação do frame; sem ela, a
+   tela 01 reprova na US-WFR-03.
+5. Toda aresta da tabela 8.3 tem desenhado no frame o controle que a dispara
+   (botão, item tocável, ícone do cabeçalho, aba ou segmentado). Aresta sem
+   controle conta como lacuna "sem saída".
+
+### 8.5 Débitos 1 e 2 decididos juntos
+
+Os dois débitos do PRD (Perfil como aba ou no cabeçalho; aba de pouso) não são
+independentes. Cruzando as quatro combinações com o invariante 2:
+
+| Perfil | Pouso pós-login | Grafo válido? | Motivo |
+|---|---|---|---|
+| Aba (F33) | Perfil (F33) | sim | Perfil tem navegação inferior visível |
+| Aba (F33) | Ordens (referência) | sim | Idem |
+| Cabeçalho (referência) | Ordens (referência) | sim | Perfil abre de uma raiz e volta para ela |
+| Cabeçalho (referência) | Perfil (F33) | **não** | Perfil sem navegação inferior e sem origem na pilha: a única saída é "Sair", então vira beco sem saída |
+
+Recomendação não vinculante para a REGENTE: decidir os débitos 1 e 2 juntos. O
+wireframe usa a terceira linha (referência nos dois), e as arestas tracejadas de
+8.2 marcam o que muda se a decisão for outra. Como cabeçalho e navegação inferior
+são aplicados por instância (ADR-014), mudar a decisão custa a edição de dois
+componentes e destas duas arestas, e não dos 110 frames.
+
+### 8.6 Segurança e dados pessoais
+
+- O grafo não carrega dado pessoal. Os textos de exemplo dos frames seguem
+  fictícios (PRD F39, seção 8).
+- Nada muda no app nesta feature. Quando uma feature futura levar o Perfil para o
+  cabeçalho, a rota do Perfil continua atrás do guard de sessão do grupo
+  autenticado (F33), e o logout continua com confirmação em modal. Quem
+  implementar confere isso no teste de navegação, porque mudar o caminho de
+  entrada não pode abrir rota autenticada sem token.
