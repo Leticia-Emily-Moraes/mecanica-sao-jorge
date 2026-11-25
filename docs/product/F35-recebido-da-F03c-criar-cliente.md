@@ -7,12 +7,12 @@
 
 ## Contexto
 
-Formulário que consome `POST /api/v1/clientes` (F09). A requisição leva `nome`, `telefone`, `cpf`, `email` e `endereco`. As respostas são: 201 com os 6 campos do detalhe e `Location: /api/v1/clientes/{id}`; 400, 401, 415 e 500 no formato `timestamp, status, erro, mensagem, path`; e 409 quando a regra do ADR-020 for ligada. A F35 depende de a F09 entregar o endpoint e de a F26 ter o frame aprovado. Este arquivo não abriu o Figma.
+Formulário que consome `POST /api/v1/clientes` (F09). A requisição leva `nome`, `telefone`, `cpf`, `email` e `endereco`. As respostas são: 201 com os 6 campos do detalhe e `Location: /api/v1/clientes/{id}`; 400, 401, 415 e 500 no formato `timestamp, status, erro, mensagem, path`; e 409 `CPF ja cadastrado` (ADR-020, ativo). A F35 depende de a F09 entregar o endpoint e de a F26 ter o frame aprovado. Este arquivo não abriu o Figma.
 
 Premissas herdadas:
 
 * O app envia CPF e telefone com ou sem máscara; a API grava só dígitos (ADR-021).
-* `cpf`, `email` e `endereco` são opcionais. `nome` e `telefone` são obrigatórios. Se a P9 tornar o CPF obrigatório, muda só uma anotação na API e o rótulo de obrigatório na tela.
+* `nome`, `cpf` e `telefone` são **obrigatórios**; `email` e `endereco` são opcionais. Verificado pelo CRIVO contra a API real (F09, 18/11): sem `cpf` ou com `cpf` só com espaços a API responde 400 `cpf e obrigatorio`. A P9 (CPF obrigatório ou opcional) segue aberta para a pessoa; se ela decidir "opcional", muda uma anotação na API e o rótulo na tela.
 * A sessão expirada usa `tratarSessaoExpirada` do app.
 * Os textos vêm das chaves `clientes.criar.*`.
 
@@ -20,12 +20,12 @@ Premissas herdadas:
 
 ### R1. Toque duplo
 
-A API **não é idempotente**. Dois `POST` iguais criam dois clientes. Até D2/P10 isso vale também para CPF repetido, e para sempre quando o CPF vem vazio (contrato da F03c, ADR-020). Nada na API impede a duplicata nesse intervalo, então a proteção é toda da tela:
+A API **não é idempotente**, mas o CPF é único no banco (V6, ADR-020): o segundo `POST` com o mesmo CPF responde 409 `CPF ja cadastrado` e não cria nada (verificado pelo CRIVO contra a API real e com 10 chamadas concorrentes no teste de integração). A tela ainda precisa evitar o duplo toque, para o funcionário não ver um 409 depois de um 201 que ele mesmo causou:
 
 * O botão "Salvar" fica desabilitado e com estado de carregando acessível do envio até a resposta.
 * O hook tem uma trava própria (estado "enviando" checado antes de chamar o serviço), independente do botão, para cobrir Enter no teclado e toque rápido antes de a interface repintar.
 * Sem repetição automática do `POST` em erro de rede. Repetir é sempre ação explícita do funcionário.
-* Risco residual que a tela não fecha: resposta perdida na rede depois do `INSERT`. O funcionário tenta de novo e cria o segundo registro. Fica registrado e a limpeza é manual até existir chave de idempotência, que não está decidida.
+* Caso de resposta perdida na rede depois do `INSERT`: o funcionário tenta de novo e recebe 409 `CPF ja cadastrado`, sem duplicata. A tela deve sugerir buscar o cliente na lista (a API não informa o id do cadastro existente). Fica sem chave de idempotência, o que não é mais necessário para evitar duplicata de CPF.
 
 ### R2. Erro 500 ou queda de rede mantendo os dados
 
@@ -60,9 +60,9 @@ A API **não é idempotente**. Dois `POST` iguais criam dois clientes. Até D2/P
 
 CPF, telefone e e-mail sem sugestão automática que guarde histórico, com as propriedades listadas na política, seção 7, "App, criação", quando a plataforma permitir. Nada do formulário vai para `console`, ferramenta de erro, parâmetro de rota nem deep link.
 
-### R7. 409 futuro no campo CPF
+### R7. 409 no campo CPF
 
-Quando a regra do ADR-020 for ligada (D2/P10), o 409 `CPF ja cadastrado` aparece como erro do campo `cpf` (chave `clientes.criar.erro.cpfDuplicado`), com o foco nele. Os outros dados ficam preenchidos. Ação sugerida: buscar o cliente existente pela lista. A tela não mostra qual cliente tem o CPF, e a API também não diz. Até lá, CPF repetido responde 201.
+O 409 `CPF ja cadastrado` já está ativo na API (V6, ADR-020; o ADR continua "proposto" até a pessoa aceitar). Ele aparece como erro do campo `cpf` (chave `clientes.criar.erro.cpfDuplicado`), com o foco nele. Os outros dados ficam preenchidos. Ação sugerida: buscar o cliente existente pela lista. A tela não mostra qual cliente tem o CPF, e a API também não diz. Se a pessoa recusar o ADR-020, CPF repetido volta a responder 201 e este requisito cai.
 
 ### R8. Aviso de privacidade (P4)
 
