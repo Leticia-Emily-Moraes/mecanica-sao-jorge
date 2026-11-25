@@ -43,6 +43,10 @@ organizados por camada, não por feature (ADR-001/ADR-002).
   `docs/architecture/adr/ADR-017-padronizar-listagem-com-busca-e-paginacao.md`
   e na Swagger UI. Migration `V3__fixar_collation_clientes.sql` fixa a
   collation `utf8mb4_0900_ai_ci` da tabela `clientes`;
+- Veículos (F04, autenticados): `POST` e `GET /api/v1/clientes/{clienteId}/veiculos`,
+  `GET` e `PUT /api/v1/veiculos/{id}`. Placa normalizada e única (migration
+  `V7`); erros de campo em `erros[]` com `campo` e `chave` i18n. Exemplos reais
+  em `docs/api/veiculos.md`;
 - script manual no MySQL: sempre `mysql --default-character-set=utf8mb4` (o
   `docker-compose.yml` já define `LANG: C.UTF-8` no serviço `mysql`) e nunca
   `characterEncoding` diferente de UTF-8 na `DB_URL`;
