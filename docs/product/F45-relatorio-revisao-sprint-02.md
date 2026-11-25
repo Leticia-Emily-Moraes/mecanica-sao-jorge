@@ -3,6 +3,11 @@
 Data: 2026-11-25. Branch `docs/f45-revisao-sprint-02-rodada-2`, base `00f3236` (`origin/main`).
 Substitui a versão de 2026-11-20, que descrevia uma `main` sem F03c, F03d, F04 e F35 e já não vale.
 
+> **Aviso do CRIVO (2026-11-25):** a seção 1 (linha "`apps/` desta branch = `main`") e a seção 3 (Maven "não repetido")
+> ficaram desatualizadas: a branch tem 3 arquivos diferentes em `apps/` (`ClienteDetalheIT`, `VeiculoIT`, `jest.config.js`),
+> e o Maven foi repetido no clone limpo da branch (418 testes, BUILD SUCCESS). As contagens por feature da seção 4 também
+> estão antes da rodada 3 (F04 hoje 43 cobertos e 1 parcial). O estado vigente está em `F45-relatorio-crivo-final.md`.
+
 Este relatório não aprova nada: o aceite é humano. Em cada linha digo **quem executou** o quê:
 **TORRE** (eu, nesta etapa), **ESPRESSO** (API), **ORLA** (app), **ESQUADRO** (design e a11y),
 **CRIVO** (matriz). O que não reproduzi está marcado como "relato".
