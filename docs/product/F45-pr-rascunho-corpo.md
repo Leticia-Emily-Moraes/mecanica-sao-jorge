@@ -9,7 +9,7 @@ Base: `main` (`00f3236`). Branch: `docs/f45-revisao-sprint-02-rodada-2`. **Nada 
 Só documentação e 9 capturas PNG. **Nenhum código de `apps/` mudou** (`git diff --stat 00f3236 HEAD -- apps` vazio).
 
 - `docs/product/F45-relatorio-revisao-sprint-02.md`: reescrito para a `main` atual (substitui a versão de 20/11).
-- `docs/product/F45-matriz-gherkin-x-teste.md`: 134 linhas, F03a a F35.
+- `docs/product/F45-matriz-gherkin-x-teste.md`: 146 linhas, F03a a F35 (F04 com uma linha por cenário).
 - `docs/product/F45-evidencia-api-espresso.md`: `mvn clean verify` (410 testes) e 52 chamadas HTTP.
 - `docs/design/F45-*.md` e `docs/design/f45-capturas/`: auditoria de código, paridade, a11y, evidência do app.
 - `docs/design/figma.md`: registro da leitura do Figma da rodada 2 (somente leitura).

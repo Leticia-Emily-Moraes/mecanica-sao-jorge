@@ -119,44 +119,58 @@ Texto do card não está no repo. IDs e resumos derivados de `ClienteAtualizarIT
 
 ## 7. F04 — Veículos (4 rotas)
 
-Fonte: `docs/product/F04-veiculos.md`, seção 5 (cenários C1 a C26 com letras). A tabela de rastreabilidade da seção 11 está **desatualizada** e não foi usada. Os resumos seguem o nome do teste; confira o texto de cada C no PRD.
+Fonte: `docs/product/F04-veiculos.md`, seção 5 (cenários C1 a C26, com as letras). **Uma linha por cenário.** A tabela de rastreabilidade da seção 11 do PRD está desatualizada e não foi usada: o mapeamento abaixo vem da leitura do corpo de cada teste contra o Gherkin do PRD. Os resumos são do PRD, encurtados.
 
-Testes em `VeiculoIT` (e `VeiculoSegurancaIT`, `VeiculoControllerTest`, `VeiculoServiceTest`, `VeiculoRequestTest`, `AnoModeloValidatorTest`, `MascaraPlacaTest`). Todos os citados abaixo estão PASS.
+Testes em `VeiculoIT` (abreviado `IT#`), `VeiculoControllerTest` (`CT#`), `VeiculoServiceTest`, `VeiculoRequestTest` (`RT#`), `AnoModeloValidatorTest`, `MascaraPlacaTest` e `VeiculoSegurancaIT`. Todos os citados existem e, segundo o relato do CRIVO, passaram (seção 2).
 
-| ID | Resumo | Tipo | Teste (`VeiculoIT#` salvo indicação) | Classe |
+| ID | Resumo (PRD) | Tipo | Teste | Classe |
 |---|---|---|---|---|
-| C1, C2 | Cria veículo com placa antiga e com placa Mercosul: 201 | S | `shouldReturn201LinkedToClientWhenPlateIsInOldFormat`; `shouldReturn201WhenPlateIsMercosul` | Coberto |
-| C3 | Placa digitada com máscara ou minúscula: grava normalizada | B | `shouldStoreNormalizedPlateWhenPlateIsTypedWithMaskOrLowerCase` | Coberto |
-| C4, C5 | Placa inválida, em branco ou com letra Unicode parecida: 400 no campo, nada gravado | E | `shouldReturn400OnPlateFieldAndStoreNothingWhenPlateFormatIsInvalid`; `shouldReturn400OnPlateFieldWhenPlateIsBlankOrAbsent`; `shouldReturn400WithUnicodeLookalikePlateAndStoreNothing` | Coberto |
-| C6 | Placa repetida em qualquer caixa: 409 sem a placa inteira | E | `shouldReturn409WithoutFullPlateWhenPlateIsRepeatedInAnyCase` | Coberto |
-| C7 | Marca, modelo e ano em branco: um erro por campo | E | `shouldReturn400WithOneErrorPerFieldWhenBrandModelAndYearAreBlank` | Coberto |
-| C7a | Marca e modelo gravados sem espaço nas pontas | B | `shouldStoreBrandAndModelWithoutEdgeSpacesWhenTheyComeWithSpaces` | Coberto |
-| C7b | Marca só com espaços no POST | E | só o caso de PUT: `shouldReturn400AndKeepBrandWhenPutBrandHasOnlySpaces` | Parcial: falta o caso de POST |
-| C7c | Limite de 100 caracteres em marca e modelo | B | `VeiculoRequestTest#shouldLimitBrandAndModelTo100Characters` (cobre o 101) | Parcial: falta "100 com espaços nas pontas: 201" |
-| C8, C8a | Ano fora da faixa recusado; próximo ano aceito | B | `shouldRejectYearOutsideRangeAndAcceptNextYear` | Coberto |
+| C1 | Cria com placa antiga: 201, `Location`, `clienteId` do caminho | S | `IT#shouldReturn201LinkedToClientWhenPlateIsInOldFormat` | Coberto |
+| C2 | Cria com placa Mercosul: 201 | S | `IT#shouldReturn201WhenPlateIsMercosul` | Coberto |
+| C3 | Placa com máscara, minúscula ou espaço grava normalizada | B | `IT#shouldStoreNormalizedPlateWhenPlateIsTypedWithMaskOrLowerCase`; `CT#shouldPassNormalizedPlateToServiceWhenPlateIsTypedWithMask`; `MascaraPlacaTest` | Coberto |
+| C4 | Placa fora dos dois padrões: 400 no campo, nada gravado | E | `IT#shouldReturn400OnPlateFieldAndStoreNothingWhenPlateFormatIsInvalid`; `IT#shouldReturn400WithUnicodeLookalikePlateAndStoreNothing` | Coberto |
+| C5 | Placa em branco ou ausente: 400 | E | `IT#shouldReturn400OnPlateFieldWhenPlateIsBlankOrAbsent` | Coberto |
+| C6 | Placa repetida em qualquer caixa: 409 sem a placa inteira | E | `IT#shouldReturn409WithoutFullPlateWhenPlateIsRepeatedInAnyCase` | Coberto |
+| C7 | Marca, modelo ou ano em branco: um erro por campo, **ordenados por campo**, nada gravado | E | `IT#shouldReturn400WithOneErrorPerFieldWhenBrandModelAndYearAreBlank` | Parcial: um erro por campo e a chave estão provados; a **ordem por campo não é afirmada** em nenhum teste (o código ordena em `GlobalExceptionHandler:103`; busca por `erros[1]` e por ordenação em `src/test` não achou nada) |
+| C7a | Marca e modelo com espaços nas pontas gravados aparados (POST) | B | `IT#shouldStoreBrandAndModelWithoutEdgeSpacesWhenTheyComeWithSpaces` | Coberto |
+| C7b | Marca ou modelo só com espaços: 400 com chave `obrigatoria` | E | marca `" "` no POST: `IT#shouldReturn400WithOneErrorPerFieldWhenBrandModelAndYearAreBlank`; marca `"   "` no PUT: `IT#shouldReturn400AndKeepBrandWhenPutBrandHasOnlySpaces` | Parcial: **modelo só com espaços** não é testado (no POST o modelo vai vazio `""`; no PUT só a marca) |
+| C7c | Limite de 100 conta depois de aparar (100 com espaços: 201; 101: 400) | B | `RT#shouldLimitBrandAndModelTo100Characters` (só o 101) | Parcial: falta o caso "100 caracteres com espaço nas pontas: 201" |
+| C8 | Ano fora da faixa: 400 `veiculo.form.ano.faixa` | E | `IT#shouldRejectYearOutsideRangeAndAcceptNextYear` | Coberto |
+| C8a | Limites da faixa aceitos (1900 e ano seguinte) | B | `IT#shouldRejectYearOutsideRangeAndAcceptNextYear` | Coberto |
 | C8b | Virada do ano (faixa depende da data) | B | `AnoModeloValidatorTest` | Coberto |
-| C8c, C8d, C8e | Ano que não é inteiro JSON: 400 no campo ano (7 casos) | E | `shouldReturn400OnYearFieldAndStoreNothingWhenYearIsNotAJsonInteger` | Coberto |
-| C9 | Cliente inexistente: 404, nada gravado | E | `shouldReturn404AndStoreNothingWhenClientDoesNotExist` | Coberto |
-| C10 | 10 requisições concorrentes com a mesma placa criam uma | B | `shouldCreateExactlyOneWhenTenRequestsWithSamePlateRunConcurrently` | Coberto |
-| C11 | 401 nas 4 rotas com token ausente ou malformado, sem alterar nada | E | `shouldReturn401AndChangeNothingOnAllFourRoutesWhenTokenIsMissingOrMalformed`; `VeiculoSegurancaIT` (5) | Coberto |
-| C11a | Corpo com id e dono de outro cliente: cria no cliente do caminho | B | `shouldCreateNewVehicleInPathClientWhenBodyCarriesIdAndOtherOwner` | Coberto |
-| C12, C13, C14, C15, C16 | Edita marca, modelo, ano e cor: 200; troca de formato de placa mantendo a mesma placa; placa de outro veículo: 409 e mantém a original; corpo inválido: 400 e registro intacto | S/E | `shouldReturn200WithUpdatedDataWhenEditingBrandModelYearAndColor`; `shouldAcceptPlateChangeBetweenOldAndMercosulFormatsAndKeepSamePlate`; `shouldReturn409AndKeepOriginalPlateWhenPlateBelongsToAnotherVehicle`; `shouldReturn400AndKeepRecordUnchangedWhenEditBodyIsInvalid` | Coberto (5 IDs; o mapeamento de cada C ao método é por agrupamento, confira no PRD) |
-| C16a | PUT grava marca, modelo e cor sem espaço nas pontas | B | `shouldStoreBrandModelAndColorWithoutEdgeSpacesWhenPutComesWithSpaces` | Coberto |
-| C17 | Dono e quilometragem imutáveis no PUT (ADR-024) | B | `shouldKeepOwnerAndMileageWhenEditBodyCarriesOtherOwnerIdAndMileage` | Coberto |
-| C17a, C17b | PUT sem cor ou com cor em branco grava nulo | B | `shouldStoreNullColorWhenPutOmitsOrBlanksColor` | Coberto (2 IDs) |
-| C18 | Editar veículo inexistente: 404 | E | `shouldReturn404WhenEditingMissingVehicle` | Coberto |
-| C19 | Detalhe com dono e histórico vazio | S | `shouldReturnDetailWithOwnerAndEmptyHistoryWhenVehicleHasNoOrders` | Coberto |
-| C19a | `historicoOs` sempre `[]` e a API não consulta `ordens_servico` (ADR-025) | B | o `[]` está provado; **não há teste de que a tabela não é consultada** | Parcial |
-| C19b | Detalhe do veículo sem CPF, telefone, e-mail e endereço do dono | B | **sem asserção de ausência**; garantido só pela forma do DTO | Parcial |
-| C20 | Detalhe de veículo inexistente: 404 | E | `shouldReturn404WhenDetailingMissingVehicle` | Coberto |
-| C20a | Id do veículo não positivo: 400 sem chamar o service | E | `VeiculoControllerTest#shouldReturn400WithoutCallingServiceWhenIdIsNotPositiveNumber` | Coberto |
-| C21, C22, C23 | Lista de veículos do cliente, ordenada por placa, sem paginação; vazia quando não há; 404 se o cliente não existe | S/B/E | `shouldListClientVehiclesOrderedByPlateWithoutPagination`; `shouldReturnEmptyListWhenClientHasNoVehiclesAnd404WhenClientIsMissing` | Coberto (3 IDs) |
-| C23a | Lista só traz veículos do cliente do caminho | B | não confirmei que o teste cria veículos de **dois** clientes | Parcial (não confirmado) |
-| C24 | Log só com placa mascarada (`****D23`) em criar, editar, detalhe, lista e conflito | S | `shouldLogOnlyMaskedPlateOnCreateEditDetailListAndConflict`; `MascaraPlacaTest`; `VeiculoServiceTest` | Coberto |
-| C25 | Todo campo inválido volta com `{campo, chave}`, nunca repetindo o valor enviado | E | `shouldReturnEveryInvalidFieldWithKeyAndNeverRepeatSentValues` | Coberto |
-| C25a | Placa duplicada na edição: 409 | E | `shouldReturn409AndKeepOriginalPlateWhenPlateBelongsToAnotherVehicle`; `VeiculoControllerTest` (409) | Coberto |
-| C25b | 415 e 400 de corpo ilegível; 405; `erros[]` vazio | E | 415 e 400 só em `VeiculoControllerTest`; **405 não testado nas rotas de veículo**; `erros[]` vazio não afirmado em todas as respostas | Parcial |
-| C26 | Validação de request (Bean Validation) | E | `VeiculoRequestTest` | Coberto |
+| C8c | Ano decimal (`2015.9`): 400 no campo `ano`, sem repetir o valor | E | `IT#shouldReturn400OnYearFieldAndStoreNothingWhenYearIsNotAJsonInteger` (caso `2015.9`) | Coberto |
+| C8d | Ano em texto (`"2015"`): 400 no campo `ano` | E | mesmo teste (caso `"2015"`) | Coberto |
+| C8e | Ano com zero decimal (`2015.0`): 400 (D2) | E | mesmo teste (caso `2015.0`) | Coberto |
+| C9 | Cliente inexistente: 404, nada gravado | E | `IT#shouldReturn404AndStoreNothingWhenClientDoesNotExist`; `CT#shouldReturn404WhenCreatingForMissingClient` | Coberto |
+| C10 | 10 requisições concorrentes com a mesma placa criam uma | B | `IT#shouldCreateExactlyOneWhenTenRequestsWithSamePlateRunConcurrently` | Coberto |
+| C11 | Sem token válido: 401 nas 4 rotas, nada alterado | E | `IT#shouldReturn401AndChangeNothingOnAllFourRoutesWhenTokenIsMissingOrMalformed`; `CT#shouldReturn401WithoutCallingServiceOnAllFourRoutesWhenTokenIsMissing`; `VeiculoSegurancaIT` | Coberto |
+| C11a | Dono vem do caminho, não do corpo | B | `IT#shouldCreateNewVehicleInPathClientWhenBodyCarriesIdAndOtherOwner` | Coberto |
+| C12 | Edição com sucesso: 200 com os dados novos | S | `IT#shouldReturn200WithUpdatedDataWhenEditingBrandModelYearAndColor` | Coberto |
+| C13 | Troca de placa entre formatos, nos dois sentidos: 200 | B | `IT#shouldAcceptPlateChangeBetweenOldAndMercosulFormatsAndKeepSamePlate` | Coberto |
+| C14 | Edição mantendo a própria placa: 200, sem conflito consigo | B | mesmo teste (último trecho: `abc-1234` com outro modelo, log `placaAlterada=false`) | Coberto |
+| C15 | Placa de outro veículo: 409 `veiculo.form.placa.duplicada`, original mantida | E | `IT#shouldReturn409AndKeepOriginalPlateWhenPlateBelongsToAnotherVehicle`; `CT#shouldReturn404And409OnEditWhenServiceReportsThem` | Coberto |
+| C16 | Edição inválida: 400 com um item por campo, registro intacto | E | `IT#shouldReturn400AndKeepRecordUnchangedWhenEditBodyIsInvalid` | Coberto |
+| C16a | PUT apara marca, modelo e cor; PUT com ano `2015.9` ou `"2015"`: 400 | B/E | `IT#shouldStoreBrandModelAndColorWithoutEdgeSpacesWhenPutComesWithSpaces`; `IT#shouldReturn400OnYearFieldAndStoreNothingWhenYearIsNotAJsonInteger` (também chama `editar`) | Coberto |
+| C17 | Troca de dono ignorada no PUT; dono e quilometragem imutáveis (ADR-024) | B | `IT#shouldKeepOwnerAndMileageWhenEditBodyCarriesOtherOwnerIdAndMileage`; `CT#shouldIgnoreOwnerAndIdentityFieldsSentInEditBody` | Coberto |
+| C17a | PUT sem `cor` limpa a cor | B | `IT#shouldStoreNullColorWhenPutOmitsOrBlanksColor` (primeiro trecho) | Coberto |
+| C17b | PUT com `cor` em branco limpa a cor | B | mesmo teste (segundo trecho) | Coberto |
+| C18 | Editar veículo inexistente: 404 com mensagem fixa | E | `IT#shouldReturn404WhenEditingMissingVehicle` | Coberto |
+| C19 | Detalhe com `historicoOs` `[]`, nunca nulo | S | `IT#shouldReturnDetailWithOwnerAndEmptyHistoryWhenVehicleHasNoOrders`; `CT#shouldReturn200WithEmptyHistoryWhenDetailingVehicle` | Coberto |
+| C19a | `historicoOs` é `[]` e a API **não consulta** `ordens_servico` (ADR-025) | B | o `[]` está provado (C19); **não há teste de que a tabela não é consultada** (só `FlywayMigrationIT` cita `ordens_servico`) | Parcial |
+| C19b | Detalhe sem CPF, telefone, e-mail e endereço do dono | B | o teste de detalhe afirma `clienteId` e `clienteNome`, **sem asserção de ausência** dos outros campos; garantido só pela forma do DTO | Parcial |
+| C20 | Detalhe de veículo inexistente: 404 | E | `IT#shouldReturn404WhenDetailingMissingVehicle`; `CT#shouldReturn404WhenDetailingMissingVehicle` | Coberto |
+| C20a | Id `abc` ou `0`: 400 sem chamar o service | E | `CT#shouldReturn400WithoutCallingServiceWhenIdIsNotPositiveNumber` | Coberto |
+| C21 | Lista do cliente ordenada por placa, sem paginação | S | `IT#shouldListClientVehiclesOrderedByPlateWithoutPagination`; `CT#shouldReturn200WithArrayWhenListingClientVehicles` | Coberto |
+| C22 | Cliente sem veículos: 200 e `[]` | B | `IT#shouldReturnEmptyListWhenClientHasNoVehiclesAnd404WhenClientIsMissing` | Coberto |
+| C23 | Cliente inexistente na lista: 404 | E | mesmo teste (segundo trecho) | Coberto |
+| C23a | Lista só traz veículos do cliente do caminho | B | `IT#shouldListClientVehiclesOrderedByPlateWithoutPagination` **cria um veículo de outro cliente** (`ZZZ9Z99`, linha 612) e afirma 3 itens e as 3 placas esperadas. **Confirmado nesta rodada** (a versão anterior da matriz dizia "não confirmei") | Coberto |
+| C24 | Log só com placa mascarada (`****D23`), sem marca, modelo, ano, cor nem nome do dono | S | `IT#shouldLogOnlyMaskedPlateOnCreateEditDetailListAndConflict`; `MascaraPlacaTest`; `VeiculoServiceTest` | Coberto |
+| C25 | 400 de campo traz `{campo, chave}` no formato `veiculo.form.<campo>.<texto>`, sem repetir o valor | E | `IT#shouldReturnEveryInvalidFieldWithKeyAndNeverRepeatSentValues` | Coberto |
+| C25a | 409 de placa usa a chave `veiculo.form.placa.duplicada` | E | `IT#shouldReturn409WithoutFullPlateWhenPlateIsRepeatedInAnyCase`; `CT#shouldReturn409WithFixedMessageAndPlateKeyWhenServiceReportsRepeatedPlate` | Coberto |
+| C25b | Erros de rota (400 de id, 400 de JSON, 404, 405, 415) com texto fixo e `erros[]` **presente e vazio** | E | 400 de JSON malformado com `erros.length()` 0: `IT#shouldKeepTodaysBehaviorForOtherFieldsAndGenericErrorForBrokenJson`; 415: `CT#shouldReturn415WhenContentTypeIsNotJson`; 404 e 400 de id: mensagem testada, `erros[]` vazio não afirmado | Parcial: **405 não é testado nas rotas de veículo**; `erros[]` vazio não é afirmado no 404 nem no 400 de id |
+| C26 | Placa inválida, marca em branco e ano 1899: 3 itens **ordenados por campo (ano, marca, placa)**, sem repetir valor | E | `CT#shouldReturn400WithOneErrorPerFieldAndNoRejectedValueWhenBodyIsInvalid` (mesma entrada do cenário: 3 itens, sem `AB12345` nem `1899`) | Parcial: a **ordem (ano, marca, placa) não é afirmada** (ver C7) |
+
+Total: 44 cenários = 37 Coberto + 7 Parcial (C7, C7b, C7c, C19a, C19b, C25b, C26). Nenhum está sem teste algum.
 
 ## 8. F26 — Protótipo de clientes e veículos (Figma)
 
@@ -242,10 +256,10 @@ Uma linha de tabela = um cenário (ou grupo de cenários com o mesmo teste, quan
 | F03b / F08 (clientes, detalhe) | 11 | 6 | 3 | 2 | 0 |
 | F03c / F09 (clientes, criar) | 13 | 10 | 0 | 3 | 0 |
 | F03d / F10 (clientes, editar) | 11 | 10 | 1 | 0 | 0 |
-| F04 (veículos) | 32 | 26 | 6 | 0 | 0 |
+| F04 (veículos) | 44 | 37 | 7 | 0 | 0 |
 | F26 (protótipo) | 19 | 0 | 4 | 2 | 13 |
 | F35 (front mobile) | 30 | 20 | 5 | 2 | 3 |
-| **Total** | **134** | **86** | **23** | **9** | **16** |
+| **Total** | **146** | **97** | **24** | **9** | **16** |
 
 "Coberto" no backend significa: o teste existe e, **segundo o relato do CRIVO**, passou; eu não reproduzi o Maven (seção 2). No app significa: coberto no Jest **contra API simulada**; a prova contra a API real (`f35-real-api`) não foi executada.
 
@@ -262,7 +276,7 @@ Dono e prazo são **propostas do PO**, valem a partir do aceite da pessoa. Nenhu
 | LAC-05 | IDs sem registro no repo: F03c 20.1, 20.2, 20.7; F03d 24 e 26 (a numeração salta); F35 crit. 15 e 25. Não sei se existem | seções 5, 6, 9 | BUSSOLA | recuperar o texto do painel e gravar em `docs/product`; se não existirem, registrar a numeração como salto | 2026-11-28 |
 | LAC-06 | F03a: sem texto no repo para os IDs 03, 04, 06 e 07 (e o resumo dos demais é derivado do teste). A revisão humana pediu o texto dos cards em `docs/product`; **não consegui copiá-lo, porque ele não está no repo e eu não tenho o painel nesta sessão** | seção 3 | BUSSOLA | copiar os cards de F03a, F03c, F03d e F35 para `docs/product` e reconferir as linhas Parcial (texto ausente) | 2026-11-28 |
 | LAC-07 | F03d 33: deadlock real do MySQL não provado; só o service com exceção simulada e o controller com 409 (ADR-027) | seção 6 | ESPRESSO com CRIVO | prova contra MySQL real, ou ressalva aceita pela pessoa | 2026-12-02 |
-| LAC-08 | F04 parciais: C7b (marca só com espaços no POST), C7c (100 caracteres com espaços nas pontas), C19a (não consulta `ordens_servico`; só `FlywayMigrationIT` cita a tabela, 3 ocorrências), C19b (sem asserção de ausência de dado do dono), C23a (não confirmei veículos de dois clientes), C25b (405 em veículo, `erros[]` vazio) | seção 7 | ESPRESSO | testes novos, feature de correção (só teste, sem mudar produto) | 2026-12-02 |
+| LAC-08 | F04 parciais (7): C7 e C26 (ordem dos erros por campo não afirmada), C7b (modelo só com espaços), C7c (100 caracteres com espaços nas pontas: 201), C19a (não consulta `ordens_servico`), C19b (sem asserção de ausência de dado do dono), C25b (405 em veículo e `erros[]` vazio no 404 e no 400 de id). C23a saiu da lista: confirmado coberto | seção 7 | ESPRESSO | testes novos, feature de correção (só teste, sem mudar produto) | 2026-12-02 |
 | LAC-09 | F26: aprovação da seção 10 do PRD vazia (CLV-05) e N-07 (5 frames fora da seção); 13 critérios só pelo relato do ESQUADRO, sem eu abrir o Figma | seção 8 | PO (decisão) e ESQUADRO (conferência) | decisão da pessoa sobre N-02 e N-07; conferência no Figma com captura | 2026-11-28 |
 | LAC-10 | Jest intermitente: 1 de 3 execuções completas falhou em 6 testes (5 suítes), uma delas `menu-routing.test.tsx:59`; isolada passa | seção 2 | ORLA | investigar causa (tempo, timer, `act`); o `console.error` de "not wrapped in act" em `ClienteDetalheScreen` (`use-resource.ts:74`) é suspeito, **não provado** | 2026-12-02 |
 | LAC-11 | Contagem do backend (410) não reproduzida por mim; o `target` local tem 208 | seção 2 | ESPRESSO | `mvn clean verify` em clone limpo da `main`, com a contagem real (critério 2) | 2026-11-27 |

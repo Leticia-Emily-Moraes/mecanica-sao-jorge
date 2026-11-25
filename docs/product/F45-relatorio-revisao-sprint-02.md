@@ -30,7 +30,7 @@ ressalva de PO a registrar por esse motivo.
 | Critério 1 | Resolvido, com limite | Linhas refeitas na seção 4 depois do merge. Nenhuma "Aprovada" |
 | Critério 2 | Resolvido por ESPRESSO | 410 testes (250 surefire + 160 failsafe) em clone limpo de `00f3236`. **TORRE não repetiu o Maven**: `apps/` não mudou |
 | Critério 3 | Parcial | Lint, tipos e testes do app repetidos por TORRE (seção 3). `f35-real-api` rodou pela ORLA, em 3 invocações com semente manual, não numa execução limpa (LAC-01) |
-| Critério 4 | Parcial | Matriz de 134 linhas pronta (`F45-matriz-gherkin-x-teste.md`). O texto dos cards de F03a, F03c, F03d e F35 **não está no repo**; depende da pessoa colar (LAC-05, LAC-06). L-02 a L-08: não achei esses IDs na Sprint 02; a pessoa precisa dizer onde estão |
+| Critério 4 | Parcial | Matriz de 146 linhas pronta (`F45-matriz-gherkin-x-teste.md`). O texto dos cards de F03a, F03c, F03d e F35 **não está no repo**; depende da pessoa colar (LAC-05, LAC-06). L-02 a L-08: não achei esses IDs na Sprint 02; a pessoa precisa dizer onde estão |
 | Critério 5 | Resolvido por ESPRESSO | 52 chamadas HTTP contra o jar e MySQL 8.4: seção 5 |
 | Critério 6 | Parcial | Dígito verificador validado por TORRE (seção 6). Troca dos CPFs vira feature de correção. Política como proposta, com data (seção 8) |
 | Critério 7 | **Não executado** | Sem `idb`, `adb` nem aparelho em nenhuma rodada. Só leitura estática e teste de componente. Bloqueio de ambiente |
@@ -82,7 +82,7 @@ Nenhuma como Aprovada, nenhuma como Reprovada. "Execução" diz quem rodou depoi
 | F03b / F08 Clientes detalhe | Com ressalva | 6 cobertos, 3 parciais, 2 lacunas (DET-15 anonimizado e DET-17 OpenAPI, confirmados sem teste); D-B, D-E, D-F, D-G abertas | idem |
 | F03c / F09 Clientes criar | Com ressalva | 10 cobertos, 3 lacunas (IDs sem registro); CPF repetido responde 409 e o card dizia 201 (ADR-020 `proposto`); CPF obrigatório na API contra "opcional" no app (LG-07, P9) | idem + 52 chamadas HTTP, ESPRESSO |
 | F03d / F10 Clientes editar | Com ressalva | 10 cobertos, 1 parcial; deadlock real do MySQL não provado (LAC-07) | idem |
-| F04 Veículos | Com ressalva | 26 cobertos, 6 parciais (LAC-08); formato de erro diferente do de Clientes (ESP-03) | idem |
+| F04 Veículos | Com ressalva | 37 cobertos, 7 parciais (LAC-08); formato de erro diferente do de Clientes (ESP-03) | idem |
 | F26 Protótipo | Com ressalva | Aguardando aprovação; N-02 e N-07 sem decisão; 13 critérios só pelo relato do ESQUADRO | nenhum rodado por TORRE |
 | F35 Front mobile | Com ressalva | 20 cobertos contra API simulada, 5 parciais, 2 lacunas, 3 manuais; histórico de OS vazio até a F06; sem aparelho | seção 3 |
 
