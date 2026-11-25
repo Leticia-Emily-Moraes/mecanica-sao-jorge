@@ -3,8 +3,11 @@ package br.com.mecanicasaojorge.api.exception;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.ConstraintViolationException;
 import java.time.OffsetDateTime;
+import java.util.Comparator;
+import java.util.List;
 import java.util.Objects;
 import java.util.Set;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,6 +16,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.validation.FieldError;
+import org.springframework.validation.method.ParameterErrors;
 import org.springframework.web.HttpMediaTypeNotSupportedException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -38,6 +42,9 @@ public class GlobalExceptionHandler {
 
   private static final Logger LOG = LoggerFactory.getLogger(GlobalExceptionHandler.class);
 
+  /** Chave i18n: segmentos alfabeticos separados por ponto, ex.: veiculo.form.placa.erro. */
+  private static final Pattern FORMATO_CHAVE = Pattern.compile("^[a-z]+(\\.[a-zA-Z]+)+$");
+
   @ExceptionHandler(CredenciaisInvalidasException.class)
   public ResponseEntity<ErrorResponse> handleCredenciaisInvalidas(
       CredenciaisInvalidasException ex, HttpServletRequest request) {
@@ -55,7 +62,7 @@ public class GlobalExceptionHandler {
   @ExceptionHandler(ConflitoException.class)
   public ResponseEntity<ErrorResponse> handleConflito(
       ConflitoException ex, HttpServletRequest request) {
-    return buildResponse(HttpStatus.CONFLICT, ex.getMessage(), request);
+    return buildResponse(HttpStatus.CONFLICT, ex.getMessage(), request, ex.getErros());
   }
 
   @ExceptionHandler(AppError.class)
@@ -66,12 +73,27 @@ public class GlobalExceptionHandler {
   @ExceptionHandler(MethodArgumentNotValidException.class)
   public ResponseEntity<ErrorResponse> handleValidation(
       MethodArgumentNotValidException ex, HttpServletRequest request) {
-    String mensagem =
-        ex.getBindingResult().getFieldErrors().stream()
-            .map(FieldError::getDefaultMessage)
-            .reduce((primeira, segunda) -> primeira + "; " + segunda)
-            .orElse("Dados invalidos");
-    return buildResponse(HttpStatus.BAD_REQUEST, mensagem, request);
+    List<FieldError> campos = ex.getBindingResult().getFieldErrors();
+    return buildResponse(
+        HttpStatus.BAD_REQUEST, juntarMensagens(campos), request, errosDeCampo(campos));
+  }
+
+  /**
+   * Um {@link ErroCampo} por erro, ordenado por campo e chave (resposta deterministica). O nome do
+   * campo vem do DTO ({@code getField()}), a chave so existe se a mensagem tiver formato de chave
+   * (ADR-023) e o valor rejeitado nunca entra.
+   */
+  private static List<ErroCampo> errosDeCampo(List<FieldError> campos) {
+    return campos.stream()
+        .map(erro -> new ErroCampo(erro.getField(), chaveOuNula(erro.getDefaultMessage())))
+        .sorted(
+            Comparator.comparing(ErroCampo::campo)
+                .thenComparing(ErroCampo::chave, Comparator.nullsFirst(Comparator.naturalOrder())))
+        .toList();
+  }
+
+  private static String chaveOuNula(String mensagem) {
+    return mensagem != null && FORMATO_CHAVE.matcher(mensagem).matches() ? mensagem : null;
   }
 
   /**
@@ -99,13 +121,36 @@ public class GlobalExceptionHandler {
   @ExceptionHandler(HandlerMethodValidationException.class)
   public ResponseEntity<ErrorResponse> handleParameterValidation(
       HandlerMethodValidationException ex, HttpServletRequest request) {
+    List<FieldError> camposDoCorpo =
+        ex.getParameterValidationResults().stream()
+            .filter(ParameterErrors.class::isInstance)
+            .map(ParameterErrors.class::cast)
+            .flatMap(erros -> erros.getFieldErrors().stream())
+            .toList();
     String parametros =
         ex.getParameterValidationResults().stream()
+            .filter(resultado -> !(resultado instanceof ParameterErrors))
             .map(resultado -> resultado.getMethodParameter().getParameterName())
             .filter(Objects::nonNull)
             .distinct()
             .collect(Collectors.joining(", "));
-    return buildResponse(HttpStatus.BAD_REQUEST, mensagemParametro(parametros), request);
+    if (camposDoCorpo.isEmpty()) {
+      return buildResponse(HttpStatus.BAD_REQUEST, mensagemParametro(parametros), request);
+    }
+    // Corpo @Valid junto de parametro validado (ex.: @Positive no id): o Spring 7 entrega o erro do
+    // corpo por aqui, e nao por MethodArgumentNotValidException. Mesmo formato do 400 de corpo.
+    String mensagem = juntarMensagens(camposDoCorpo);
+    if (!parametros.isBlank()) {
+      mensagem += "; " + mensagemParametro(parametros);
+    }
+    return buildResponse(HttpStatus.BAD_REQUEST, mensagem, request, errosDeCampo(camposDoCorpo));
+  }
+
+  private static String juntarMensagens(List<FieldError> campos) {
+    return campos.stream()
+        .map(FieldError::getDefaultMessage)
+        .reduce((primeira, segunda) -> primeira + "; " + segunda)
+        .orElse("Dados invalidos");
   }
 
   @ExceptionHandler(ConstraintViolationException.class)
@@ -186,13 +231,19 @@ public class GlobalExceptionHandler {
 
   private ResponseEntity<ErrorResponse> buildResponse(
       HttpStatus status, String mensagem, HttpServletRequest request) {
+    return buildResponse(status, mensagem, request, List.of());
+  }
+
+  private ResponseEntity<ErrorResponse> buildResponse(
+      HttpStatus status, String mensagem, HttpServletRequest request, List<ErroCampo> erros) {
     ErrorResponse body =
         new ErrorResponse(
             OffsetDateTime.now(),
             status.value(),
             status.getReasonPhrase(),
             mensagem,
-            request.getRequestURI());
+            request.getRequestURI(),
+            erros);
     return ResponseEntity.status(status).body(body);
   }
 }

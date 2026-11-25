@@ -1,5 +1,8 @@
 package br.com.mecanicasaojorge.api.security;
 
+import br.com.mecanicasaojorge.api.entity.PlacaVeiculo;
+import java.util.regex.Pattern;
+
 /**
  * Mascara de dado pessoal para log (politica de dados do cliente, secao 6.2.1). Utilitario unico:
  * nunca lanca excecao, nunca escreve em log, e so considera digitos ASCII de 0 a 9.
@@ -12,6 +15,9 @@ public final class MascaraDadoPessoal {
   private static final int TELEFONE_MAX = 11;
   private static final int TELEFONE_VISIVEIS = 4;
   private static final int CPF_DIGITOS = 11;
+  private static final String PLACA_INVALIDA = "*******";
+  private static final int PLACA_VISIVEIS = 3;
+  private static final Pattern PLACA_PADRAO = Pattern.compile(PlacaVeiculo.REGEX);
 
   private MascaraDadoPessoal() {}
 
@@ -34,6 +40,19 @@ public final class MascaraDadoPessoal {
       return CPF_INVALIDO;
     }
     return "***.*" + digitos.substring(4, 6) + "." + digitos.charAt(6) + "**-**";
+  }
+
+  /**
+   * Placa (politica 6.2.2): normaliza como a entrada ({@link PlacaVeiculo#normalizar}) e, se casar
+   * com o formato antigo ou Mercosul, mostra {@code ****} mais os 3 ultimos caracteres. Qualquer
+   * outro caso (null, invalida, marcador {@code ANON<id>}) vira {@code *******}.
+   */
+  public static String placa(String valor) {
+    String normalizada = PlacaVeiculo.normalizar(valor);
+    if (normalizada == null || !PLACA_PADRAO.matcher(normalizada).matches()) {
+      return PLACA_INVALIDA;
+    }
+    return "****" + normalizada.substring(normalizada.length() - PLACA_VISIVEIS);
   }
 
   private static String somenteDigitos(String valor) {

@@ -36,9 +36,10 @@ op-002-app-mecanica-sao-jorge/
 >   `JwtConfig`, DTOs) e a migration `V2` com as demais 11 tabelas da
 >   oficina commitados (F02, recuperados pela F37) — login testado de ponta
 >   a ponta nesta revisão, ver seção "Login" abaixo.
-> - As demais features de negócio (Clientes, Veículos, Catálogo, Ordens de
->   Serviço, Financeiro) seguem sem implementação: as 11 tabelas existem no
->   schema, mas não há endpoint nem regra de negócio sobre elas ainda.
+> - Clientes (F03a a F03c) e Veículos (F04) já têm endpoints na API (só API;
+>   telas na F35). Catálogo, Ordens de Serviço e Financeiro seguem sem
+>   endpoint: as tabelas existem no schema, mas não há regra de negócio sobre
+>   elas ainda.
 
 ## Requisitos
 
@@ -187,6 +188,31 @@ já passa pelo filtro de segurança, saída real):
 > ao final da verificação; não há usuário de exemplo persistido no
 > repositório nem seed automático nas migrations.
 
+### Veículos (F04)
+
+Quatro rotas autenticadas (`Authorization: Bearer <token>`):
+
+| Método | Rota |
+|---|---|
+| `POST` | `/api/v1/clientes/{clienteId}/veiculos` |
+| `GET` | `/api/v1/clientes/{clienteId}/veiculos` |
+| `GET` | `/api/v1/veiculos/{id}` |
+| `PUT` | `/api/v1/veiculos/{id}` |
+
+Exemplo (testado em 2026-11-18, ver a referência):
+
+```bash
+curl -X POST http://localhost:8080/api/v1/clientes/1/veiculos \
+  -H "Authorization: Bearer $TOKEN" -H "Content-Type: application/json" \
+  -d '{"placa":"abc-1d23","marca":"Chevrolet","modelo":"Onix","ano":2021}'
+# 201: {"id":2,"clienteId":1,"placa":"ABC1D23",...}
+```
+
+Requisições, respostas e erros reais de cada rota: [docs/api/veiculos.md](docs/api/veiculos.md).
+Todo erro da API traz `erros[]` com `campo` e `chave` desde esta feature.
+A V7 cria índice único na placa: confira placas repetidas antes de atualizar
+um banco que já tenha dados.
+
 ### Rodar o app mobile
 
 ```bash
@@ -245,6 +271,14 @@ mvn checkstyle:check   # lint
 mvn spotless:check     # verifica formatação (google-java-format)
 ```
 
+> **Evidência mais recente (PERGAMINHO, 2026-11-18, F04):**
+> `./apps/api/mvnw -f apps/api/pom.xml verify` → `BUILD SUCCESS`, 217 testes
+> unitários e web e 108 de integração (Testcontainers, MySQL 8.4), 0 falhas.
+> Na mesma data, `checkstyle:check` e `spotless:check` **falharam** (2 linhas
+> com mais de 100 caracteres e 7 arquivos da F04 fora do formato); pendência
+> do ESPRESSO, ver `CHANGELOG.md`. As evidências abaixo são das features
+> anteriores.
+>
 > **Evidência real (ESPRESSO, 2026-11-17, F03b):** `mvn -B verify`
 > em contêiner `maven:3.9-eclipse-temurin-21` com o socket do Docker (MySQL 8.4
 > via Testcontainers): 114 testes unitários (surefire) e 41 de integração
@@ -308,7 +342,9 @@ npm run typecheck      # tsc --noEmit
       Server; `GET /api/v1/clientes` (F03a: lista paginada com busca, migration
       `V3`, detalhes em `apps/api/README.md`); `GET /api/v1/clientes/{id}`
       (F03b: detalhe com CPF e endereço, migration `V4`, 404 por exceção de
-      domínio); `RestAuthenticationEntryPoint`
+      domínio); `POST /api/v1/clientes` (F03c); veículos (F04: criar, editar,
+      detalhar e listar por cliente, migration `V7`, só API — telas na F35,
+      referência em `docs/api/veiculos.md`); `RestAuthenticationEntryPoint`
       customizado. Testes automatizados + checkstyle/spotless (contagem e
       comando em "Testes").
 - [x] `apps/mobile`: telas de Login e Perfil com logout (F30) e a tab bar do

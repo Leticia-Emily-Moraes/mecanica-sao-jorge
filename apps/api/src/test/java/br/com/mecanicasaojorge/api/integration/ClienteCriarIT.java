@@ -401,7 +401,7 @@ class ClienteCriarIT {
   // premissa 6: migration roda sobre o schema atual
 
   @Test
-  void shouldApplyMigrationsV1ToV6AndKeepCheckAndUniqueConstraintsOnClientes() {
+  void shouldApplyMigrationsV1ToV7AndKeepCheckAndUniqueConstraintsOnClientes() {
     List<String> versoes =
         jdbcTemplate.queryForList(
             "SELECT version FROM flyway_schema_history WHERE success = 1 ORDER BY installed_rank",
@@ -412,7 +412,7 @@ class ClienteCriarIT {
                 + "TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'clientes' ORDER BY CONSTRAINT_NAME",
             String.class);
 
-    assertThat(versoes).containsExactly("1", "2", "3", "4", "5", "6");
+    assertThat(versoes).containsExactly("1", "2", "3", "4", "5", "6", "7");
     assertThat(restricoes)
         .contains("ck_clientes_cpf_digitos", "ck_clientes_telefone_digitos", "uk_clientes_cpf");
   }
