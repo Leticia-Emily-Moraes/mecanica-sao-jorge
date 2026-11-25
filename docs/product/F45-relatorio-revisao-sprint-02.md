@@ -137,8 +137,9 @@ Por isso só interpreto a contagem de **válidas**.
 mostra o CPF `529.982.247-25` completo no campo de edição (e `maria@exemplo.invalid`, `(11) 90000-0001`).
 É dado fictício, mas com dígito válido. Os outros dados nas capturas que abri (L1, E1) são fictícios
 (`...Fictícia`, `exemplo.invalid`, `90000-xxxx`). Eu abri 2 das 9 imagens; as outras 7 **não conferi**.
-O ADR-041 proposto pelo CARTOGRAFO pede CPF "sempre mascarado na tela"; o campo de edição mostra o valor
-inteiro por ser um input. Decisão de produto, não corrigi.
+A rodada 1 do CARTOGRAFO propôs um ADR-041 com CPF "sempre mascarado na tela", retirado na rodada 2
+(`docs/architecture/F45-conformidade-adr-clientes-veiculos.md`, seção 5, item 5): a máscara na tela é a decisão D-C,
+de produto e LGPD, e não vira ADR. O campo de edição mostra o valor inteiro por ser um input. Decisão de produto, não corrigi.
 
 **Log real (relato do ESPRESSO).** Depois das 52 chamadas: CPF cru 0, telefone cru 0, e-mail 0, nome 0, placa crua 0, stack trace 0.
 **TORRE não reproduziu**, porque não subi o jar.
@@ -168,7 +169,7 @@ Divergências de paridade (ESQUADRO, seção 7 da auditoria): PA-01 (título de 
 | Política de dados do cliente (P1, P2, P3, P4) | **Registrada como proposta**, não aprovada. Bloqueia o **primeiro cliente real** em produção | pessoa (P1, P3), ESPRESSO (P2), BUSSOLA (P4) | 2026-12-04 |
 | Aceites escritos de D-E/P8, ADR-020 e P16 | O #22 dizia "merge só depois desses aceites" e foi mergeado; **os corpos dos PRs não registram aceite**. Não afirmo que não houve, afirmo que não há registro | pessoa | 2026-11-30 |
 | Trailer `Co-Authored-By` em `03e7646` (e 52 mensagens na `main`) | Reescrever exige force-push na `main`. **Não fiz.** Aceitar como ressalva ou autorizar | pessoa | 2026-11-30 |
-| ADR-041 a 043 (CARTOGRAFO) | **Não estão gravados no repo.** O texto completo só existe no handoff do CARTOGRAFO; recebi o ADR-041 inteiro e o 042 e o 043 cortados, então não gravei nenhum para não gravar pela metade | CARTOGRAFO | 2026-11-27 |
+| ADR-041 a 043 (CARTOGRAFO) | **Retirados na rodada 2.** Nenhum passa no critério de ADR (D-C é decisão de produto e LGPD; tamanho de captura é higiene). Os números ficam marcados como não usados no `overview.md` | CARTOGRAFO | fechado em 2026-11-25 |
 | N-02, N-07, PA-04 | Decisão de design | pessoa | 2026-11-28 |
 | P9 (CPF obrigatório ou opcional) e LG-09 | Contrato | BUSSOLA, pessoa | 2026-12-02 |
 | Aprovação da F26 | Aguardando | pessoa | 2026-11-28 |
@@ -210,7 +211,8 @@ Tamanho segue a definição do card. **Limite de 5 correções pequenas usado** 
 | LG-07, LG-09 | Média, Baixa | CPF obrigatório na API contra "opcional"; app e API divergem no dígito | contrato | BUSSOLA, ESPRESSO, ORLA | F-API-4 e F-APP-7 |
 | LG-01 | Média | política de dados em mais de uma revisão | não pequeno | VIGIA | F-DOC-2 |
 | LG-02 | Alta | P1 a P4 abertas; bloqueia o primeiro cliente real | decisão | pessoa e donos da seção 8 | ressalva aceita pendente |
-| ESP-01, ESP-02, ESP-03, ARQ-02, ARQ-03, ARQ-04, ARQ-07, LG-08 | Baixa | ver `F45-evidencia-api-espresso.md`, seções 2 e 4 | não pequeno | ESPRESSO, CARTOGRAFO | F-API-1, F-API-3, F-DOC-1 |
+| ESP-01, ESP-02, ESP-03, LG-08 | Baixa | ver `F45-evidencia-api-espresso.md`, seções 2 e 4; decisões de ESP-02 e ESP-03 em `docs/architecture/F45-conformidade-adr-clientes-veiculos.md`, seção 5 | não pequeno | ESPRESSO, CARTOGRAFO | F-API-3 (ESP-01, LG-08); ESP-02 ressalva aceita; ESP-03 conforme ADR-023 |
+| ARQ-02 a ARQ-16 | Baixa (ARQ-14 e ARQ-15 Média) | conformidade do código de Clientes e Veículos com os ADRs, com `file:line`, em `docs/architecture/F45-conformidade-adr-clientes-veiculos.md`, seção 4 | ver o documento | ESPRESSO, CARTOGRAFO, pessoa | F-API-1, F-API-2, F-API-7, F-API-8, F-DOC-1 e ressalvas |
 | LAC-02, LAC-03, LAC-04, LAC-07, LAC-08 | Média, Baixa | testes de backend que faltam ou são parciais | não pequeno | ESPRESSO | F-API-1, F-API-2 e LAC-07 como ressalva |
 | LAC-05, LAC-06 | Média | texto dos cards fora do repo | decisão | BUSSOLA, pessoa | pessoa cola o texto |
 | CR-05 | Média | histórico de OS vazio até a F06 | não pequeno | F06 | ressalva aceita; "parcialmente coberto" |
@@ -233,12 +235,14 @@ Cartões a abrir, escopo resumido e dono (**eu não abri nenhum**, não tenho ac
 | F-API-2 | `test(api): cobrir cliente anonimizado no detalhe` | 2026-12-02 |
 | F-API-3 | `fix(api): tolerância do token vencido e coerção de nome` | 2026-12-11 |
 | F-API-4 | `fix(clientes): tornar CPF opcional conforme P9` | 2026-12-04 |
-| F-API-5 | `fix(api): devolver erros[] no 409 de cliente` | 2026-12-11 |
+| F-API-5 | `fix(api): devolver erros[] no 409 de cliente` (só começa com ADR novo que substitua a regra 7 do ADR-023) | 2026-12-11 |
 | F-API-6 | `test(api): trocar os CPFs de fixture por valores com dígito inválido` | 2026-12-04 |
 | F-DOC-1 | `docs(architecture): alinhar arquitetura-backend.md aos ADRs` | 2026-12-02 |
+| F-API-7 | `fix(api): ordenar a mensagem do 400 como erros[]` | 2026-12-11 |
+| F-API-8 | `build(api): import-control do Checkstyle para as fronteiras do ADR-001` | 2026-12-11 |
 | F-DOC-2 | `docs(security): consolidar a política de dados do cliente em uma revisão` | 2026-12-02 |
 
-Dono de cada card: o da coluna "Dono" acima. F-APP-9, F-APP-10, F-API-5 e F-API-6 são **propostas novas de TORRE**; as demais vêm da ORLA e do ESPRESSO.
+Dono de cada card: o da coluna "Dono" acima. F-APP-9, F-APP-10, F-API-5 e F-API-6 são **propostas novas de TORRE**; F-API-7 e F-API-8 são **propostas do CARTOGRAFO** (ESPRESSO executa; ANCORA liga a F-API-8 no CI); as demais vêm da ORLA e do ESPRESSO.
 
 ## 11. Correções pequenas e regressão (critérios 16 a 19)
 
@@ -254,7 +258,7 @@ mudar o limite antes da revisão. A reexecução depois das correções (critér
 ## 12. Higiene (critério 15)
 
 `git status` ao fechar: ver `F45-pr-rascunho-corpo.md`. Sem segredo (gitleaks, seção 1). Sem trailer de coautor nesta branch.
-Capturas: 9 PNG, maior 208 KB, pasta de 1,4 MB. O ADR-041, que fixaria o limite de 300 KB, está só como proposta no handoff.
+Capturas: 9 PNG, maior 208 KB, pasta de 1,4 MB. O limite de tamanho das capturas fica como regra de higiene do repositório, não como ADR (ADR-041 retirado na rodada 2).
 
 ## 13. Perguntas do escopo
 
