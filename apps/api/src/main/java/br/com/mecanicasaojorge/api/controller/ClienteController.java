@@ -29,6 +29,7 @@ import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -100,7 +101,7 @@ public class ClienteController {
                               value =
                                   """
                                   {"nome": "Ana Exemplo", "cpf": "123.456.789-00",
-                                   "telefone": "(11) 91234-5678", "email": "ana@example.com",
+                                   "telefone": "(20) 91234-5678", "email": "ana@example.com",
                                    "endereco": "Rua Modelo, 100 - Jardim Exemplo"}"""))))
   @ApiResponse(
       responseCode = "201",
@@ -136,7 +137,7 @@ public class ClienteController {
                            "path": "/api/v1/clientes"}""")))
   @ApiResponse(
       responseCode = "409",
-      description = "CPF ja cadastrado; a mensagem nao traz o CPF nem o id do cadastro existente",
+      description = "CPF ou email ja pertence a outro cliente; a mensagem nao traz o valor",
       content =
           @Content(
               schema = @Schema(implementation = ErrorResponse.class),
@@ -194,5 +195,74 @@ public class ClienteController {
           Long id,
       @AuthenticationPrincipal Jwt jwt) {
     return ResponseEntity.ok(clienteService.detalhar(id, jwt.getSubject()));
+  }
+
+  @PutMapping(value = "/{id}", consumes = MediaType.APPLICATION_JSON_VALUE)
+  @Operation(
+      summary = "Edita um cliente",
+      description =
+          "Substitui todos os campos editaveis; opcional omitido ou em branco grava null. O id vem "
+              + "so do caminho; id no corpo e ignorado. CPF e email sao comparados na forma "
+              + "normalizada, sem contar o proprio cliente. Duas edicoes simultaneas: a ultima "
+              + "gravacao vence.",
+      requestBody =
+          @io.swagger.v3.oas.annotations.parameters.RequestBody(
+              content =
+                  @Content(
+                      examples =
+                          @ExampleObject(
+                              name = "Cliente completo",
+                              value =
+                                  """
+                                  {"nome": "Ana Exemplo", "cpf": "123.456.789-00",
+                                   "telefone": "(00) 91234-5678", "email": "ana@example.com",
+                                   "endereco": "Rua Modelo, 100 - Jardim Exemplo"}"""))))
+  @ApiResponse(
+      responseCode = "200",
+      description = "Cliente editado, com os valores gravados",
+      content = @Content(schema = @Schema(implementation = ClienteDetalheResponse.class)))
+  @ApiResponse(
+      responseCode = "400",
+      description =
+          "Campo invalido ou ausente, id invalido ou JSON malformado; a mensagem cita o campo e "
+              + "nunca o valor enviado",
+      content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+  @ApiResponse(
+      responseCode = "401",
+      description = "Token ausente, invalido ou expirado",
+      content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+  @ApiResponse(
+      responseCode = "404",
+      description = "Nao existe cliente com o id",
+      content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+  @ApiResponse(
+      responseCode = "409",
+      description =
+          "CPF ou email ja pertence a outro cliente, ou gravacao simultanea; a mensagem nao traz "
+              + "o valor nem o id do outro cliente",
+      content =
+          @Content(
+              schema = @Schema(implementation = ErrorResponse.class),
+              examples =
+                  @ExampleObject(
+                      value =
+                          """
+                          {"timestamp": "2026-11-18T10:00:00-03:00", "status": 409,
+                           "erro": "Conflict", "mensagem": "Email ja cadastrado",
+                           "path": "/api/v1/clientes/1", "erros": []}""")))
+  @ApiResponse(
+      responseCode = "415",
+      description = "Content-Type diferente de application/json",
+      content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+  @ApiResponse(
+      responseCode = "500",
+      description = "Erro interno inesperado",
+      content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+  public ResponseEntity<ClienteDetalheResponse> atualizar(
+      @Parameter(description = "Identificador do cliente, inteiro positivo") @PathVariable @Positive
+          Long id,
+      @Valid @RequestBody ClienteRequest request,
+      @AuthenticationPrincipal Jwt jwt) {
+    return ResponseEntity.ok(clienteService.atualizar(id, request, jwt.getSubject()));
   }
 }

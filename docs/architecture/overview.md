@@ -343,6 +343,8 @@ Pontos de integração da F03c (todos em pacotes já existentes, ADR-001):
 
 Decisões: [ADR-021](adr/ADR-021-compartilhar-dto-de-entrada-clienterequest-entre-criar-e-editar.md) (DTO e semântica de substituição inteira), [ADR-019](adr/ADR-019-mapear-recurso-nao-encontrado-para-404-por-excecao-de-dominio.md) (404), [ADR-020](adr/ADR-020-garantir-cpf-unico-por-indice-no-banco-com-409-no-service.md) (CPF), [ADR-026](adr/ADR-026-garantir-email-unico-por-indice-na-v8-com-409-no-ponto-unico-de-gravacao.md) (email) e [ADR-027](adr/ADR-027-responder-409-a-deadlock-na-gravacao-sem-nova-tentativa.md) (deadlock). Política: `docs/security/politica-dados-pessoais-cliente.md`, revisão 6 (2.5, 6.7, seção 7 "API, edição" e 8.6). Status: **proposto**. O código de email espera a P16, e o resto do PUT não depende dela.
 
+Referência de uso com requisições e respostas reais capturadas da API rodando: `docs/api/clientes.md`.
+
 `PUT /api/v1/clientes/{id}`, autenticado (fora de `PUBLIC_PATHS`), `Content-Type: application/json`.
 
 * `id`: `@PathVariable @Positive Long`, como no detalhe. É o único id que vale. `id`, `createdAt` ou qualquer outra propriedade do corpo é ignorada (o `ClienteRequest` não tem `id`).
