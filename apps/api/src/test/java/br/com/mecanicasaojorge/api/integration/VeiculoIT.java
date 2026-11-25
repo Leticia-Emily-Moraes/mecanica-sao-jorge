@@ -596,6 +596,29 @@ class VeiculoIT {
   }
 
   @Test
+  void shouldNotExposeOwnerPersonalDataWhenDetailingVehicle() throws Exception {
+    long id = inserirVeiculo(clienteId, PLACA);
+
+    mockMvc
+        .perform(get("/api/v1/veiculos/" + id).with(jwt().jwt(j -> j.subject("3"))))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.cpf").doesNotExist())
+        .andExpect(jsonPath("$.telefone").doesNotExist())
+        .andExpect(jsonPath("$.email").doesNotExist())
+        .andExpect(jsonPath("$.endereco").doesNotExist())
+        .andExpect(jsonPath("$.cliente").doesNotExist());
+  }
+
+  @Test
+  void shouldAcceptBrandWith100CharactersWhenOnlyTheEdgesAreSpaces() throws Exception {
+    String marca = "  " + "M".repeat(100) + "  ";
+
+    criar(clienteId, corpo(PLACA).replace("\"Fiat\"", "\"" + marca + "\""))
+        .andExpect(status().isCreated())
+        .andExpect(jsonPath("$.marca").value("M".repeat(100)));
+  }
+
+  @Test
   void shouldReturn404WhenDetailingMissingVehicle() throws Exception {
     mockMvc
         .perform(get("/api/v1/veiculos/999999").with(jwt()))

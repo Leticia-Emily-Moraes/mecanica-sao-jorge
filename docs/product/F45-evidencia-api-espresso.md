@@ -85,3 +85,12 @@ Não tenho acesso ao painel. Os textos abaixo ficam prontos para a pessoa abrir 
 - Rodar o `f35-real-api.test.tsx` com `QA_F35_API` (LAC-01): é do app, fica com ORLA e CRIVO, que já o relataram.
 - Repetir o `mvn clean verify` depois das correções: não houve correção de produto, então o resultado da seção 1 vale.
 - Token vencido por pouco (10 a 45 s): coberto pelo teste do VIGIA (LG-08), não repeti.
+
+## 7. Rodada 3 (ESPRESSO, 2026-11-25)
+
+- `mvn clean verify` repetido em clone limpo de `00f3236` (`.f45-clone`, `git status` limpo, HEAD igual a `origin/main`): surefire 250, failsafe 160, **410 testes, 0 falhas**, BUILD SUCCESS, 01:01 min. Confirma a seção 1.
+- Dois testes novos em `VeiculoIT`, só teste, sem mudar produto (passam; não há estado "falha antes", pois cobrem comportamento já existente):
+  - `shouldAcceptBrandWith100CharactersWhenOnlyTheEdgesAreSpaces` fecha C7c;
+  - `shouldNotExposeOwnerPersonalDataWhenDetailingVehicle` fecha C19b.
+- Da LAC-08 resta só C19a (provar que a API não consulta `ordens_servico`), que depende da F06 e do ADR-025. Fica na feature de correção só de teste (dono ESPRESSO, 2026-12-02), junto com DET-11 e DET-16.
+- A bateria HTTP da seção 2 (52 chamadas sobre o jar) é do mesmo commit `00f3236` e não foi repetida.

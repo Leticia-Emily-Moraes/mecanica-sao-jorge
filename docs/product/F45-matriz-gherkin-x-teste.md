@@ -135,7 +135,7 @@ Testes em `VeiculoIT` (abreviado `IT#`), `VeiculoControllerTest` (`CT#`), `Veicu
 | C7 | Marca, modelo ou ano em branco: um erro por campo, **ordenados por campo**, nada gravado | E | `IT#shouldReturn400WithOneErrorPerFieldWhenBrandModelAndYearAreBlank` | Coberto (rodada 2, ESPRESSO): `VeiculoIT#shouldOrderErrorsByFieldNameWhenSeveralFieldsAreInvalid` afirma `erros[0..2].campo` = ano, marca, placa, com entrada enviada fora de ordem |
 | C7a | Marca e modelo com espaços nas pontas gravados aparados (POST) | B | `IT#shouldStoreBrandAndModelWithoutEdgeSpacesWhenTheyComeWithSpaces` | Coberto |
 | C7b | Marca ou modelo só com espaços: 400 com chave `obrigatoria` | E | marca `" "` no POST: `IT#shouldReturn400WithOneErrorPerFieldWhenBrandModelAndYearAreBlank`; marca `"   "` no PUT: `IT#shouldReturn400AndKeepBrandWhenPutBrandHasOnlySpaces` | Coberto (rodada 2, ESPRESSO): `VeiculoIT#shouldReturn400OnModelFieldWhenModelHasOnlySpaces` (POST, modelo `"   "`) |
-| C7c | Limite de 100 conta depois de aparar (100 com espaços: 201; 101: 400) | B | `RT#shouldLimitBrandAndModelTo100Characters` (só o 101) | Parcial: falta o caso "100 caracteres com espaço nas pontas: 201" |
+| C7c | Limite de 100 conta depois de aparar (100 com espaços: 201; 101: 400) | B | `RT#shouldLimitBrandAndModelTo100Characters` (101: 400); `VeiculoIT#shouldAcceptBrandWith100CharactersWhenOnlyTheEdgesAreSpaces` (100 + espaços nas pontas: 201) | Coberto |
 | C8 | Ano fora da faixa: 400 `veiculo.form.ano.faixa` | E | `IT#shouldRejectYearOutsideRangeAndAcceptNextYear` | Coberto |
 | C8a | Limites da faixa aceitos (1900 e ano seguinte) | B | `IT#shouldRejectYearOutsideRangeAndAcceptNextYear` | Coberto |
 | C8b | Virada do ano (faixa depende da data) | B | `AnoModeloValidatorTest` | Coberto |
@@ -158,7 +158,7 @@ Testes em `VeiculoIT` (abreviado `IT#`), `VeiculoControllerTest` (`CT#`), `Veicu
 | C18 | Editar veículo inexistente: 404 com mensagem fixa | E | `IT#shouldReturn404WhenEditingMissingVehicle` | Coberto |
 | C19 | Detalhe com `historicoOs` `[]`, nunca nulo | S | `IT#shouldReturnDetailWithOwnerAndEmptyHistoryWhenVehicleHasNoOrders`; `CT#shouldReturn200WithEmptyHistoryWhenDetailingVehicle` | Coberto |
 | C19a | `historicoOs` é `[]` e a API **não consulta** `ordens_servico` (ADR-025) | B | o `[]` está provado (C19); **não há teste de que a tabela não é consultada** (só `FlywayMigrationIT` cita `ordens_servico`) | Parcial |
-| C19b | Detalhe sem CPF, telefone, e-mail e endereço do dono | B | o teste de detalhe afirma `clienteId` e `clienteNome`, **sem asserção de ausência** dos outros campos; garantido só pela forma do DTO | Parcial |
+| C19b | Detalhe sem CPF, telefone, e-mail e endereço do dono | B | o teste de detalhe afirma `clienteId` e `clienteNome`, **sem asserção de ausência** dos outros campos; `VeiculoIT#shouldNotExposeOwnerPersonalDataWhenDetailingVehicle` afirma a ausência de cpf, telefone, email, endereco e cliente | Coberto |
 | C20 | Detalhe de veículo inexistente: 404 | E | `IT#shouldReturn404WhenDetailingMissingVehicle`; `CT#shouldReturn404WhenDetailingMissingVehicle` | Coberto |
 | C20a | Id `abc` ou `0`: 400 sem chamar o service | E | `CT#shouldReturn400WithoutCallingServiceWhenIdIsNotPositiveNumber` | Coberto |
 | C21 | Lista do cliente ordenada por placa, sem paginação | S | `IT#shouldListClientVehiclesOrderedByPlateWithoutPagination`; `CT#shouldReturn200WithArrayWhenListingClientVehicles` | Coberto |
@@ -257,10 +257,10 @@ Uma linha de tabela = um cenário (ou grupo de cenários com o mesmo teste, quan
 | F03b / F08 (clientes, detalhe) | 11 | 8 | 3 | 0 | 0 |
 | F03c / F09 (clientes, criar) | 13 | 10 | 0 | 3 | 0 |
 | F03d / F10 (clientes, editar) | 11 | 10 | 1 | 0 | 0 |
-| F04 (veículos) | 44 | 41 | 3 | 0 | 0 |
+| F04 (veículos) | 44 | 43 | 1 | 0 | 0 |
 | F26 (protótipo) | 19 | 0 | 4 | 2 | 13 |
 | F35 (front mobile) | 30 | 20 | 5 | 2 | 3 |
-| **Total** | **146** | **103** | **20** | **7** | **16** |
+| **Total** | **146** | **105** | **18** | **7** | **16** |
 
 Totais recalculados em 25/11 depois dos testes da rodada 2 (antes: 97 / 24 / 9 / 16). "Coberto" no backend significa: o teste existe e passou no clone limpo da `main` (410, reproduzido pelo ESPRESSO) ou, para os 6 testes novos, na branch (executados por mim); a suíte completa da branch (416) é relato do ESPRESSO (seção 2). No app significa: coberto no Jest **contra API simulada**; a prova contra a API real (`f35-real-api`) não foi executada.
 
@@ -277,7 +277,7 @@ Dono e prazo são **propostas do PO**, valem a partir do aceite da pessoa. Nenhu
 | LAC-05 | IDs sem registro no repo: F03c 20.1, 20.2, 20.7; F03d 24 e 26 (a numeração salta); F35 crit. 15 e 25. Não sei se existem | seções 5, 6, 9 | BUSSOLA | recuperar o texto do painel e gravar em `docs/product`; se não existirem, registrar a numeração como salto | 2026-11-28 |
 | LAC-06 | F03a: sem texto no repo para os IDs 03, 04, 06 e 07 (e o resumo dos demais é derivado do teste). A revisão humana pediu o texto dos cards em `docs/product`; **não consegui copiá-lo, porque ele não está no repo e eu não tenho o painel nesta sessão** | seção 3 | BUSSOLA | copiar os cards de F03a, F03c, F03d e F35 para `docs/product` e reconferir as linhas Parcial (texto ausente) | 2026-11-28 |
 | LAC-07 | F03d 33: deadlock real do MySQL não provado; só o service com exceção simulada e o controller com 409 (ADR-027) | seção 6 | ESPRESSO com CRIVO | prova contra MySQL real, ou ressalva aceita pela pessoa | 2026-12-02 |
-| LAC-08 | F04 parciais, **3 abertos**: C7c (100 caracteres com espaços nas pontas: 201), C19a (não consulta `ordens_servico`), C19b (sem asserção de ausência de dado do dono). **Fechados na rodada 2**: C7 e C26 (ordem dos erros), C7b (modelo só com espaços), C25b (405 e `erros[]` vazio). C23a: confirmado coberto | seção 7 | ESPRESSO | feature de correção só de teste, sem mudar produto | 2026-12-02 |
+| LAC-08 | F04 parciais, **1 aberto**: C19a (não consulta `ordens_servico`). **Fechados nas rodadas 2 e 3**: C7c e C19b (rodada 3), C7 e C26 (ordem dos erros), C7b (modelo só com espaços), C25b (405 e `erros[]` vazio). C23a: confirmado coberto | seção 7 | ESPRESSO | feature de correção só de teste, sem mudar produto | 2026-12-02 |
 | LAC-09 | F26: aprovação da seção 10 do PRD vazia (CLV-05) e N-07 (5 frames fora da seção); 13 critérios só pelo relato do ESQUADRO, sem eu abrir o Figma | seção 8 | PO (decisão) e ESQUADRO (conferência) | decisão da pessoa sobre N-02 e N-07; conferência no Figma com captura | 2026-11-28 |
 | LAC-10 | Jest intermitente: 1 de 3 execuções completas falhou em 6 testes (5 suítes), uma delas `menu-routing.test.tsx:59`; isolada passa | seção 2 | ORLA | **Causa provada em parte (ESPRESSO, rodada 2):** com cache do Jest frio e 3 suítes concorrentes, 8 a 10 suítes caem por `Exceeded timeout of 5000 ms`. `testTimeout: 30000` em `jest.config.js` baixou isso para 0 a 2 falhas, não eliminou: restou 1 `waitFor` de `MenuLayout` e 1 timeout de `ClientesScreen` aos 30 s. Detalhes em `F45-espresso-rodada-2.md`. A hipótese anterior sobre `act` (`console.error` de not wrapped in act em `ClienteDetalheScreen`, `use-resource.ts:74`) não apareceu nos erros reproduzidos; o ruído segue sem investigação. A mudança é só configuração do runner e **não tem teste de regressão**; a evidência é a tabela do ESPRESSO | 2026-12-02 |
 | LAC-11 | Contagem do backend: **fechada em parte**. O ESPRESSO reproduziu 410 em clone limpo da `main` (e 416 na branch). Falta repetir no commit final da `main`; eu não rodei o clone limpo | seção 2 | ESPRESSO | repetir `mvn clean verify` no commit final da `main` e registrar a contagem | 2026-11-27 |
