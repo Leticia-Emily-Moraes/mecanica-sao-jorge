@@ -3,7 +3,7 @@ import type { ReactElement } from 'react';
 import { Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { HeaderIconButton } from '@/components/ui/header-icon-button';
+import { HeaderIconButton, type HeaderIconName } from '@/components/ui/header-icon-button';
 
 import { styles, topInset } from './screen-header.styles';
 
@@ -13,12 +13,18 @@ export interface ScreenHeaderAction {
   readonly onPress: () => void;
 }
 
+export interface ScreenHeaderIconAction extends ScreenHeaderAction {
+  readonly icon: HeaderIconName;
+}
+
 export interface ScreenHeaderProps {
   readonly title: string;
   /** Seta de voltar no canto esquerdo (Perfil). */
   readonly back?: ScreenHeaderAction;
   /** Botão de usuário no canto direito (telas do menu). */
   readonly user?: ScreenHeaderAction;
+  /** Ação de ícone no canto direito (ex.: lápis de editar); vale no lugar de `user`. */
+  readonly action?: ScreenHeaderIconAction;
 }
 
 /**
@@ -26,8 +32,10 @@ export interface ScreenHeaderProps {
  * ordem da leitura: seta de voltar, título, botão de usuário. A barra de
  * status fica com ícones claros porque o fundo atrás dela é petro.
  */
-export function ScreenHeader({ title, back, user }: ScreenHeaderProps): ReactElement {
+export function ScreenHeader({ title, back, user, action }: ScreenHeaderProps): ReactElement {
   const insets = useSafeAreaInsets();
+  const trailing: ScreenHeaderIconAction | undefined =
+    action ?? (user ? { ...user, icon: 'person-outline' } : undefined);
 
   return (
     <View testID="screen-header" style={[styles.wrapper, topInset(insets.top)]}>
@@ -43,11 +51,11 @@ export function ScreenHeader({ title, back, user }: ScreenHeaderProps): ReactEle
         <Text accessibilityRole="header" numberOfLines={1} style={styles.title}>
           {title}
         </Text>
-        {user ? (
+        {trailing ? (
           <HeaderIconButton
-            icon="person-outline"
-            accessibilityLabel={user.label}
-            onPress={user.onPress}
+            icon={trailing.icon}
+            accessibilityLabel={trailing.label}
+            onPress={trailing.onPress}
           />
         ) : null}
       </View>

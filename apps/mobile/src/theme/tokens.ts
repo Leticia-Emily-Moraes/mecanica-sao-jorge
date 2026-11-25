@@ -35,6 +35,10 @@ const primitiveColor = {
   slate100: '#F1F5F9',
   whiteOverlay12: 'rgba(255, 255, 255, 0.12)',
   scrimPetro: 'rgba(30, 58, 63, 0.55)',
+  /** Aviso de sucesso e selo ENTREGUE (F35), 5,94:1 com texto branco. */
+  moss: '#3E6E4A',
+  /** Selo EM ANDAMENTO (F35), 8,55:1 com texto branco. */
+  deepTeal: '#2C5258',
 } as const;
 
 export const color = {
@@ -89,6 +93,14 @@ export const color = {
   action: {
     primaryBackground: primitiveColor.primary600,
   },
+  /** Confirmação de ação concluída (aviso de sucesso e selo ENTREGUE). */
+  feedback: {
+    success: primitiveColor.moss,
+  },
+  /** Selos de status da ordem de serviço sem token próprio no FPdB8 (só EM ANDAMENTO). */
+  status: {
+    inProgress: primitiveColor.deepTeal,
+  },
   focus: {
     ring: primitiveColor.petro900,
     ringOffset: primitiveColor.white,
@@ -114,6 +126,8 @@ export const spacing = {
 
 export const radius = {
   sm: 8,
+  /** Avatar de 40 (metade). */
+  avatarSmall: 20,
   md: 12,
   lg: 16,
   /** Cartão do diálogo (Figma). */
@@ -157,6 +171,14 @@ export const typography = {
   rowValue: { fontFamily: fontFamily.bodyMedium, fontSize: 14 },
   badge: { fontFamily: fontFamily.bodySemiBold, fontSize: 12 },
   avatarInitials: { fontFamily: fontFamily.displaySemiBold, fontSize: 32 },
+  /** Iniciais do avatar de 40 das listas. */
+  avatarInitialsSmall: { fontFamily: fontFamily.displaySemiBold, fontSize: 17 },
+  /** Nome no cartão de detalhe do cliente e do veículo. */
+  detailName: { fontFamily: fontFamily.displaySemiBold, fontSize: 22 },
+  /** Título de seção ("Veículos (2)"); a caixa alta é visual. */
+  sectionTitle: { fontFamily: fontFamily.displaySemiBold, fontSize: 15, letterSpacing: 0.5 },
+  /** Título do cartão de lista. */
+  cardTitle: { fontFamily: fontFamily.bodySemiBold, fontSize: 15 },
   tabLabel: { fontFamily: fontFamily.bodyMedium, fontSize: 11 },
   tabLabelSelected: { fontFamily: fontFamily.bodySemiBold, fontSize: 11 },
 } as const;
@@ -179,6 +201,14 @@ export const size = {
   closeButton: 32,
   /** Caixa do indicador de carregamento dentro do botão (L2 `82:2137`). */
   loadingIndicator: 16,
+  /** Avatar das listas (F35). */
+  avatarSmall: 40,
+  /** Altura mínima do cartão de lista (F35); cresce com fonte ampliada. */
+  listRow: 66,
+  /** Altura do campo de texto multilinha (Endereço). */
+  textArea: 76,
+  /** Altura mínima do aviso de sucesso (F35). */
+  notice: 44,
   /** Escudo da marca no Login (`10:906`, 84 × 96). */
   brandShieldWidth: 84,
   brandShieldHeight: 96,
@@ -217,6 +247,13 @@ export const iconSize = {
   /** Ícones do cabeçalho (seta e usuário) e da faixa de erro. */
   appBar: 18,
   banner: 18,
+  /** Ícone do cartão de veículo. */
+  row: 20,
+  /** Seta do cartão de lista. */
+  chevron: 18,
+  search: 18,
+  /** Ícone à esquerda do texto do botão ("+" de "Novo cliente", L1 do F26). */
+  button: 18,
 } as const;
 
 export const layout = {
@@ -226,11 +263,15 @@ export const layout = {
   stateActionsMaxWidth: 328,
   /** Largura da mensagem do estado de tela cheia (P2 `83:769` e Início I1 `89:985`). */
   stateMessageMaxWidth: 289,
+  /** Coluna de conteúdo de lista, detalhe e formulário em 768 e 1280 (F35). */
+  contentMaxWidth: 560,
 } as const;
 
 /**
- * Sombras do Figma: cartão `0 1 1 rgba(30,58,63,.06)` e diálogo
- * `0 12 16 rgba(0,0,0,.25)`. No Android `elevation` só aproxima (P-08 do ADR-014).
+ * Sombras do Figma: cartão do Perfil `0 1 1 rgba(30,58,63,.06)`, cartão de dados dos
+ * detalhes (F26) `0 1 2 rgba(30,58,63,.06)` e diálogo `0 12 16 rgba(0,0,0,.25)`.
+ * Cartões de lista e de OS do F26 não têm sombra. No Android `elevation` só aproxima
+ * (P-08 do ADR-014).
  */
 export const shadow = {
   card: {
@@ -238,6 +279,13 @@ export const shadow = {
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.06,
     shadowRadius: 1,
+    elevation: 1,
+  },
+  detail: {
+    shadowColor: primitiveColor.petro900,
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.06,
+    shadowRadius: 2,
     elevation: 1,
   },
   dialog: {

@@ -58,10 +58,15 @@ evitar fluxo órfão) em [`diagrams/navegacao-wireframe-f24.md`](diagrams/navega
 | [ADR-026](adr/ADR-026-garantir-email-unico-por-indice-na-v8-com-409-no-ponto-unico-de-gravacao.md) | Garantir email único com o índice `uk_clientes_email` na V8 e 409 no ponto único de gravação (F03d; depende da P16) | Proposto | 2026-11-18 |
 | [ADR-027](adr/ADR-027-responder-409-a-deadlock-na-gravacao-sem-nova-tentativa.md) | Responder 409 a deadlock e espera de lock na gravação, sem nova tentativa (F03d, U6) | Proposto | 2026-11-18 |
 | [ADR-028](adr/ADR-028-rejeitar-ano-nao-inteiro-com-desserializador-no-campo-e-chave-por-lista-fixa.md) | Rejeitar `ano` não inteiro com desserializador próprio no campo e reportar o campo por lista fixa no handler (F04, D3) | Proposto | 2026-11-19 |
+| [ADR-029](adr/ADR-029-navegar-clientes-e-veiculos-em-stack-aninhado-na-aba-clientes.md) | Navegar Clientes e Veículos num Stack aninhado na aba Clientes, com rota que carrega só id (F35) | Proposto | 2026-11-19 |
+| [ADR-030](adr/ADR-030-contratar-servico-e-hooks-de-clientes-e-veiculos-sobre-fetch-com-estado-discriminado.md) | Contratar serviço e hooks de Clientes e Veículos sobre `fetch`, com erro tipado e estado de tela discriminado (F35) | Proposto | 2026-11-19 |
+| [ADR-031](adr/ADR-031-buscar-clientes-apos-pausa-de-400-ms-com-hook-proprio-e-cancelamento.md) | Buscar clientes depois de uma pausa de 400 ms, com hook próprio e cancelamento da busca anterior (F35) | Proposto | 2026-11-19 |
 
 ADR-014 foi trazido de `docs/f39-wireframe-redesenho` (`18efb4e`) pela branch `docs/f41-adr014-referencia-aprovada`, aceito em 2026-11-16 na F41 e levado à `main` pela #16. O ADR-016 chega com a #14 (a F44 usa o número 016; o ADR-012 é a remoção do template, da F38). O ADR-015 entra pela branch `integracao/f40-i2-sobre-pr10`, com a estrutura reaplicada sobre o mobile da `main`.
 
 **Lacuna de numeração fechada (2026-11-19, F04).** O código e o `docs/api/veiculos.md` da F04 já citavam o ADR-022 (placa), o ADR-023 (`erros[]`), o ADR-024 (vínculo e PUT total) e o ADR-025 (`historicoOs`), sem arquivo em nenhuma branch (conferido por `git log --all` em 2026-11-18 e 2026-11-19). A branch `docs/f04-cartografo-adrs` materializa os quatro com os números que o código cita, e a decisão D3 do PRD F04 rev 2 entra como ADR-028, o próximo número livre (a F03d usa 026 e 027). Todos estão `Proposto`: a implementação dos ajustes N1 a N4 da F04 só começa com o aceite formal da pessoa dona do produto.
+
+Os ADR-029 a ADR-031 (F35) foram numerados depois de conferir os nomes de ADR no histórico de todos os ramos locais em 2026-11-19.
 
 > Nota de materialização: a F00 referenciou ADR-004/006/010/011 em código mas
 > não gravou os arquivos (ver `README.md`). Esta entrega da F02 materializa todo

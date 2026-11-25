@@ -18,6 +18,11 @@ export interface ScreenContainerProps {
    * fundo claro (Login); telas com cabeçalho petro deixam o cabeçalho definir.
    */
   readonly statusBarStyle?: 'dark';
+  /**
+   * Limita o conteúdo a uma coluna centrada em telas largas (768 e 1280), em vez
+   * de esticar cartões e campos por toda a largura. No celular não muda nada.
+   */
+  readonly constrained?: boolean;
 }
 
 /** Contêiner de tela: preenche a área, aplica o fundo Pampas e a margem lateral da identidade. */
@@ -26,6 +31,7 @@ export function ScreenContainer({
   centered = false,
   horizontalPadding = 'default',
   statusBarStyle,
+  constrained = false,
 }: ScreenContainerProps): ReactElement {
   return (
     <View
@@ -33,6 +39,7 @@ export function ScreenContainer({
         styles.container,
         horizontalPaddingStyle(horizontalPadding),
         centered && styles.centered,
+        constrained && styles.constrained,
       ]}
     >
       {statusBarStyle ? <StatusBar style={statusBarStyle} /> : null}

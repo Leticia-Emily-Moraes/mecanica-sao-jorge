@@ -1,7 +1,7 @@
 import type { ViewStyle } from 'react-native';
 import { StyleSheet } from 'react-native';
 
-import { color, spacing } from '@/theme/tokens';
+import { color, layout, spacing } from '@/theme/tokens';
 
 export const styles = StyleSheet.create({
   container: {
@@ -10,6 +10,11 @@ export const styles = StyleSheet.create({
   },
   centered: {
     justifyContent: 'center',
+  },
+  constrained: {
+    width: '100%',
+    maxWidth: layout.contentMaxWidth,
+    alignSelf: 'center',
   },
 });
 

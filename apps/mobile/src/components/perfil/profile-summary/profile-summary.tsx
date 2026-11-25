@@ -2,8 +2,8 @@ import type { ReactElement } from 'react';
 import { Text, View } from 'react-native';
 
 import { AccessProfileBadge } from '@/components/perfil/access-profile-badge';
-import { Avatar } from '@/components/perfil/avatar';
-import { getInitials } from '@/components/perfil/avatar';
+import { Avatar } from '@/components/ui/avatar';
+import { getInitials } from '@/formatters/get-initials';
 
 import { styles } from './profile-summary.styles';
 

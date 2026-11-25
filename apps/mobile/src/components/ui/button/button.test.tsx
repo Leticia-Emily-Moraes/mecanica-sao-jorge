@@ -7,6 +7,10 @@ import { color, opacity } from '@/theme/tokens';
 
 import { Button } from './button';
 
+// Fonte de ícones é a borda externa: o carregamento assíncrono da fonte
+// atualiza estado fora do `act` e não faz parte do que se testa aqui.
+jest.mock('@expo/vector-icons', () => ({ Ionicons: () => null }));
+
 describe('Button', () => {
   it('should expose the button role and the label as accessible name when rendered', () => {
     render(<Button label="Entrar" onPress={jest.fn()} />);
@@ -168,5 +172,33 @@ describe('Button', () => {
 
     fireEvent(button, 'blur');
     expect(hasFocusRing(screen.getByRole('button', { name: 'Entrar' }))).toBe(false);
+  });
+
+  describe('icon', () => {
+    it('should draw no icon when the icon prop is absent', () => {
+      render(<Button label="Entrar" onPress={jest.fn()} />);
+
+      expect(screen.queryByTestId('button-icon', { includeHiddenElements: true })).toBeNull();
+    });
+
+    it('should draw the icon before the label and keep the label as the accessible name', () => {
+      render(<Button label="Novo cliente" icon="add" onPress={jest.fn()} />);
+
+      const icone = screen.getByTestId('button-icon', { includeHiddenElements: true });
+
+      expect(screen.getByRole('button', { name: 'Novo cliente' })).toBeTruthy();
+      expect(icone.props.accessibilityElementsHidden).toBe(true);
+      expect(icone.props.importantForAccessibility).toBe('no-hide-descendants');
+      const arvore = JSON.stringify(screen.toJSON());
+
+      expect(arvore.indexOf('button-icon')).toBeLessThan(arvore.indexOf('["Novo cliente"]'));
+    });
+
+    it('should swap the icon for the loading indicator while loading', () => {
+      render(<Button label="Salvar" icon="add" loading onPress={jest.fn()} />);
+
+      expect(screen.queryByTestId('button-icon', { includeHiddenElements: true })).toBeNull();
+      expect(screen.getByTestId('button-loading-indicator')).toBeTruthy();
+    });
   });
 });

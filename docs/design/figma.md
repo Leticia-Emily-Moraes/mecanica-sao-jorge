@@ -756,3 +756,17 @@ Leitura (somente) feita: referência `FPdB8RymAnN81pbKfizdzE` (páginas `20:2131
 ### F26 · Protótipo de alta fidelidade de Clientes e Veículos (2026-11-17, ESQUADRO)
 
 Seção nova `106:2097` na página `20:2132` do arquivo de referência `FPdB8RymAnN81pbKfizdzE`: 39 frames de alta fidelidade (33 da entrega inicial mais L7, C7 e os diálogos X1 a X4 da revisão de 17/11), o frame de apoio PF (`117:2636`, cópia do Perfil, destino do Voltar do L5) e a folha de foco (`113:2666`), fluxo iniciado em `109:2402`. Cada frame tem a camada de foco por controle com a ordem numerada. **Aguardando aprovação; a F39 ainda não está aprovada (US-PROTO-CLV-07 aberto).** Nenhum nó fora da seção foi alterado. Detalhe, ids, decisões e o que não foi verificado: `docs/design/F26-prototipo-clientes-veiculos.md`.
+
+### F35 · Especificação das telas de Clientes e Veículos (2026-11-19, ESQUADRO)
+
+Leitura (somente) dos frames F26 da seção `106:2097` (página `20:2132`) por `use_figma` e `get_screenshot`: textos, medidas, cores, tipografia e ordem dos nós das 7 telas. **Nenhum frame do F26 foi alterado.** Para cobrir estados que o F26 não tinha, criei 5 frames novos na seção, numa linha própria em y=8900 (rótulos em y=8876; seção estendida a 10000 de altura): D6 `135:937` (cliente sem veículos), D7 `135:1022` (dados ausentes, "Não informado"), D8 `135:1107` (cliente não encontrado), V6 `135:1144` (veículo não encontrado) e L8 `135:1182` (lista com "Carregar mais"), mais as anotações `136:888–897` com a ordem de foco. São **propostas, aguardando aprovação**; não têm camada de foco desenhada.
+
+Durante a exportação das capturas, a camada "Foco por controle" dos frames F26 ficou oculta e foi **restaurada** na mesma sessão (39 de 39 visíveis, conferido por contagem, não por screenshot).
+
+Achados: o F26 já tinha a lista de veículos no detalhe do cliente (D1); a borda do campo Endereço no E1 `106:2300` usa `#E2DEDA` (1,34:1, reprova 1.4.11) em vez de `border/default`; `#3E6E4A` e `#2C5258` (aviso de sucesso e selos) não têm variável. Especificação completa, mapa de componentes, divergências e o que não foi lido: `docs/design/F35-especificacao-telas-clientes-veiculos.md`. Capturas de referência: `docs/design/f35-capturas/` (44 PNGs).
+
+### F45 · Conferência de paridade e WCAG da Sprint 02 (2026-11-20, ESQUADRO)
+
+Sessão Figma `6d02d9a3-9142-4fde-841c-c791263c3366`, arquivo `FPdB8RymAnN81pbKfizdzE`. **Somente leitura (`get_metadata` e `use_figma` sem escrita): nenhum nó foi criado, movido ou alterado.** Comparação estática do Figma contra o código; não há captura do app dessas telas. Resultado, divergências N-01 a N-09 e auditoria: `docs/design/F45-conferencia-paridade-wcag-sprint-02.md`.
+
+Correção de registro (N-07): os frames propostos D6 `135:937`, D7 `135:1022`, D8 `135:1107`, V6 `135:1144`, L8 `135:1182` (x 60, 502, 944, 1386, 1828; y 8900) e as anotações `136:888` a `136:897` estão na página `20:2131` "01 — Wireframes", e **não** na seção F26 `106:2097` da página `20:2132`, como o parágrafo da F35 acima diz. A seção F26 tem 130 filhos e nenhum id `135:*` ou `136:*`. Não movi; aguarda decisão da pessoa.

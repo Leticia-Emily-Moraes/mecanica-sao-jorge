@@ -1,9 +1,17 @@
-import type { ReactElement, Ref } from 'react';
+import { Ionicons } from '@expo/vector-icons';
+import type { ComponentProps, ReactElement, Ref } from 'react';
 import { ActivityIndicator, Pressable, Text, View } from 'react-native';
 
 import { useFocusRing } from '@/theme/use-focus-ring';
 
-import { labelColorByVariant, styles, TOUCH_SLOP, variantStyle, visual } from './button.styles';
+import {
+  iconColorByVariant,
+  labelColorByVariant,
+  styles,
+  TOUCH_SLOP,
+  variantStyle,
+  visual,
+} from './button.styles';
 
 /**
  * `primary`: ação principal (Crail). `secondary`: contorno petro (Cancelar).
@@ -19,6 +27,8 @@ export interface ButtonProps {
   readonly loadingLabel?: string;
   readonly disabled?: boolean;
   readonly accessibilityLabel?: string;
+  /** Ícone decorativo antes do texto; o nome acessível continua sendo só o texto. */
+  readonly icon?: ComponentProps<typeof Ionicons>['name'];
   /** Ref do controle, usado para devolver o foco ao fechar um popup aberto por ele (F38). */
   readonly triggerRef?: Ref<View>;
 }
@@ -31,6 +41,7 @@ export function Button({
   loadingLabel,
   disabled = false,
   accessibilityLabel,
+  icon,
   triggerRef,
 }: ButtonProps): ReactElement {
   const { focusRingStyle, onFocus, onBlur } = useFocusRing();
@@ -69,7 +80,18 @@ export function Button({
             <View testID="button-loading-balance" style={styles.loadingSlot} />
           </View>
         ) : (
-          <Text style={labelStyle}>{label}</Text>
+          <View style={styles.content}>
+            {icon === undefined ? null : (
+              <View
+                testID="button-icon"
+                accessibilityElementsHidden
+                importantForAccessibility="no-hide-descendants"
+              >
+                <Ionicons name={icon} size={visual.iconSize} color={iconColorByVariant[variant]} />
+              </View>
+            )}
+            <Text style={labelStyle}>{label}</Text>
+          </View>
         )}
       </Pressable>
     </View>

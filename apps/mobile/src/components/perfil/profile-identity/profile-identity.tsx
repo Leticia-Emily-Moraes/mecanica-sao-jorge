@@ -2,7 +2,7 @@ import type { ReactElement } from 'react';
 import { Text, View } from 'react-native';
 
 import { AccessProfileBadge } from '@/components/perfil/access-profile-badge';
-import { Avatar } from '@/components/perfil/avatar';
+import { Avatar } from '@/components/ui/avatar';
 
 import { styles } from './profile-identity.styles';
 

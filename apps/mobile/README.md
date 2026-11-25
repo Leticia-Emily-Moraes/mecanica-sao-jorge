@@ -58,9 +58,11 @@ O que existe hoje:
   `InlineActionButton`, `BrandHeader`, `HeaderIconButton`, `ConfirmDialog`,
   `TabBarItem`; rótulo, papel e anel de foco duplo (petro + halo branco) já
   vêm embutidos, a tela herda;
-- `src/components/menu/` (`MenuTabBar`, `MenuShell`) e
-  `src/components/perfil/` (`Avatar`, `AccessProfileBadge`, `InfoCard`,
-  iniciais e texto do perfil): componentes de uma área;
+- `src/components/menu/` (`MenuTabBar`, `MenuShell`),
+  `src/components/perfil/` (`AccessProfileBadge`, `ProfileIdentity`),
+  `src/components/clientes/` e `src/components/veiculos/` (F35): componentes de
+  uma área; `Avatar` e `InfoCard` passaram a `ui/` na F35 e as iniciais a
+  `src/formatters/get-initials.ts`;
 - leitor de variável de ambiente (`src/config/env.ts`) para a URL base da API,
   com teste unitário cobrindo valor configurado e valor padrão;
 - `.env.example` sem segredo.
@@ -142,7 +144,7 @@ npm run web      # navegador (suporte web do Expo Router)
 npm test
 ```
 
-321 testes em 45 suítes (execução de 2026-11-24, ADR-015 sobre a main com os componentes extras da F41):
+925 testes em 99 suítes, 34 pulados na suíte `src/qa/f35-real-api.test.tsx`, que só roda contra a API real (execução de 2026-11-24, F35 sobre o ADR-015, com a F38 e a F40 da `main`):
 
 - `src/screens/**/*.test.tsx` e `src/layouts/**/*.test.tsx`: telas e layouts —
   reidratação de sessão, validação de campo vazio sem chamar a API, erro de
@@ -204,21 +206,36 @@ app/                      # só rotas do Expo Router: cada arquivo é um re-expo
 ├── perfil.tsx             # -> src/screens/profile (fora do grupo (menu): sem tab bar)
 └── (menu)/                # grupo pós-login
     ├── _layout.tsx        # -> src/layouts/menu-layout (guard de sessão + tab bar)
-    └── inicio.tsx         # -> src/screens/home
+    ├── inicio.tsx         # -> src/screens/home
+    └── clientes/          # Stack da aba Clientes (ADR-029) -> src/layouts/clients-stack-layout
+        ├── index.tsx, novo.tsx                       # -> client-list, client-create
+        ├── [clienteId]/index.tsx, editar.tsx         # -> client-detail, client-edit
+        ├── [clienteId]/veiculos/novo.tsx             # -> vehicle-create
+        └── veiculos/[veiculoId]/index.tsx, editar.tsx  # -> vehicle-detail, vehicle-edit
 
 src/
-├── layouts/               # root-layout (Stack + AuthProvider), menu-layout (guard + MenuShell)
-├── screens/               # session-restore, login, profile, home: só compõem componentes
+├── layouts/               # root-layout (Stack + AuthProvider), menu-layout (guard + MenuShell),
+│                          #   clients-stack-layout (Stack de Clientes)
+├── screens/               # session-restore, login, profile, home e as 7 telas de clientes e
+│                          #   veículos: só compõem componentes
 ├── components/
 │   ├── ui/<nome>/         # base, sem texto próprio: button, text-field, screen-header,
 │   │                      #   header-icon-button, brand-header, screen-container, screen-footer,
 │   │                      #   state-view, state-illustration, error-state, inline-alert,
 │   │                      #   alert-icon, inline-action-button, confirm-dialog, tab-bar-item,
-│   │                      #   icon-button, form-actions, read-only-field
+│   │                      #   icon-button, form-actions, read-only-field, close-button,
+│   │                      #   password-visibility-toggle (F38), avatar, info-card, list-row,
+│   │                      #   search-field, status-badge, section-title, empty-card,
+│   │                      #   inline-notice, not-found-state, vehicle-tile, detail-scroll (F35)
 │   ├── menu/<nome>/       # menu-tab-bar, menu-shell
-│   └── perfil/<nome>/     # avatar (+ get-initials), access-profile-badge (+ access-profile),
-│                          #   info-card, profile-identity, profile-summary
-│                          # cada pasta: <nome>.tsx, <nome>.styles.ts, <nome>.test.tsx, index.ts
+│   ├── clientes/<nome>/   # client-list, client-search-bar, client-row, client-info-card,
+│   │                      #   client-form-fields, client-form-view, client-vehicles-section, vehicle-row
+│   ├── veiculos/<nome>/   # vehicle-form-fields, vehicle-form-view, vehicle-info-card,
+│   │                      #   vehicle-history-section
+│   └── perfil/<nome>/     # access-profile-badge (+ access-profile), profile-identity,
+│                          #   profile-summary
+│                          # cada pasta: <nome>.tsx, <nome>.styles.ts (se o JSX tem `style`),
+│                          #   <nome>.test.tsx, index.ts
 ├── hooks/                 # use-auth (AuthProvider + useAuth), use-login
 ├── services/              # TS puro: auth-service, http-client, session-storage, auth-types
 ├── theme/                 # tokens.ts (única fonte de valor visual), use-focus-ring.ts,

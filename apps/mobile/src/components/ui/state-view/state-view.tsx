@@ -4,7 +4,7 @@ import { AccessibilityInfo, ActivityIndicator, Text, View } from 'react-native';
 
 import { Button } from '@/components/ui/button';
 import { ErrorState, type ErrorStateProps as ErrorViewProps } from '@/components/ui/error-state';
-import { StateIllustration } from '@/components/ui/state-illustration';
+import { StateIllustration, type StateIconName } from '@/components/ui/state-illustration';
 
 import { styles, visual } from './state-view.styles';
 
@@ -17,6 +17,8 @@ interface EmptyStateBaseProps {
   readonly state: 'empty';
   readonly title: string;
   readonly message?: string;
+  /** Ícone da ilustração; o padrão é o de documento do Início. */
+  readonly icon?: StateIconName;
 }
 
 /** `actionLabel` e `onAction` andam juntos: ou os dois, ou nenhum. */
@@ -68,11 +70,17 @@ function LoadingState({ loadingLabel }: { loadingLabel: string }): ReactElement 
   );
 }
 
-function EmptyState({ title, message, actionLabel, onAction }: EmptyStateProps): ReactElement {
+function EmptyState({
+  title,
+  message,
+  icon = 'document-text-outline',
+  actionLabel,
+  onAction,
+}: EmptyStateProps): ReactElement {
   return (
     <View testID="state-view-empty" style={styles.centered}>
       <StateIllustration
-        icon="document-text-outline"
+        icon={icon}
         title={title}
         message={message}
         titleGap={visual.titleGap}

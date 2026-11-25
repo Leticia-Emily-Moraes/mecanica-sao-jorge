@@ -4,6 +4,7 @@ import { useEffect } from 'react';
 
 import { MenuShell } from '@/components/menu/menu-shell';
 import { useAuth } from '@/hooks/use-auth';
+import { useMenuTabs } from '@/hooks/use-menu-tabs';
 
 /**
  * Casa pós-login (F33, US-MENU-01/08): guarda a sessão de novo aqui, no nível
@@ -15,6 +16,7 @@ import { useAuth } from '@/hooks/use-auth';
 export default function MenuLayout(): ReactElement | null {
   const { status } = useAuth();
   const router = useRouter();
+  const { selectedTab, showTabBar, selectTab } = useMenuTabs();
 
   useEffect(() => {
     if (status.tipo !== 'autenticado' && status.tipo !== 'carregando') {
@@ -27,7 +29,7 @@ export default function MenuLayout(): ReactElement | null {
   }
 
   return (
-    <MenuShell>
+    <MenuShell selectedTab={selectedTab} onSelectTab={selectTab} showTabBar={showTabBar}>
       <Slot />
     </MenuShell>
   );

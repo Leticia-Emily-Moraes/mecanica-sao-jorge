@@ -6,6 +6,7 @@ import {
   focusRingOffset,
   focusRingRadius,
   focusRingWidth,
+  iconSize,
   minTouchTarget,
   opacity,
   radius,
@@ -56,6 +57,11 @@ export const styles = StyleSheet.create({
   disabled: {
     opacity: opacity.disabled,
   },
+  content: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.s6,
+  },
   loadingRow: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -89,6 +95,12 @@ export const variantStyle = {
   outlineAccent: styles.outlineAccent,
 } as const;
 
+export const iconColorByVariant = {
+  primary: color.text.onPrimaryAction,
+  secondary: color.text.primary,
+  outlineAccent: color.text.error,
+} as const;
+
 export const labelColorByVariant = {
   primary: styles.labelPrimary,
   secondary: styles.labelSecondary,
@@ -98,4 +110,5 @@ export const labelColorByVariant = {
 export const visual = {
   spinnerOnPrimary: color.text.onPrimaryAction,
   spinnerOnOther: color.text.primary,
+  iconSize: iconSize.button,
 } as const;

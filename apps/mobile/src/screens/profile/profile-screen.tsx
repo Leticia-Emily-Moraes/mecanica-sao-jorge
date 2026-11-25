@@ -3,8 +3,8 @@ import type { ReactElement } from 'react';
 import { useEffect, useState } from 'react';
 
 import { describeAccessProfile } from '@/components/perfil/access-profile-badge';
-import { getInitials } from '@/components/perfil/avatar';
-import { InfoCard } from '@/components/perfil/info-card';
+import { getInitials } from '@/formatters/get-initials';
+import { InfoCard } from '@/components/ui/info-card';
 import { ProfileIdentity } from '@/components/perfil/profile-identity';
 import { Button } from '@/components/ui/button';
 import { ConfirmDialog } from '@/components/ui/confirm-dialog';

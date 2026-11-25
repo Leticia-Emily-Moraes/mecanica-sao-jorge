@@ -47,8 +47,22 @@ export const styles = StyleSheet.create({
     borderColor: color.border.focusField,
     paddingHorizontal: FIELD_PADDING,
   },
+  inputRowMultiline: {
+    height: size.textArea,
+    alignItems: 'flex-start',
+  },
   inputRowDisabled: {
     backgroundColor: color.surface.skeleton,
+  },
+  inputMultiline: {
+    textAlignVertical: 'top',
+    paddingTop: spacing.s10,
+  },
+  helper: {
+    marginTop: spacing.xs,
+    fontFamily: typography.caption.fontFamily,
+    fontSize: typography.caption.fontSize,
+    color: color.text.secondary,
   },
   input: {
     flex: 1,

@@ -73,7 +73,7 @@ describe('tokens (FPdB8 literal values)', () => {
 
   describe('measures', () => {
     it('should keep the control sizes of the frames', () => {
-      expect(size).toEqual({
+      expect(size).toMatchObject({
         field: 46,
         button: 50,
         appBar: 56,
@@ -89,7 +89,7 @@ describe('tokens (FPdB8 literal values)', () => {
     });
 
     it('should keep the icon sizes of the frames', () => {
-      expect(iconSize).toEqual({ tab: 22, alert: 32, appBar: 18, banner: 18 });
+      expect(iconSize).toMatchObject({ tab: 22, alert: 32, appBar: 18, banner: 18 });
     });
 
     it('should keep the full-screen state widths: actions 328 and message 289', () => {

@@ -24,7 +24,8 @@ function renderComProvedores(children: ReactNode): ReturnType<typeof render> {
 const mockReplace = jest.fn();
 const mockSlotRenderizado = jest.fn();
 jest.mock('expo-router', () => ({
-  useRouter: () => ({ replace: mockReplace }),
+  useRouter: () => ({ replace: mockReplace, navigate: jest.fn() }),
+  usePathname: () => '/inicio',
   Slot: () => {
     mockSlotRenderizado();
     return null;

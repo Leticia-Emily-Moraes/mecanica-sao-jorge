@@ -201,10 +201,14 @@ module.exports = {
       // Hook: orquestra serviço e estado; não conhece componente, texto nem estilo.
       files: ['src/hooks/**/*.{ts,tsx}'],
       excludedFiles: ['**/*.test.{ts,tsx}'],
-      rules: forbidImports(
-        ['@/components/*', '@/i18n/*', '@/theme/*'],
-        'Hook devolve estado tipado; a tela escolhe o texto e o estilo.',
-      ),
+      rules: {
+        ...forbidImports(
+          ['@/components/*', '@/i18n/*', '@/theme/*'],
+          'Hook devolve estado tipado; a tela escolhe o texto e o estilo.',
+        ),
+        // Hook lida com CPF e telefone em memória: nada disso pode ir para o log.
+        'no-console': 'error',
+      },
     },
     {
       // Serviço: TypeScript puro, sem React e sem log (token e dado pessoal passam por aqui).

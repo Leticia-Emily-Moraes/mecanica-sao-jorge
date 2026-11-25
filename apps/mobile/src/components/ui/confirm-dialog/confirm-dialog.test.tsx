@@ -1,5 +1,5 @@
 import { fireEvent, render, screen } from '@testing-library/react-native';
-import { StyleSheet } from 'react-native';
+import { Modal, StyleSheet } from 'react-native';
 
 import { findAncestorStyle } from '@/test-utils/find-ancestor-with-style';
 import type { TestStyle } from '@/test-utils/flat-style';
@@ -26,6 +26,51 @@ function renderDialog(overrides: { visible?: boolean; message?: string } = {}): 
   );
   return { onCancel, onConfirm };
 }
+
+describe('ConfirmDialog stacked', () => {
+  function renderEmpilhado(): { onCancel: jest.Mock; onConfirm: jest.Mock } {
+    const onCancel = jest.fn();
+    const onConfirm = jest.fn();
+    render(
+      <ConfirmDialog
+        visible
+        stacked
+        title="Descartar alterações?"
+        closeLabel="Fechar"
+        cancelLabel="Continuar editando"
+        confirmLabel="Descartar"
+        onCancel={onCancel}
+        onConfirm={onConfirm}
+      />,
+    );
+    return { onCancel, onConfirm };
+  }
+
+  it('should keep the safe action first and call each handler on its own button', () => {
+    const { onCancel, onConfirm } = renderEmpilhado();
+
+    // O X do padrão F38 vem antes das ações; entre elas, a segura fica primeiro.
+    const botoes = screen.getAllByRole('button');
+    expect(botoes.map((botao) => botao.props.accessibilityLabel)).toEqual([
+      'Fechar',
+      'Continuar editando',
+      'Descartar',
+    ]);
+    fireEvent.press(screen.getByRole('button', { name: 'Continuar editando' }));
+    fireEvent.press(screen.getByRole('button', { name: 'Descartar' }));
+    expect(onCancel).toHaveBeenCalledTimes(1);
+    expect(onConfirm).toHaveBeenCalledTimes(1);
+  });
+
+  it('should treat the system back as "keep editing", never as discard', () => {
+    const { onCancel, onConfirm } = renderEmpilhado();
+
+    fireEvent(screen.UNSAFE_getByType(Modal), 'requestClose');
+
+    expect(onCancel).toHaveBeenCalledTimes(1);
+    expect(onConfirm).not.toHaveBeenCalled();
+  });
+});
 
 describe('ConfirmDialog', () => {
   it('should expose the card as a modal assertive alert, as approved in F30', () => {

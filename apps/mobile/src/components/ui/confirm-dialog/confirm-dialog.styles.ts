@@ -36,6 +36,9 @@ export const styles = StyleSheet.create({
     flexDirection: 'row',
     gap: spacing.s10,
   },
+  actionsStacked: {
+    gap: spacing.s10,
+  },
   action: {
     flex: 1,
   },

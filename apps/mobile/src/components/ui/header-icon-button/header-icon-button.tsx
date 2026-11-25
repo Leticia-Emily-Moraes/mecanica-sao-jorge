@@ -2,6 +2,8 @@ import { Ionicons } from '@expo/vector-icons';
 import type { ComponentProps, ReactElement } from 'react';
 import { Pressable, View } from 'react-native';
 
+import { useFocusRing } from '@/theme/use-focus-ring';
+
 import { styles, visual } from './header-icon-button.styles';
 
 export type HeaderIconName = ComponentProps<typeof Ionicons>['name'];
@@ -22,13 +24,17 @@ export function HeaderIconButton({
   accessibilityLabel,
   onPress,
 }: HeaderIconButtonProps): ReactElement {
+  const { focusRingStyle, onFocus, onBlur } = useFocusRing({ onBrand: true });
+
   return (
     <Pressable
       accessibilityRole="button"
       accessibilityLabel={accessibilityLabel}
       hitSlop={visual.hitSlop}
       onPress={onPress}
-      style={styles.button}
+      onFocus={onFocus}
+      onBlur={onBlur}
+      style={[focusRingStyle, styles.button]}
     >
       <View accessibilityElementsHidden importantForAccessibility="no-hide-descendants">
         <Ionicons name={icon} size={visual.iconSize} color={visual.iconColor} />

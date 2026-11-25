@@ -1,4 +1,4 @@
-import { existsSync, readdirSync, statSync } from 'fs';
+import { existsSync, readFileSync, readdirSync, statSync } from 'fs';
 import { join } from 'path';
 
 const SRC = join(__dirname, '..');
@@ -48,7 +48,9 @@ describe('ui-structure (ADR-015)', () => {
   });
 
   it('should have a styles file next to the component when the folder renders UI', () => {
+    // Componente que só compõe outros (nenhuma prop `style` ou `*Style` no JSX) não tem estilo próprio.
     const missing = componentFolders
+      .filter(({ name, dir }) => /[sS]tyle=\{/.test(readFileSync(join(dir, `${name}.tsx`), 'utf8')))
       .filter(({ name, dir }) => !existsSync(join(dir, `${name}.styles.ts`)))
       .map(({ group, name }) => `${group}/${name}`);
 
