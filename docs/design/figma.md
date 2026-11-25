@@ -782,3 +782,13 @@ Sessão Figma `315e213e-428c-43cc-ac71-9022e1ca7134`, arquivo `FPdB8RymAnN81pbKf
 - **App:** 8 capturas do simulador iOS (iPhone 17, 402×874 pt) em `docs/design/f45-capturas/`, comparadas com `docs/design/f35-capturas/`.
 - **Resultado:** divergências PA-01 a PA-04 com especificação para a ORLA, cobertura de estados e lacunas de design em `docs/design/F45-auditoria-codigo-i18n-tokens-a11y.md`, seção 7.
 - **Não feito:** capturas de carregando, erro, diálogo de descarte e erro de campo no app; leitor de tela; teclado externo; 360×740 exato.
+
+#### F45 rodada 2 · Especificação das correções e revisão das capturas (2026-11-25, ESQUADRO, etapa 4 de 6)
+
+Sessão Figma `86f0a3f5-bb26-4238-8a5a-2d3522946e42`, arquivo `FPdB8RymAnN81pbKfizdzE`. **Somente leitura: nenhum nó foi criado, movido ou alterado.**
+
+- **Lido:** `get_metadata` de D6 `135:937` (362 × 742, x 60, y 8900). A resposta não informa a página-pai, então a correção de registro N-07 (página `20:2131`) vale pela leitura de 2026-11-20 e não foi reconfirmada.
+- **Não consegui:** `get_comments` foi negado por permissão, então não verifiquei se a F26 foi aprovada no Figma (continua "aguardando aprovação"). Também não fiz captura em 360 × 740, leitor de tela, teclado externo nem medição de contraste no app renderizado: sem `adb`, `idb`, AVD ou aparelho.
+- **Capturas versionadas:** as 8 do app em `docs/design/f45-capturas/` foram abertas e não têm dado pessoal real; a E1 mostra o CPF fictício completo `529.982.247-25`, que tem dígito válido (recomendação de trocar por valor inválido).
+- **Frames novos:** nenhum. As lacunas (criar preenchido, editar vazio, P-12, P-13) estão descritas na seção 6 da especificação e só devem ser desenhadas depois da aprovação da F26.
+- **Resultado:** `docs/design/F45-especificacao-design-correcoes-rodada-2.md` (FC-A a FC-E, roteiro de leitor de tela, protocolo 360 × 740, decisões pedidas ao PO).
