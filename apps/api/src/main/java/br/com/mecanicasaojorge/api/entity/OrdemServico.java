@@ -12,6 +12,8 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.OffsetDateTime;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -61,4 +63,11 @@ public class OrdemServico {
 
   @Column(name = "valor_total", nullable = false, precision = 10, scale = 2)
   private BigDecimal valorTotal;
+
+  /** Preenchida pelo banco (V11, ADR-038): a aplicacao so le. */
+  @Column(name = "data_abertura", nullable = false, insertable = false, updatable = false)
+  private OffsetDateTime dataAbertura;
+
+  @Column(name = "data_previsao_entrega")
+  private LocalDate dataPrevisaoEntrega;
 }

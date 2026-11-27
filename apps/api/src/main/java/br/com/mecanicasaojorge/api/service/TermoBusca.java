@@ -1,6 +1,8 @@
 package br.com.mecanicasaojorge.api.service;
 
 import java.text.Normalizer;
+import java.util.Locale;
+import java.util.regex.Pattern;
 
 /**
  * Termo de busca normalizado (ADR-017): texto literal, sem curinga. Funcao pura.
@@ -9,18 +11,21 @@ import java.text.Normalizer;
  *     null} quando nao ha termo
  * @param padraoTelefone padrao {@code like} so com digitos, ou {@code null} quando o termo nao e
  *     numerico (so digitos ASCII e simbolos de mascara, com ao menos um digito)
+ * @param padraoPlaca padrao {@code like} para placa: sem hifen nem espaco, em maiusculas, so {@code
+ *     [A-Z0-9]} (ate 10); {@code null} quando o termo nao tem forma de placa (ADR-037)
  * @param tamanho tamanho do termo depois de {@code strip} e NFC, antes do escape (campo {@code
  *     qLen} do log)
  */
-record TermoBusca(String padraoTexto, String padraoTelefone, int tamanho) {
+record TermoBusca(String padraoTexto, String padraoTelefone, String padraoPlaca, int tamanho) {
 
   private static final char ESCAPE = '!';
+  private static final Pattern FORMATO_PLACA = Pattern.compile("[A-Z0-9]{1,10}");
   private static final char ESPACO_NAO_SEPARAVEL = (char) 0xA0;
 
   /** Mascara de telefone aceita: parenteses, hifen, ponto, mais, espaco e espaco nao separavel. */
   private static final String SIMBOLOS_MASCARA = "()-.+ " + ESPACO_NAO_SEPARAVEL;
 
-  private static final TermoBusca SEM_TERMO = new TermoBusca(null, null, 0);
+  private static final TermoBusca SEM_TERMO = new TermoBusca(null, null, null, 0);
 
   static TermoBusca de(String bruto) {
     if (bruto == null) {
@@ -30,7 +35,23 @@ record TermoBusca(String padraoTexto, String padraoTelefone, int tamanho) {
     if (termo.isEmpty()) {
       return SEM_TERMO;
     }
-    return new TermoBusca(envolver(escapar(termo)), padraoTelefone(termo), termo.length());
+    return new TermoBusca(
+        envolver(escapar(termo)), padraoTelefone(termo), padraoPlaca(termo), termo.length());
+  }
+
+  /** Mostra so o tamanho: o termo pode ser nome de pessoa e nao pode ir a log (ADR-037). */
+  @Override
+  public String toString() {
+    return "TermoBusca[tamanho=" + tamanho + "]";
+  }
+
+  /**
+   * Placa e comparada sem hifen e espaco, em maiusculas. So {@code [A-Z0-9]} passa, entao o padrao
+   * nunca tem curinga e dispensa escape; qualquer outro caractere torna o padrao {@code null}.
+   */
+  private static String padraoPlaca(String termo) {
+    String candidata = termo.replace("-", "").replaceAll("\\s", "").toUpperCase(Locale.ROOT);
+    return FORMATO_PLACA.matcher(candidata).matches() ? envolver(candidata) : null;
   }
 
   boolean semTermo() {

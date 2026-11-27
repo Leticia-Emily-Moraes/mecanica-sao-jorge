@@ -145,4 +145,34 @@ class TermoBuscaTest {
   void shouldMeasureTermLengthAfterTrimAndBeforeEscape() {
     assertThat(TermoBusca.de(" 100% ").tamanho()).isEqualTo(4);
   }
+
+  @ParameterizedTest
+  @CsvSource({
+    "abc-1d23, %ABC1D23%",
+    "' ABC 1D23 ', %ABC1D23%",
+    "abc-12, %ABC12%",
+    "ABC1234, %ABC1234%"
+  })
+  void shouldNormalizePlateWhenTermHasHyphenSpaceOrLowerCase(String bruto, String esperado) {
+    assertThat(TermoBusca.de(bruto).padraoPlaca()).isEqualTo(esperado);
+  }
+
+  @ParameterizedTest
+  @ValueSource(strings = {"-", "José", "%", "_", "abc!1", "ABCDEFGHIJK", "' OR '1'='1"})
+  void shouldHaveNoPlatePatternWhenTermIsNotPlateShaped(String bruto) {
+    assertThat(TermoBusca.de(bruto).padraoPlaca()).isNull();
+  }
+
+  @Test
+  void shouldHaveNoPlatePatternWhenThereIsNoTerm() {
+    assertThat(TermoBusca.de(null).padraoPlaca()).isNull();
+  }
+
+  @Test
+  void shouldNotExposeTermInToString() {
+    TermoBusca termo = TermoBusca.de("Maria Souza ABC1234");
+
+    assertThat(termo.toString()).isEqualTo("TermoBusca[tamanho=19]");
+    assertThat(termo.toString()).doesNotContain("Maria", "ABC1234");
+  }
 }
