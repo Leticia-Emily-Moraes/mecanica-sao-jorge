@@ -348,8 +348,7 @@ class PecaListagemIT {
             .expiresAt(expiraEm)
             .build();
     return new NimbusJwtEncoder(new ImmutableSecret<>(chave))
-        .encode(
-            JwtEncoderParameters.from(JwsHeader.with(MacAlgorithm.HS256).build(), claims))
+        .encode(JwtEncoderParameters.from(JwsHeader.with(MacAlgorithm.HS256).build(), claims))
         .getTokenValue();
   }
 
