@@ -428,7 +428,7 @@ class ClienteCriarIT {
                 + "TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'clientes' ORDER BY CONSTRAINT_NAME",
             String.class);
 
-    assertThat(versoes).containsExactly("1", "2", "3", "4", "5", "6", "7", "8");
+    assertThat(versoes).containsExactly("1", "2", "3", "4", "5", "6", "7", "8", "9", "10");
     assertThat(restricoes)
         .contains(
             "ck_clientes_cpf_digitos",

@@ -27,6 +27,9 @@ public class Servico {
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
 
+  @Column(nullable = false, length = 150)
+  private String nome;
+
   @Column(name = "valor_padrao_mao_obra", nullable = false, precision = 10, scale = 2)
   private BigDecimal valorPadraoMaoObra;
 

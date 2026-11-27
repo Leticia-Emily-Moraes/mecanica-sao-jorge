@@ -776,7 +776,7 @@ class VeiculoIT {
             String.class);
     inserirVeiculo(clienteId, PLACA);
 
-    assertThat(versoes).containsExactly("1", "2", "3", "4", "5", "6", "7", "8");
+    assertThat(versoes).containsExactly("1", "2", "3", "4", "5", "6", "7", "8", "9", "10");
     assertThat(
             jdbcTemplate.queryForList(
                 "SELECT CONSTRAINT_NAME FROM information_schema.TABLE_CONSTRAINTS WHERE "
