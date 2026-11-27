@@ -140,8 +140,7 @@ class PecaListagemIT {
     inserir("igual", "A-2", 10, 5);
     inserir("IGUAL", "A-3", 10, 5);
 
-    String json =
-        listar("").andReturn().getResponse().getContentAsString();
+    String json = listar("").andReturn().getResponse().getContentAsString();
     assertThat(JsonPath.<List<String>>read(json, "$.itens[*].codigo"))
         .containsExactly("A-1", "A-2", "A-3");
   }
@@ -169,9 +168,7 @@ class PecaListagemIT {
   @Test
   void shouldReturnBadRequestWhenParametersAreInvalid() throws Exception {
     for (String[] par :
-        new String[][] {
-          {"size", "0"}, {"size", "101"}, {"page", "-1"}, {"q", "x".repeat(101)}
-        }) {
+        new String[][] {{"size", "0"}, {"size", "101"}, {"page", "-1"}, {"q", "x".repeat(101)}}) {
       mockMvc
           .perform(get(URL).param(par[0], par[1]).with(jwt()))
           .andExpect(status().isBadRequest())
@@ -357,7 +354,8 @@ class PecaListagemIT {
   }
 
   private ListAssert<String> nomes(String q) throws Exception {
-    String json = listar(q).andExpect(status().isOk()).andReturn().getResponse().getContentAsString();
+    String json =
+        listar(q).andExpect(status().isOk()).andReturn().getResponse().getContentAsString();
     return assertThat(JsonPath.<List<String>>read(json, "$.itens[*].nome"));
   }
 
