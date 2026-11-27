@@ -47,15 +47,10 @@ class ServicoNomeMigrationIT {
     jdbc.update("INSERT INTO servicos (valor_padrao_mao_obra, ativo) VALUES (30.00, FALSE)");
     List<Long> ids = jdbc.queryForList("SELECT id FROM servicos ORDER BY id", Long.class);
 
-    Flyway.configure()
-        .dataSource(dataSource)
-        .locations("classpath:db/migration")
-        .load()
-        .migrate();
+    Flyway.configure().dataSource(dataSource).locations("classpath:db/migration").load().migrate();
 
     assertThat(jdbc.queryForList("SELECT nome FROM servicos ORDER BY id", String.class))
-        .containsExactly(
-            "Servico sem nome #" + ids.get(0), "Servico sem nome #" + ids.get(1));
+        .containsExactly("Servico sem nome #" + ids.get(0), "Servico sem nome #" + ids.get(1));
     assertThat(
             jdbc.queryForMap(
                 "SELECT COLUMN_TYPE AS tipo, IS_NULLABLE AS nulo, COLLATION_NAME AS colacao "
