@@ -801,3 +801,7 @@ Sessão Figma `da323728-dbb7-408b-860a-a43c4422b53c`, arquivo `FPdB8RymAnN81pbKf
 - **Não li:** estrutura de V4 `109:2723`; `get_design_context` (não usado, falhou antes); `get_comments` (negado antes), então a aprovação da F26 segue como "aguardando".
 - **Capturas versionadas:** `docs/design/f45-capturas/figma-f26-L4-carregando-109-2402.png`, `figma-f26-L5-erro-109-2453.png`, `figma-f26-X2-descartar-119-976.png` (só frames do Figma, sem dado pessoal real).
 - **Resultado:** PA-05 (posição do bloco de erro) e PA-06 (X de fechar do diálogo) em `docs/design/F45-conferencia-paridade-rodada-3.md`.
+
+### F27 · Protótipo de alta fidelidade de Catálogo e Estoque (2026-11-24, ESQUADRO)
+
+Seção nova `191:4113` na página `20:2132` do arquivo de referência `FPdB8RymAnN81pbKfizdzE`: 36 frames de alta fidelidade (Serviços S1 a S13, Peças P1 a P11, Histórico P12 a P15 e Movimentação M1 a M8), fluxo iniciado em S3 (`197:4263`). Cada frame tem a camada de foco por controle e a anotação de acessibilidade. 7 componentes novos (justificados no documento) e edições em componentes compartilhados (Campo de texto/Erro, cabeçalhos `20:1592` e `20:1516`, Seletor segmentado, Busca `20:1532`). **Aguardando aprovação; a F39 ainda não está aprovada e a F36 não deve começar sem a aprovação da pessoa.** Detalhe, ids, premissas e o que não foi verificado: `docs/design/F27-prototipo-catalogo-estoque.md`.
