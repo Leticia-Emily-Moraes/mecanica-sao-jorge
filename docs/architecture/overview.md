@@ -68,6 +68,8 @@ ADR-014 foi trazido de `docs/f39-wireframe-redesenho` (`18efb4e`) pela branch `d
 
 Os ADR-029 a ADR-031 (F35) foram numerados depois de conferir os nomes de ADR no histórico de todos os ramos locais em 2026-11-19.
 
+**Números ADR-041 a ADR-043 não usados (2026-11-25, F45).** A rodada 1 da F45 propôs três ADRs (vínculo do D-C, máscara de CPF na tela e limite de tamanho das capturas) que nunca foram gravados. Foram retirados na rodada 2: nenhum passa no critério de ADR (o D-C é decisão de produto e LGPD; o tamanho de captura é higiene do repositório). Os números 041 a 043 não serão usados, para não ganharem outro sentido; 032 a 040 já existem em ramos da Sprint 03 e 04. O próximo número livre é conferido com `git log --all` antes de cada ADR novo.
+
 > Nota de materialização: a F00 referenciou ADR-004/006/010/011 em código mas
 > não gravou os arquivos (ver `README.md`). Esta entrega da F02 materializa todo
 > o conjunto, mantendo os números que o código já cita, e backfilla as decisões
@@ -574,6 +576,9 @@ dele.
 10. **Tarefa 2 da F04 pede `existsByPlaca` e `existsByPlacaAndIdNot`; o repositório não tem** (2026-11-19). A unicidade é garantida só pelo índice `uk_veiculos_placa` da V7, com tradução no `gravar` (ADR-022, opções B e C descartadas pela corrida). O `UPDATE` da própria linha com a mesma placa não viola o índice, então o PUT não precisa se excluir.
 11. **Pacote `exception` importa `dto` para o 400 de tipo do `ano`** (2026-11-19). O mapa fixo `VeiculoRequest.class` para `ano` e `VeiculoChaves.ANO_TIPO` fica no `GlobalExceptionHandler` (ADR-028), porque a lista fixa no código é condição do VIGIA (Y1). O ADR-001 não proíbe essa dependência, mas até aqui o handler não conhecia DTO. Campo novo com regra de tipo exige editar o mapa e o ADR-028.
 12. **Caracteres de controle em marca, modelo e cor** (achado Y3 da política rev 8, 2026-11-19). O `strip()` do ADR-024 apara só as pontas; caracteres de controle no meio passam. Vai para o backlog técnico (validação comum de texto livre para cliente e veículo), sem bloquear a F04.
+13. **Nome do esquema de segurança no OpenAPI** (F45, 2026-11-25, ARQ-10). O ADR-002, linha 44, cita `bearer-jwt`; o código usa `bearerAuth` (`OpenApiConfig.java:14`). A decisão (springdoc com esquema Bearer do ADR-004) não muda, e o ADR-002 é aceito e imutável. Vale o nome do código; quem citar o esquema usa `OpenApiConfig.BEARER_AUTH`.
+14. **ADR-015 a 031 `Proposto` com o código já na `main`** (F45, 2026-11-25, ARQ-14). A regra da casa diz que nenhuma feature que depende de ADR começa com `Proposto`; o código das F03b a F04 e da F35 está na `main` (`00f3236`). Aceite ou rejeição de cada um é da pessoa dona do produto, com registro de data nesta tabela, até 2026-11-30. Enquanto não houver aceite, a F-API-5 (409 de cliente com `erros[]`) não começa.
+15. **Código da F35 entrou na `main` por PR de documentação** (F45, 2026-11-25, ARQ-15). A #36 (`feat/f35-front-clientes-veiculos`) foi mesclada em `docs/f35-cartografo-adrs`, que entrou na `main` pela #34. Fica como ressalva do PO; os próximos ramos de feature abrem PR contra a `main`. Detalhe em `F45-conformidade-adr-clientes-veiculos.md`.
 
 ## Sem Springfox
 
