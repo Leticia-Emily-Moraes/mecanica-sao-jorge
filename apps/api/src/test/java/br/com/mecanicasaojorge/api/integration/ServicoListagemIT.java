@@ -90,8 +90,8 @@ class ServicoListagemIT {
     inserir("Troca de pastilhas", true);
 
     nomes("troca").containsExactly("Troca de Óleo", "Troca de pastilhas");
-    nomes("").containsExactly(
-        "Alinhamento", "Revisão de freios", "Troca de Óleo", "Troca de pastilhas");
+    nomes("")
+        .containsExactly("Alinhamento", "Revisão de freios", "Troca de Óleo", "Troca de pastilhas");
   }
 
   @Test
@@ -186,7 +186,10 @@ class ServicoListagemIT {
     }
     mockMvc
         .perform(
-            get(URL).param("ativo", "true").param("page", "21474837").param("size", "100")
+            get(URL)
+                .param("ativo", "true")
+                .param("page", "21474837")
+                .param("size", "100")
                 .with(jwt()))
         .andExpect(jsonPath("$.itens").isEmpty())
         .andExpect(jsonPath("$.totalItens").value(1));
@@ -220,7 +223,8 @@ class ServicoListagemIT {
             .getResponse()
             .getContentAsString();
 
-    assertThat(JsonPath.<List<String>>read(json, "$.itens[*].nome")).containsExactly("Troca de óleo");
+    assertThat(JsonPath.<List<String>>read(json, "$.itens[*].nome"))
+        .containsExactly("Troca de óleo");
   }
 
   /** Confirma a suposicao do ADR-032 sobre o conversor padrao do Spring para {@code ativo}. */
@@ -329,8 +333,7 @@ class ServicoListagemIT {
   }
 
   private ListAssert<String> nomesDe(ResultActions acao) throws Exception {
-    String json =
-        acao.andExpect(status().isOk()).andReturn().getResponse().getContentAsString();
+    String json = acao.andExpect(status().isOk()).andReturn().getResponse().getContentAsString();
     return assertThat(JsonPath.<List<String>>read(json, "$.itens[*].nome"));
   }
 

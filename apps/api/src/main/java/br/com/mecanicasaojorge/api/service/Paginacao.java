@@ -18,11 +18,10 @@ final class Paginacao {
 
   /**
    * O Spring Data lanca excecao quando {@code page * size} passa de {@link Integer#MAX_VALUE}
-   * (offset convertido para int). Alem desse ponto nao existe item, entao a consulta roda so para
-   * o total, com uma pagina de 1 item, e a pagina pedida volta vazia (ADR-017, O3).
+   * (offset convertido para int). Alem desse ponto nao existe item, entao a consulta roda so para o
+   * total, com uma pagina de 1 item, e a pagina pedida volta vazia (ADR-017, O3).
    */
-  static <E> Page<E> paginar(
-      int page, int size, Sort ordem, Function<Pageable, Page<E>> consulta) {
+  static <E> Page<E> paginar(int page, int size, Sort ordem, Function<Pageable, Page<E>> consulta) {
     if ((long) page * size > Integer.MAX_VALUE) {
       long total = consulta.apply(PageRequest.of(0, 1, ordem)).getTotalElements();
       return new PageImpl<>(List.of(), PageRequest.of(page, size, ordem), total);

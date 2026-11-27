@@ -15,8 +15,8 @@ import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
 /**
- * Prova a V10 (ADR-036) com linha ja existente: Flyway ate a V9, insere pecas, migra ate o fim.
- * Sem contexto Spring, so Flyway e MySQL real.
+ * Prova a V10 (ADR-036) com linha ja existente: Flyway ate a V9, insere pecas, migra ate o fim. Sem
+ * contexto Spring, so Flyway e MySQL real.
  */
 @Testcontainers
 class PecaNomeMigrationIT {
@@ -52,11 +52,7 @@ class PecaNomeMigrationIT {
             + "ativo) VALUES ('PF-200', 20.00, 45.00, 6, 5, TRUE)");
     List<Long> ids = jdbc.queryForList("SELECT id FROM pecas ORDER BY id", Long.class);
 
-    Flyway.configure()
-        .dataSource(dataSource)
-        .locations("classpath:db/migration")
-        .load()
-        .migrate();
+    Flyway.configure().dataSource(dataSource).locations("classpath:db/migration").load().migrate();
 
     assertThat(jdbc.queryForList("SELECT nome FROM pecas ORDER BY id", String.class))
         .containsExactly("Peca sem nome #" + ids.get(0), "Peca sem nome #" + ids.get(1));
