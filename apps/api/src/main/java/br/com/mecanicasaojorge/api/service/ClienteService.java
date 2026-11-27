@@ -10,7 +10,6 @@ import br.com.mecanicasaojorge.api.exception.CpfJaCadastradoException;
 import br.com.mecanicasaojorge.api.exception.EmailJaCadastradoException;
 import br.com.mecanicasaojorge.api.mapper.ClienteMapper;
 import br.com.mecanicasaojorge.api.repository.ClienteRepository;
-import java.util.List;
 import java.util.Locale;
 import org.hibernate.exception.ConstraintViolationException;
 import org.slf4j.Logger;
