@@ -14,7 +14,11 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.read.ListAppender;
+import com.nimbusds.jose.jwk.source.ImmutableSecret;
+import java.nio.charset.StandardCharsets;
+import java.time.Instant;
 import java.util.List;
+import javax.crypto.spec.SecretKeySpec;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -24,6 +28,11 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.security.oauth2.jose.jws.MacAlgorithm;
+import org.springframework.security.oauth2.jwt.JwsHeader;
+import org.springframework.security.oauth2.jwt.JwtClaimsSet;
+import org.springframework.security.oauth2.jwt.JwtEncoderParameters;
+import org.springframework.security.oauth2.jwt.NimbusJwtEncoder;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
@@ -44,6 +53,7 @@ class ClienteDetalheIT {
   private static final String URL = "/api/v1/clientes";
   private static final String CPF = "12345678900";
   private static final String TELEFONE = "11912345678";
+  private static final String SEGREDO_IT = "it-test-secret-nao-usar-em-producao-0123456789";
 
   @Container
   static final MySQLContainer<?> MYSQL =
@@ -57,7 +67,7 @@ class ClienteDetalheIT {
     registry.add("spring.datasource.url", MYSQL::getJdbcUrl);
     registry.add("spring.datasource.username", MYSQL::getUsername);
     registry.add("spring.datasource.password", MYSQL::getPassword);
-    registry.add("jwt.secret", () -> "it-test-secret-nao-usar-em-producao-0123456789");
+    registry.add("jwt.secret", () -> SEGREDO_IT);
   }
 
   @Autowired private MockMvc mockMvc;
@@ -265,6 +275,67 @@ class ClienteDetalheIT {
             String.class);
 
     assertThat(colunas).containsExactly("cpf:YES:varchar(11)", "endereco:YES:varchar(255)");
+  }
+
+  @Test
+  void shouldReturn200WithOnlyNameWhenClientIsAnonymized() throws Exception {
+    long id = inserir("Cliente anonimizado", null, null, null, null);
+
+    mockMvc
+        .perform(get(URL + "/" + id).with(jwt()))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.id").value(id))
+        .andExpect(jsonPath("$.nome").value("Cliente anonimizado"))
+        .andExpect(jsonPath("$.cpf").value(nullValue()))
+        .andExpect(jsonPath("$.telefone").value(nullValue()))
+        .andExpect(jsonPath("$.email").value(nullValue()))
+        .andExpect(jsonPath("$.endereco").value(nullValue()))
+        .andExpect(jsonPath("$.length()").value(6));
+  }
+
+  @Test
+  void shouldReturn401WithoutPersonalDataWhenTokenIsExpired() throws Exception {
+    long id = inserir("Ana Exemplo", TELEFONE, null, CPF, null);
+    Instant agora = Instant.now();
+    String token = tokenHs256(agora.minusSeconds(3600), agora.minusSeconds(600));
+
+    String corpo =
+        mockMvc
+            .perform(get(URL + "/" + id).header("Authorization", "Bearer " + token))
+            .andExpect(status().isUnauthorized())
+            .andExpect(jsonPath("$.status").value(401))
+            .andExpect(jsonPath("$.path").value(URL + "/" + id))
+            .andReturn()
+            .getResponse()
+            .getContentAsString();
+
+    assertThat(corpo).doesNotContain(CPF, "Ana", "Exception", "at br.com");
+    assertThat(logs.list).noneMatch(e -> e.getFormattedMessage().startsWith("clientes.detalhar"));
+  }
+
+  @Test
+  void shouldDocumentGetClienteByIdWith200And400And401And404And500InOpenApi() throws Exception {
+    String respostas = "$.paths['/api/v1/clientes/{id}'].get.responses";
+
+    mockMvc
+        .perform(get("/v3/api-docs"))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath(respostas + "['200']").exists())
+        .andExpect(jsonPath(respostas + "['400']").exists())
+        .andExpect(jsonPath(respostas + "['401']").exists())
+        .andExpect(jsonPath(respostas + "['404']").exists())
+        .andExpect(jsonPath(respostas + "['500']").exists())
+        .andExpect(jsonPath("$.paths['/api/v1/clientes/{id}'].get.security").isNotEmpty());
+  }
+
+  private static String tokenHs256(Instant emitidoEm, Instant expiraEm) {
+    SecretKeySpec chave =
+        new SecretKeySpec(SEGREDO_IT.getBytes(StandardCharsets.UTF_8), "HmacSHA256");
+    NimbusJwtEncoder encoder = new NimbusJwtEncoder(new ImmutableSecret<>(chave));
+    JwtClaimsSet claims =
+        JwtClaimsSet.builder().subject("1").issuedAt(emitidoEm).expiresAt(expiraEm).build();
+    JwsHeader cabecalho = JwsHeader.with(MacAlgorithm.HS256).build();
+    return encoder.encode(JwtEncoderParameters.from(cabecalho, claims)).getTokenValue();
   }
 
   private long inserir(String nome, String telefone, String email, String cpf, String endereco) {
