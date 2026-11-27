@@ -11,8 +11,8 @@ import org.springframework.data.repository.query.Param;
 public interface ServicoRepository extends JpaRepository<Servico, Long> {
 
   /**
-   * Busca por trecho de nome, com filtro opcional de ativo, numa consulta so para todos os casos.
-   * O padrao chega pronto do service, com {@code %} nas pontas e {@code !} como escape. Sem {@code
+   * Busca por trecho de nome, com filtro opcional de ativo, numa consulta so para todos os casos. O
+   * padrao chega pronto do service, com {@code %} nas pontas e {@code !} como escape. Sem {@code
    * lower()}/{@code upper()}: a insensibilidade a acento e caixa vem da collation da coluna (V9).
    *
    * @param texto padrao {@code like} para o nome, ou {@code null} para nao filtrar por nome
