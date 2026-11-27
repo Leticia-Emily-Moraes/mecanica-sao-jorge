@@ -165,29 +165,61 @@ Entregue na F17 (listagem): `PecaController`, `PecaService` (classe concreta, se
 
 Exige JWT. Parâmetros: `q` (opcional, até 100 caracteres, aparado; trecho de `nome` ou `codigo`, sem diferenciar caixa e acento; `%`, `_` e `!` valem como texto), `page` (base 0, padrão 0, mínimo 0), `size` (padrão 20, de 1 a 100). Ordem por `nome` e depois `id`. Não filtra por `ativo`. Página além do fim devolve 200 com `itens` vazio e o total real.
 
+Exemplos abaixo: respostas reais do `GET /api/v1/pecas` rodando contra MySQL 8.4 (Testcontainers), com duas peças inseridas ("Filtro de óleo", `FO-100`, estoque 5, mínimo 5; "Pastilha de freio", `PF-200`, estoque 10, mínimo 5). Capturadas em 2026-11-24 com um IT temporário, já removido; o JSON foi só reformatado. Só o `timestamp` varia a cada chamada.
+
+Requisição:
+
+```http
+GET /api/v1/pecas?page=0&size=20 HTTP/1.1
+Authorization: Bearer <token>
+```
+
 Resposta 200 (envelope do ADR-017):
 
 ```json
 {
   "itens": [
     {
-      "id": 3,
+      "id": 1,
       "nome": "Filtro de óleo",
       "codigo": "FO-100",
       "precoVenda": 25.00,
       "quantidadeEstoque": 5,
       "estoqueMinimo": 5,
       "estoqueBaixo": true
+    },
+    {
+      "id": 2,
+      "nome": "Pastilha de freio",
+      "codigo": "PF-200",
+      "precoVenda": 25.00,
+      "quantidadeEstoque": 10,
+      "estoqueMinimo": 5,
+      "estoqueBaixo": false
     }
   ],
   "pagina": 0,
   "tamanho": 20,
-  "totalItens": 1,
+  "totalItens": 2,
   "totalPaginas": 1
 }
 ```
 
-`estoqueBaixo` = `quantidadeEstoque <= estoqueMinimo`, calculado a cada requisição e nunca gravado. O item não traz `custo` nem `ativo`. Erros no formato padrão (`timestamp`, `status`, `erro`, `mensagem`, `path`): 400 (`Parametro invalido: <nome>`), 401 e 500 (`Erro interno inesperado`, sem stack trace).
+`estoqueBaixo` = `quantidadeEstoque <= estoqueMinimo`, calculado a cada requisição e nunca gravado. O item não traz `custo` nem `ativo`.
+
+Com `?q=pf-2` a resposta traz só a segunda peça (`totalItens` 1). Sem correspondência, vem `"itens": []` e `"totalItens": 0`, com status 200.
+
+Erros, todos no formato padrão (`timestamp`, `status`, `erro`, `mensagem`, `path`):
+
+| Status | Quando | Requisição | Corpo real |
+|---|---|---|---|
+| 400 | `size` fora de 1–100, `page` negativo ou não numérico ou acima do limite de `int`, `q` com mais de 100 caracteres | `GET /api/v1/pecas?size=101` | `{"timestamp":"2026-11-24T12:31:59.04266-03:00","status":400,"erro":"Bad Request","mensagem":"Parametro invalido: size","path":"/api/v1/pecas"}` |
+| 401 | sem token ou com token inválido | `GET /api/v1/pecas` sem `Authorization` | `{"timestamp":"2026-11-24T12:31:59.056578-03:00","status":401,"erro":"Unauthorized","mensagem":"Nao autenticado","path":"/api/v1/pecas"}` |
+| 500 | falha na consulta | `GET /api/v1/pecas` com falha de banco simulada | `{"timestamp":"2026-11-24T12:31:59.087169-03:00","status":500,"erro":"Internal Server Error","mensagem":"Erro interno inesperado","path":"/api/v1/pecas"}` |
+
+A mensagem do 400 nomeia o parâmetro (`size`, `page` ou `q`) e nunca repete o valor enviado. O 500 não traz stack trace nem texto do banco; ambos são conferidos no `PecaListagemIT`.
+
+Não verificado: o 401 de um token presente mas inválido (assinatura errada, expirado). O IT só exercita a requisição sem token.
 
 Correspondência com os critérios da F17: `content` = `itens`, `totalElements` = `totalItens`, `totalPages` = `totalPaginas`.
 
